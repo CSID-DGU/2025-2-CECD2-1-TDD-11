@@ -2,7 +2,7 @@
 name: AI 관련 이슈
 about: AI 모델, 데이터 처리, 추천 시스템 등 AI 관련 작업
 title: '[AI] '
-labels: ['ai']
+labels: ['platform:ai']
 assignees: ''
 ---
 

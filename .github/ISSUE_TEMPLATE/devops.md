@@ -2,7 +2,7 @@
 name: DEVOPS 관련 이슈
 about: 배포, 운영, 인프라, CI/CD 등 DevOps 전반 작업
 title: '[DEVOPS] '
-labels: ['devops']
+labels: ['platform:devops']
 assignees: ''
 ---
 

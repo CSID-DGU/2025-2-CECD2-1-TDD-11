@@ -2,7 +2,7 @@
 name: WEB 관련 이슈
 about: 웹 프론트엔드 개발 관련 작업
 title: '[WEB] '
-labels: ['web']
+labels: ['platform:web']
 assignees: ''
 ---
 

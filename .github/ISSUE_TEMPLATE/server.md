@@ -2,7 +2,7 @@
 name: SERVER 관련 이슈
 about: 백엔드 서버, API, 데이터베이스 관련 작업
 title: '[SERVER] '
-labels: ['server']
+labels: ['platform:server']
 assignees: ''
 ---
 

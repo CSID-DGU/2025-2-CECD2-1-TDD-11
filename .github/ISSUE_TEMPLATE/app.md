@@ -2,7 +2,7 @@
 name: APP 관련 이슈
 about: 모바일 앱 개발 관련 작업 (iOS/Android)
 title: '[APP] '
-labels: ['app']
+labels: ['platform:app']
 assignees: ''
 ---
 
