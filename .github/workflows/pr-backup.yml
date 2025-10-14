@@ -1,0 +1,42 @@
+name: Auto Backup Branch on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          
+      - name: Create backup branch
+        run: |
+          DATE=$(date +%Y%m%d-%H%M%S)
+          BACKUP_BRANCH="backup/main-$DATE"
+          git checkout -b $BACKUP_BRANCH
+          git push origin $BACKUP_BRANCH
+          echo "Created backup branch: $BACKUP_BRANCH"
+          
+      - name: Clean old backup branches
+        run: |
+          # 백업 브랜치 목록 가져오기 (날짜순 정렬)
+          git branch -r | grep "origin/backup/main-" | sed 's/origin\///' | sort -r > backup_branches.txt
+          
+          # 5개 초과시 오래된 브랜치 삭제
+          BRANCH_COUNT=$(wc -l < backup_branches.txt)
+          if [ $BRANCH_COUNT -gt 5 ]; then
+            tail -n +6 backup_branches.txt | while read branch; do
+              echo "Deleting old backup branch: $branch"
+              git push origin --delete $branch
+            done
+          fi
