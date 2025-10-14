@@ -19,13 +19,22 @@
 
 ## 예시
 ```
-feat: 플레이어 점프 기능 추가
+feat: 사용자 로그인 기능 추가
 
-fix: 적 AI 충돌 감지 오류 수정
+fix:  검색 시 null 에러 수정
 
-refactor: 게임 매니저 코드 정리
+refactor: 사용자 인증 로직 모듈화
 
-docs: README 게임 조작법 추가
+style: 코드 들여쓰기 및 세미콜론 정리
+
+docs:  API 문서에 인증 방법 추가
+
+test: 책 추가 기능 단위 테스트 작성
+
+chore: 프로젝트 초기 설정 및 의존성 설치
+
+config: Docker 컨테이너 메모리 설정 변경
+
 ```
 
 ## 규칙
