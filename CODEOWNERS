@@ -1,1 +1,13 @@
-* @CSID-DGU/tdd
+# 전체 기본 리뷰어
+# * @CSID-DGU/tdd
+
+# 실제 프로젝트 폴더 기반 리뷰어 할당
+app/** @emjayMJkim
+web/** @bianbbc87
+server/** @bianbbc87 @jiminw00
+ai/** @rubyLee18 @jiminw00
+deploy/** @bianbbc87
+monitoring/** @bianbbc87
+
+# GitHub 관련 파일
+.github/** @CSID-DGU/tdd
