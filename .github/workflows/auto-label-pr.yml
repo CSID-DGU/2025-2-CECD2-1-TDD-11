@@ -1,0 +1,61 @@
+name: Auto Label PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add labels based on changed files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            
+            const labels = new Set();
+            
+            files.forEach(file => {
+              const path = file.filename;
+              
+              if (path.startsWith('web/')) {
+                labels.add('platform:web');
+              }
+              if (path.startsWith('app/')) {
+                labels.add('platform:app');
+              }
+              if (path.startsWith('server/')) {
+                labels.add('platform:server');
+              }
+              if (path.startsWith('ai/')) {
+                labels.add('platform:ai');
+              }
+              if (path.startsWith('deploy/') || path.startsWith('monitoring/') || path.startsWith('.github/')) {
+                labels.add('platform:devops');
+              }
+              
+              // 파일 타입별 라벨
+              if (path.endsWith('.md')) {
+                labels.add('type:docs');
+              }
+              if (path.includes('test') || path.includes('spec')) {
+                labels.add('type:test');
+              }
+              if (path.endsWith('.yml') || path.endsWith('.yaml') || path.includes('Dockerfile')) {
+                labels.add('type:config');
+              }
+            });
+            
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: Array.from(labels)
+              });
+            }
