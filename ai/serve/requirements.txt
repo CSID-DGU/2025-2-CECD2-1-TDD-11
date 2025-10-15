@@ -1,0 +1,14 @@
+promptflow
+promptflow[azure]
+promptflow-tools
+python-dotenv
+
+fastapi
+uvicorn
+pydantic
+
+openai
+
+jose
+python-jose
+starlette
