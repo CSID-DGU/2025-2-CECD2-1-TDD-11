@@ -1,133 +1,170 @@
 # Interview Chat V2 API
 
-메트릭 기반 체계적 질문 생성 시스템
+소재 매칭 기반 체계적 질문 생성 시스템
 
-## 아키텍처 개요
+## Redis 세션 기반 아키텍처
 
 ```
 [백엔드] --session/start-----> [AI 서버]
-      (categories + metrics)    ↓
-                           [메모리에 metrics 저장]
+      (sessionId + metrics)     ↓
+                           [Redis에 세션 생성]
+                                ↓
+                           [Legacy 엔진 초기화]
                                 ↓
 [백엔드] <--first_question----- [AI 서버]
-    ↓
-  [DB에 metrics 저장]
 
 [백엔드] --interview-chat----> [AI 서버]
-      (question, answer)        ↓
-                           [메모리에서 metrics 로드]
+      (sessionId + answer)      ↓
+                           [Redis에서 세션 로드]
                                 ↓
-                           [metrics 업데이트]
+                           [엔진 상태 복원]
                                 ↓
-                           [pool 업데이트]
+                           [답변 분석 + 메트릭 업데이트]
+                                ↓
+                           [소재 선택 + 질문 생성]
+                                ↓
+                           [Redis에 상태 저장]
                                 ↓
 [백엔드] <--next_question------ [AI 서버]
-
-[백엔드] --session/end-------> [AI 서버]
-                                ↓
-                           [메모리에서 metrics 조회]
-                                ↓
-[백엔드] <--final_metrics----- [AI 서버]
-         <--pool_to_save-------
-    ↓
-  [DB에 최종 저장]
 ```
+
+### 주요 변경사항
+- **Redis 세션 관리**: 대화 상태를 Redis에 저장하여 TTL 1시간 지속성 보장
+- **단일 노드 플로우**: 복잡한 노드 체인을 하나로 통합
+- **Legacy 알고리즘 통합**: 기존 질문 생성 알고리즘 완전 통합
 
 ## 엔드포인트
 
-### 1. 세션 시작
+### 1. 세션 시작 (Redis 세션 생성)
 `POST /api/v2/interviews/session/start`
 
-### 2. 대화 진행
+### 2. 대화 진행 (Redis 기반 상태 관리)
 `POST /api/v2/interviews/interview-chat`
 
-### 3. 세션 종료
+### 3. 세션 종료 (최종 메트릭 수집)
 `POST /api/v2/interviews/session/end`
 
 ## 세션 시작 요청 예시
 
+### 새 세션 시작
+```json
+{
+  "sessionId": "sess-001"
+}
+```
+
+### 선호 카테고리 지정
 ```json
 {
   "sessionId": "sess-001",
-  "theme": "finance",
-  "categories": {
-    "1": {
-      "category_num": 1,
-      "category_name": "부모",
-      "chunks": {
-        "1": {
-          "chunk_num": 1,
-          "chunk_name": "성격",
-          "materials": {
-            "1": {
-              "material_num": 1,
-              "material_name": "출생지",
-              "w": [0, 0, 0, 0, 0, 0],
-              "ex": 0,
-              "con": 0,
-              "material_count": 0,
-              "utter_freq": 0
+  "preferredCategories": [3, 5]
+}
+```
+
+### 세션 재개 (이전 메트릭 포함)
+```json
+{
+  "sessionId": "sess-001",
+  "previousMetrics": {
+    "sessionId": "sess-001",
+    "categories": {
+      "cat_1": {
+        "category_num": 1,
+        "category_name": "부모",
+        "chunks": {
+          "chunk_1": {
+            "chunk_num": 1,
+            "chunk_name": "프로파일",
+            "materials": {
+              "mat_1": {
+                "material_num": 1,
+                "material_name": "성격",
+                "w": [1, 1, 0, 1, 0, 0],
+                "ex": 1,
+                "con": 0,
+                "material_count": 0
+              }
             }
           }
-        }
-      },
-      "chunk_weight": {}
-    }
-  },
-  "metrics": {
-    "sessionId": "sess-001",
-    "theme": "finance",
-    "categories": { ... },
+        },
+        "chunk_weight": {"1": 5}
+      }
+    },
     "engine_state": {
-      "last_material_id": [],
-      "last_material_streak": 0,
+      "last_material_id": [1, 1, 1],
+      "last_material_streak": 2,
       "epsilon": 0.1
     },
-    "asked_total": 0,
-    "policyVersion": "v1.2.0"
+    "asked_total": 5
   }
 }
 ```
 
 ## 세션 시작 응답 예시
 
+### 새 세션 (카테고리 소개 질문)
 ```json
 {
   "sessionId": "sess-001",
   "first_question": {
     "id": "q-48b8",
-    "material": "출생지",
-    "type": "when",
-    "text": "출생지에 대해 시기/때를 더 자세히 들려주실 수 있을까요?"
+    "material": "일반_소개",
+    "type": "category_intro",
+    "text": "어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요.",
+    "material_id": [0, 0, 0]
   }
 }
 ```
 
-## 대화 진행 요청 예시
+### 선호 카테고리 지정 시
+```json
+{
+  "sessionId": "sess-001",
+  "first_question": {
+    "id": "q-d423",
+    "material": "형제, 친첵_소개",
+    "type": "category_intro",
+    "text": "형제, 친첵에 대해서 어떤 이야기를 하고 싶으신가요?",
+    "material_id": [3, 0, 0]
+  }
+}
+```
+
+## 대화 진행 요청 예시 (간소화)
 
 ```json
 {
   "sessionId": "sess-001",
-  "question": {
-    "id": "q-47ab",
-    "material": "출생지",
-    "type": "why"
-  },
-  "answerText": "초등학교 때 어머니가...",
-  "question_pool": [],
-  "use_llm_keywords": false
+  "answer_text": "저는 내성적인 성격이에요. 사람들과 어울리는 것보다는 혼자 있는 시간을 더 좋아하고..."
 }
 ```
 
+**주요 변경**: question, question_pool, use_llm_keywords 필드 제거로 API 간소화
+
 ## 대화 진행 응답 예시
 
+### 동일 소재 계속 질문
 ```json
 {
   "next_question": {
-    "id": "q-48b8",
+    "id": "q-def456",
+    "material": "성격",
+    "type": "ex",
+    "text": "본인의 화를 잘 내는 성격과 관련된 사건이 있나요?",
+    "material_id": [1, 1, 1]
+  }
+}
+```
+
+### 다른 소재로 전환
+```json
+{
+  "next_question": {
+    "id": "q-abc789",
     "material": "금융",
     "type": "when",
-    "text": "첫 직장 시절 적금을 시작하게 된 계기는 언제였나요?"
+    "text": "금융에 대해 '언제' 측면에서 더 구체적으로 들려주세요.",
+    "material_id": [5, 2, 3]
   }
 }
 ```
@@ -147,24 +184,22 @@
   "sessionId": "sess-001",
   "final_metrics": {
     "sessionId": "sess-001",
-    "theme": "finance",
     "categories": {
-      "1": {
+      "cat_1": {
         "category_num": 1,
         "category_name": "부모",
         "chunks": {
-          "1": {
+          "chunk_1": {
             "chunk_num": 1,
-            "chunk_name": "성격",
+            "chunk_name": "프로파일",
             "materials": {
-              "1": {
+              "mat_1": {
                 "material_num": 1,
-                "material_name": "출생지",
+                "material_name": "성격",
                 "w": [1, 1, 1, 0, 1, 1],
                 "ex": 1,
                 "con": 1,
-                "material_count": 5,
-                "utter_freq": 20
+                "material_count": 1
               }
             }
           }
@@ -173,45 +208,79 @@
       }
     },
     "engine_state": {
-      "last_material_id": [1],
+      "last_material_id": [1, 1, 1],
       "last_material_streak": 3,
       "epsilon": 0.1
     },
-    "asked_total": 10,
-    "policyVersion": "v1.2.0"
+    "asked_total": 10
   },
-  "pool_to_save": [
-    {
-      "id": "q-xxx",
-      "material": "출생지",
-      "keywords": ["초등학교", null, null],
-      "type": "why",
-      "text": "...",
-      "source": "llm",
-      "status": "queued"
-    }
-  ]
+  "pool_to_save": []
 }
 ```
 
-## 백엔드 처리
+## Redis 세션 관리
+
+### TTL 기반 자동 만료
+- **세션 TTL**: 1시간 (3600초)
+- **자동 정리**: Redis가 만료된 세션 자동 삭제
+- **세션 연장**: 대화 진행 시 자동으로 TTL 연장
+
+### 세션 데이터 구조
+```json
+{
+  "metrics": {
+    "sessionId": "sess-001",
+    "categories": { /* 직렬화된 엔진 상태 */ },
+    "engine_state": {
+      "last_material_id": [1, 1, 1],
+      "last_material_streak": 2,
+      "epsilon": 0.1
+    },
+    "asked_total": 5
+  },
+  "last_question": {
+    "id": "q-abc123",
+    "material": "성격",
+    "type": "w2",
+    "text": "...",
+    "material_id": [1, 1, 1]
+  },
+  "updated_at": 1640995200.0
+}
+```
+
+## 백엔드 처리 (간소화)
 
 ### 세션 시작
-1. 사용자 선택 카테고리와 초기 metrics를 AI 서버로 전달
-2. `first_question`을 받아 사용자에게 전달
-3. metrics는 백엔드 DB에 저장
+1. `sessionId`와 선택적 `preferredCategories` 또는 `previousMetrics`를 AI 서버로 전달
+2. AI 서버가 Redis에 세션 생성 및 `first_question` 반환
+3. 백엔드는 사용자에게 첫 질문 전달
 
 ### 대화 진행
-1. 사용자 답변과 이전 질문 정보를 AI 서버로 전달
-2. `next_question`을 사용자에게 전달
-3. **metrics와 pool은 AI 서버가 내부적으로 관리**
+1. `sessionId`와 `answer_text`만 AI 서버로 전달 (간소화)
+2. AI 서버가 Redis에서 세션 로드, 엔진 처리, 상태 저장
+3. `next_question`을 사용자에게 전달
 
 ### 세션 종료
-1. AI 서버로 세션 종료 요청
-2. `final_metrics`와 `pool_to_save`를 받아 DB에 저장
+1. `sessionId`로 AI 서버에 세션 종료 요청
+2. AI 서버가 Redis에서 최종 메트릭 조회 및 세션 삭제
+3. `final_metrics`를 백엔드에 반환하여 DB 저장
+
+**대체 방안**: Redis TTL(1시간)로 자동 만료 처리 가능
 
 ## 주요 변경사항 (v2)
 
-- **Metrics 관리**: 백엔드가 session/start에서 초기 metrics 전달, session/end에서 최종 metrics 수신
-- **AI 서버 내부 관리**: interview-chat 동안 metrics와 pool을 세션별로 메모리/캐시에 저장
-- **간소화된 API**: interview-chat 요청/응답에서 metrics와 pool 제거
+### Redis 세션 관리 도입
+- **세션 지속성**: Redis TTL 1시간으로 대화 상태 보장
+- **상태 복원**: 세션 재개 시 이전 메트릭 자동 복원
+- **자동 정리**: TTL 만료로 세션 자동 삭제
+
+### Legacy 알고리즘 통합
+- **완전 통합**: 기존 질문 생성 알고리즘 100% 보존
+- **파일 통합**: 7개 파일을 3개로 통합하여 구조 개선
+- **코드 보존**: `#기존 알고리즘` 주석으로 Legacy 개발자 친화적
+
+### API 간소화
+- **요청 간소화**: sessionId + answer_text만 전달
+- **내부 상태 관리**: AI 서버가 Redis로 상태 관리
+- **session/end 제거**: Redis TTL로 자동 만료 처리
