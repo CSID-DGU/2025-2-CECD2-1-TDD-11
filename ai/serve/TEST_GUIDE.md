@@ -1,21 +1,33 @@
 # Interview Chat V2 API 테스트 가이드
 
+Redis 세션 기반 Legacy 알고리즘 통합 시스템 테스트
+
 ## 사전 준비
 
-### 1. 서버 실행
+### 1. Redis 서버 실행
+```bash
+# Windows (Chocolatey)
+choco install redis-64
+redis-server
+
+# 또는 Docker
+docker run -d -p 6379:6379 redis:alpine
+```
+
+### 2. AI 서버 실행
 ```bash
 cd serve
 python -m uvicorn main:app --env-file .env.development --port 3000
 ```
 
-### 2. JWT 토큰 생성
+### 3. JWT 토큰 생성
 ```bash
 python generate_test_token.py
 ```
 
 출력된 토큰을 복사하세요.
 
-### 3. Swagger UI 접속
+### 4. Swagger UI 접속
 http://localhost:3000/docs
 
 ---
@@ -31,132 +43,155 @@ http://localhost:3000/docs
 
 ---
 
-### Step 2: 첫 질문 생성
+### Step 2A: 세션 시작 (완전 처음)
 
-**엔드포인트**: `POST /api/v2/interviews/interview-chat`
+**엔드포인트**: `POST /api/v2/interviews/session/start`
 
 **Request Body**:
 ```json
 {
-  "question": {
-    "id": "q-start",
-    "material": "좋아했던 과목",
-    "type": "open"
-  },
-  "answer_text": "",
-  "metrics": {
-    "materials": {
-      "좋아했던 과목": {
-        "category_name": "학업",
-        "chunk_name": "전공 공부",
-        "w1": 0,
-        "w2": 0,
-        "w3": 0,
-        "w4": 0,
-        "w5": 0,
-        "w6": 0,
-        "ex": 0,
-        "con": 0,
-        "material_count": 0,
-        "utter_freq": 0,
-        "themes": ["나의 대학 시절"]
-      }
-    },
-    "chunks": {
-      "학업::전공 공부": {
-        "category_name": "학업",
-        "chunk_name": "전공 공부",
-        "chunk_weight": 0
-      }
-    },
-    "global": {
-      "last_material": null,
-      "last_material_streak": 0,
-      "theme_initialized": false
-    },
-    "theme": "나의 대학 시절"
-  },
-  "question_pool": [],
-  "use_llm_keywords": false
+  "sessionId": "session-12345"
 }
 ```
 
 **예상 응답**:
 ```json
 {
-  "next_question": {
-    "id": "q-onfly",
-    "material": "좋아했던 과목",
-    "type": "how",
-    "text": "좋아했던 과목에 대해 방법/과정을 더 자세히 들려주실 수 있을까요?"
-  },
-  "pool_to_save": [],
-  "metrics_to_save": {
-    "materials": {...},
-    "chunks": {...},
-    "global": {...},
-    "theme": "나의 대학 시절"
+  "sessionId": "session-12345",
+  "first_question": {
+    "id": "q-2afa5754",
+    "material": "일반_소개",
+    "type": "category_intro",
+    "text": "어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요.",
+    "material_id": [
+      0,
+      0,
+      0
+    ]
   }
 }
 ```
 
 **확인 사항**:
 - ✅ 200 OK 응답
-- ✅ next_question이 생성됨
-- ✅ question.text가 자연스러운 질문
-- ✅ metrics_to_save와 pool_to_save 반환
+- ✅ 카테고리 소개 질문 생성됨
+- ✅ type이 "category_intro"임
+- ✅ material_id가 [카테고리번호, 0, 0] 형태
 
 ---
 
-### Step 3: 대화 진행 (다음 질문 생성)
+### Step 2B: 세션 시작 (선호 카테고리 지정)
 
-**엔드포인트**: `POST /api/v2/interviews/interview-chat`
-
-**중요**: Step 2의 응답에서 받은 `next_question`을 이번 요청의 `question`에 넣고, `metrics`에는 이전 응답의 `metrics_to_save`를 넣어야 합니다!
+**엔드포인트**: `POST /api/v2/interviews/session/start`
 
 **Request Body**:
 ```json
 {
-  "question": {
-    "id": "q-onfly",
-    "material": "좋아했던 과목",
-    "type": "how"
-  },
-  "answer_text": "저는 데이터베이스 수업을 정말 좋아했어요. 김교수님이 가르치셨는데, 실습 위주로 진행되어서 재미있었습니다. 2학년 2학기 때 들었던 것 같아요.",
-  "metrics": {
-    "materials": {
-      "좋아했던 과목": {
-        "category_name": "학업",
-        "chunk_name": "전공 공부",
-        "w1": 0,
-        "w2": 0,
-        "w3": 0,
-        "w4": 0,
-        "w5": 0,
-        "w6": 0,
-        "ex": 0,
-        "con": 0,
-        "material_count": 0,
-        "utter_freq": 0,
-        "themes": ["나의 대학 시절"]
+  "sessionId": "session-12345",
+  "preferredCategories": [3, 5]
+}
+```
+
+**예상 응답**:
+```json
+{
+  "sessionId": "session-12345",
+  "first_question": {
+    "id": "q-d4234930",
+    "material": "형제, 친척_소개",
+    "type": "category_intro",
+    "text": "형제, 친척에 대해서 어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요.",
+    "material_id": [
+      3,
+      0,
+      0
+    ]
+  }
+}
+```
+
+**확인 사항**:
+- ✅ 200 OK 응답
+- ✅ 선호 카테고리(3번)에서 질문 생성됨
+- ✅ 테마 부스팅 적용됨
+
+---
+
+### Step 2C: 세션 재개 (이전 메트릭 포함)
+
+**엔드포인트**: `POST /api/v2/interviews/session/start`
+
+**Request Body**:
+```json
+{
+  "sessionId": "session-12345",
+  "previousMetrics": {
+    "sessionId": "session-12345",
+    "categories": {
+      "cat_1": {
+        "category_num": 1,
+        "category_name": "부모",
+        "chunks": {
+          "chunk_1_1": {
+            "chunk_num": 1,
+            "chunk_name": "프로팔",
+            "materials": {
+              "mat_1_1_1": {
+                "material_num": 1,
+                "material_name": "성격",
+                "w": [2, 1, 0, 1, 0, 0],
+                "ex": 1,
+                "con": 0,
+                "material_count": 1
+              }
+            }
+          }
+        },
+        "chunk_weight": {"chunk_1_1": 2}
       }
     },
-    "chunks": {
-      "학업::전공 공부": {
-        "category_name": "학업",
-        "chunk_name": "전공 공부",
-        "chunk_weight": 10
-      }
+    "engine_state": {
+      "last_material_id": [1, 1, 1],
+      "last_material_streak": 2,
+      "epsilon": 0.1
     },
-    "global": {
-      "last_material": "좋아했던 과목",
-      "last_material_streak": 1,
-      "theme_initialized": true
-    },
-    "theme": "나의 대학 시절"
-  },
-  "question_pool": [],
-  "use_llm_keywords": false
+    "asked_total": 5,
+    "policyVersion": "v1.2.0"
+  }
+}
+```
+
+**예상 응답**:
+```json
+{
+  "sessionId": "session-12345",
+  "first_question": {
+    "id": "q-def456",
+    "material": "근무 환경(조직, 분위기)",
+    "type": "w1",
+    "text": "근무 환경(조직, 분위기)에 대해 '언제' 측면에서 더 구체적으로 들려주세요.",
+    "material_id": [1, 1, 2]
+  }
+}
+```
+
+**확인 사항**:
+- ✅ 200 OK 응답
+- ✅ 이전 상태가 복원됨
+- ✅ 다음 적절한 소재로 질문 생성됨
+- ✅ chunk_weight 가산점 반영됨
+
+---
+
+### Step 3: 대화 진행 (동일 소재 답변)
+
+**엔드포인트**: `POST /api/v2/interviews/interview-chat`
+
+**Request Body**:
+```json
+{
+"sessionId": "session-12345",
+"answer_text": "부모님을 떠올리면, 일요일 아침마다 식탁에 올라오던 따뜻한 국물과 조용히 흘러나오던 라디오 소리가 함께 생각납니다. 아버지는 언제나 국그릇을 제 앞으로 밀어주며 한 숟가락 크게 떠 보라고 했고, 어머니는 그 틈에 제 학교 이야기를 천천히 끌어냈습니다. 그날그날의 사소한 실패도 식탁 위에서 웃음으로 덜어냈고, 그렇게 하루가 단단하게 시작됐습니다. 가장 기억에 남는 순간은 첫 발표에 떨던 저를 위해 부모님이 밤늦게까지 연습 상대가 되어준 날입니다. 대본을 외우다 지쳐 고개를 떨구자, 아버지는 한 문장씩 끊어 읽는 법을 알려주고, 어머니는 말의 속도를 잡아주며 끝까지 함께해 주었습니다.\n\n조부모님과의 기억은 마당의 흙냄새와 얽혀 있습니다. 여름이면 할아버지는 큼직한 모자를 씌워 주고 토마토 줄기를 묶는 법을 가르쳐 주셨는데, 힘을 너무 주면 줄기가 상한다며 손끝의 힘을 조절하는 법을 몸으로 알려 주셨습니다. 해가 기울면 할머니가 삭힌 장아찌를 내오고, 우리는 대청마루에서 느릿하게 저녁을 먹었습니다. 한 번은 비바람이 심해 밭이 반쯤 쓰러졌을 때, 할아버지는 다음 날 새벽에 저를 깨워 무너진 지주대를 하나하나 바로 세우며 "살아가는 일은 넘어진 것들을 다시 일으키는 일"이라고 말했습니다. 그 말은 시간이 지나도 제 마음속에서 계속 자라, 어려움 앞에서 숨을 고르게 하는 문장이 되었습니다."
 }
 ```
 
@@ -164,33 +199,159 @@ http://localhost:3000/docs
 ```json
 {
   "next_question": {
-    "id": "q-onfly",
-    "material": "좋아했던 과목",
+    "id": "q-def456",
+    "material": "설명",
     "type": "ex",
-    "text": "좋아했던 과목에 대한 구체적인 사례를 한 가지 들려주실 수 있을까요?"
-  },
-  "pool_to_save": [],
-  "metrics_to_save": {...}
+    "text": "설명과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요.",
+    "material_id": [8, 1, 1]
+  }
 }
 ```
 
 **확인 사항**:
 - ✅ 200 OK 응답
-- ✅ next_question이 생성됨
-- ✅ metrics_to_save와 pool_to_save 반환됨 (백엔드는 다음 요청 시 사용)
+- ✅ 동일 소재 ("성격") 감지됨
+- ✅ 답변 내용을 반영한 질문 생성
+- ✅ material_id 유지됨
 
 ---
 
-### Step 4: 추가 대화 반복
+### Step 4: 다른 소재 대화 테스트
 
-동일한 방식으로 Step 3을 반복하며, 매번 이전 응답의 `metrics_to_save`를 다음 요청의 `metrics`로 전달합니다.
+**Request Body** (다른 소재 "부모" 사용):
+```json
+{
+  "sessionId": "test-session-2",
+  "question": {
+    "id": "q-67890",
+    "material": "name",
+    "type": "who",
+    "text": "name에 대해 누구부터 이야기해볼까요?"
+  },
+  "answer_text": "아버지부터 말씀드릴게요. 아버지는 정말 온화하신 분이셨어요.",
+  "metrics": {
+    "engine_state": {
+      "last_material_id": [1, 1, 1],
+      "last_material_streak": 1,
+      "theme_initialized": true
+    }
+  }
+}
+```
 
 **확인 사항**:
-- ✅ 각 턴마다 metrics가 업데이트됨 (w1~w6, ex, con 값 변화)
-- ✅ chunk_weight가 증가함
-- ✅ 다양한 type의 질문이 생성됨 (how, ex, con, who, why, when, where, what)
+- ✅ 다른 소재 감지됨
+- ✅ material + type만으로 LLM 질문 생성
+- ✅ 새로운 material_id 선택됨
 
 ---
+
+### Step 5: 세션 종료
+
+**엔드포인트**: `POST /api/v2/interviews/session/end`
+
+**Request Body**:
+```json
+{
+  "sessionId": "session-12345"
+}
+```
+
+**예상 응답** (최적화된 JSON):
+```json
+{
+  "sessionId": "session-12345",
+  "final_metrics": {
+    "sessionId": "session-12345",
+    "categories": {
+      "cat_1": {
+        "category_num": 1,
+        "category_name": "부모",
+        "chunks": {
+          "chunk_1": {
+            "chunk_num": 1,
+            "chunk_name": "프로파일",
+            "materials": {
+              "mat_1": {
+                "material_num": 1,
+                "material_name": "성격",
+                "w": [1, 1, 1, 0, 1, 1],
+                "ex": 1,
+                "con": 1,
+                "material_count": 1
+              }
+            }
+          }
+        },
+        "chunk_weight": {"1": 15}
+      }
+    },
+    "engine_state": {
+      "last_material_id": [1, 1, 1],
+      "last_material_streak": 3,
+      "epsilon": 0.1
+    },
+    "asked_total": 10,
+    "policyVersion": "v1.2.0"
+  },
+  "pool_to_save": []
+}
+```
+
+**확인 사항**:
+- ✅ 200 OK 응답
+- ✅ Redis에서 최종 메트릭 조회 성공
+- ✅ 세션 삭제 성공
+- ✅ final_metrics에 활성 데이터만 포함 (JSON 최적화)
+- ✅ LLM 분석 결과가 메트릭에 정확히 반영됨
+
+## 수정된 사항 (v1.2.0)
+
+✅ **LLM 기반 소재 매칭**: 답변 내용을 분석하여 관련 소재를 자동으로 매칭
+
+✅ **6W 축 자동 분석**: LLM이 답변에서 6W(누가/언제/어디서/무엇을/왜/어떻게) + ex/con 축을 자동 분석하여 메트릭에 정확히 반영
+
+✅ **JSON 최적화**: 활성 데이터만 직렬화하여 JSON 크기 대폭 감소
+- 활성 카테고리만 포함 (chunk_weight > 0)
+- 활성 청크만 포함 (chunk_weight > 0)
+- 활성 소재만 포함 (w/ex/con/material_count 중 하나라도 값 존재)
+- 활성 chunk_weight만 포함 (weight > 0)
+
+✅ **직접 파싱**: 소재명을 띄어쓰기 기준으로 파싱하여 정확한 매칭 보장
+
+✅ **압축된 JSON 응답**: LLM이 불필요한 띄어쓰기와 줄바꿈 없이 압축된 JSON을 반환하도록 개선
+
+---
+
+## 터미널 로그 설명
+
+### 성공적인 대화 흐름
+```
+[DEBUG] LLM 플로우 결과: {...}
+[DEBUG] 직접 JSON 파싱 성공: [...]
+[INFO] LLM 분석 완료: 3개 소재 매칭
+  소재: 부모 나와의_관계 기억나는_대화
+  축: {'w': [1, 1, 0, 1, 1, 1], 'ex': 1, 'con': 1}
+    6W: [1, 1, 0, 1, 1, 1] (valid)
+🔍 [소재 매칭] 부모, 조부모_소개 → [...] (동일:False)
+🔍 [소재 ID 매핑] current_material: '부모, 조부모_소개'
+  '부모 나와의_관계 기억나는_대화' → [1, 4, 4]
+📊 [메트릭 업데이트] 3개 소재
+  1. 부모 나와의_관계 기억나는_대화 → [1, 4, 4]
+    6W 반영: [1, 1, 0, 1, 1, 1] → [1, 1, 0, 1, 1, 1]
+    변경: w [0, 0, 0, 0, 0, 0] → [1, 1, 0, 1, 1, 1], ex 0 → 1, con 0 → 1
+    chunk_weight: 0 → 1
+    material_count: 1
+🎯 [질문 생성] 부모-프로필-학력_직업 (w2)
+```
+
+### 주요 로그 설명
+- **LLM 분석 완료**: 답변에서 추출된 소재 개수
+- **6W 축 분석**: 각 소재별 6W 축 값 (1=감지됨, 0=미감지)
+- **소재 ID 매핑**: 소재명 → [카테고리, 청크, 소재] ID 변환
+- **메트릭 업데이트**: 각 소재의 w/ex/con 값 변화 추적
+- **chunk_weight**: 청크별 사용 빈도 증가
+- **material_count**: 소재별 완성도 업데이트
 
 ## 트러블슈팅
 
@@ -201,19 +362,26 @@ http://localhost:3000/docs
 ### 500 Internal Server Error
 - 서버 콘솔 로그 확인
 - OpenAI API 키가 올바른지 확인
-- flow.dag.yaml 파일 경로 확인
+- material.json 파일 존재 확인
 
-### Flow 실행 오류
-- `flows/interviews/chat/interview_chat_v2/` 디렉토리 존재 확인
-- requirements.txt 패키지 설치 확인
+### LLM 분석 실패
+- `[ERROR] LLM 매칭 실패` 로그 확인
+- map_answer_to_materials 플로우 상태 확인
+- OpenAI API 호출 제한 확인
+
+### 소재 매칭 실패
+- `소재 미발견/청크 미발견/카테고리 미발견` 로그 확인
+- material.json에 해당 소재가 정확히 존재하는지 확인
+- 소재명의 띄어쓰기/밑줄 형식 일치 확인
 
 ---
 
 ## 성공 기준
 
 ✅ Step 1: JWT 인증 성공  
-✅ Step 2: 첫 질문 생성 성공  
-✅ Step 3: 다음 질문 생성 성공  
-✅ Step 4: 대화 반복 테스트 성공  
+✅ Step 2: 엔진 초기화 및 첫 질문 생성 성공  
+✅ Step 3: 동일 소재 감지 및 컨텍스트 기반 질문 생성 성공  
+✅ Step 4: 다른 소재 감지 및 material+type 기반 질문 생성 성공  
+✅ Step 5: 세션 종료 및 최종 메트릭 수집 성공  
 
-모든 단계가 200 OK를 반환하면 API가 정상 작동하는 것입니다!
+**최종 확인**: 모든 단계가 200 OK를 반환하고 Redis 세션 관리 + Legacy 알고리즘 + 명시적 세션 종료가 정상 작동하면 API가 완전히 기능하는 것입니다!

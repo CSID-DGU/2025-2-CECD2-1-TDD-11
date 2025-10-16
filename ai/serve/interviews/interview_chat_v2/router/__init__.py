@@ -1,179 +1,114 @@
 from fastapi import APIRouter, HTTPException, Depends
-from promptflow.core import Flow
-from starlette.requests import Request
-from pydantic_core import ValidationError
+from ..dto import InterviewChatV2RequestDto, InterviewChatV2ResponseDto, SessionStartRequestDto, SessionStartResponseDto, SessionEndRequestDto, SessionEndResponseDto
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent.parent))
+from session_manager import SessionManager
+import sys
+import os
+from pathlib import Path
 
-from auth import AuthRequired, get_current_user
-from interviews.interview_chat_v2.dto import (
-    SessionStartRequestDto,
-    SessionStartResponseDto,
-    InterviewChatV2RequestDto,
-    InterviewChatV2ResponseDto,
-    SessionEndRequestDto,
-    SessionEndResponseDto,
-    MetricsDto,
-    EngineStateDto,
-)
-from logs import get_logger
+# flow 경로 추가
+current_dir = Path(__file__).parent.parent.parent.parent.parent
+flows_dir = current_dir / "flows" / "interviews" / "chat" / "interview_chat_v2"
+sys.path.insert(0, str(flows_dir))
 
-logger = get_logger()
+from promptflow import load_flow
 
 router = APIRouter()
+session_manager = SessionManager()
 
+# flow 로드
+flow_path = flows_dir / "flow.dag.yaml"
+flow = load_flow(str(flow_path))
 
-@router.post(
-    "/api/v2/interviews/session/start",
-    dependencies=[Depends(AuthRequired())],
-    response_model=SessionStartResponseDto,
-    summary="인터뷰 세션 시작 v2",
-    description="세션을 시작하고 첫 질문을 생성합니다.",
-    tags=["인터뷰 (Interview)"],
-)
-async def start_interview_session(
-    request: Request, requestDto: SessionStartRequestDto
-):
-    current_user = get_current_user(request)
-
+@router.post("/session/start", response_model=SessionStartResponseDto)
+async def start_session(request: SessionStartRequestDto):
+    """세션 시작"""
     try:
-        # categories를 materials 형식으로 변환
-        metrics_dict = requestDto.metrics.model_dump()
-        materials = {}
-        for cat_key, cat in metrics_dict.get("categories", {}).items():
-            for chunk_key, chunk in cat.get("chunks", {}).items():
-                for mat_key, mat in chunk.get("materials", {}).items():
-                    materials[mat["material_name"]] = {
-                        "category_name": cat["category_name"],
-                        "chunk_name": chunk["chunk_name"],
-                        "w1": mat["w"][0], "w2": mat["w"][1], "w3": mat["w"][2],
-                        "w4": mat["w"][3], "w5": mat["w"][4], "w6": mat["w"][5],
-                        "ex": mat["ex"], "con": mat["con"],
-                        "utter_freq": mat["utter_freq"],
-                        "material_count": mat["material_count"],
-                        "themes": []
-                    }
-        
-        flow_metrics = {
-            "theme": metrics_dict.get("theme", ""),
-            "materials": materials,
-            "chunks": {},
-            "global": {}
-        }
-        
-        flow = Flow.load("../flows/interviews/chat/interview_chat_v2/flow.dag.yaml")
-
-        result = flow(
-            sessionId=requestDto.sessionId,
-            question={"id": "init", "material": "", "type": "init"},
-            answer_text="",
-            metrics=flow_metrics,
-            question_pool=[],
-            use_llm_keywords=True,
+        # 세션 생성
+        session_manager.create_session(
+            request.sessionId, 
+            request.preferredCategories,
+            request.previousMetrics.dict() if request.previousMetrics else None
         )
+        
+        result = flow(
+            sessionId=request.sessionId,
+            answer_text=""
+        )
+        
+        first_question = result.get("next_question")
+        
+        # 세션 저장
+        if first_question:
+            session_manager.save_session(
+                request.sessionId,
+                metrics={
+                    "sessionId": request.sessionId,
+                    "categories": {},
+                    "engine_state": {"last_material_id": None},
+                    "asked_total": 0
+                },
+                last_question=first_question
+            )
         
         return SessionStartResponseDto(
-            sessionId=requestDto.sessionId,
-            first_question=result.get("next_question"),
-        )
-
-    except ValidationError as e:
-        logger.error(f"Validation error occurred: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
-
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
-
-
-@router.post(
-    "/api/v2/interviews/interview-chat",
-    dependencies=[Depends(AuthRequired())],
-    response_model=InterviewChatV2ResponseDto,
-    summary="인터뷰 대화 생성 v2",
-    description="메트릭 기반으로 다음 질문을 생성합니다.",
-    tags=["인터뷰 (Interview)"],
-)
-async def generate_interview_chat_v2(
-    request: Request, requestDto: InterviewChatV2RequestDto
-):
-    current_user = get_current_user(request)
-
-    try:
-        flow = Flow.load("../flows/interviews/chat/interview_chat_v2/flow.dag.yaml")
-
-        # metrics는 서버 메모리/DB에서 로드해야 함 (임시로 빈 메트릭 사용)
-        # TODO: 실제 구현 시 DB에서 sessionId로 metrics 조회
-        metrics = {
-            "sessionId": requestDto.sessionId,
-            "theme": "",
-            "categories": {},
-            "engine_state": {"last_material_id": [], "last_material_streak": 0, "epsilon": 0.1},
-            "asked_total": 0,
-            "policyVersion": "v1.2.0"
-        }
-
-        result = flow(
-            sessionId=requestDto.sessionId,
-            question=requestDto.question.model_dump(),
-            answer_text=requestDto.answer_text,
-            metrics=requestDto.metrics if requestDto.metrics else {},
-            question_pool=[q.model_dump() for q in requestDto.question_pool] if requestDto.question_pool else [],
-            use_llm_keywords=requestDto.use_llm_keywords,
+            sessionId=request.sessionId,
+            first_question=first_question
         )
         
-        return InterviewChatV2ResponseDto(
-            next_question=result.get("next_question"),
-        )
-
-    except ValidationError as e:
-        logger.error(f"Validation error occurred: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
-
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"세션 시작 실패: {str(e)}")
 
-
-@router.post(
-    "/api/v2/interviews/session/end",
-    dependencies=[Depends(AuthRequired())],
-    response_model=SessionEndResponseDto,
-    summary="인터뷰 세션 종료 v2",
-    description="세션을 종료하고 최종 메트릭을 반환합니다.",
-    tags=["인터뷰 (Interview)"],
-)
-async def end_interview_session(
-    request: Request, requestDto: SessionEndRequestDto
-):
-    current_user = get_current_user(request)
-
+@router.post("/interview-chat", response_model=InterviewChatV2ResponseDto)
+async def interview_chat(request: InterviewChatV2RequestDto):
+    """인터뷰 대화"""
     try:
-        # TODO: 실제 구현 시 세션별로 저장된 metrics와 pool을 조회
-        # 임시로 빈 데이터 반환
-        final_metrics = MetricsDto(
-            sessionId=requestDto.sessionId,
-            theme="",
-            categories={},
-            engine_state=EngineStateDto(),
-            asked_total=0,
-            policyVersion="v1.2.0"
+        # 세션 로드
+        session_data = session_manager.load_session(request.sessionId)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
+        
+        # 다음 질문 생성
+        result = flow(
+            sessionId=request.sessionId,
+            answer_text=request.answer_text
         )
+        
+        next_question = result.get("next_question")
+        
+        # Flow에서 Redis에 직접 업데이트하므로 별도 저장 불필요
+        
+        return InterviewChatV2ResponseDto(next_question=next_question)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"질문 생성 실패: {str(e)}")
+
+@router.post("/session/end", response_model=SessionEndResponseDto)
+async def end_session(request: SessionEndRequestDto):
+    """세션 종료 및 최종 메트릭 반환"""
+    try:
+        # 세션 로드
+        session_data = session_manager.load_session(request.sessionId)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
+        
+        # 최종 메트릭 준비
+        final_metrics = session_data.get("metrics")
+        
+        # 세션 삭제
+        session_manager.delete_session(request.sessionId)
         
         return SessionEndResponseDto(
-            sessionId=requestDto.sessionId,
+            sessionId=request.sessionId,
             final_metrics=final_metrics,
-            pool_to_save=[]
+            pool_to_save=[]  # V2에서는 pool 사용 안 함
         )
-
-    except ValidationError as e:
-        logger.error(f"Validation error occurred: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
-
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"세션 종료 실패: {str(e)}")

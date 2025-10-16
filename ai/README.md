@@ -4,42 +4,38 @@
 
 ## 프로젝트 구조
 
-- **flows**
-
-  - autobiograpies
-    - chat
-    - evaluation
-    - standard
+- **flows** (AI 로직)
+  - autobiographies
+    - chat, evaluation, standard
       - **generate_autobiography**
       - **generate_correction**
   - chapters
-    - chat
-    - evaluation
-    - standard
+    - chat, evaluation, standard
       - **generate_chapter**
   - interviews
     - chat
       - **interview_chat_v1** (대화 히스토리 기반)
-      - **interview_chat_v2** (메트릭 기반)
+      - **interview_chat_v2** (Redis 세션 + 신규 알고리즘)
     - evaluation
     - standard
       - **generate_interview_question**
 
-- **serve**
+- **serve** (API 서버)
+  - **session_manager.py** (Redis 세션 관리)
   - autobiographies
-    - **generate_autobiography**
-    - **generate_correction**
+    - **generate_autobiography**, **generate_correction**
   - chapters
     - **generate_chapter**
   - interviews
     - **generate_interview_question**
     - **interview_chat** (v1 라우터)
-    - **interview_chat_v2** (메트릭 기반)
+    - **interview_chat_v2** (Redis 기반 세션 관리)
 
-autobiobraphies, chapters, interviews 총 3개의 도메인이 존재합니다.
-
-- **flows** 에는 각 도메인 별로 chat, evaluation, standard 3가지 종류의 flow가 존재합니다.
-- **serve** 에는 각 도메인 별로 flows 경로에 구성했던 flow를 서빙하는 서버 코드가 존재합니다.
+### 아키텍처 특징
+- **Redis 세션 관리**: 대화 상태를 Redis에 저장하여 세션 지속성 보장
+- **Legacy 알고리즘 통합**: 기존 질문 생성 알고리즘을 엔진으로 통합
+- **3단계 계층**: Category → Chunk → Material 구조
+- **통합 엔진**: 7개 파일을 3개로 통합 (core.py, utils.py, generators.py)
 
 ## 로컬 개발 환경 설정 (flows)
 
@@ -217,35 +213,45 @@ python -m uvicorn main:app --env-file .env.development --port 3000
 
 http://localhost:3000/docs 에서 API 문서를 확인할 수 있습니다. (사용 방법 참고: [Life Bookshelf Server](https://github.com/life-librarians/life-bookshelf-server?tab=readme-ov-file#swagger-%EC%9D%B4%EC%9A%A9-%EB%B0%A9%EB%B2%95))
 
+### Redis 설치 및 실행
+
+```bash
+# Windows (Chocolatey)
+choco install redis-64
+redis-server
+
+# 또는 Docker
+docker run -d -p 6379:6379 redis:alpine
+```
+
 ### v2 API 테스트
 
 Swagger UI에서 `/api/v2/interviews/interview-chat` 엔드포인트를 확인할 수 있습니다.
 
-
-
-## Interview Chat V2 (메트릭 기반 질문 생성)
+## Interview Chat V2 (Redis 세션 + Legacy 알고리즘)
 
 ### 개요
 
-v2는 소재별 6W(who/why/when/how/where/what) 축 완성도를 추적하여 체계적으로 질문을 생성합니다.
+v2는 Redis 세션 관리와 Legacy 알고리즘을 통합하여 체계적 질문을 생성합니다.
 
-### 폴더 구조
+### 통합된 구조
 
 ```
 flows/interviews/chat/interview_chat_v2/
-  - flow.dag.yaml
-  - nodes/
-    - 01_parse_answer.py          # 응답 파서 (키워드, 축, 구체성 추출)
-    - 02_update_metrics.py        # 메트릭 갱신 (6W 축, 예시, 구체성)
-    - 03_generate_candidates.py   # 미완성 축에 대한 질문 생성
-    - 04_select_questions.py      # 질문 선택 알고리즘
+  - flow.dag.yaml               # 단일 노드 플로우
+  - __init__.py                 # 통합 엔진 (Redis 연동)
+  - engine/                     # Legacy 알고리즘 (통합)
+    - core.py                   # 기존 알고리즘 + 모델
+    - utils.py                  # 기존 유틸 + V2 추가
+    - generators.py             # V2 질문 생성
+  - data/
+    - material.json, theme.json
 
-serve/interviews/interview_chat_v2/
-  - router/
-    - __init__.py                 # POST /api/v2/interviews/interview-chat
-  - dto/
-    - __init__.py                 # 요청/응답 스키마 (Pydantic)
-  - README.md                     # API 사용 가이드
+serve/
+  - session_manager.py          # Redis 세션 관리
+  - interviews/interview_chat_v2/
+    - router/__init__.py        # API 엔드포인트
+    - dto/__init__.py           # 요청/응답 스키마
 ```
 
 ### API 엔드포인트
@@ -253,12 +259,16 @@ serve/interviews/interview_chat_v2/
 - **v1**: `POST /api/v1/interviews/interview-chat` (대화 히스토리 기반)
 - **v2**: `POST /api/v2/interviews/interview-chat` (메트릭 기반)
 
-### v2 주요 기능
+### v2 주요 기능 
 
-1. **응답 파싱**: 룰 기반 + LLM 기반 키워드 추출
-2. **메트릭 추적**: 소재별 6W 축 완성도, 예시/구체성 플래그
-3. **질문 생성**: 미완성 축에 대한 LLM 질문 생성 (템플릿 폴백)
-4. **질문 선택**: 청크 가중치 기반 우선순위 알고리즘
+1. **Redis 세션 관리**: 대화 상태를 Redis에 저장하여 세션 지속성 보장
+2. **Legacy 알고리즘 통합**: 기존 질문 생성 알고리즘을 엔진으로 완전 통합
+3. **통합 엔진**: 7개 파일을 3개로 통합하여 코드 구조 개선
+4. **LLM 기반 소재 매칭**: 답변 내용을 분석하여 관련 소재 자동 매칭
+5. **6W 축 분석**: LLM이 답변에서 6W(누가/언제/어디서/무엇을/왜/어떻게) 축을 자동 분석
+6. **메트릭 최적화**: 활성 데이터만 저장하여 JSON 크기 대폭 감소
+7. **직접 파싱**: 소재명을 띄어쓰기 기준으로 파싱하여 정확한 매칭 보장
+8. **컨텍스트 기반 질문**: 동일 소재 시 답변 내용 반영
 
 자세한 사용법은 `serve/interviews/interview_chat_v2/README.md` 참고
 

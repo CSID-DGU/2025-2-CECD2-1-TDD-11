@@ -10,7 +10,6 @@ class MaterialDto(BaseModel):
     ex: int = 0
     con: int = 0
     material_count: int = 0
-    utter_freq: int = 0
 
 
 class ChunkDto(BaseModel):
@@ -27,14 +26,13 @@ class CategoryDto(BaseModel):
 
 
 class EngineStateDto(BaseModel):
-    last_material_id: List[int] = Field(default_factory=list)
+    last_material_id: Optional[List[int]] = Field(default=None)
     last_material_streak: int = 0
     epsilon: float = 0.10
 
 
 class MetricsDto(BaseModel):
     sessionId: str
-    theme: str
     categories: Dict[str, CategoryDto]
     engine_state: EngineStateDto = Field(default_factory=EngineStateDto)
     asked_total: int = 0
@@ -44,74 +42,15 @@ class MetricsDto(BaseModel):
 # ===== Session Start DTOs =====
 class SessionStartRequestDto(BaseModel):
     sessionId: str
-    theme: str
-    categories: Dict[str, CategoryDto]
-    metrics: MetricsDto
+    userId: Optional[str] = None
+    preferredCategories: List[int] = Field(default_factory=list)
+    previousMetrics: Optional[MetricsDto] = None
     
     class Config:
         json_schema_extra = {
             "example": {
-                "sessionId": "test-session-001",
-                "theme": "나의 대학 시절",
-                "metrics": {
-                    "sessionId": "test-session-001",
-                    "theme": "나의 대학 시절",
-                    "categories": {
-                        "cat_1": {
-                            "category_num": 1,
-                            "category_name": "학업",
-                            "chunks": {
-                                "chunk_1_1": {
-                                    "chunk_num": 1,
-                                    "chunk_name": "전공 공부",
-                                    "materials": {
-                                        "mat_1_1_1": {
-                                            "material_num": 1,
-                                            "material_name": "좋아했던 과목",
-                                            "w": [0, 0, 0, 0, 0, 0],
-                                            "ex": 0,
-                                            "con": 0,
-                                            "material_count": 0,
-                                            "utter_freq": 0
-                                        }
-                                    }
-                                }
-                            },
-                            "chunk_weight": {"chunk_1_1": 2}
-                        }
-                    },
-                    "engine_state": {
-                        "last_material_id": [],
-                        "last_material_streak": 0,
-                        "epsilon": 0.1
-                    },
-                    "asked_total": 0,
-                    "policyVersion": "v1.2.0"
-                },
-                "categories": {
-                    "cat_1": {
-                        "category_num": 1,
-                        "category_name": "학업",
-                        "chunks": {
-                            "chunk_1_1": {
-                                "chunk_num": 1,
-                                "chunk_name": "전공 공부",
-                                "materials": {
-                                    "mat_1_1_1": {
-                                        "material_num": 1,
-                                        "material_name": "좋아했던 과목",
-                                        "w": [0, 0, 0, 0, 0, 0],
-                                        "ex": 0,
-                                        "con": 0,
-                                        "material_count": 0,
-                                        "utter_freq": 0
-                                    }
-                                }
-                            }
-                        },
-                        "chunk_weight": {"chunk_1_1": 2}
-                    }
-                }
+                "sessionId": "session-12345",
+                "preferredCategories": [1, 2]
             }
         }
 
@@ -123,52 +62,47 @@ class SessionStartResponseDto(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "sessionId": "test-session-001",
+                "sessionId": "session-12345",
                 "first_question": {
                     "id": "q-fcf8ea8c",
                     "material": "좋아했던 과목",
-                    "type": "how",
-                    "text": "좋아했던 과목에 대해 방법/과정을 더 자세히 들려주실 수 있을까요?"
+                    "type": "w1",
+                    "text": "학업 전공 공부 좋아했던 과목에 대해 '언제' 측면에서 더 구체적으로 들려주세요.",
+                    "material_id": [1, 1, 1]
                 }
             }
         }
 
 
 # ===== Turn DTOs =====
-class QuestionDto(BaseModel):
-    id: str
-    material: str
-    type: str
-
-
-class QuestionPoolItemDto(BaseModel):
-    id: str
-    material: str
-    keywords: List[Optional[str]]
-    type: str
-    text: str
-    source: str
-    status: str
-
-
 class InterviewChatV2RequestDto(BaseModel):
     sessionId: str
-    question: QuestionDto
     answer_text: str
-    metrics: Optional[Dict[str, Any]] = None
-    question_pool: List[QuestionPoolItemDto] = Field(default_factory=list)
-    use_llm_keywords: bool = False
-
-
-class NextQuestionDto(BaseModel):
-    id: str
-    material: str
-    type: str
-    text: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "sessionId": "session-12345",
+                "answer_text": "저는 내성적인 성격이에요. 사람들과 어울리는 것보다는 혼자 있는 시간을 더 좋아하고, 새로운 환경에 적응하는데 시간이 좀 걸리는 편이에요."
+            }
+        }
 
 
 class InterviewChatV2ResponseDto(BaseModel):
     next_question: Optional[Dict[str, Any]]
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "next_question": {
+                    "id": "q-def456",
+                    "material": "설명",
+                    "type": "ex",
+                    "text": "설명과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요.",
+                    "material_id": [8, 1, 1]
+                }
+            }
+        }
 
 
 # ===== Session End DTOs =====
@@ -179,4 +113,4 @@ class SessionEndRequestDto(BaseModel):
 class SessionEndResponseDto(BaseModel):
     sessionId: str
     final_metrics: Optional[MetricsDto]
-    pool_to_save: List[QuestionPoolItemDto]
+    pool_to_save: List[Dict[str, Any]] = Field(default_factory=list)
