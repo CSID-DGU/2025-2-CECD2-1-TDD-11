@@ -1,8 +1,9 @@
-# AI Autobiography Interview Engine (자서전 인터뷰 엔진)
+# 자서전 인터뷰 엔진 - 일고리즘
 
 > category → chunk → material 3단 구조 위에서, ε-greedy 탐색·가중치 보상·커버리지/분량 종료 조건을 이용해 인터뷰 질문을 자동 생성·진행하는 파이썬 엔진
 
 ---
+<img width="1713" height="595" alt="image" src="https://github.com/user-attachments/assets/9addb266-b613-4601-84cc-88f8a9ac505c" />
 
 ## 주요 특징 (Features)
 
