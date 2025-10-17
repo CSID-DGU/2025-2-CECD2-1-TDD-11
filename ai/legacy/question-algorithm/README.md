@@ -19,7 +19,8 @@
 
 ## 저장 포맷 (JSON Schemas)
 
-### `material.json` (예: 과거 명칭 `category.json`)
+### `material.json` 
+* `Category` → `Chunk` → `Material`  데이터를 알 수 있습니다.
 
 ```json
 {
@@ -42,6 +43,7 @@
 ```
 
 ### `theme.json`
+* 특정 테마에 어떤 카테고리가 속하는지 알 수 있습니다.
 
 ```json
 {
@@ -101,7 +103,7 @@ manager = ThemeManager(engine, theme_json)
 manager.select_theme("가족")   # 포함된 카테고리의 chunk_weight가 10으로 설정
 ```
 
-### 3) 질문 루프 (미니멀 예시)
+### 3) 질문 루프 
 
 ```python
 # 1) 소재 선택
@@ -165,13 +167,12 @@ if engine.should_stop(transcript_len=12345):
 
 ---
 
-## 🔌 NLP 연동 포인트 (필수 커스터마이징)
-
+## 🔌 NLP 연동 포인트 
 ### 1) `map_answer_to_materials(answer, current_id) -> List[MaterialId]`
-* 답변을 소재에 mapping -> LLM
+* 답변을 소재에 mapping 
 
 ### 2) `generate_question(material, target) -> str`
-* 질문 생성 -> LLM
+* 질문 생성
 
 ---
 
