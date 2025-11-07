@@ -1,0 +1,24 @@
+$schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+inputs:
+  answer_text:
+    type: string
+  current_material:
+    type: string
+outputs:
+  axes_analysis:
+    type: object
+    reference: ${analyze_axes.output}
+nodes:
+- name: analyze_axes
+  type: llm
+  source:
+    type: code
+    path: analyze_axes.jinja2
+  inputs:
+    deployment_name: gpt-4o-mini
+    temperature: 0.1
+    max_tokens: 300
+    answer_text: ${inputs.answer_text}
+    current_material: ${inputs.current_material}
+  connection: open_ai_connection
+  api: chat
