@@ -55,7 +55,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-core:1.11.2'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
-    implementation 'org.mariadb.jdbc:mariadb-java-client'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
