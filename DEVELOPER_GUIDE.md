@@ -1,5 +1,46 @@
 # GitHub 협업 가이드
 
+## 모노레포 협업 방식 (현업 스타일)
+
+### 프로젝트 구조
+```
+├── app/        # 모바일 앱
+├── web/        # 웹 프론트엔드  
+├── server/     # 백엔드 서버
+├── ai/         # AI 모델
+└── ...
+```
+
+### 브랜치 전략
+- **main**: 배포용 브랜치 (직접 수정 금지 ⚠️)
+- **{domain}/dev**: 각 도메인별 개발 브랜치 (app/dev, web/dev, server/dev, ai/dev)
+- **{domain}/prod**: 각 도메인별 배포 준비 브랜치 (app/prod, web/prod, server/prod, ai/prod)
+
+### 작업 흐름
+1. **본인 담당 도메인의 dev 브랜치에서 작업**
+   ```bash
+   git checkout app/dev    # 앱 개발자
+   git checkout web/dev    # 웹 개발자
+   git checkout server/dev # 백엔드 개발자
+   git checkout ai/dev     # AI 개발자
+   ```
+
+2. **작업 완료 후 해당 도메인의 prod 브랜치로 PR**
+   - `app/dev` → `app/prod`
+   - `web/dev` → `web/prod`
+   - `server/dev` → `server/prod`
+   - `ai/dev` → `ai/prod`
+
+3. **prod 브랜치 머지 시 자동으로 main 브랜치에 반영**
+   - GitHub Actions가 자동으로 `{domain}/prod` → `main` 머지 수행
+
+### ⚠️ 중요 규칙
+- **절대 main 브랜치를 직접 수정하지 마세요**
+- **다른 도메인의 브랜치에서 작업하지 마세요**
+- **본인 담당 도메인의 dev → prod 흐름만 사용하세요**
+
+---
+
 ## 1. 프로젝트 시작하기 (택 1)
 
 ### 1.1. Fork 방식
