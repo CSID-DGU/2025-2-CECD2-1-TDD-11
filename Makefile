@@ -2,7 +2,7 @@
 run-server: run-localstack run-mariadb copy-config run-springboot
 debug-server: run-localstack run-mariadb copy-config debug-springboot
 stop-server: stop-localstack stop-mariadb stop-springboot
-clean-server: rm-localstack rm-mariadb
+clean-server: rm-localstack rm-mariadb clean-gradle
 
 # 1. LocalStack 실행
 run-localstack:
@@ -33,7 +33,7 @@ stop-localstack:
 
 stop-mariadb:
 	@echo "[Makefile] Stopping MariaDB container..."
-	@docker stop mariadb-lifebookshelf 2>/dev/null || echo "[Makefile] There is no running MariaDB container."
+	@docker stop mariadb-talktobook 2>/dev/null || echo "[Makefile] There is no running MariaDB container."
 	@echo "[Makefile] MariaDB container stopped."
 
 stop-springboot:
@@ -50,12 +50,11 @@ rm-localstack:
 
 rm-mariadb:
 	@echo "[Makefile] Removing MariaDB container..."
-	@docker stop mariadb-lifebookshelf 2>/dev/null || echo "[Makefile] There is no running MariaDB container."
-	@docker rm mariadb-lifebookshelf 2>/dev/null || true
+	@docker stop mariadb-talktobook 2>/dev/null || echo "[Makefile] There is no running MariaDB container."
+	@docker rm mariadb-talktobook 2>/dev/null || true
 	@echo "[Makefile] MariaDB container removed."
 
-clean-server: rm-localstack rm-mariadb
+clean-gradle: rm-localstack rm-mariadb
 	@echo "[Makefile] Cleaning gradle build..."
-	@bash cd server
-	@bash ./gradlew clean
+	@cd server && ./gradlew clean && rm -rf .gradle bin
 	@echo "[Makefile] Successfully gradle build cleaned."
