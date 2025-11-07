@@ -16,28 +16,29 @@ permissions:
 
 jobs:
   auto-merge:
-    if: github.event.pull_request.merged == true
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref != 'main' &&
+      github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }} # git actions에서 자동으로 생성되는 token
-      
-      - name: Merge to main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge base branch into main
         run: |
           BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+          echo "[auto-merge] Merging ${BASE_BRANCH} → main"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin main $BASE_BRANCH
-
           git checkout main
           git pull origin main
-
-          git merge --no-ff origin/$BASE_BRANCH -m "Auto merge $BASE_BRANCH into main"
-
+          git merge --ff-only origin/$BASE_BRANCH || echo "[auto-merge] Non-FF merge skipped"
           git push origin main
