@@ -1,0 +1,41 @@
+# prod 도메인에 대해, 자동으로 main으로 머지하는 워크플로우
+name: Auto Merge to Main
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - 'app/prod'
+      - 'ai/prod'
+      - 'server/prod'
+      - 'web/prod'
+
+permissions:
+  contents: write
+  
+jobs:
+  auto-merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} # git actions에서 자동으로 생성되는 token
+      
+      - name: Merge to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git checkout main
+          git pull origin main
+          
+          if git merge origin/${{ github.event.pull_request.base.ref }} --no-ff -m "Auto merge ${{ github.event.pull_request.base.ref }} to main"; then
+            git push origin main
+          else
+            echo "Merge conflict detected. Keeping existing main branch state."
+            git merge --abort
+          fi
