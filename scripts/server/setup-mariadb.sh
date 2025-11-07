@@ -44,15 +44,22 @@ else
     mariadb:11.4.2 \
     --character-set-server=utf8mb4 \
     --collation-server=utf8mb4_unicode_ci
-
-  echo "[scripts/server/mariadb] Waiting for MariaDB to be ready... (10 seconds)"
-  sleep 10
 fi
+
+echo "[scripts/server/mariadb] Waiting for MariaDB to be ready..."
+for i in {1..10}; do
+  if docker exec -i $CONTAINER_NAME mariadb -u$DB_USER -p$DB_PASSWORD -e "SELECT 1;" > /dev/null 2>&1; then
+    echo "[scripts/server/mariadb] MariaDB is ready!"
+    break
+  fi
+  echo "[scripts/server/mariadb] MariaDB is still starting... ($i/10)"
+  sleep 3
+done
 
 # 3. 상태 확인
 if docker exec -i $CONTAINER_NAME mariadb -u$DB_USER -p$DB_PASSWORD -e "SHOW DATABASES;" > /dev/null 2>&1; then
   echo "[scripts/server/mariadb] MariaDB is running successfully: localhost:$DB_PORT"
 else
   echo "[scripts/server/mariadb] Failed to connect to MariaDB. Check the logs:"
-  docker logs $CONTAINER_NAME | tail -n 50
+  docker logs $CONTAINER_NAME 2>&1 | grep -E "ERROR|Fail|Crash" | tail -n 10 || echo "(no error logs found)"
 fi
