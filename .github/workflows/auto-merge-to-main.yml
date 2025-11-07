@@ -10,9 +10,6 @@ on:
       - 'server/prod'
       - 'web/prod'
 
-permissions:
-  contents: write
-  
 jobs:
   auto-merge:
     if: github.event.pull_request.merged == true
