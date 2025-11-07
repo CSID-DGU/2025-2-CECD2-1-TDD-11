@@ -1,5 +1,6 @@
 # 기본 실행 타겟
 run-server: run-localstack run-mariadb copy-config run-springboot
+restart-server: stop-springboot run-springboot
 debug-server: run-localstack run-mariadb copy-config debug-springboot
 stop-server: stop-localstack stop-mariadb stop-springboot
 clean-server: rm-localstack rm-mariadb clean-gradle

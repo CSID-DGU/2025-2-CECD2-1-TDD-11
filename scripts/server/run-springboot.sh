@@ -62,6 +62,7 @@ echo "[scripts/server/run-springboot] Successfully built the Spring Boot applica
 echo "[scripts/server/run-springboot] Starting Spring Boot application on port $PORT..."
 nohup ./gradlew bootRun --no-daemon > boot.log 2>&1 &
 
+# 방금 백그라운드로 실행된 프로세스의 PID(Process ID)”를 변수에 저장하는 구문
 BOOT_PID=$!
 echo "[scripts/server/run-springboot] BootRun process started (PID: $BOOT_PID)"
 
@@ -82,5 +83,6 @@ for i in {1..30}; do
 done
 
 echo "[scripts/server/run-springboot] Server did not respond within 30 seconds."
-echo "[scripts/server/run-springboot] Check logs or make debug-springboot for more details."
+echo "[scripts/server/debug-springboot] Check server/boot.log for details."
+echo "[scripts/server/run-springboot] If you need more detailed, try \"make debug-springboot\""
 exit 1
