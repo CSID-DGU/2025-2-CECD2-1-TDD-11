@@ -46,7 +46,7 @@ fi
 # ===============================================================
 
 echo "[scripts/server/debug-springboot] Building Spring Boot application..."
-./gradlew build -x test
+./gradlew build -x test -Pprofile=local
 
 if [ $? -ne 0 ]; then
   echo "[scripts/server/debug-springboot] Failed to build the Spring Boot application."
