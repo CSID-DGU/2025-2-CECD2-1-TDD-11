@@ -9,6 +9,7 @@ on:
       - 'ai/prod'
       - 'server/prod'
       - 'web/prod'
+      - 'devops'
 
 jobs:
   auto-merge:
