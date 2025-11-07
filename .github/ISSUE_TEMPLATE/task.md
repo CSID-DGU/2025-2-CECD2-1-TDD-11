@@ -2,7 +2,7 @@
 name: TASK 관련 이슈
 about: 일반적인 작업, 문서화, 기획 등
 title: '[TASK] '
-labels: ['task']
+labels: ['']
 assignees: ''
 ---
 

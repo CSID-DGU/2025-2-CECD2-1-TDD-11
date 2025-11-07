@@ -1,3 +1,4 @@
+# main 브랜치에 대해 자동으로 백업 브랜치를 생성하는 워크플로우
 name: Auto Backup Branch on Merge
 
 on:

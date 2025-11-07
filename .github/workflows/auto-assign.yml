@@ -1,3 +1,4 @@
+# 열린 PR에 대해, 작성자를 자동으로 할당하는 워크플로우
 name: Auto Assign PR
 
 on:
