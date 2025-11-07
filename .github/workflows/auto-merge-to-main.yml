@@ -11,6 +11,9 @@ on:
       - 'web/prod'
       - 'devops'
 
+permissions:
+  contents: write
+
 jobs:
   auto-merge:
     if: github.event.pull_request.merged == true
