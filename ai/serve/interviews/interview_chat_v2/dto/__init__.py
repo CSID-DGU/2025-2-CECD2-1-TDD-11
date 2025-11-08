@@ -15,14 +15,14 @@ class MaterialDto(BaseModel):
 class ChunkDto(BaseModel):
     chunk_num: int
     chunk_name: str
-    materials: Dict[str, MaterialDto] = Field(default_factory=dict)
+    chunk_weight: int = 0
+    materials: List[MaterialDto] = Field(default_factory=list)
 
 
 class CategoryDto(BaseModel):
     category_num: int
     category_name: str
-    chunks: Dict[str, ChunkDto] = Field(default_factory=dict)
-    chunk_weight: Dict[str, int] = Field(default_factory=dict)
+    chunks: List[ChunkDto] = Field(default_factory=list)
 
 
 class EngineStateDto(BaseModel):
@@ -33,7 +33,7 @@ class EngineStateDto(BaseModel):
 
 class MetricsDto(BaseModel):
     sessionId: str
-    categories: Dict[str, CategoryDto]
+    categories: List[CategoryDto]
     engine_state: EngineStateDto = Field(default_factory=EngineStateDto)
     asked_total: int = 0
     policyVersion: str = "v1.2.0"
