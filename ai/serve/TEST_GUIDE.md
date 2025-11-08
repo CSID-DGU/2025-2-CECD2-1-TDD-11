@@ -127,16 +127,17 @@ http://localhost:3000/docs
   "sessionId": "session-12345",
   "previousMetrics": {
     "sessionId": "session-12345",
-    "categories": {
-      "cat_1": {
+    "categories": [
+      {
         "category_num": 1,
         "category_name": "부모",
-        "chunks": {
-          "chunk_1_1": {
+        "chunks": [
+          {
             "chunk_num": 1,
-            "chunk_name": "프로팔",
-            "materials": {
-              "mat_1_1_1": {
+            "chunk_name": "프로필",
+            "chunk_weight": 2,
+            "materials": [
+              {
                 "material_num": 1,
                 "material_name": "성격",
                 "w": [2, 1, 0, 1, 0, 0],
@@ -144,12 +145,11 @@ http://localhost:3000/docs
                 "con": 0,
                 "material_count": 1
               }
-            }
+            ]
           }
-        },
-        "chunk_weight": {"chunk_1_1": 2}
+        ]
       }
-    },
+    ],
     "engine_state": {
       "last_material_id": [1, 1, 1],
       "last_material_streak": 2,
@@ -263,16 +263,17 @@ http://localhost:3000/docs
   "sessionId": "session-12345",
   "final_metrics": {
     "sessionId": "session-12345",
-    "categories": {
-      "cat_1": {
+    "categories": [
+      {
         "category_num": 1,
         "category_name": "부모",
-        "chunks": {
-          "chunk_1": {
+        "chunks": [
+          {
             "chunk_num": 1,
             "chunk_name": "프로파일",
-            "materials": {
-              "mat_1": {
+            "chunk_weight": 15,
+            "materials": [
+              {
                 "material_num": 1,
                 "material_name": "성격",
                 "w": [1, 1, 1, 0, 1, 1],
@@ -280,12 +281,11 @@ http://localhost:3000/docs
                 "con": 1,
                 "material_count": 1
               }
-            }
+            ]
           }
-        },
-        "chunk_weight": {"1": 15}
+        ]
       }
-    },
+    ],
     "engine_state": {
       "last_material_id": [1, 1, 1],
       "last_material_streak": 3,
@@ -310,6 +310,12 @@ http://localhost:3000/docs
 ✅ **LLM 기반 소재 매칭**: 답변 내용을 분석하여 관련 소재를 자동으로 매칭
 
 ✅ **6W 축 자동 분석**: LLM이 답변에서 6W(누가/언제/어디서/무엇을/왜/어떻게) + ex/con 축을 자동 분석하여 메트릭에 정확히 반영
+
+✅ **배열 구조로 변경**: 객체 구조에서 배열 구조로 변경하여 값 누적 문제 해결
+- categories: {} → []
+- chunks: {} → []
+- materials: {} → []
+- 값 덮어쓰기 → 값 누적 (w: [1,0,0,0,0,0] + [1,0,0,0,0,0] = [2,0,0,0,0,0])
 
 ✅ **JSON 최적화**: 활성 데이터만 직렬화하여 JSON 크기 대폭 감소
 - 활성 카테고리만 포함 (chunk_weight > 0)

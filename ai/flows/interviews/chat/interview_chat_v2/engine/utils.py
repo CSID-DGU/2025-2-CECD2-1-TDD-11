@@ -49,34 +49,69 @@ def find_material_id(engine: InterviewEngine, material_name: str) -> Optional[Ma
     return None
 
 #V2 추가 함수 - 세션 상태 복원
-def restore_categories_state(categories: Dict[int, Category], metrics_categories: dict) -> None:
-    """이전 메트릭에서 카테고리 상태 복원"""
-    for cat_key, cat_data in metrics_categories.items():
-        cat_num = cat_data.get("category_num")
-        if cat_num not in categories:
-            continue
-            
-        category = categories[cat_num]
-        
-        # chunk_weight 복원
-        if "chunk_weight" in cat_data:
-            category.chunk_weight.update(cat_data["chunk_weight"])
-        
-        # materials 상태 복원
-        for chunk_key, chunk_data in cat_data.get("chunks", {}).items():
-            chunk_num = chunk_data.get("chunk_num")
-            if chunk_num not in category.chunks:
+def restore_categories_state(categories: Dict[int, Category], metrics_categories) -> None:
+    """이전 메트릭에서 카테고리 상태 복원 (배열 구조)"""
+    # 배열 구조 처리
+    if isinstance(metrics_categories, list):
+        for cat_data in metrics_categories:
+            cat_num = cat_data.get("category_num")
+            if cat_num not in categories:
                 continue
                 
-            chunk = category.chunks[chunk_num]
+            category = categories[cat_num]
             
-            for mat_key, mat_data in chunk_data.get("materials", {}).items():
-                mat_num = mat_data.get("material_num")
-                if mat_num not in chunk.materials:
+            # chunk_weight 복원
+            if "chunk_weight" in cat_data:
+                category.chunk_weight.update(cat_data["chunk_weight"])
+            
+            # chunks 상태 복원 (배열)
+            for chunk_data in cat_data.get("chunks", []):
+                chunk_num = chunk_data.get("chunk_num")
+                if chunk_num not in category.chunks:
                     continue
                     
-                material = chunk.materials[mat_num]
-                material.w = mat_data.get("w", [0, 0, 0, 0, 0, 0])
-                material.ex = mat_data.get("ex", 0)
-                material.con = mat_data.get("con", 0)
-                material.material_count = mat_data.get("material_count", 0)
+                chunk = category.chunks[chunk_num]
+                
+                # materials 상태 복원 (배열)
+                for mat_data in chunk_data.get("materials", []):
+                    mat_num = mat_data.get("material_num")
+                    if mat_num not in chunk.materials:
+                        continue
+                        
+                    material = chunk.materials[mat_num]
+                    material.w = mat_data.get("w", [0, 0, 0, 0, 0, 0])
+                    material.ex = mat_data.get("ex", 0)
+                    material.con = mat_data.get("con", 0)
+                    material.material_count = mat_data.get("material_count", 0)
+    
+    # 기존 객체 구조 호환성 유지
+    elif isinstance(metrics_categories, dict):
+        for cat_key, cat_data in metrics_categories.items():
+            cat_num = cat_data.get("category_num")
+            if cat_num not in categories:
+                continue
+                
+            category = categories[cat_num]
+            
+            # chunk_weight 복원
+            if "chunk_weight" in cat_data:
+                category.chunk_weight.update(cat_data["chunk_weight"])
+            
+            # materials 상태 복원
+            for chunk_key, chunk_data in cat_data.get("chunks", {}).items():
+                chunk_num = chunk_data.get("chunk_num")
+                if chunk_num not in category.chunks:
+                    continue
+                    
+                chunk = category.chunks[chunk_num]
+                
+                for mat_key, mat_data in chunk_data.get("materials", {}).items():
+                    mat_num = mat_data.get("material_num")
+                    if mat_num not in chunk.materials:
+                        continue
+                        
+                    material = chunk.materials[mat_num]
+                    material.w = mat_data.get("w", [0, 0, 0, 0, 0, 0])
+                    material.ex = mat_data.get("ex", 0)
+                    material.con = mat_data.get("con", 0)
+                    material.material_count = mat_data.get("material_count", 0)

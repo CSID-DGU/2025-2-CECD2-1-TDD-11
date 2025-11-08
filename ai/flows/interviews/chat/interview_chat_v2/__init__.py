@@ -256,22 +256,22 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                             if isinstance(w_values, list) and len(w_values) == 6:
                                 for j, detected in enumerate(w_values):
                                     if detected == 1:
-                                        material.w[j] = 1
+                                        material.w[j] = min(material.w[j] + 1, 6)  # ← 누적 (최대 6)
                                 print(f"    6W 반영: {w_values} → {material.w}")
                         else:
                             for j, detected in enumerate(axes_evidence.values()):
                                 if detected and j < 6:
-                                    material.w[j] = 1
+                                    material.w[j] = min(material.w[j] + 1, 6)  # ← 누적 (최대 6)
                         
                         if material_axes and material_axes.get("ex") == 1:
-                            material.ex = 1
+                            material.ex = min(material.ex + 1, 3)  # ← 누적 (최대 3)
                         elif ex_flag:
-                            material.ex = 1
+                            material.ex = min(material.ex + 1, 3)  # ← 누적 (최대 3)
                         
                         if material_axes and material_axes.get("con") == 1:
-                            material.con = 1
+                            material.con = min(material.con + 1, 3)  # ← 누적 (최대 3)
                         elif con_flag:
-                            material.con = 1
+                            material.con = min(material.con + 1, 3)  # ← 누적 (최대 3)
                         
                         print(f"    변경: w {old_w} → {material.w}, ex {old_ex} → {material.ex}, con {old_con} → {material.con}")
                         
@@ -342,9 +342,9 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             "material_id": material_id
         }
         
-        # Redis에 업데이트된 상태 저장 (활성 데이터만)
+        # Redis에 업데이트된 상태 저장 (배열 구조)
         def serialize_categories(categories):
-            result = {}
+            result = []
             for k, v in categories.items():
                 # 활성 청크만 포함 (chunk_weight > 0)
                 active_chunks = {ck: cv for ck, cv in v.chunks.items() 
@@ -353,37 +353,37 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                 if not active_chunks:
                     continue
                     
-                chunks = {}
+                chunks = []
                 for ck, cv in active_chunks.items():
                     # 활성 소재만 포함 (w/ex/con 중 하나라도 값이 있음)
-                    active_materials = {}
+                    materials = []
                     for mk, mv in cv.materials.items():
                         if (any(mv.w) or mv.ex or mv.con or mv.material_count > 0):
-                            active_materials[f"mat_{mk}"] = {
+                            materials.append({
                                 "material_num": mv.material_num,
                                 "material_name": mv.material_name,
                                 "w": mv.w,
                                 "ex": mv.ex,
                                 "con": mv.con,
                                 "material_count": mv.material_count
-                            }
+                            })
                     
-                    if active_materials:
-                        chunks[f"chunk_{ck}"] = {
+                    if materials:
+                        chunks.append({
                             "chunk_num": cv.chunk_num,
                             "chunk_name": cv.chunk_name,
-                            "materials": active_materials
-                        }
+                            "materials": materials
+                        })
                 
                 if chunks:
                     # 활성 chunk_weight만 포함
                     active_weights = {str(ck): weight for ck, weight in v.chunk_weight.items() if weight > 0}
-                    result[f"cat_{k}"] = {
+                    result.append({
                         "category_num": v.category_num,
                         "category_name": v.category_name,
                         "chunks": chunks,
                         "chunk_weight": active_weights
-                    }
+                    })
             return result
         
         updated_metrics = {
