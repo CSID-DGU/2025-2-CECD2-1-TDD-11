@@ -25,13 +25,13 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
             
             if category_names:
                 categories_text = ", ".join(category_names)
-                question_text = f"{categories_text}에 대해서 어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요."
+                question_text = f"{categories_text}에 대해서 주로 이야기하게 될 거에요. 만약 이 책이 만들어진다면 누구에게 가장 필요할 것 같나요?"
                 selected_cat_num = preferred_categories[0]
             else:
                 return {"next_question": None}
         else:
             # 선호 카테고리가 없으면 그냥 어떤 이야기가 하고 싶냐고 물어봄
-            question_text = "어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요."
+            question_text = "이 책이 만들어지면 누구에게 가장 필요할 거 같으세요?"
             selected_cat_num = 0
             category_names = []
 
