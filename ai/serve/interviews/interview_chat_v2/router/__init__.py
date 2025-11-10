@@ -22,19 +22,19 @@ session_manager = SessionManager()
 flow_path = flows_dir / "flow.dag.yaml"
 flow = load_flow(str(flow_path))
 
-@router.post("/session/start", response_model=SessionStartResponseDto)
+@router.post("/start", response_model=SessionStartResponseDto)
 async def start_session(request: SessionStartRequestDto):
     """세션 시작"""
     try:
         # 세션 생성
         session_manager.create_session(
-            request.sessionId, 
+            request.session_id, 
             request.preferredCategories,
             request.previousMetrics.dict() if request.previousMetrics else None
         )
         
         result = flow(
-            sessionId=request.sessionId,
+            sessionId=request.session_id,
             answer_text=""
         )
         
@@ -43,9 +43,9 @@ async def start_session(request: SessionStartRequestDto):
         # 세션 저장
         if first_question:
             session_manager.save_session(
-                request.sessionId,
+                request.session_id,
                 metrics={
-                    "sessionId": request.sessionId,
+                    "session_id": request.session_id,
                     "categories": {},
                     "engine_state": {"last_material_id": None},
                     "asked_total": 0
@@ -54,25 +54,25 @@ async def start_session(request: SessionStartRequestDto):
             )
         
         return SessionStartResponseDto(
-            sessionId=request.sessionId,
+            session_id=request.session_id,
             first_question=first_question
         )
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"세션 시작 실패: {str(e)}")
 
-@router.post("/interview-chat", response_model=InterviewChatV2ResponseDto)
+@router.post("/chat", response_model=InterviewChatV2ResponseDto)
 async def interview_chat(request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
         # 세션 로드
-        session_data = session_manager.load_session(request.sessionId)
+        session_data = session_manager.load_session(request.session_id)
         if not session_data:
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # 다음 질문 생성
         result = flow(
-            sessionId=request.sessionId,
+            sessionId=request.session_id,
             answer_text=request.answer_text
         )
         
@@ -87,12 +87,12 @@ async def interview_chat(request: InterviewChatV2RequestDto):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"질문 생성 실패: {str(e)}")
 
-@router.post("/session/end", response_model=SessionEndResponseDto)
+@router.post("/end", response_model=SessionEndResponseDto)
 async def end_session(request: SessionEndRequestDto):
     """세션 종료 및 최종 메트릭 반환"""
     try:
         # 세션 로드
-        session_data = session_manager.load_session(request.sessionId)
+        session_data = session_manager.load_session(request.session_id)
         if not session_data:
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
@@ -100,10 +100,10 @@ async def end_session(request: SessionEndRequestDto):
         final_metrics = session_data.get("metrics")
         
         # 세션 삭제
-        session_manager.delete_session(request.sessionId)
+        session_manager.delete_session(request.session_id)
         
         return SessionEndResponseDto(
-            sessionId=request.sessionId,
+            session_id=request.session_id,
             final_metrics=final_metrics,
             pool_to_save=[]  # V2에서는 pool 사용 안 함
         )

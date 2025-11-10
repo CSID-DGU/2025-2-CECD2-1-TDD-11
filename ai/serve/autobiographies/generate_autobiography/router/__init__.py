@@ -2,8 +2,8 @@ import json
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
-from fastapi.responses import StreamingResponse
 from promptflow.core import Flow
+import asyncio
 from pydantic_core import ValidationError
 from starlette.requests import Request
 
@@ -22,14 +22,15 @@ router = APIRouter()
 
 
 @router.post(
-    "/api/v1/autobiographies/generate",
+    "/generate/{autobiography_id}",
     dependencies=[Depends(AuthRequired())],
     response_model=AutobiographyGenerateResponseDto,
     summary="자서전 생성",
-    description="유저의 정보와 챕터 정보, 인터뷰 대화 내역을 입력받아 자서전을 생성합니다.",
+    description="유저의 정보와 인터뷰 대화 내역을 입력받아 자서전을 생성합니다.",
     tags=["자서전 (Autobiography)"],
 )
 async def generate_autobiography(
+    autobiography_id: int,
     request: Request,
     requestDto: AutobiographyGenerateRequestDto,
 ):
@@ -41,18 +42,21 @@ async def generate_autobiography(
             "../flows/autobiographies/standard/generate_autobiography/flow.dag.yaml"
         )
 
-        # 스트리밍 제너레이터 함수 정의
-        def stream_autobiography():
-            for text in flow(
-                user_info=requestDto.user_info,
-                chapter_info=requestDto.chapter_info,
-                sub_chapter_info=requestDto.sub_chapter_info,
-                interview_chat=requestDto.interviews,
-            ).get("autobiographical_text", []):
-                yield text
-
-        # StreamingResponse로 제너레이터 반환
-        return StreamingResponse(stream_autobiography(), media_type="text/plain")
+        # 자서전 생성 (병렬 처리)
+        async def generate_async():
+            return flow(
+                user_info=requestDto.user_info.dict(),
+                autobiography_info=requestDto.autobiography_info.dict(),
+                interviews=[interview.dict() for interview in requestDto.interviews],
+                autobiography_id=autobiography_id
+            )
+        
+        result = await generate_async()
+        
+        return AutobiographyGenerateResponseDto(
+            title=result.get("title", ""),
+            autobiographical_text=result.get("autobiographical_text", "")
+        )
 
     except json.JSONDecodeError:
         raise HTTPException(

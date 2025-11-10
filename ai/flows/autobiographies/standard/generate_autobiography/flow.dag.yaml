@@ -5,86 +5,55 @@ inputs:
   user_info:
     type: object
     properties:
-      user_name:
-        type: string
-        default: 최시원
-        description: 사용자의 이름
-        is_chat_input: false
-      date_of_birth:
-        type: string
-        default: 2000-02-21
-        description: 사용자의 출생일
-        is_chat_input: false
       gender:
         type: string
-        default: FEAMLE
+        default: FEMALE
         description: 사용자의 성별
-        is_chat_input: false
-      has_children:
-        type: string
-        default: no
-        description: 사용자의 자녀 여부 (yes/no)
         is_chat_input: false
       occupation:
         type: string
         default: 프로그래머
         description: 사용자의 직업
         is_chat_input: false
-      education_level:
+      age_group:
         type: string
         default: 대학교 재학
-        description: 사용자의 교육 수준
-        is_chat_input: false
-      marital_status:
-        type: string
-        default: 미혼
-        description: 사용자의 결혼 여부
+        description: 사용자의 연령대
         is_chat_input: false
     default: {
-      "user_name": "최시원",
-      "date_of_birth": "2000-02-21",
-      "gender": "FEAMLE",
+      "gender": "FEMALE",
       "occupation": "프로그래머",
-      "education_level": "대학교 재학",
-      "marital_status": "미혼"
+      "age_group": "대학교 재학"
     }
-  chapter_info:
+  autobiography_info:
     type: object
     properties:
-      title:
+      theme:
         type: string
-        default: 20대
-        description: 챕터의 제목
+        default: 가족
+        description: 자서전 테마
         is_chat_input: false
-      description:
+      category:
         type: string
-        default: 대학 생활과 첫 직장 경험
-        description: 챕터의 설명
+        default: 부모
+        description: 자서전 카테고리
         is_chat_input: false
-    default: {
-      "title": "20대",
-      "description": "대학 생활과 첫 직장 경험"
-    }
-
-  sub_chapter_info:
-    type: object
-    properties:
-      title:
+      reason:
         type: string
-        default: 첫 직장 생활
-        description: 서브 챕터의 제목
-        is_chat_input: false
-      description:
-        type: string
-        default: 소프트웨어 회사에서의 첫 직장 경험과 적응 과정
-        description: 서브 챕터의 설명
+        default: 이러이러한 사유로 만들고 싶습니다.
+        description: 자서전 작성 이유
         is_chat_input: false
     default: {
-      "title": "첫 직장 생활",
-      "description": "소프트웨어 회사에서의 첫 직장 경험과 적응 과정"
+      "theme": "가족",
+      "category": "부모",
+      "reason": "이러이러한 사유로 만들고 싶습니다."
     }
-
-  interview_chat:
+  autobiography_id:
+    type: int
+    default: 1
+    description: 자서전 ID
+    is_chat_input: false
+  interviews:
     type: list
     items:
       type: object
@@ -102,17 +71,20 @@ inputs:
     default: [
       {
         "content": "회사에서 맡은 첫 프로젝트는 무엇이었고, 어떤 도전이 있었나요?",
-        "conversation_type": "BOT"
+        "conversation_type": "HUMAN"
       },
       {
         "content": "제가 맡은 첫 프로젝트는 온라인 쇼핑몰 구축 프로젝트였습니다. 처음으로 프로젝트를 맡아서 설계부터 개발까지 전반적인 업무를 담당했는데, 기존에 경험이 부족했기 때문에 많은 어려움을 겪었습니다. 특히, 프로젝트 일정이 타이트했기 때문에 개발 과정에서 많은 야근을 했었죠.",
         "conversation_type": "HUMAN"
-      },
+      }
     ]
 outputs:
+  title:
+    type: string
+    reference: ${generate_autobiography.output.title}
   autobiographical_text:
     type: string
-    reference: ${generate_autobiography.output}
+    reference: ${generate_autobiography.output.autobiographical_text}
 nodes:
 - name: generate_autobiography
   type: llm
@@ -126,8 +98,8 @@ nodes:
     response_format:
       type: json_object
     user_info: ${inputs.user_info}
-    chapter_info: ${inputs.chapter_info}
-    sub_chapter_info: ${inputs.sub_chapter_info}
-    interview_chat: ${inputs.interview_chat}
+    autobiography_info: ${inputs.autobiography_info}
+    autobiography_id: ${inputs.autobiography_id}
+    interviews: ${inputs.interviews}
   connection: open_ai_connection
   api: chat
