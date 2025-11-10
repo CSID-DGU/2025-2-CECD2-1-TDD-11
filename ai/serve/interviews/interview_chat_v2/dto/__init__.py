@@ -49,8 +49,8 @@ class SessionStartRequestDto(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "session_id": "session-12345",
-                "preferred_categories": [1, 2]
+                "session_id": "user-session-2024-001",
+                "preferred_categories": [1, 3, 5]
             }
         }
 
@@ -62,12 +62,12 @@ class SessionStartResponseDto(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "session_id": "session-12345",
+                "session_id": "user-session-2024-001",
                 "first_question": {
                     "id": "q-fcf8ea8c",
                     "material": "좋아했던 과목",
                     "type": "w1",
-                    "text": "학업 전공 공부 좋아했던 과목에 대해 '언제' 측면에서 더 구체적으로 들려주세요.",
+                    "text": "좋아했던 과목에 대해 '언제' 측면에서 더 구체적으로 들려주세요. 어느 시기에 그 과목을 좋아하게 되셨나요?",
                     "material_id": [1, 1, 1]
                 }
             }
@@ -82,8 +82,8 @@ class InterviewChatV2RequestDto(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "session_id": "session-12345",
-                "answer_text": "저는 내성적인 성격이에요. 사람들과 어울리는 것보다는 혼자 있는 시간을 더 좋아하고, 새로운 환경에 적응하는데 시간이 좀 걸리는 편이에요."
+                "session_id": "user-session-2024-001",
+                "answer_text": "대학교 2학년 때 컴퓨터과학 수업을 들으면서 프로그래밍에 흥미를 느끼기 시작했어요. 처음에는 어려웠지만 교수님이 차근차근 설명해주시고, 실습을 통해 직접 코드를 작성해보면서 점점 재미를 느끼게 되었습니다. 특히 첫 번째 프로그램이 성공적으로 실행됐을 때의 성취감은 정말 잊을 수 없어요."
             }
         }
 
@@ -96,10 +96,10 @@ class InterviewChatV2ResponseDto(BaseModel):
             "example": {
                 "next_question": {
                     "id": "q-def456",
-                    "material": "설명",
+                    "material": "좋아했던 과목",
                     "type": "ex",
-                    "text": "설명과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요.",
-                    "material_id": [8, 1, 1]
+                    "text": "프로그래밍 수업과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요. 어떤 프로젝트나 과제가 특히 기억에 남나요?",
+                    "material_id": [1, 1, 1]
                 }
             }
         }
