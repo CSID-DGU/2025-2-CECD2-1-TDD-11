@@ -79,12 +79,9 @@ inputs:
       }
     ]
 outputs:
-  title:
+  result:
     type: string
-    reference: ${generate_autobiography.output.title}
-  autobiographical_text:
-    type: string
-    reference: ${generate_autobiography.output.autobiographical_text}
+    reference: ${generate_autobiography.output}
 nodes:
 - name: generate_autobiography
   type: llm

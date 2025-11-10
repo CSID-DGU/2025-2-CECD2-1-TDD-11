@@ -20,16 +20,7 @@ class SessionManager:
         """세션 키 생성: {userId}:{autobiographyId}"""
         return f"{user_id}:{autobiography_id}"
     
-    def can_create_autobiography(self, user_id: int) -> tuple[bool, str]:
-        """자서전 생성 가능 여부 확인"""
-        # 기존 세션 확인
-        pattern = f"session:{user_id}:*"
-        existing_sessions = self.redis_client.keys(pattern)
-        
-        if len(existing_sessions) >= 3:  # 최대 3개 동시 진행
-            return False, "동시에 진행할 수 있는 자서전은 최대 3개입니다."
-        
-        return True, "자서전 생성이 가능합니다."
+
     def __init__(self, redis_host: str = 'localhost', redis_port: int = 6379, redis_db: int = 0):
         self.redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
         self.session_ttl = 3600  # 1시간

@@ -31,11 +31,6 @@ async def start_session(http_request: Request, request: SessionStartRequestDto):
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
         
-        # 자서전 생성 가능 여부 확인
-        can_create, reason = session_manager.can_create_autobiography(user_id)
-        if not can_create:
-            raise HTTPException(status_code=429, detail=reason)
-        
         # session_id를 autobiography_id로 사용 (bigint)
         autobiography_id = int(request.session_id)
         session_key = session_manager.generate_session_key(user_id, autobiography_id)

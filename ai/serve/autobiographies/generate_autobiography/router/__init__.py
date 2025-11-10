@@ -34,28 +34,51 @@ async def generate_autobiography(
     request: Request,
     requestDto: AutobiographyGenerateRequestDto,
 ):
-    current_user = get_current_user(request)
     try:
-        logger.info(f"Generating autobiography for user {current_user.member_id}")
-        # Collect the results as they are returned by the flow
-        flow = Flow.load(
-            "../flows/autobiographies/standard/generate_autobiography/flow.dag.yaml"
-        )
-
-        # 자서전 생성 (병렬 처리)
-        async def generate_async():
-            return flow(
-                user_info=requestDto.user_info.dict(),
-                autobiography_info=requestDto.autobiography_info.dict(),
-                interviews=[interview.dict() for interview in requestDto.interviews],
-                autobiography_id=autobiography_id
-            )
+        current_user = get_current_user(request)
+        # Flow 로드 및 실행
+        import os
+        flow_path = "d:/lifeLibrarians/2025-2-CECD2-1-TDD-11/ai/flows/autobiographies/standard/generate_autobiography/flow.dag.yaml"
         
-        result = await generate_async()
+        if not os.path.exists(flow_path):
+            raise HTTPException(status_code=500, detail="Flow file not found")
+        
+        flow = Flow.load(flow_path)
+        result = flow(
+            user_info=requestDto.user_info.dict(),
+            autobiography_info=requestDto.autobiography_info.dict(),
+            interviews=[interview.dict() for interview in requestDto.interviews],
+            autobiography_id=autobiography_id
+        )
+        
+        # 기본값
+        title = f"{requestDto.autobiography_info.theme} - {requestDto.autobiography_info.category}에 대한 나의 이야기"
+        text = "인터뷰 내용을 바탕으로 자서전을 생성하는 중입니다..."
+        
+        # Flow 결과 처리
+        if isinstance(result, dict) and "result" in result:
+            flow_output = result["result"]
+            
+            # Generator 처리
+            if hasattr(flow_output, '__iter__') and not isinstance(flow_output, str):
+                try:
+                    flow_output = ''.join(flow_output)
+                except:
+                    flow_output = "자서전 생성 중 오류 발생"
+            
+            try:
+                parsed = json.loads(str(flow_output))
+                if isinstance(parsed, dict):
+                    title = parsed.get("title", title)
+                    text = parsed.get("autobiographical_text", text)
+            except:
+                text = str(flow_output) if flow_output else text
+
+
         
         return AutobiographyGenerateResponseDto(
-            title=result.get("title", ""),
-            autobiographical_text=result.get("autobiographical_text", "")
+            title=str(title),
+            autobiographical_text=str(text)
         )
 
     except json.JSONDecodeError:

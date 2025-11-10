@@ -13,7 +13,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 from engine.core import InterviewEngine
-from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, find_matching_materials, find_material_id, restore_categories_state
+from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, find_matching_materials, find_material_id_fast, restore_categories_state
 from engine.generators import generate_first_question, generate_question_llm
 
 @tool

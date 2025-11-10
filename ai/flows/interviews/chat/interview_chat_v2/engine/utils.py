@@ -38,15 +38,27 @@ def find_matching_materials(answer: str, current_material: str, material_data: d
     
     return matched
 
-#기존 알고리즘 - 소재 ID 찾기
-def find_material_id(engine: InterviewEngine, material_name: str) -> Optional[MaterialId]:
-    """소재 이름으로 MaterialId 찾기"""
-    for cat_num, category in engine.categories.items():
-        for chunk_num, chunk in category.chunks.items():
-            for mat_num, material in chunk.materials.items():
-                if material.material_name == material_name:
-                    return (cat_num, chunk_num, mat_num)
-    return None
+# 매핑 파일 로드 (전역 변수)
+_material_mapping = None
+
+def load_material_mapping():
+    """material_id_mapping.json 로드"""
+    global _material_mapping
+    if _material_mapping is None:
+        import json
+        import os
+        
+        mapping_path = os.path.join(os.path.dirname(__file__), '../data/material_id_mapping.json')
+        with open(mapping_path, 'r', encoding='utf-8') as f:
+            _material_mapping = json.load(f)
+    return _material_mapping
+
+def find_material_id_fast(material_name: str) -> Optional[MaterialId]:
+    """매핑 파일을 사용한 빠른 소재 ID 찾기"""
+    mapping = load_material_mapping()
+    return tuple(mapping.get(material_name)) if material_name in mapping else None
+
+
 
 #V2 추가 함수 - 세션 상태 복원
 def restore_categories_state(categories: Dict[int, Category], metrics_categories) -> None:
