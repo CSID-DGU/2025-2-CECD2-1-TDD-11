@@ -395,7 +395,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                 "epsilon": engine.state.epsilon
             },
             "asked_total": metrics.get("asked_total", 0) + 1,
-            "policyVersion": "v1.2.0"
+            "policyVersion": "v2.0.0"
         }
         
         session_update = {

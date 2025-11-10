@@ -6,36 +6,34 @@
 
 - **flows** (AI 로직)
   - autobiographies
-    - chat, evaluation, standard
-      - **generate_autobiography**
-      - **generate_correction**
-  - chapters
-    - chat, evaluation, standard
-      - **generate_chapter**
+    - standard
+      - **generate_autobiography** (유지)
   - interviews
     - chat
-      - **interview_chat_v1** (대화 히스토리 기반)
       - **interview_chat_v2** (Redis 세션 + 신규 알고리즘)
-    - evaluation
     - standard
-      - **generate_interview_question**
+      - **generate_interview_questions_v2** (질문 생성 유틸)
 
 - **serve** (API 서버)
   - **session_manager.py** (Redis 세션 관리)
   - autobiographies
-    - **generate_autobiography**, **generate_correction**
-  - chapters
-    - **generate_chapter**
+    - **generate_autobiography** (유지)
   - interviews
-    - **generate_interview_question**
-    - **interview_chat** (v1 라우터)
     - **interview_chat_v2** (Redis 기반 세션 관리)
 
-### 아키텍처 특징
+### 폐기된 API (v2.0.0)
+- **generate_correction** (교정/교열 기능 불필요)
+- **generate_chapter** (덩어리 묶음방식 채택)
+- **generate_interview_question** (메인 질문 미리 생성 방식 미채택)
+- **interview_chat_v1** (현재 사용 알고리즘 아님)
+
+### 아키텍처 특징 (v2.0.0)
+- **새로운 API 명세**: 폐기된 API 제거 및 경로 정리
 - **Redis 세션 관리**: 대화 상태를 Redis에 저장하여 세션 지속성 보장
 - **Legacy 알고리즘 통합**: 기존 질문 생성 알고리즘을 엔진으로 통합
 - **3단계 계층**: Category → Chunk → Material 구조
 - **통합 엔진**: 7개 파일을 3개로 통합 (core.py, utils.py, generators.py)
+- **자서전 생성 혁신**: 테마/카테고리 기반 생성 및 병렬 처리
 
 ## 로컬 개발 환경 설정 (flows)
 
@@ -254,13 +252,31 @@ serve/
     - dto/__init__.py           # 요청/응답 스키마
 ```
 
-### API 엔드포인트
+### API 엔드포인트 (v2.0.0)
 
-- **v1**: `POST /api/v1/interviews/interview-chat` (대화 히스토리 기반)
-- **v2**: `POST /api/v2/interviews/interview-chat` (메트릭 기반)
+#### 인터뷰 API
+- `POST /interviews/start` - 세션 시작
+- `POST /interviews/chat` - 인터뷰 대화
+- `POST /interviews/end` - 세션 종료
 
-### v2 주요 기능 
+#### 자서전 API  
+- `POST /autobiographies/generate/{autobiography_id}` - 자서전 생성
 
+#### 폐기된 API
+- ~~`POST /chapters/generate_chapters`~~ (챕터 생성)
+- ~~`POST /autobiographies/proofreading`~~ (교정/교열)
+- ~~`POST /interviews/interview-questions`~~ (인터뷰 질문 생성)
+- ~~`POST /interviews/interview-chat`~~ (v1 대화)
+
+### v2.0.0 주요 기능
+
+#### 새로운 API 구조
+1. **API 경로 정리**: 불필요한 prefix 제거 및 직관적 경로 체계
+2. **자서전 생성 혁신**: 테마/카테고리 기반 생성 및 제목 자동 생성
+3. **병렬 처리**: async/await 구조로 성능 향상
+4. **DTO 표준화**: snake_case 적용 및 의미 있는 필드명
+
+#### 기존 v1.2.0 기능 유지
 1. **Redis 세션 관리**: 대화 상태를 Redis에 저장하여 세션 지속성 보장
 2. **Legacy 알고리즘 통합**: 기존 질문 생성 알고리즘을 엔진으로 완전 통합
 3. **통합 엔진**: 7개 파일을 3개로 통합하여 코드 구조 개선
@@ -274,13 +290,17 @@ serve/
 
 ## 상세 문서 링크
 
-### Flows
-- [Interview Chat V1 (대화 히스토리 기반)](flows/interviews/chat/interview_chat_v1/README.md)
+### Flows (v2.0.0)
 - [Interview Chat V2 (메트릭 기반)](flows/interviews/chat/interview_chat_v2/README.md)
 - [Generate Interview Questions V2](flows/interviews/standard/generate_interview_questions_v2/README.md)
+- [Generate Autobiography](flows/autobiographies/standard/generate_autobiography/)
 
-### Serve
-- [Interviews API 가이드](serve/interviews/readme.md)
+### Serve (v2.0.0)
 - [Interview Chat V2 API](serve/interviews/interview_chat_v2/README.md)
 - [API 테스트 가이드](serve/TEST_GUIDE.md)
+- [폐기된 API 목록](serve/DEPRECATED_APIS.md)
+
+### 마이그레이션 가이드
+- [v2.0.0 변경사항](CHANGELOG.md#v200---2025-01-17)
+- [Breaking Changes 상세](CHANGELOG.md#-breaking-changes)
 ## AI
