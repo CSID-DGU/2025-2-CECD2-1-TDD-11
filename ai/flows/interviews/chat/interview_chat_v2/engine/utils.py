@@ -74,15 +74,15 @@ def restore_categories_state(categories: Dict[int, Category], metrics_categories
                 
                 # materials 상태 복원 (배열)
                 for mat_data in chunk_data.get("materials", []):
-                    mat_num = mat_data.get("material_num")
+                    mat_num = mat_data.get("order", mat_data.get("material_num"))
                     if mat_num not in chunk.materials:
                         continue
                         
                     material = chunk.materials[mat_num]
-                    material.w = mat_data.get("w", [0, 0, 0, 0, 0, 0])
-                    material.ex = mat_data.get("ex", 0)
-                    material.con = mat_data.get("con", 0)
-                    material.material_count = mat_data.get("material_count", 0)
+                    material.principle = mat_data.get("principle", mat_data.get("w", [0, 0, 0, 0, 0, 0]))
+                    material.example = mat_data.get("example", mat_data.get("ex", 0))
+                    material.similar_event = mat_data.get("similar_event", mat_data.get("con", 0))
+                    material.count = mat_data.get("count", mat_data.get("material_count", 0))
     
     # 기존 객체 구조 호환성 유지
     elif isinstance(metrics_categories, dict):
@@ -106,12 +106,12 @@ def restore_categories_state(categories: Dict[int, Category], metrics_categories
                 chunk = category.chunks[chunk_num]
                 
                 for mat_key, mat_data in chunk_data.get("materials", {}).items():
-                    mat_num = mat_data.get("material_num")
+                    mat_num = mat_data.get("order", mat_data.get("material_num"))
                     if mat_num not in chunk.materials:
                         continue
                         
                     material = chunk.materials[mat_num]
-                    material.w = mat_data.get("w", [0, 0, 0, 0, 0, 0])
-                    material.ex = mat_data.get("ex", 0)
-                    material.con = mat_data.get("con", 0)
-                    material.material_count = mat_data.get("material_count", 0)
+                    material.principle = mat_data.get("principle", mat_data.get("w", [0, 0, 0, 0, 0, 0]))
+                    material.example = mat_data.get("example", mat_data.get("ex", 0))
+                    material.similar_event = mat_data.get("similar_event", mat_data.get("con", 0))
+                    material.count = mat_data.get("count", mat_data.get("material_count", 0))

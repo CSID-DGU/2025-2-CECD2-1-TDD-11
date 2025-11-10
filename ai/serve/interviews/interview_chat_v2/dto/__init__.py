@@ -4,12 +4,12 @@ from typing import List, Dict, Any, Optional
 
 # ===== Shared DTOs =====
 class MaterialDto(BaseModel):
-    material_num: int
-    material_name: str
-    w: List[int] = Field(default=[0, 0, 0, 0, 0, 0])
-    ex: int = 0
-    con: int = 0
-    material_count: int = 0
+    order: int
+    name: str
+    principle: List[int] = Field(default=[0, 0, 0, 0, 0, 0])
+    example: int = 0
+    similar_event: int = 0
+    count: int = 0
 
 
 class ChunkDto(BaseModel):
@@ -32,37 +32,37 @@ class EngineStateDto(BaseModel):
 
 
 class MetricsDto(BaseModel):
-    sessionId: str
+    session_id: str
     categories: List[CategoryDto]
     engine_state: EngineStateDto = Field(default_factory=EngineStateDto)
     asked_total: int = 0
-    policyVersion: str = "v2.0.0"
+    policy_version: str = "v2.0.0"
 
 
 # ===== Session Start DTOs =====
 class SessionStartRequestDto(BaseModel):
-    sessionId: str
-    userId: Optional[str] = None
-    preferredCategories: List[int] = Field(default_factory=list)
-    previousMetrics: Optional[MetricsDto] = None
+    session_id: str
+    user_id: Optional[str] = None
+    preferred_categories: List[int] = Field(default_factory=list)
+    previous_metrics: Optional[MetricsDto] = None
     
     class Config:
         json_schema_extra = {
             "example": {
-                "sessionId": "session-12345",
-                "preferredCategories": [1, 2]
+                "session_id": "session-12345",
+                "preferred_categories": [1, 2]
             }
         }
 
 
 class SessionStartResponseDto(BaseModel):
-    sessionId: str
+    session_id: str
     first_question: Optional[Dict[str, Any]]
     
     class Config:
         json_schema_extra = {
             "example": {
-                "sessionId": "session-12345",
+                "session_id": "session-12345",
                 "first_question": {
                     "id": "q-fcf8ea8c",
                     "material": "좋아했던 과목",
@@ -76,13 +76,13 @@ class SessionStartResponseDto(BaseModel):
 
 # ===== Turn DTOs =====
 class InterviewChatV2RequestDto(BaseModel):
-    sessionId: str
+    session_id: str
     answer_text: str
     
     class Config:
         json_schema_extra = {
             "example": {
-                "sessionId": "session-12345",
+                "session_id": "session-12345",
                 "answer_text": "저는 내성적인 성격이에요. 사람들과 어울리는 것보다는 혼자 있는 시간을 더 좋아하고, 새로운 환경에 적응하는데 시간이 좀 걸리는 편이에요."
             }
         }
@@ -107,10 +107,10 @@ class InterviewChatV2ResponseDto(BaseModel):
 
 # ===== Session End DTOs =====
 class SessionEndRequestDto(BaseModel):
-    sessionId: str
+    session_id: str
 
 
 class SessionEndResponseDto(BaseModel):
-    sessionId: str
+    session_id: str
     final_metrics: Optional[MetricsDto]
     pool_to_save: List[Dict[str, Any]] = Field(default_factory=list)

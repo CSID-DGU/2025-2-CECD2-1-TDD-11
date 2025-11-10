@@ -3,30 +3,30 @@ from dataclasses import dataclass, field
 from typing import Dict, Tuple, List, Optional, Iterable
 import random
 
-MaterialId = Tuple[int, int, int]  # (category_num, chunk_num, material_num)
+MaterialId = Tuple[int, int, int]  # (category_num, chunk_num, order)
 
 #기존 알고리즘 - 모델
 @dataclass
 class Material:
-    material_num: int
-    material_name: str
-    w: List[int] = field(default_factory=lambda: [0, 0, 0, 0, 0, 0])  # w1..w6
-    ex: int = 0
-    con: int = 0
-    material_count: int = 0
+    order: int
+    name: str
+    principle: List[int] = field(default_factory=lambda: [0, 0, 0, 0, 0, 0])  # w1..w6
+    example: int = 0
+    similar_event: int = 0
+    count: int = 0
 
-    def sum_w(self) -> int:
-        return sum(self.w)
+    def sum_principle(self) -> int:
+        return sum(self.principle)
     
     def progress_score(self) -> int:
-        return self.sum_w() + self.ex + self.con
+        return self.sum_principle() + self.example + self.similar_event
 
     def mark_filled_if_ready(self) -> None:
-        if self.sum_w() >= 3 and self.ex == 1 and self.con == 1:
-            self.material_count = 1
+        if self.sum_principle() >= 3 and self.example == 1 and self.similar_event == 1:
+            self.count = 1
     
     def is_fully_completed(self) -> bool:
-        return all(v == 1 for v in self.w) and self.ex == 1 and self.con == 1
+        return all(v == 1 for v in self.principle) and self.example == 1 and self.similar_event == 1
 
 @dataclass
 class Chunk:
@@ -83,7 +83,7 @@ class InterviewEngine:
             cat, ch, m = self.state.last_material_id
             mat = self._get_material(cat, ch, m)
             if mat:
-                if self.state.last_material_streak < 3 and mat.material_count < 1: 
+                if self.state.last_material_streak < 3 and mat.count < 1: 
                     return self.state.last_material_id
 
         # 2) ε-greedy 탐색
@@ -125,11 +125,11 @@ class InterviewEngine:
         if material.is_fully_completed():
             return None
 
-        w1, w2, w3, w4, w5, w6 = material.w
+        w1, w2, w3, w4, w5, w6 = material.principle
         needs: List[str] = []
         if w2 == 0: needs.append("w2")
-        if material.ex == 0: needs.append("ex")
-        if material.con == 0: needs.append("con")
+        if material.example == 0: needs.append("ex")
+        if material.similar_event == 0: needs.append("con")
         for label, val in [("w1", w1), ("w3", w3), ("w4", w4), ("w5", w5), ("w6", w6)]:
             if val == 0:
                 needs.append(label)
@@ -146,8 +146,8 @@ class InterviewEngine:
             if not mat:
                 continue
 
-            mat.w = [min(v + 1, 1) for v in mat.w]
-            mat.ex, mat.con = 1, 1
+            mat.principle = [min(v + 1, 1) for v in mat.principle]
+            mat.example, mat.similar_event = 1, 1
             mat.mark_filled_if_ready()
 
             cat = self.categories[cnum]
@@ -180,7 +180,7 @@ class InterviewEngine:
         cat = random.choice(list(self.categories.values()))
         ch = random.choice(list(cat.chunks.values()))
         mat = random.choice(list(ch.materials.values()))
-        return (cat.category_num, ch.chunk_num, mat.material_num)
+        return (cat.category_num, ch.chunk_num, mat.order)
 
     def _count_filled_materials(self) -> int:
         return sum(
@@ -188,7 +188,7 @@ class InterviewEngine:
             for cat in self.categories.values()
             for ch in cat.chunks.values()
             for mat in ch.materials.values()
-            if mat.material_count == 1
+            if mat.count == 1
         )
 
     def _categories_meet_ratio(self, ratio: float) -> bool:
@@ -201,7 +201,7 @@ class InterviewEngine:
             if not mats:
                 continue
             
-            filled = sum(1 for m in mats if m.material_count == 1) 
+            filled = sum(1 for m in mats if m.count == 1) 
             coverage = filled / len(mats)
             
             if coverage < ratio:
@@ -220,12 +220,12 @@ class InterviewEngine:
             "w4": "무엇을", "w5": "어떻게(절차/수단2)", "w6": "왜",
         }
         if target in six:
-            return f"{material.material_name}에 대해 '{six[target]}' 측면에서 더 구체적으로 들려주세요."
+            return f"{material.name}에 대해 '{six[target]}' 측면에서 더 구체적으로 들려주세요."
         if target == "ex":
-            return f"{material.material_name}와 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요."
+            return f"{material.name}와 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요."
         if target == "con":
-            return f"{material.material_name}와 비슷한 '유사 사례'가 있었다면 비교해서 설명해 주세요."
-        return f"{material.material_name}에 대해 아직 다루지 못한 세부사항이나 감정, 맥락을 더 이야기해 주세요."
+            return f"{material.name}와 비슷한 '유사 사례'가 있었다면 비교해서 설명해 주세요."
+        return f"{material.name}에 대해 아직 다루지 못한 세부사항이나 감정, 맥락을 더 이야기해 주세요."
 
     #V2 추가 함수 - JSON에서 카테고리 빌드
     @staticmethod
@@ -245,8 +245,8 @@ class InterviewEngine:
 
                 for mat_name in ch_entry.get("material", []):
                     materials[m_num] = Material(
-                        material_num=m_num,
-                        material_name=str(mat_name)
+                        order=m_num,
+                        name=str(mat_name)
                     )
                     m_num += 1
 

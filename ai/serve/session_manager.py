@@ -31,7 +31,7 @@ class SessionManager:
             self.save_session(session_id, previous_metrics, None)
         else:
             initial_metrics = {
-                "sessionId": session_id,
+                "session_id": session_id,
                 "preferred_categories": preferred_categories or []
             }
             self.save_session(session_id, initial_metrics, None)

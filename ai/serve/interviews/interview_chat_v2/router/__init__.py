@@ -29,8 +29,8 @@ async def start_session(request: SessionStartRequestDto):
         # 세션 생성
         session_manager.create_session(
             request.session_id, 
-            request.preferredCategories,
-            request.previousMetrics.dict() if request.previousMetrics else None
+            request.preferred_categories,
+            request.previous_metrics.dict() if request.previous_metrics else None
         )
         
         result = flow(

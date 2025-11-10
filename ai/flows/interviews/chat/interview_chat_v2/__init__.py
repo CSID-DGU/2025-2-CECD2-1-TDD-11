@@ -163,10 +163,11 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                     print(f"  소재: {material_name}")
                     print(f"  축: {axes}")
                     # 축 데이터 검증
-                    if "w" in axes and isinstance(axes["w"], list) and len(axes["w"]) == 6:
-                        print(f"    6W: {axes['w']} (valid)")
+                    axes_check = axes.get("axes", {}) if isinstance(axes, dict) else {}
+                    if "principle" in axes_check and isinstance(axes_check["principle"], list) and len(axes_check["principle"]) == 6:
+                        print(f"    6W: {axes_check['principle']} (valid)")
                     else:
-                        print(f"    6W: {axes.get('w', 'missing')} (invalid)")
+                        print(f"    6W: {axes_check.get('principle', 'missing')} (invalid)")
             else:
                 # 폴백: 기존 키워드 매칭
                 matched_materials = find_matching_materials(answer_text, current_material, material_data)
@@ -218,7 +219,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                         if found_chunk:
                             # 소재 찾기
                             for mat_num, material in found_chunk.materials.items():
-                                if material.material_name == mat_name:
+                                if material.name == mat_name:
                                     material_id = [cat_num, chunk_num, mat_num]
                                     mapped_ids.append(material_id)
                                     print(f"  '{material_name}' → {material_id}")
@@ -247,33 +248,34 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                         print(f"  {i+1}. {material_name} → {material_id}")
                         print(f"    처리중: {material_axes}")
                         
-                        old_w = material.w.copy()
-                        old_ex = material.ex
-                        old_con = material.con
+                        old_principle = material.principle.copy()
+                        old_example = material.example
+                        old_similar_event = material.similar_event
                         
-                        if material_axes and "w" in material_axes:
-                            w_values = material_axes["w"]
-                            if isinstance(w_values, list) and len(w_values) == 6:
-                                for j, detected in enumerate(w_values):
+                        axes_data = material_axes.get("axes", {}) if isinstance(material_axes, dict) else {}
+                        if axes_data and "principle" in axes_data:
+                            principle_values = axes_data["principle"]
+                            if isinstance(principle_values, list) and len(principle_values) == 6:
+                                for j, detected in enumerate(principle_values):
                                     if detected == 1:
-                                        material.w[j] = min(material.w[j] + 1, 6)  # ← 누적 (최대 6)
-                                print(f"    6W 반영: {w_values} → {material.w}")
+                                        material.principle[j] = min(material.principle[j] + 1, 6)  # ← 누적 (최대 6)
+                                print(f"    6W 반영: {principle_values} → {material.principle}")
                         else:
                             for j, detected in enumerate(axes_evidence.values()):
                                 if detected and j < 6:
-                                    material.w[j] = min(material.w[j] + 1, 6)  # ← 누적 (최대 6)
+                                    material.principle[j] = min(material.principle[j] + 1, 6)  # ← 누적 (최대 6)
                         
-                        if material_axes and material_axes.get("ex") == 1:
-                            material.ex = min(material.ex + 1, 3)  # ← 누적 (최대 3)
+                        if axes_data and axes_data.get("example") == 1:
+                            material.example = min(material.example + 1, 3)  # ← 누적 (최대 3)
                         elif ex_flag:
-                            material.ex = min(material.ex + 1, 3)  # ← 누적 (최대 3)
+                            material.example = min(material.example + 1, 3)  # ← 누적 (최대 3)
                         
-                        if material_axes and material_axes.get("con") == 1:
-                            material.con = min(material.con + 1, 3)  # ← 누적 (최대 3)
+                        if axes_data and axes_data.get("similar_event") == 1:
+                            material.similar_event = min(material.similar_event + 1, 3)  # ← 누적 (최대 3)
                         elif con_flag:
-                            material.con = min(material.con + 1, 3)  # ← 누적 (최대 3)
+                            material.similar_event = min(material.similar_event + 1, 3)  # ← 누적 (최대 3)
                         
-                        print(f"    변경: w {old_w} → {material.w}, ex {old_ex} → {material.ex}, con {old_con} → {material.con}")
+                        print(f"    변경: principle {old_principle} → {material.principle}, example {old_example} → {material.example}, similar_event {old_similar_event} → {material.similar_event}")
                         
                         category = engine.categories[cat_num]
                         old_weight = category.chunk_weight.get(chunk_num, 0)
@@ -281,7 +283,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                         print(f"    chunk_weight: {old_weight} → {category.chunk_weight[chunk_num]}")
                         
                         material.mark_filled_if_ready()
-                        print(f"    material_count: {material.material_count}")
+                        print(f"    count: {material.count}")
             else:
                 print(f"\n⚠️ [메트릭 업데이트 실패] mapped_ids가 비어있음")
                 print(f"    원인: find_material_id()가 모든 소재에 대해 None 반환")
@@ -308,7 +310,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         # 전체 컨텍스트로 LLM 질문 생성
         category = engine.categories[cat_num]
         chunk = category.chunks[chunk_num]
-        full_material_name = f"{category.category_name} {chunk.chunk_name} {material.material_name}"
+        full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
         
         # 타입 코드를 프롬프트가 이해할 수 있는 형태로 변환
         type_mapping = {
@@ -336,7 +338,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         
         next_question = {
             "id": f"q-{uuid4().hex[:8]}",
-            "material": material.material_name,
+            "material": material.name,
             "type": target,
             "text": question_text,
             "material_id": material_id
@@ -355,17 +357,17 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                     
                 chunks = []
                 for ck, cv in active_chunks.items():
-                    # 활성 소재만 포함 (w/ex/con 중 하나라도 값이 있음)
+                    # 활성 소재만 포함 (principle/example/similar_event 중 하나라도 값이 있음)
                     materials = []
                     for mk, mv in cv.materials.items():
-                        if (any(mv.w) or mv.ex or mv.con or mv.material_count > 0):
+                        if (any(mv.principle) or mv.example or mv.similar_event or mv.count > 0):
                             materials.append({
-                                "material_num": mv.material_num,
-                                "material_name": mv.material_name,
-                                "w": mv.w,
-                                "ex": mv.ex,
-                                "con": mv.con,
-                                "material_count": mv.material_count
+                                "order": mv.order,
+                                "name": mv.name,
+                                "principle": mv.principle,
+                                "example": mv.example,
+                                "similar_event": mv.similar_event,
+                                "count": mv.count
                             })
                     
                     if materials:
@@ -387,7 +389,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             return result
         
         updated_metrics = {
-            "sessionId": sessionId,
+            "session_id": sessionId,
             "categories": serialize_categories(engine.categories),
             "engine_state": {
                 "last_material_id": list(engine.state.last_material_id) if engine.state.last_material_id else [],
@@ -395,7 +397,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                 "epsilon": engine.state.epsilon
             },
             "asked_total": metrics.get("asked_total", 0) + 1,
-            "policyVersion": "v2.0.0"
+            "policy_version": "v2.0.0"
         }
         
         session_update = {
@@ -405,7 +407,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         }
         redis_client.setex(session_key, 3600, json.dumps(session_update))
         
-        print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.material_name} ({target})")
+        print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
         print(f"{'='*50}")
         
         return {"next_question": next_question}
