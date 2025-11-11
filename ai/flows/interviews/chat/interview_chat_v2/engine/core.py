@@ -90,25 +90,33 @@ class InterviewEngine:
         if random.random() < self.state.epsilon:
             return self._random_material_id()
 
-        # 3) 후보 목록 구축
+        # 3) 우선순위 선택
+        return self._select_priority_material()
+    
+    def _select_priority_material(self) -> MaterialId:
+        """우선순위 기반 소재 선택 (미완료 소재만)"""
+        # 후보 목록 구축 (미완료 소재만)
         candidates = [] 
         for cat in self.categories.values():
             for ch_num, ch in cat.chunks.items():
                 cw = cat.chunk_weight.get(ch_num, 0)
                 for m_num, mat in ch.materials.items():
-                    candidates.append({
-                        "id": (cat.category_num, ch_num, m_num),
-                        "chunk": ch_num,
-                        "cw": cw,
-                        "sumwc": mat.progress_score(),
-                    }) 
+                    if not mat.is_fully_completed():  # 미완료 소재만
+                        candidates.append({
+                            "id": (cat.category_num, ch_num, m_num),
+                            "chunk": ch_num,
+                            "cw": cw,
+                            "sumwc": mat.progress_score(),
+                        }) 
+        
         if not candidates:
-            raise RuntimeError("No materials present.")
+            # 모든 소재가 완료된 경우 - 무작위 선택
+            return self._random_material_id()
 
-        # 4) 정렬: chunk_weight DESC, sumw ASC
+        # 정렬: chunk_weight DESC, sumw ASC
         candidates.sort(key=lambda x: (-x["cw"], x["sumwc"]))
 
-        # 5) 동률 처리
+        # 동률 처리
         best_group = [candidates[0]]
         for c in candidates[1:]:
             same_weight = (c["cw"] == best_group[0]["cw"])
@@ -120,10 +128,21 @@ class InterviewEngine:
                 break
         return random.choice(best_group)["id"]
 
-    #기존 알고리즘 - 질문 타입 선택
-    def select_question_in_material(self, material: Material) -> Optional[str]:
+    #기존 알고리즘 - 질문 타입 선택 (재선택 로직 포함)
+    def select_question_in_material(self, material_id: MaterialId) -> Tuple[MaterialId, str]:
+        """소재에서 질문 타입 선택, 완료시 재선택"""
+        material = self._get_material(*material_id)
+        if not material:
+            raise RuntimeError(f"Material not found: {material_id}")
+            
+        # 완료된 소재면 새 소재 선택
         if material.is_fully_completed():
-            return None
+            new_id = self._select_priority_material()
+            material = self._get_material(*new_id)
+            material_id = new_id
+            if not material or material.is_fully_completed():
+                # 모든 소재가 완료된 경우
+                return material_id, "general"
 
         w1, w2, w3, w4, w5, w6 = material.principle
         needs: List[str] = []
@@ -135,9 +154,9 @@ class InterviewEngine:
                 needs.append(label)
 
         if not needs:
-            return None
+            return material_id, "general"
 
-        return needs[0]  # 타입 코드만 반환 (w1, w2, ex, con 등)
+        return material_id, needs[0]  # (소재ID, 타입) 반환
 
     #기존 알고리즘 - 답변 후 업데이트
     def update_after_answer(self, mapped_ids: Iterable[MaterialId], current_id: MaterialId) -> None:
