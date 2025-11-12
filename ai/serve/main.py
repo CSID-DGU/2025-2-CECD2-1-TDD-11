@@ -8,18 +8,6 @@ from dotenv import load_dotenv
 from autobiographies.generate_autobiography.router import (
     router as autobiographies_generate_autobiography_router,
 )
-from autobiographies.generate_correction.router import (
-    router as autobiographies_generate_correction_router,
-)
-from chapters.generate_chapter.router import (
-    router as autobiographies_generate_chapter_router,
-)
-from interviews.generate_interview_question.router import (
-    router as interviews_generate_interview_question_router,
-)
-from interviews.interview_chat.router import (
-    router as interviews_request_interview_chat_router,
-)
 from interviews.interview_chat_v2.router import (
     router as interviews_request_interview_chat_v2_router,
 )
@@ -64,12 +52,9 @@ app = FastAPI(
     version="0.0.1",
 )
 
-app.include_router(autobiographies_generate_autobiography_router)
-app.include_router(autobiographies_generate_correction_router)
-app.include_router(autobiographies_generate_chapter_router)
-app.include_router(interviews_generate_interview_question_router)
-app.include_router(interviews_request_interview_chat_router)
-app.include_router(interviews_request_interview_chat_v2_router)
+# 유지되는 API들
+app.include_router(autobiographies_generate_autobiography_router, prefix="/autobiographies")
+app.include_router(interviews_request_interview_chat_v2_router, prefix="/interviews")
 
 
 if __name__ == "__main__":

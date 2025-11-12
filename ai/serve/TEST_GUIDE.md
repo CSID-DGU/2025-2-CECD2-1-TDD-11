@@ -45,19 +45,19 @@ http://localhost:3000/docs
 
 ### Step 2A: 세션 시작 (완전 처음)
 
-**엔드포인트**: `POST /api/v2/interviews/session/start`
+**엔드포인트**: `POST /interviews/start`
 
 **Request Body**:
 ```json
 {
-  "sessionId": "session-12345"
+  "session_id": "session-12345"
 }
 ```
 
 **예상 응답**:
 ```json
 {
-  "sessionId": "session-12345",
+  "session_id": "session-12345",
   "first_question": {
     "id": "q-2afa5754",
     "material": "일반_소개",
@@ -82,12 +82,12 @@ http://localhost:3000/docs
 
 ### Step 2B: 세션 시작 (선호 카테고리 지정)
 
-**엔드포인트**: `POST /api/v2/interviews/session/start`
+**엔드포인트**: `POST /interviews/start`
 
 **Request Body**:
 ```json
 {
-  "sessionId": "session-12345",
+  "session_id": "session-12345",
   "preferredCategories": [3, 5]
 }
 ```
@@ -95,7 +95,7 @@ http://localhost:3000/docs
 **예상 응답**:
 ```json
 {
-  "sessionId": "session-12345",
+  "session_id": "session-12345",
   "first_question": {
     "id": "q-d4234930",
     "material": "형제, 친척_소개",
@@ -119,24 +119,25 @@ http://localhost:3000/docs
 
 ### Step 2C: 세션 재개 (이전 메트릭 포함)
 
-**엔드포인트**: `POST /api/v2/interviews/session/start`
+**엔드포인트**: `POST /interviews/start`
 
 **Request Body**:
 ```json
 {
-  "sessionId": "session-12345",
+  "session_id": "session-12345",
   "previousMetrics": {
-    "sessionId": "session-12345",
-    "categories": {
-      "cat_1": {
+    "session_id": "session-12345",
+    "categories": [
+      {
         "category_num": 1,
         "category_name": "부모",
-        "chunks": {
-          "chunk_1_1": {
+        "chunks": [
+          {
             "chunk_num": 1,
-            "chunk_name": "프로팔",
-            "materials": {
-              "mat_1_1_1": {
+            "chunk_name": "프로필",
+            "chunk_weight": 2,
+            "materials": [
+              {
                 "material_num": 1,
                 "material_name": "성격",
                 "w": [2, 1, 0, 1, 0, 0],
@@ -144,19 +145,18 @@ http://localhost:3000/docs
                 "con": 0,
                 "material_count": 1
               }
-            }
+            ]
           }
-        },
-        "chunk_weight": {"chunk_1_1": 2}
+        ]
       }
-    },
+    ],
     "engine_state": {
       "last_material_id": [1, 1, 1],
       "last_material_streak": 2,
       "epsilon": 0.1
     },
     "asked_total": 5,
-    "policyVersion": "v1.2.0"
+    "policyVersion": "v2.0.0"
   }
 }
 ```
@@ -164,7 +164,7 @@ http://localhost:3000/docs
 **예상 응답**:
 ```json
 {
-  "sessionId": "session-12345",
+  "session_id": "session-12345",
   "first_question": {
     "id": "q-def456",
     "material": "근무 환경(조직, 분위기)",
@@ -185,12 +185,12 @@ http://localhost:3000/docs
 
 ### Step 3: 대화 진행 (동일 소재 답변)
 
-**엔드포인트**: `POST /api/v2/interviews/interview-chat`
+**엔드포인트**: `POST /interviews/chat`
 
 **Request Body**:
 ```json
 {
-"sessionId": "session-12345",
+"session_id": "session-12345",
 "answer_text": "부모님을 떠올리면, 일요일 아침마다 식탁에 올라오던 따뜻한 국물과 조용히 흘러나오던 라디오 소리가 함께 생각납니다. 아버지는 언제나 국그릇을 제 앞으로 밀어주며 한 숟가락 크게 떠 보라고 했고, 어머니는 그 틈에 제 학교 이야기를 천천히 끌어냈습니다. 그날그날의 사소한 실패도 식탁 위에서 웃음으로 덜어냈고, 그렇게 하루가 단단하게 시작됐습니다. 가장 기억에 남는 순간은 첫 발표에 떨던 저를 위해 부모님이 밤늦게까지 연습 상대가 되어준 날입니다. 대본을 외우다 지쳐 고개를 떨구자, 아버지는 한 문장씩 끊어 읽는 법을 알려주고, 어머니는 말의 속도를 잡아주며 끝까지 함께해 주었습니다.\n\n조부모님과의 기억은 마당의 흙냄새와 얽혀 있습니다. 여름이면 할아버지는 큼직한 모자를 씌워 주고 토마토 줄기를 묶는 법을 가르쳐 주셨는데, 힘을 너무 주면 줄기가 상한다며 손끝의 힘을 조절하는 법을 몸으로 알려 주셨습니다. 해가 기울면 할머니가 삭힌 장아찌를 내오고, 우리는 대청마루에서 느릿하게 저녁을 먹었습니다. 한 번은 비바람이 심해 밭이 반쯤 쓰러졌을 때, 할아버지는 다음 날 새벽에 저를 깨워 무너진 지주대를 하나하나 바로 세우며 "살아가는 일은 넘어진 것들을 다시 일으키는 일"이라고 말했습니다. 그 말은 시간이 지나도 제 마음속에서 계속 자라, 어려움 앞에서 숨을 고르게 하는 문장이 되었습니다."
 }
 ```
@@ -248,12 +248,12 @@ http://localhost:3000/docs
 
 ### Step 5: 세션 종료
 
-**엔드포인트**: `POST /api/v2/interviews/session/end`
+**엔드포인트**: `POST /interviews/end`
 
 **Request Body**:
 ```json
 {
-  "sessionId": "session-12345"
+  "session_id": "session-12345"
 }
 ```
 
@@ -263,16 +263,17 @@ http://localhost:3000/docs
   "sessionId": "session-12345",
   "final_metrics": {
     "sessionId": "session-12345",
-    "categories": {
-      "cat_1": {
+    "categories": [
+      {
         "category_num": 1,
         "category_name": "부모",
-        "chunks": {
-          "chunk_1": {
+        "chunks": [
+          {
             "chunk_num": 1,
             "chunk_name": "프로파일",
-            "materials": {
-              "mat_1": {
+            "chunk_weight": 15,
+            "materials": [
+              {
                 "material_num": 1,
                 "material_name": "성격",
                 "w": [1, 1, 1, 0, 1, 1],
@@ -280,19 +281,18 @@ http://localhost:3000/docs
                 "con": 1,
                 "material_count": 1
               }
-            }
+            ]
           }
-        },
-        "chunk_weight": {"1": 15}
+        ]
       }
-    },
+    ],
     "engine_state": {
       "last_material_id": [1, 1, 1],
       "last_material_streak": 3,
       "epsilon": 0.1
     },
     "asked_total": 10,
-    "policyVersion": "v1.2.0"
+    "policyVersion": "v2.0.0"
   },
   "pool_to_save": []
 }
@@ -305,11 +305,25 @@ http://localhost:3000/docs
 - ✅ final_metrics에 활성 데이터만 포함 (JSON 최적화)
 - ✅ LLM 분석 결과가 메트릭에 정확히 반영됨
 
-## 수정된 사항 (v1.2.0)
+## 수정된 사항 (v2.0.0)
+
+✅ **API 경로 간소화**: `/api/v2/interviews/*` → `/interviews/*` 불필요한 prefix 제거
+
+✅ **DTO 표준화**: `sessionId` → `session_id` (snake_case 적용)
+
+✅ **버전 업데이트**: `policyVersion` v1.2.0 → v2.0.0
+
+### 기존 v1.2.0 기능 유지
 
 ✅ **LLM 기반 소재 매칭**: 답변 내용을 분석하여 관련 소재를 자동으로 매칭
 
 ✅ **6W 축 자동 분석**: LLM이 답변에서 6W(누가/언제/어디서/무엇을/왜/어떻게) + ex/con 축을 자동 분석하여 메트릭에 정확히 반영
+
+✅ **배열 구조로 변경**: 객체 구조에서 배열 구조로 변경하여 값 누적 문제 해결
+- categories: {} → []
+- chunks: {} → []
+- materials: {} → []
+- 값 덮어쓰기 → 값 누적 (w: [1,0,0,0,0,0] + [1,0,0,0,0,0] = [2,0,0,0,0,0])
 
 ✅ **JSON 최적화**: 활성 데이터만 직렬화하여 JSON 크기 대폭 감소
 - 활성 카테고리만 포함 (chunk_weight > 0)

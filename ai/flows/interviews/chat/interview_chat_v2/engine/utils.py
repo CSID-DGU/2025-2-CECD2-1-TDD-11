@@ -38,45 +38,92 @@ def find_matching_materials(answer: str, current_material: str, material_data: d
     
     return matched
 
-#기존 알고리즘 - 소재 ID 찾기
-def find_material_id(engine: InterviewEngine, material_name: str) -> Optional[MaterialId]:
-    """소재 이름으로 MaterialId 찾기"""
-    for cat_num, category in engine.categories.items():
-        for chunk_num, chunk in category.chunks.items():
-            for mat_num, material in chunk.materials.items():
-                if material.material_name == material_name:
-                    return (cat_num, chunk_num, mat_num)
-    return None
+# 매핑 파일 로드 (전역 변수)
+_material_mapping = None
+
+def load_material_mapping():
+    """material_id_mapping.json 로드"""
+    global _material_mapping
+    if _material_mapping is None:
+        import json
+        import os
+        
+        mapping_path = os.path.join(os.path.dirname(__file__), '../data/material_id_mapping.json')
+        with open(mapping_path, 'r', encoding='utf-8') as f:
+            _material_mapping = json.load(f)
+    return _material_mapping
+
+def find_material_id_fast(material_name: str) -> Optional[MaterialId]:
+    """매핑 파일을 사용한 빠른 소재 ID 찾기"""
+    mapping = load_material_mapping()
+    return tuple(mapping.get(material_name)) if material_name in mapping else None
+
+
 
 #V2 추가 함수 - 세션 상태 복원
-def restore_categories_state(categories: Dict[int, Category], metrics_categories: dict) -> None:
-    """이전 메트릭에서 카테고리 상태 복원"""
-    for cat_key, cat_data in metrics_categories.items():
-        cat_num = cat_data.get("category_num")
-        if cat_num not in categories:
-            continue
-            
-        category = categories[cat_num]
-        
-        # chunk_weight 복원
-        if "chunk_weight" in cat_data:
-            category.chunk_weight.update(cat_data["chunk_weight"])
-        
-        # materials 상태 복원
-        for chunk_key, chunk_data in cat_data.get("chunks", {}).items():
-            chunk_num = chunk_data.get("chunk_num")
-            if chunk_num not in category.chunks:
+def restore_categories_state(categories: Dict[int, Category], metrics_categories) -> None:
+    """이전 메트릭에서 카테고리 상태 복원 (배열 구조)"""
+    # 배열 구조 처리
+    if isinstance(metrics_categories, list):
+        for cat_data in metrics_categories:
+            cat_num = cat_data.get("category_num")
+            if cat_num not in categories:
                 continue
                 
-            chunk = category.chunks[chunk_num]
+            category = categories[cat_num]
             
-            for mat_key, mat_data in chunk_data.get("materials", {}).items():
-                mat_num = mat_data.get("material_num")
-                if mat_num not in chunk.materials:
+            # chunk_weight 복원
+            if "chunk_weight" in cat_data:
+                category.chunk_weight.update(cat_data["chunk_weight"])
+            
+            # chunks 상태 복원 (배열)
+            for chunk_data in cat_data.get("chunks", []):
+                chunk_num = chunk_data.get("chunk_num")
+                if chunk_num not in category.chunks:
                     continue
                     
-                material = chunk.materials[mat_num]
-                material.w = mat_data.get("w", [0, 0, 0, 0, 0, 0])
-                material.ex = mat_data.get("ex", 0)
-                material.con = mat_data.get("con", 0)
-                material.material_count = mat_data.get("material_count", 0)
+                chunk = category.chunks[chunk_num]
+                
+                # materials 상태 복원 (배열)
+                for mat_data in chunk_data.get("materials", []):
+                    mat_num = mat_data.get("order", mat_data.get("material_num"))
+                    if mat_num not in chunk.materials:
+                        continue
+                        
+                    material = chunk.materials[mat_num]
+                    material.principle = mat_data.get("principle", mat_data.get("w", [0, 0, 0, 0, 0, 0]))
+                    material.example = mat_data.get("example", mat_data.get("ex", 0))
+                    material.similar_event = mat_data.get("similar_event", mat_data.get("con", 0))
+                    material.count = mat_data.get("count", mat_data.get("material_count", 0))
+    
+    # 기존 객체 구조 호환성 유지
+    elif isinstance(metrics_categories, dict):
+        for cat_key, cat_data in metrics_categories.items():
+            cat_num = cat_data.get("category_num")
+            if cat_num not in categories:
+                continue
+                
+            category = categories[cat_num]
+            
+            # chunk_weight 복원
+            if "chunk_weight" in cat_data:
+                category.chunk_weight.update(cat_data["chunk_weight"])
+            
+            # materials 상태 복원
+            for chunk_key, chunk_data in cat_data.get("chunks", {}).items():
+                chunk_num = chunk_data.get("chunk_num")
+                if chunk_num not in category.chunks:
+                    continue
+                    
+                chunk = category.chunks[chunk_num]
+                
+                for mat_key, mat_data in chunk_data.get("materials", {}).items():
+                    mat_num = mat_data.get("order", mat_data.get("material_num"))
+                    if mat_num not in chunk.materials:
+                        continue
+                        
+                    material = chunk.materials[mat_num]
+                    material.principle = mat_data.get("principle", mat_data.get("w", [0, 0, 0, 0, 0, 0]))
+                    material.example = mat_data.get("example", mat_data.get("ex", 0))
+                    material.similar_event = mat_data.get("similar_event", mat_data.get("con", 0))
+                    material.count = mat_data.get("count", mat_data.get("material_count", 0))
