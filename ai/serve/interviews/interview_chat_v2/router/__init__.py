@@ -23,21 +23,22 @@ session_manager = SessionManager()
 flow_path = flows_dir / "flow.dag.yaml"
 flow = load_flow(str(flow_path))
 
-@router.post("/start", response_model=SessionStartResponseDto, dependencies=[Depends(AuthRequired())])
-async def start_session(http_request: Request, request: SessionStartRequestDto):
+@router.post("/api/v2/interviews/start/{autobiography_id}", response_model=SessionStartResponseDto, dependencies=[Depends(AuthRequired())])
+async def start_session(http_request: Request, autobiography_id: int, request: SessionStartRequestDto):
     """세션 시작"""
     try:
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
         
-        # session_id를 autobiography_id로 사용 (bigint)
-        autobiography_id = int(request.session_id)
+        # UUID 기반 session_id 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
         
         # 세션 생성
         session_manager.create_session(
-            session_key, 
+            session_key,
+            user_id,
+            autobiography_id,
             request.preferred_categories,
             request.previous_metrics.dict() if request.previous_metrics else None
         )
@@ -65,23 +66,21 @@ async def start_session(http_request: Request, request: SessionStartRequestDto):
             )
         
         return SessionStartResponseDto(
-            session_id=request.session_id,  # 응답에는 원래 session_id 사용
             first_question=first_question
         )
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"세션 시작 실패: {str(e)}")
 
-@router.post("/chat", response_model=InterviewChatV2ResponseDto, dependencies=[Depends(AuthRequired())])
-async def interview_chat(http_request: Request, request: InterviewChatV2RequestDto):
+@router.post("/api/v2/interviews/chat/{autobiography_id}", response_model=InterviewChatV2ResponseDto, dependencies=[Depends(AuthRequired())])
+async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
         
-        # session_id를 autobiography_id로 사용 (bigint)
-        autobiography_id = int(request.session_id)
+        # 세션 키 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
         
         # 세션 로드
@@ -106,16 +105,15 @@ async def interview_chat(http_request: Request, request: InterviewChatV2RequestD
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"질문 생성 실패: {str(e)}")
 
-@router.post("/end", response_model=SessionEndResponseDto, dependencies=[Depends(AuthRequired())])
-async def end_session(http_request: Request, request: SessionEndRequestDto):
+@router.post("/api/v2/interviews/end/{autobiography_id}", response_model=SessionEndResponseDto, dependencies=[Depends(AuthRequired())])
+async def end_session(http_request: Request, autobiography_id: int, request: SessionEndRequestDto):
     """세션 종료 및 최종 메트릭 반환"""
     try:
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
         
-        # session_id를 autobiography_id로 사용 (bigint)
-        autobiography_id = int(request.session_id)
+        # 세션 키 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
         
         # 세션 로드
@@ -130,7 +128,7 @@ async def end_session(http_request: Request, request: SessionEndRequestDto):
         session_manager.delete_session(session_key)
         
         return SessionEndResponseDto(
-            session_id=request.session_id,  # 응답에는 원래 session_id 사용
+            session_id=session_key,
             final_metrics=final_metrics,
             pool_to_save=[]  # V2에서는 pool 사용 안 함
         )

@@ -303,7 +303,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         if not material:
             return {"next_question": None}
         
-        target = engine.select_question_in_material(material)
+        material_id, target = engine.select_question_in_material(material_id)
         if not target:
             return {"next_question": None}
         

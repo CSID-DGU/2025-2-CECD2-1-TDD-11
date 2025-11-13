@@ -5,22 +5,21 @@ from constants import Gender, ConversationType
 
 
 class UserInfoDto(BaseModel):
-    gender: Gender = Field(default=Gender.FEMALE, description="사용자 성별", example="FEMALE")
-    occupation: str = Field(default="프로그래머", description="직업", example="소프트웨어 엔지니어")
-    age_group: str = Field(default="대학교 재학", description="연령대/학력", example="20대 직장인")
+    gender: Gender = Field(default=Gender.FEMALE, description="사용자 성별")
+    occupation: str = Field(default="프로그래머", description="직업")
+    age_group: str = Field(default="대학교 재학", description="연령대/학력")
 
 
 class AutobiographyInfoDto(BaseModel):
-    theme: str = Field(default="가족", description="자서전 주제", example="성장과 도전")
-    category: str = Field(default="부모", description="카테고리", example="학업과 진로")
-    reason: str = Field(default="이러이러한 사유로 만들고 싶습니다.", description="작성 이유", example="대학 생활의 소중한 추억들을 기록하고 싶어서 자서전을 작성하게 되었습니다.")
+    theme: str = Field(default="가족", description="자서전 주제")
+    category: str = Field(default="부모", description="카테고리")
+    reason: str = Field(default="이러이러한 사유로 만들고 싶습니다.", description="작성 이유")
 
 
 class InterviewContentDto(BaseModel):
     content: str = Field(
         default="회사에서 맡은 첫 프로젝트는 무엇이었고, 어떤 도전이 있었나요?",
-        description="인터뷰 질문 또는 답변 내용",
-        example="대학교에서 가장 기억에 남는 경험은 무엇인가요?"
+        description="인터뷰 질문 또는 답변 내용"
     )
     conversation_type: ConversationType = Field(default=ConversationType.HUMAN)
 

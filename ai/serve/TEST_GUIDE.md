@@ -16,7 +16,7 @@ docker run -d -p 6379:6379 redis:alpine
 
 ### 2. AI 서버 실행
 ```bash
-cd serve
+cd serven
 python -m uvicorn main:app --env-file .env.development --port 3000
 ```
 
