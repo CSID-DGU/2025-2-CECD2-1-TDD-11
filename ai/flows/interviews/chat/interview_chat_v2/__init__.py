@@ -258,22 +258,22 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                             if isinstance(principle_values, list) and len(principle_values) == 6:
                                 for j, detected in enumerate(principle_values):
                                     if detected == 1:
-                                        material.principle[j] = min(material.principle[j] + 1, 6)  # ← 누적 (최대 6)
+                                        material.principle[j] = 1
                                 print(f"    6W 반영: {principle_values} → {material.principle}")
                         else:
                             for j, detected in enumerate(axes_evidence.values()):
                                 if detected and j < 6:
-                                    material.principle[j] = min(material.principle[j] + 1, 6)  # ← 누적 (최대 6)
+                                    material.principle[j] = 1
                         
                         if axes_data and axes_data.get("example") == 1:
-                            material.example = min(material.example + 1, 3)  # ← 누적 (최대 3)
+                            material.example = 1
                         elif ex_flag:
-                            material.example = min(material.example + 1, 3)  # ← 누적 (최대 3)
+                            material.example = 1
                         
                         if axes_data and axes_data.get("similar_event") == 1:
-                            material.similar_event = min(material.similar_event + 1, 3)  # ← 누적 (최대 3)
+                            material.similar_event = 1
                         elif con_flag:
-                            material.similar_event = min(material.similar_event + 1, 3)  # ← 누적 (최대 3)
+                            material.similar_event = 1
                         
                         print(f"    변경: principle {old_principle} → {material.principle}, example {old_example} → {material.example}, similar_event {old_similar_event} → {material.similar_event}")
                         
