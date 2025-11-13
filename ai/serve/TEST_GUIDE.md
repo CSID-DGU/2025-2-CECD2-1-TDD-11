@@ -1,6 +1,7 @@
 # Interview Chat V2 API 테스트 가이드
 
 Redis 세션 기반 Legacy 알고리즘 통합 시스템 테스트
+혹시 swagger 예시와 다른 게 있으면 swagger가 맞음
 
 ## 사전 준비
 
@@ -191,7 +192,8 @@ http://localhost:3000/docs
     "type": "ex",
     "text": "설명과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요.",
     "material_id": [8, 1, 1]
-  }
+  },
+  "last_answer_materials_id": [[1, 4, 4], [2, 2, 3]]
 }
 ```
 
@@ -200,36 +202,40 @@ http://localhost:3000/docs
 - ✅ 동일 소재 ("성격") 감지됨
 - ✅ 답변 내용을 반영한 질문 생성
 - ✅ material_id 유지됨
+- ✅ last_answer_materials_id에 매칭된 소재 ID 목록 포함
 
 ---
 
 ### Step 4: 다른 소재 대화 테스트
 
-**Request Body** (다른 소재 "부모" 사용):
+**엔드포인트**: `POST /api/v2/interviews/chat/{autobiography_id}`
+
+**Request Body**:
 ```json
 {
-  "sessionId": "test-session-2",
-  "question": {
-    "id": "q-67890",
+  "answer_text": "아버지부터 말씀드릴게요. 아버지는 정말 온화하신 분이셨어요. 어릴 때부터 저에게 항상 따뜻한 말을 건네주셨고, 제가 실수를 해도 화를 내지 않고 차근차근 설명해주셨습니다."
+}
+```
+
+**예상 응답**:
+```json
+{
+  "next_question": {
+    "id": "q-abc123",
     "material": "name",
-    "type": "who",
-    "text": "name에 대해 누구부터 이야기해볼까요?"
+    "type": "when",
+    "text": "name에 대해 '언제' 측면에서 더 구체적으로 들려주세요.",
+    "material_id": [1, 1, 1]
   },
-  "answer_text": "아버지부터 말씀드릴게요. 아버지는 정말 온화하신 분이셨어요.",
-  "metrics": {
-    "engine_state": {
-      "last_material_id": [1, 1, 1],
-      "last_material_streak": 1,
-      "theme_initialized": true
-    }
-  }
+  "last_answer_materials_id": [[1, 1, 1]]
 }
 ```
 
 **확인 사항**:
+- ✅ 200 OK 응답
 - ✅ 다른 소재 감지됨
-- ✅ material + type만으로 LLM 질문 생성
 - ✅ 새로운 material_id 선택됨
+- ✅ last_answer_materials_id 포함
 
 ---
 
@@ -259,12 +265,12 @@ http://localhost:3000/docs
             "chunk_weight": 15,
             "materials": [
               {
-                "material_num": 1,
-                "material_name": "성격",
-                "w": [1, 1, 1, 0, 1, 1],
-                "ex": 1,
-                "con": 1,
-                "material_count": 1
+                "order": 1,
+                "name": "성격",
+                "principle": [1, 1, 1, 0, 1, 1],
+                "example": 1,
+                "similar_event": 1,
+                "count": 1
               }
             ]
           }
@@ -277,7 +283,7 @@ http://localhost:3000/docs
       "epsilon": 0.1
     },
     "asked_total": 10,
-    "policyVersion": "v2.0.0"
+    "policy_version": "v2.0.0"
   },
   "pool_to_save": []
 }
@@ -308,7 +314,6 @@ http://localhost:3000/docs
 - categories: {} → []
 - chunks: {} → []
 - materials: {} → []
-- 값 덮어쓰기 → 값 누적 (w: [1,0,0,0,0,0] + [1,0,0,0,0,0] = [2,0,0,0,0,0])
 
 ✅ **JSON 최적화**: 활성 데이터만 직렬화하여 JSON 크기 대폭 감소
 - 활성 카테고리만 포함 (chunk_weight > 0)
