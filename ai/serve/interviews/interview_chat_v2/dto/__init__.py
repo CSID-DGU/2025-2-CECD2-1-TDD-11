@@ -83,6 +83,7 @@ class InterviewChatV2RequestDto(BaseModel):
 
 class InterviewChatV2ResponseDto(BaseModel):
     next_question: Optional[Dict[str, Any]]
+    last_answer_materials_id: List[List[int]] = Field(default_factory=list)
     
     class Config:
         json_schema_extra = {
@@ -93,7 +94,8 @@ class InterviewChatV2ResponseDto(BaseModel):
                     "type": "ex",
                     "text": "프로그래밍 수업과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요. 어떤 프로젝트나 과제가 특히 기억에 남나요?",
                     "material_id": [1, 1, 1]
-                }
+                },
+                "last_answer_materials_id": [[1, 1, 1], [1, 2, 3], [2, 1, 1]]
             }
         }
 

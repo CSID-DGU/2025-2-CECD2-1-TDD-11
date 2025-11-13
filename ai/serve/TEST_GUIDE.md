@@ -16,7 +16,7 @@ docker run -d -p 6379:6379 redis:alpine
 
 ### 2. AI 서버 실행
 ```bash
-cd serven
+cd serve
 python -m uvicorn main:app --env-file .env.development --port 3000
 ```
 
@@ -45,29 +45,24 @@ http://localhost:3000/docs
 
 ### Step 2A: 세션 시작 (완전 처음)
 
-**엔드포인트**: `POST /interviews/start`
+**엔드포인트**: `POST /api/v2/interviews/start/{autobiography_id}`
 
 **Request Body**:
 ```json
 {
-  "session_id": "session-12345"
+  "preferred_categories": []
 }
 ```
 
 **예상 응답**:
 ```json
 {
-  "session_id": "session-12345",
   "first_question": {
     "id": "q-2afa5754",
     "material": "일반_소개",
     "type": "category_intro",
     "text": "어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요.",
-    "material_id": [
-      0,
-      0,
-      0
-    ]
+    "material_id": [0, 0, 0]
   }
 }
 ```
@@ -82,30 +77,24 @@ http://localhost:3000/docs
 
 ### Step 2B: 세션 시작 (선호 카테고리 지정)
 
-**엔드포인트**: `POST /interviews/start`
+**엔드포인트**: `POST /api/v2/interviews/start/{autobiography_id}`
 
 **Request Body**:
 ```json
 {
-  "session_id": "session-12345",
-  "preferredCategories": [3, 5]
+  "preferred_categories": [3, 5]
 }
 ```
 
 **예상 응답**:
 ```json
 {
-  "session_id": "session-12345",
   "first_question": {
     "id": "q-d4234930",
     "material": "형제, 친척_소개",
     "type": "category_intro",
     "text": "형제, 친척에 대해서 어떤 이야기를 하고 싶으신가요? 기억에 남는 에피소드나 경험이 있다면 들려주세요.",
-    "material_id": [
-      3,
-      0,
-      0
-    ]
+    "material_id": [3, 0, 0]
   }
 }
 ```
@@ -119,13 +108,13 @@ http://localhost:3000/docs
 
 ### Step 2C: 세션 재개 (이전 메트릭 포함)
 
-**엔드포인트**: `POST /interviews/start`
+**엔드포인트**: `POST /api/v2/interviews/start/{autobiography_id}`
 
 **Request Body**:
 ```json
 {
-  "session_id": "session-12345",
-  "previousMetrics": {
+  "preferred_categories": [],
+  "previous_metrics": {
     "session_id": "session-12345",
     "categories": [
       {
@@ -138,12 +127,12 @@ http://localhost:3000/docs
             "chunk_weight": 2,
             "materials": [
               {
-                "material_num": 1,
-                "material_name": "성격",
-                "w": [2, 1, 0, 1, 0, 0],
-                "ex": 1,
-                "con": 0,
-                "material_count": 1
+                "order": 1,
+                "name": "성격",
+                "principle": [2, 1, 0, 1, 0, 0],
+                "example": 1,
+                "similar_event": 0,
+                "count": 1
               }
             ]
           }
@@ -156,7 +145,7 @@ http://localhost:3000/docs
       "epsilon": 0.1
     },
     "asked_total": 5,
-    "policyVersion": "v2.0.0"
+    "policy_version": "v2.0.0"
   }
 }
 ```
@@ -164,7 +153,6 @@ http://localhost:3000/docs
 **예상 응답**:
 ```json
 {
-  "session_id": "session-12345",
   "first_question": {
     "id": "q-def456",
     "material": "근무 환경(조직, 분위기)",
@@ -185,13 +173,12 @@ http://localhost:3000/docs
 
 ### Step 3: 대화 진행 (동일 소재 답변)
 
-**엔드포인트**: `POST /interviews/chat`
+**엔드포인트**: `POST /api/v2/interviews/chat/{autobiography_id}`
 
 **Request Body**:
 ```json
 {
-"session_id": "session-12345",
-"answer_text": "부모님을 떠올리면, 일요일 아침마다 식탁에 올라오던 따뜻한 국물과 조용히 흘러나오던 라디오 소리가 함께 생각납니다. 아버지는 언제나 국그릇을 제 앞으로 밀어주며 한 숟가락 크게 떠 보라고 했고, 어머니는 그 틈에 제 학교 이야기를 천천히 끌어냈습니다. 그날그날의 사소한 실패도 식탁 위에서 웃음으로 덜어냈고, 그렇게 하루가 단단하게 시작됐습니다. 가장 기억에 남는 순간은 첫 발표에 떨던 저를 위해 부모님이 밤늦게까지 연습 상대가 되어준 날입니다. 대본을 외우다 지쳐 고개를 떨구자, 아버지는 한 문장씩 끊어 읽는 법을 알려주고, 어머니는 말의 속도를 잡아주며 끝까지 함께해 주었습니다.\n\n조부모님과의 기억은 마당의 흙냄새와 얽혀 있습니다. 여름이면 할아버지는 큼직한 모자를 씌워 주고 토마토 줄기를 묶는 법을 가르쳐 주셨는데, 힘을 너무 주면 줄기가 상한다며 손끝의 힘을 조절하는 법을 몸으로 알려 주셨습니다. 해가 기울면 할머니가 삭힌 장아찌를 내오고, 우리는 대청마루에서 느릿하게 저녁을 먹었습니다. 한 번은 비바람이 심해 밭이 반쯤 쓰러졌을 때, 할아버지는 다음 날 새벽에 저를 깨워 무너진 지주대를 하나하나 바로 세우며 "살아가는 일은 넘어진 것들을 다시 일으키는 일"이라고 말했습니다. 그 말은 시간이 지나도 제 마음속에서 계속 자라, 어려움 앞에서 숨을 고르게 하는 문장이 되었습니다."
+  "answer_text": "부모님을 떠올리면, 일요일 아침마다 식탁에 올라오던 따뜻한 국물과 조용히 흘러나오던 라디오 소리가 함께 생각납니다. 아버지는 언제나 국그릇을 제 앞으로 밀어주며 한 숟가락 크게 떠 보라고 했고, 어머니는 그 틈에 제 학교 이야기를 천천히 끌어냈습니다. 그날그날의 사소한 실패도 식탁 위에서 웃음으로 덜어냈고, 그렇게 하루가 단단하게 시작됐습니다. 가장 기억에 남는 순간은 첫 발표에 떨던 저를 위해 부모님이 밤늦게까지 연습 상대가 되어준 날입니다. 대본을 외우다 지쳐 고개를 떨구자, 아버지는 한 문장씩 끊어 읽는 법을 알려주고, 어머니는 말의 속도를 잡아주며 끝까지 함께해 주었습니다.\n\n조부모님과의 기억은 마당의 흙냄새와 얽혀 있습니다. 여름이면 할아버지는 큼직한 모자를 씌워 주고 토마토 줄기를 묶는 법을 가르쳐 주셨는데, 힘을 너무 주면 줄기가 상한다며 손끝의 힘을 조절하는 법을 몸으로 알려 주셨습니다. 해가 기울면 할머니가 삭힌 장아찌를 내오고, 우리는 대청마루에서 느릿하게 저녁을 먹었습니다. 한 번은 비바람이 심해 밭이 반쯤 쓰러졌을 때, 할아버지는 다음 날 새벽에 저를 깨워 무너진 지주대를 하나하나 바로 세우며 "살아가는 일은 넘어진 것들을 다시 일으키는 일"이라고 말했습니다. 그 말은 시간이 지나도 제 마음속에서 계속 자라, 어려움 앞에서 숨을 고르게 하는 문장이 되었습니다."
 }
 ```
 
@@ -248,21 +235,19 @@ http://localhost:3000/docs
 
 ### Step 5: 세션 종료
 
-**엔드포인트**: `POST /interviews/end`
+**엔드포인트**: `POST /api/v2/interviews/end/{autobiography_id}`
 
 **Request Body**:
 ```json
-{
-  "session_id": "session-12345"
-}
+{}
 ```
 
 **예상 응답** (최적화된 JSON):
 ```json
 {
-  "sessionId": "session-12345",
+  "session_id": "session-12345",
   "final_metrics": {
-    "sessionId": "session-12345",
+    "session_id": "session-12345",
     "categories": [
       {
         "category_num": 1,
@@ -390,6 +375,52 @@ http://localhost:3000/docs
 
 ---
 
+### Step 6: 자서전 생성
+
+**엔드포인트**: `POST /generate/{autobiography_id}`
+
+**Request Body**:
+```json
+{
+  "user_info": {
+    "gender": "FEMALE",
+    "occupation": "프로그래머",
+    "age_group": "대학교 재학"
+  },
+  "autobiography_info": {
+    "theme": "가족",
+    "category": "부모",
+    "reason": "부모님과의 소중한 추억을 기록하고 싶습니다."
+  },
+  "interviews": [
+    {
+      "content": "부모님에 대해 어떤 기억이 가장 인상 깊나요?",
+      "conversation_type": "AI"
+    },
+    {
+      "content": "부모님을 떠올리면, 일요일 아침마다 식탁에 올라오던 따뜻한 국물과 조용히 흘러나오던 라디오 소리가 함께 생각됩니다. 아버지는 언제나 국그릇을 제 앞으로 밀어주며 한 숙가락 크게 떠 보라고 했고, 어머니는 그 틈에 제 학교 이야기를 천천히 끌어냈습니다.",
+      "conversation_type": "HUMAN"
+    }
+  ]
+}
+```
+
+**예상 응답**:
+```json
+{
+  "title": "가족 - 부모에 대한 나의 이야기",
+  "autobiographical_text": "일요일 아침의 따뜻한 기억\n\n부모님을 떠올리면, 일요일 아침마다 식탁에 올라오던 따뜻한 국물과 조용히 흘러나오던 라디오 소리가 함께 생각됩니다. 그 소중한 순간들이 지금의 나를 만든 초석이 되었습니다...\n\n(전체 자서전 내용)"
+}
+```
+
+**확인 사항**:
+- ✅ 200 OK 응답
+- ✅ 인터뷰 내용을 바탕으로 자서전 생성
+- ✅ 제목과 본문이 적절히 구성됨
+- ✅ 사용자 정보와 주제가 반영됨
+
+---
+
 ## 성공 기준
 
 ✅ Step 1: JWT 인증 성공  
@@ -397,5 +428,6 @@ http://localhost:3000/docs
 ✅ Step 3: 동일 소재 감지 및 컨텍스트 기반 질문 생성 성공  
 ✅ Step 4: 다른 소재 감지 및 material+type 기반 질문 생성 성공  
 ✅ Step 5: 세션 종료 및 최종 메트릭 수집 성공  
+✅ Step 6: 인터뷰 내용 기반 자서전 생성 성공  
 
 **최종 확인**: 모든 단계가 200 OK를 반환하고 Redis 세션 관리 + Legacy 알고리즘 + 명시적 세션 종료가 정상 작동하면 API가 완전히 기능하는 것입니다!

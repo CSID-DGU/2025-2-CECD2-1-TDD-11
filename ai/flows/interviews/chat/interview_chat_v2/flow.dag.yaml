@@ -8,6 +8,9 @@ outputs:
   next_question:
     type: object
     reference: ${engine.output.next_question}
+  last_answer_materials_id:
+    type: object
+    reference: ${engine.output.last_answer_materials_id}
 nodes:
 - name: engine
   type: python

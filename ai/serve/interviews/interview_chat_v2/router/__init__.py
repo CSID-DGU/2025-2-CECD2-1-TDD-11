@@ -95,10 +95,11 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         )
         
         next_question = result.get("next_question")
+        last_answer_materials_id = result.get("last_answer_materials_id", [])
         
         # Flow에서 Redis에 직접 업데이트하므로 별도 저장 불필요
         
-        return InterviewChatV2ResponseDto(next_question=next_question)
+        return InterviewChatV2ResponseDto(next_question=next_question, last_answer_materials_id=last_answer_materials_id)
         
     except HTTPException:
         raise
