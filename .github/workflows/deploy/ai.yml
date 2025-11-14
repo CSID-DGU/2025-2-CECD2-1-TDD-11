@@ -3,10 +3,6 @@ name: Deploy AI
 on:
   push:
     branches: [devops]
-    paths:
-      - 'ai/**'
-      - 'deploy/docker-compose.ai.prod.yml'
-      - '.github/workflows/deploy/ai.yml'
   workflow_dispatch:
 
 env:

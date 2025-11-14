@@ -3,9 +3,6 @@ name: Deploy Stream (Queue)
 on:
   push:
     branches: [devops]
-    paths:
-      - 'deploy/docker-compose.stream.prod.yml'
-      - '.github/workflows/deploy/queue.yml'
   workflow_dispatch:
 
 env:
