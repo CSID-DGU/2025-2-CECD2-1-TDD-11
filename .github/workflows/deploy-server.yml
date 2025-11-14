@@ -69,7 +69,9 @@ jobs:
               "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}",
               "EOF",
               "docker-compose -f docker-compose.server.prod.yml pull",
-              "docker-compose -f docker-compose.server.prod.yml up -d"
+              "docker-compose -f docker-compose.server.prod.yml down",
+              "docker-compose -f docker-compose.server.prod.yml up -d",
+              "docker image prune -f"
             ]' \
             --targets "Key=tag:Name,Values=TalkToBook-Server" \
             --region ${{ env.AWS_REGION }}

@@ -45,7 +45,9 @@ jobs:
               "RABBITMQ_DEFAULT_PASS=${{ secrets.RABBITMQ_DEFAULT_PASS }}",
               "EOF",
               "docker-compose -f docker-compose.stream.prod.yml pull",
-              "docker-compose -f docker-compose.stream.prod.yml up -d"
+              "docker-compose -f docker-compose.stream.prod.yml down",
+              "docker-compose -f docker-compose.stream.prod.yml up -d",
+              "docker image prune -f"
             ]' \
             --targets "Key=tag:Name,Values=TalkToBook-Stream" \
             --region ${{ env.AWS_REGION }}
