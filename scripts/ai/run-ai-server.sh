@@ -38,53 +38,54 @@ conda activate "$ENV_NAME" || {
 # Step 2. 포트 및 프로세스 점검
 # ===============================================================
 
-echo "[scripts/ai/run-ai-server] Checking if port $PORT is already in use..."
+echo "[scripts/ai/run-ai-server] Checking port $PORT..."
 
-if lsof -i :$PORT >/dev/null 2>&1; then
-  echo "[scripts/ai/run-ai-server] Port $PORT is already in use. Checking health endpoint..."
+PIDS=$(lsof -ti :$PORT)
 
-  HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/docs)
-
-  if [ "$HEALTH" -eq 200 ]; then
-    echo "[scripts/ai/run-ai-server] curl -v http://localhost:$PORT/docs"
-    echo "[scripts/ai/run-ai-server] 200 Success — 이미 실행 중인 서버가 정상 동작 중입니다."
-    echo "[scripts/ai/run-ai-server] You can check logs in ai/serve/$LOG_FILE"
-    exit 0
-  else
-    echo "[scripts/ai/run-ai-server] Port $PORT 점유 중이지만 Health Check 실패. 기존 프로세스 종료..."
-    PID=$(lsof -ti :$PORT)
-    kill -9 $PID
-    echo "[scripts/ai/run-ai-server] Killed process on port $PORT (PID: $PID)"
-  fi
+if [ -n "$PIDS" ]; then
+  echo "[scripts/ai/run-ai-server] Port $PORT is in use by: $PIDS"
+  echo "[scripts/ai/run-ai-server] Killing all processes on port $PORT..."
+  echo "$PIDS" | xargs kill -9
+  echo "[scripts/ai/run-ai-server] All PIDs killed."
 else
-  echo "[scripts/ai/run-ai-server] Port $PORT is free. Proceeding with server start."
+  echo "[scripts/ai/run-ai-server] Port $PORT is free."
 fi
 
 # ===============================================================
 # Step 3. 서버 실행 (백그라운드 + 로그 기록)
 # ===============================================================
 
-echo "[scripts/ai/run-ai-server] Starting FastAPI (Uvicorn) server on port $PORT..."
-nohup python -m uvicorn main:app --env-file "$ENV_FILE" --port "$PORT" --reload --log-level info > "$LOG_FILE" 2>&1 &
+echo "[scripts/ai/run-ai-server] Starting FastAPI server on port $PORT..."
+
+nohup python -m uvicorn main:app \
+  --env-file "$ENV_FILE" \
+  --port "$PORT" \
+  --reload \
+  --log-level info \
+  > "$LOG_FILE" 2>&1 &
 
 AI_PID=$!
-echo "[scripts/ai/run-ai-server] Server process started (PID: $AI_PID)"
-echo "[scripts/ai/run-ai-server] Logging to: ai/serve/$LOG_FILE"
+
+echo "[scripts/ai/run-ai-server] Server started with PID: $AI_PID"
+echo "[scripts/ai/run-ai-server] Logging to $LOG_FILE"
 
 # ===============================================================
 # Step 4. 서버 Health Check (최대 30초 대기)
 # ===============================================================
 
-echo "[scripts/ai/run-ai-server] Waiting for server to start..."
+HEALTH_URL="http://localhost:$PORT/docs"
+
+echo "[scripts/ai/run-ai-server] Health Check: $HEALTH_URL"
+
 for i in {1..30}; do
-  HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/docs)
-  if [ "$HEALTH" -eq 200 ]; then
-    echo "[scripts/ai/run-ai-server] curl -v http://localhost:$PORT/docs"
-    echo "[scripts/ai/run-ai-server] 200 Success — 서버가 정상적으로 실행되었습니다!"
-    echo "[scripts/ai/run-ai-server] You can check logs in ai/serve/$LOG_FILE"
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
+  
+  if [ "$HTTP_CODE" -eq 200 ]; then
+    echo "[scripts/ai/run-ai-server] 200 OK — Server is healthy!"
     exit 0
   fi
-  echo "[scripts/ai/run-ai-server] 서버 부팅 중... (시도 $i/30)"
+
+  echo "[scripts/ai/run-ai-server] Waiting for server... ($i/30)"
   sleep 1
 done
 
@@ -92,7 +93,6 @@ done
 # Step 5. 실패 처리
 # ===============================================================
 
-echo "[scripts/ai/run-ai-server] 서버가 30초 내에 응답하지 않았습니다."
-echo "[scripts/ai/run-ai-server] Check ai/serve/$LOG_FILE for details."
-echo "[scripts/ai/run-ai-server] If you need detailed debugging, try \"tail -f ai/serve/$LOG_FILE\""
+echo "[scripts/ai/run-ai-server] Server failed to start within 30 seconds."
+echo "[scripts/ai/run-ai-server] Check logs: $LOG_FILE"
 exit 1
