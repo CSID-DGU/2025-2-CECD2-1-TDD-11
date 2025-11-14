@@ -1,3 +1,16 @@
+.PHONY: help run-server restart-server debug-server stop-server clean-server bootstrap deploy deploy-all deploy-server deploy-ai deploy-stream upload-compose clean
+
+# Default AWS profile
+AWS_PROFILE ?= talktobook
+CDK_DIR = infra
+
+
+help: ## Show this help message
+	@echo "TalkToBook Infrastructure Commands:"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+
 # 서버 기본 실행 타겟
 run-server: run-localstack run-mariadb copy-config run-springboot
 restart-server: stop-springboot run-springboot
@@ -116,3 +129,82 @@ rm-redis:
 	@docker stop redis-talktobook 2>/dev/null || echo "[Makefile] There is no running Redis container."
 	@docker rm redis-talktobook 2>/dev/null || true
 	@echo "[Makefile] Redis container removed."
+
+### Queue 관련 명령어 ###
+# RabbitMQ compose 실행
+run-rabbitmq:
+	@bash ./scripts/stream/setup-rabbitmq.sh
+
+remove-rabbitmq:
+	docker compose -f deploy/docker-compose.stream.prod.yml down
+
+clean-rabbitmq:
+	docker compose -f deploy/docker-compose.stream.prod.yml down -v --rmi all --remove-orphans
+
+### Infrastructure 관련 명령어 ###
+# CDK 배포 스크립트 실행
+bootstrap: ## Bootstrap CDK environment (run once)
+	@echo "Bootstrapping CDK environment..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk bootstrap --qualifier talkbook
+
+bootstrap-force: ## Force bootstrap CDK environment
+	@echo "Force bootstrapping CDK environment..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk bootstrap --qualifier talkbook --force
+
+# Deployment Commands
+deploy-all: ## Deploy all stacks (Base + Server + AI + Stream)
+	@echo "Deploying all stacks..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk deploy --all --require-approval never --qualifier talkbook
+
+deploy: deploy-all ## Alias for deploy-all
+
+deploy-base: ## Deploy Base stack only
+	@echo "🏗️ Deploying Base stack..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk deploy TalkToBook-Base --require-approval never --qualifier talkbook
+
+deploy-server: ## Deploy Server stack
+	@echo "🖥️ Deploying Server stack..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk deploy TalkToBook-Base TalkToBook-Server --require-approval never --qualifier talkbook
+
+deploy-ai: ## Deploy AI stack
+	@echo "🤖 Deploying AI stack..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk deploy TalkToBook-Base TalkToBook-AI --require-approval never --qualifier talkbook
+
+deploy-stream: ## Deploy Stream stack
+	@echo "🌊 Deploying Stream stack..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk deploy TalkToBook-Base TalkToBook-Stream --require-approval never --qualifier talkbook
+
+diff: ## Show CDK diff
+	@echo "📋 Showing CDK diff..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk diff
+
+synth: ## Synthesize CDK templates
+	@echo "🔍 Synthesizing CDK templates..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk synth
+
+list: ## List all CDK stacks
+	@echo "📝 Listing CDK stacks..."
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk list
+
+# Cleanup Commands
+destroy-all: ## Destroy all stacks (DANGEROUS)
+	@echo "⚠️ Destroying all stacks..."
+	@read -p "Are you sure? This will delete all resources! (y/N): " confirm && [ "$$confirm" = "y" ]
+	cd $(CDK_DIR) && AWS_PROFILE=$(AWS_PROFILE) npx cdk destroy --all
+
+clean: ## Clean CDK build artifacts
+	@echo "🧹 Cleaning CDK artifacts..."
+	cd $(CDK_DIR) && rm -rf cdk.out node_modules/.cache
+
+# Development Commands
+install: ## Install CDK dependencies
+	@echo "📦 Installing CDK dependencies..."
+	cd $(CDK_DIR) && npm install
+
+build: ## Build CDK project
+	@echo "🔨 Building CDK project..."
+	cd $(CDK_DIR) && npm run build
+
+watch: ## Watch CDK project for changes
+	@echo "👀 Watching CDK project..."
+	cd $(CDK_DIR) && npm run watch
