@@ -39,7 +39,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -f server/deploy-main/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_SERVER }}:${{ github.sha }} ./server
+          docker build -f server/deploy/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_SERVER }}:${{ github.sha }} ./server
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_SERVER }}:${{ github.sha }}
 
       - name: Upload Docker Compose to S3
