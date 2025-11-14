@@ -1,0 +1,57 @@
+name: BookShelf PR Builder
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  build:
+    name: PR Checker (Android + iOS)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Prepare local.properties
+        run: |
+          cat <<EOF > local.properties
+          BASE_URL=${{ secrets.BASE_URL }}
+          AI_URL=${{ secrets.AI_URL }}
+          EOF
+
+      - name: Lint (ktlint)
+        run: ./gradlew ktlintCheck
+
+      - name: Build (debug+release compile)
+        run: ./gradlew build -PcompileSdkVersion=34
+
+      - name: Build (debug+release build)
+        run: ./gradlew :composeApp:assembleDebug :composeApp:assembleRelease
+
+      - name: iOS targets compile (KMP)
+        run: |
+          ./gradlew \
+            :composeApp:compileKotlinIosSimulatorArm64 \
+            :composeApp:compileKotlinIosArm64
+
+      - name: iOS Xcode build (iosApp)
+        working-directory: iosApp
+        run: |
+          xcodebuild \
+            -project iosApp.xcodeproj \
+            -scheme iosApp \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
+            build
