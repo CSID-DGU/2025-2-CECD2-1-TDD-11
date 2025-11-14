@@ -38,10 +38,14 @@ async def generate_autobiography(
         current_user = get_current_user(request)
         # Flow 로드 및 실행
         import os
-        flow_path = "d:/lifeLibrarians/2025-2-CECD2-1-TDD-11/ai/flows/autobiographies/standard/generate_autobiography/flow.dag.yaml"
+        # 프로젝트 루트 기준 상대 경로 사용
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.join(current_dir, "..", "..", "..", "..")
+        flow_path = os.path.join(project_root, "flows", "autobiographies", "standard", "generate_autobiography", "flow.dag.yaml")
+        flow_path = os.path.abspath(flow_path)
         
         if not os.path.exists(flow_path):
-            raise HTTPException(status_code=500, detail="Flow file not found")
+            raise HTTPException(status_code=500, detail=f"Flow file not found at: {flow_path}")
         
         flow = Flow.load(flow_path)
         result = flow(
