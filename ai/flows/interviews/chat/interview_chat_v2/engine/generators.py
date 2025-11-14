@@ -28,7 +28,7 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
                 question_text = f"{categories_text}에 대해서 주로 이야기하게 될 거에요. 만약 이 책이 만들어진다면 누구에게 가장 필요할 것 같나요?"
                 selected_cat_num = preferred_categories[0]
             else:
-                return {"next_question": None}
+                return {"next_question": None, "last_answer_materials_id": []}
         else:
             # 선호 카테고리가 없으면 그냥 어떤 이야기가 하고 싶냐고 물어봄
             question_text = "이 책이 만들어지면 누구에게 가장 필요할 거 같으세요?"
@@ -42,12 +42,13 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
                 "type": "category_intro",
                 "text": question_text,
                 "material_id": [selected_cat_num, 0, 0]
-            }
+            },
+            "last_answer_materials_id": []
         }
         
     except Exception as e:
         print(f"[ERROR] 첫 질문 생성 실패: {e}")
-        return {"next_question": None}
+        return {"next_question": None, "last_answer_materials_id": []}
 
 #V2 추가 함수 - LLM 질문 생성
 def generate_question_llm(material: str, target: str, context_answer: Optional[str] = None) -> str:
