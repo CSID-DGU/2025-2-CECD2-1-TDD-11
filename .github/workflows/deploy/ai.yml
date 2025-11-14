@@ -1,0 +1,71 @@
+name: Deploy AI
+
+on:
+  push:
+    branches: [devops]
+    paths:
+      - 'ai/**'
+      - 'deploy/docker-compose.ai.prod.yml'
+      - '.github/workflows/deploy/ai.yml'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker build -f ai/deploy/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AI }}:${{ github.sha }} ./ai
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AI }}:${{ github.sha }}
+
+      - name: Upload Docker Compose to S3
+        run: |
+          aws s3 cp deploy/docker-compose.ai.prod.yml s3://talktobook-deploy/
+
+      - name: Deploy to EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd /opt/deploy",
+              "aws s3 cp s3://talktobook-deploy/docker-compose.ai.prod.yml .",
+              "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
+              "cat > .env << EOF",
+              "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",
+              "IMAGE_TAG=${{ github.sha }}",
+              "AWS_REGION=${{ env.AWS_REGION }}",
+              "DB_HOST=${{ secrets.DB_HOST }}",
+              "DB_PORT=${{ secrets.DB_PORT }}",
+              "DB_NAME=${{ secrets.DB_NAME }}",
+              "DB_USER=${{ secrets.DB_USER }}",
+              "DB_PASSWORD=${{ secrets.DB_PASSWORD }}",
+              "REDIS_HOST=${{ secrets.REDIS_HOST }}",
+              "REDIS_PORT=${{ secrets.REDIS_PORT }}",
+              "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}",
+              "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}",
+              "EOF",
+              "docker-compose -f docker-compose.ai.prod.yml pull",
+              "docker-compose -f docker-compose.ai.prod.yml up -d"
+            ]' \
+            --targets "Key=tag:Name,Values=TalkToBook-AI-Server" \
+            --region ${{ env.AWS_REGION }}
