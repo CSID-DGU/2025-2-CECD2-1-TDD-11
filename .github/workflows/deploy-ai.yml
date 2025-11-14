@@ -48,6 +48,7 @@ jobs:
               "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
               "cat > .env << EOF",
               "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",
+              "ECR_REPOSITORY_AI=${{ secrets.ECR_REPOSITORY_AI }}",
               "IMAGE_TAG=${{ github.sha }}",
               "REDIS_PORT=${{ secrets.REDIS_PORT }}",
               "DEBUG=True",

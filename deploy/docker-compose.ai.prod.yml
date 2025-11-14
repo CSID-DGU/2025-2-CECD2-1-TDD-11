@@ -1,6 +1,6 @@
 services:
   ai-main:
-    image: "${ECR_REGISTRY}/talktobook-ai:${IMAGE_TAG}"
+    image: "${ECR_REGISTRY}/${ECR_REPOSITORY_AI}:${IMAGE_TAG}"
     restart: always
     container_name: "talktobook-ai"
     ports:

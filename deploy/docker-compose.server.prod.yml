@@ -1,6 +1,6 @@
 services:
   server-main:
-    image: "${ECR_REGISTRY}/talktobook-server:${IMAGE_TAG}"
+    image: "${ECR_REGISTRY}/${ECR_REPOSITORY_SERVER}:${IMAGE_TAG}"
     restart: always
     container_name: "talktobook-main"
     ports:
