@@ -1,14 +1,10 @@
-# Welcome to your CDK TypeScript project
+# AWS CDK IAC입니다.
 
-This is a blank project for CDK development with TypeScript.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+## 환경 세팅 방법
+1. Node.js 설치 (24)
+2. AWS CLI 설치 및 구성
+3. AWS Configuare 생성
+4. Make 명령어로 cdk boostrap 생성 후 배포
+```bash
+make deploy
+```
