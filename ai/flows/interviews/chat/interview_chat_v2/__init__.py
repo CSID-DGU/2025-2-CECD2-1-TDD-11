@@ -161,8 +161,9 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             con_flag = 1
 
         # ---------- 간결해진 LLM 기반 소재 매핑 ----------
-        flows_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-        map_flow_path = os.path.join(flows_dir, "interviews", "standard", "map_answer_to_materials", "flow.dag.yaml")
+        # 상대 경로로 flows 디렉토리 찾기
+        flows_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_dir))))
+        map_flow_path = os.path.join(flows_dir, "flows", "interviews", "standard", "map_answer_to_materials", "flow.dag.yaml")
         materials_list = _build_materials_list(material_data)
 
         # 매핑 파일 로드

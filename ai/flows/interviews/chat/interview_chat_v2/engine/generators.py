@@ -54,9 +54,10 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
 def generate_question_llm(material: str, target: str, context_answer: Optional[str] = None) -> str:
     """LLM으로 질문 생성"""
     try:
-        current_dir = Path(__file__).parent.parent
-        flows_dir = current_dir.parent.parent.parent
-        flow_path = flows_dir / "interviews" / "standard" / "generate_interview_questions_v2" / "flow.dag.yaml"
+        # 현재 파일 위치에서 프로젝트 루트의 flows 디렉토리로 이동
+        current_dir = Path(__file__).parent.parent  # engine의 부모 (interview_chat_v2)
+        ai_root = current_dir.parent.parent.parent.parent  # ai 디렉토리
+        flow_path = ai_root / "flows" / "interviews" / "standard" / "generate_interview_questions_v2" / "flow.dag.yaml"
         
         if not flow_path.exists():
             print(f"[WARNING] Flow not found: {flow_path}")
