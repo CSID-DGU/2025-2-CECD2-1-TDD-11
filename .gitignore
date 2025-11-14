@@ -18,6 +18,6 @@ $RECYCLE.BIN/
 
 # Gradle cache directory
 .gradle/
-
+.idea/
 # Local 환경에서는 사용해야 하거나, Build시 생기는 "임시 파일"인 경우 git ignore에 추가해주세요.
 ##############################################################

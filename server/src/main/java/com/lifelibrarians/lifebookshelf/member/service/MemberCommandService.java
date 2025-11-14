@@ -49,7 +49,11 @@ public class MemberCommandService {
 					requestDto.getMaritalStatus(),
 					now,
 					now,
-					member
+					member,
+					null, // theme
+					null, // ageGroup
+					null, // job
+					null  // whyCreate
 			);
 
 			memberMetadata = memberMetadataRepository.save(
