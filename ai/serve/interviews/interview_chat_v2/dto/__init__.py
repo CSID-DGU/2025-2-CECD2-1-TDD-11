@@ -36,7 +36,7 @@ class MetricsDto(BaseModel):
     categories: List[CategoryDto]
     engine_state: EngineStateDto = Field(default_factory=EngineStateDto)
     asked_total: int = 0
-    policy_version: str = "v2.0.0"
+    policy_version: str = "v0.5.0"
 
 
 # ===== Session Start DTOs =====
