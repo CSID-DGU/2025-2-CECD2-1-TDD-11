@@ -7,7 +7,7 @@ from auth import verify_token
 
 class SessionManager:
     
-    def extract_user_id_from_token(self, auth_header: str) -> int:
+    def extract_user_id_from_token(self, auth_header: Optional[str]) -> int:
         """JWT 토큰에서 userId 추출"""
         if not auth_header or not auth_header.startswith("Bearer "):
             raise ValueError("Invalid authorization header")
@@ -41,13 +41,15 @@ class SessionManager:
             return json.loads(data)
         return None
     
-    def create_session(self, session_key: str, preferred_categories: Optional[list] = None, previous_metrics: Optional[Dict] = None):
+    def create_session(self, session_key: str, user_id: int, autobiography_id: int, preferred_categories: Optional[list] = None, previous_metrics: Optional[Dict] = None):
         """새 세션 생성"""
         if previous_metrics:
             self.save_session(session_key, previous_metrics, None)
         else:
             initial_metrics = {
                 "session_id": session_key,
+                "user_id": user_id,
+                "autobiography_id": autobiography_id,
                 "preferred_categories": preferred_categories or []
             }
             self.save_session(session_key, initial_metrics, None)

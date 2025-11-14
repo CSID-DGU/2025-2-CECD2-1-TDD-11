@@ -41,28 +41,23 @@ class MetricsDto(BaseModel):
 
 # ===== Session Start DTOs =====
 class SessionStartRequestDto(BaseModel):
-    session_id: str
-    user_id: Optional[str] = None
     preferred_categories: List[int] = Field(default_factory=list)
     previous_metrics: Optional[MetricsDto] = None
     
     class Config:
         json_schema_extra = {
             "example": {
-                "session_id": "001",
                 "preferred_categories": [1, 3, 5]
             }
         }
 
 
 class SessionStartResponseDto(BaseModel):
-    session_id: str
     first_question: Optional[Dict[str, Any]]
     
     class Config:
         json_schema_extra = {
             "example": {
-                "session_id": "001",
                 "first_question": {
                     "id": "q-fcf8ea8c",
                     "material": "좋아했던 과목",
@@ -76,13 +71,11 @@ class SessionStartResponseDto(BaseModel):
 
 # ===== Turn DTOs =====
 class InterviewChatV2RequestDto(BaseModel):
-    session_id: str
     answer_text: str
     
     class Config:
         json_schema_extra = {
             "example": {
-                "session_id": "001",
                 "answer_text": "대학교 2학년 때 컴퓨터과학 수업을 들으면서 프로그래밍에 흥미를 느끼기 시작했어요. 처음에는 어려웠지만 교수님이 차근차근 설명해주시고, 실습을 통해 직접 코드를 작성해보면서 점점 재미를 느끼게 되었습니다. 특히 첫 번째 프로그램이 성공적으로 실행됐을 때의 성취감은 정말 잊을 수 없어요."
             }
         }
@@ -90,6 +83,7 @@ class InterviewChatV2RequestDto(BaseModel):
 
 class InterviewChatV2ResponseDto(BaseModel):
     next_question: Optional[Dict[str, Any]]
+    last_answer_materials_id: List[List[int]] = Field(default_factory=list)
     
     class Config:
         json_schema_extra = {
@@ -100,14 +94,15 @@ class InterviewChatV2ResponseDto(BaseModel):
                     "type": "ex",
                     "text": "프로그래밍 수업과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요. 어떤 프로젝트나 과제가 특히 기억에 남나요?",
                     "material_id": [1, 1, 1]
-                }
+                },
+                "last_answer_materials_id": [[1, 1, 1], [1, 2, 3], [2, 1, 1]]
             }
         }
 
 
 # ===== Session End DTOs =====
 class SessionEndRequestDto(BaseModel):
-    session_id: str
+    pass
 
 
 class SessionEndResponseDto(BaseModel):
