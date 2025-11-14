@@ -62,5 +62,5 @@ jobs:
               "docker-compose -f docker-compose.ai.prod.yml up -d",
               "docker image prune -f"
             ]' \
-            --targets "Key=tag:Name,Values=TalkToBook-AI-Server" \
+            --instance-ids ${{ secrets.AI_INSTANCE_ID }} \
             --region ${{ env.AWS_REGION }}

@@ -73,5 +73,5 @@ jobs:
               "docker-compose -f docker-compose.server.prod.yml up -d",
               "docker image prune -f"
             ]' \
-            --targets "Key=tag:Name,Values=TalkToBook-Server" \
+            --instance-ids ${{ secrets.SERVER_INSTANCE_ID }} \
             --region ${{ env.AWS_REGION }}

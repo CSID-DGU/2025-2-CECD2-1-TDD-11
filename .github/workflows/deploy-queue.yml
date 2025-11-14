@@ -49,5 +49,5 @@ jobs:
               "docker-compose -f docker-compose.stream.prod.yml up -d",
               "docker image prune -f"
             ]' \
-            --targets "Key=tag:Name,Values=TalkToBook-Stream" \
+            --instance-ids ${{ secrets.STREAM_INSTANCE_ID }} \
             --region ${{ env.AWS_REGION }}
