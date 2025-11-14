@@ -20,7 +20,7 @@ echo "[scripts/ai/run-ai-server] Successfully moved to serve directory: $(pwd)"
 
 ENV_NAME="talktobook-ai"
 PORT=3000
-ENV_FILE=".env.development"
+ENV_FILE=".env"
 LOG_FILE="ai_server.log"
 
 if ! command -v conda &> /dev/null; then

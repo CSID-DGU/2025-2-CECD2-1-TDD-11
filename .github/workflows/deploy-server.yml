@@ -29,6 +29,14 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Inject production configuration
+        run: |
+          # Decode and inject application-prod.yml
+          echo "${{ secrets.SERVER_PROD_APPLICATION_YML }}" | base64 -d > server/src/main/resources/application-prod.yml
+          
+          # Change active profile to prod in application.yml
+          sed -i 's/active: .*/active: prod/' server/src/main/resources/application.yml
+
       - name: Build and push Docker image
         run: |
           docker build -f server/deploy-main/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_SERVER }}:${{ github.sha }} ./server
