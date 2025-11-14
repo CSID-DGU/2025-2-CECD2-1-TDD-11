@@ -94,7 +94,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
 
     # Redis에서 세션 로드
     import redis
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_client = redis.Redis(host='talktobook-redis', port=6379, db=0, decode_responses=True)
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
     session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None

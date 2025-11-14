@@ -21,7 +21,7 @@ class SessionManager:
         return f"{user_id}:{autobiography_id}"
     
 
-    def __init__(self, redis_host: str = 'localhost', redis_port: int = 6379, redis_db: int = 0):
+    def __init__(self, redis_host: str = 'talktobook-redis', redis_port: int = 6379, redis_db: int = 0):
         self.redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
         self.session_ttl = 3600  # 1시간
     
