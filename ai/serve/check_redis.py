@@ -1,6 +1,10 @@
 import redis
+import os
 
-redis_client = redis.Redis(host='talktobook-redis', port=6379, db=0, decode_responses=True)
+# 환경변수에서 Redis 설정 읽기
+redis_host = os.getenv('REDIS_HOST')
+redis_port = int(os.getenv('REDIS_PORT'))
+redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
 
 print("KEYS *")
 all_keys = redis_client.keys("*")
