@@ -11,11 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import bookshelf.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
+import com.tdd.bookshelf.core.designsystem.Black1
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
-import com.tdd.bookshelf.core.designsystem.Neutral900
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @OptIn(ExperimentalResourceApi::class)
@@ -33,9 +32,8 @@ fun TopBarContent(
     ) {
         Text(
             text = content,
-            style = BookShelfTypo.SemiBold,
-            color = Neutral900,
-            fontSize = 20.sp,
+            style = BookShelfTypo.Head1,
+            color = Black1,
             modifier =
                 Modifier
                     .align(Alignment.Center)

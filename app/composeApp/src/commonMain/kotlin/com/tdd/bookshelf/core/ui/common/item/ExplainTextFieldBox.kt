@@ -1,16 +1,19 @@
 package com.tdd.bookshelf.core.ui.common.item
 
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
-fun TextFieldBox(
+fun ExplainTextFieldBox(
     textInput: String,
     onValueChange: (String) -> Unit,
     hintText: String,
     errorText: String = "",
     isError: Boolean = false,
+    maxTextNum: Int,
+    isTextNumVisible: Boolean,
 ) {
     BasicTextFieldBoxContent(
         textInput = textInput,
@@ -18,7 +21,9 @@ fun TextFieldBox(
         hintText = hintText,
         errorText = errorText,
         isError = isError,
+        maxTextNum = maxTextNum,
+        isTextNumVisible = isTextNumVisible,
         modifier = Modifier
-            .wrapContentHeight()
+            .height(260.dp)
     )
 }

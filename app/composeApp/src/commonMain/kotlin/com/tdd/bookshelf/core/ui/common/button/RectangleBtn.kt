@@ -15,10 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.tdd.bookshelf.core.designsystem.Blue300
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
-import com.tdd.bookshelf.core.designsystem.Gray200
-import com.tdd.bookshelf.core.designsystem.Gray50
+import com.tdd.bookshelf.core.designsystem.Gray1
+import com.tdd.bookshelf.core.designsystem.Main1
+import com.tdd.bookshelf.core.designsystem.White3
 
 @Composable
 fun RectangleBtn(
@@ -47,9 +47,9 @@ fun RectangleBtnContent(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(if (isBtnActivated) Blue300 else Gray200)
+                .padding(horizontal = 20.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(if (isBtnActivated) Main1 else Gray1)
                 .wrapContentHeight()
                 .clickable(
                     enabled = isBtnActivated,
@@ -60,8 +60,8 @@ fun RectangleBtnContent(
     ) {
         Text(
             text = btnTextContent,
-            style = BookShelfTypo.Medium,
-            color = Gray50,
+            style = BookShelfTypo.Body1,
+            color = if (isBtnActivated) White3 else Gray4,
             modifier =
                 Modifier
                     .align(Alignment.Center)
