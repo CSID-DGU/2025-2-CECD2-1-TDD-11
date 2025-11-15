@@ -25,7 +25,7 @@ import com.tdd.bookshelf.core.designsystem.LogInTitle
 import com.tdd.bookshelf.core.designsystem.PasswordHintText
 import com.tdd.bookshelf.core.designsystem.SignUpTitle
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn
-import com.tdd.bookshelf.core.ui.common.item.TextFieldBox
+import com.tdd.bookshelf.core.ui.common.textfield.TextFieldBox
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 

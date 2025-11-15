@@ -23,7 +23,7 @@ import com.tdd.bookshelf.core.designsystem.PasswordHintText
 import com.tdd.bookshelf.core.designsystem.SignUpBtn
 import com.tdd.bookshelf.core.designsystem.SignUpTitle
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn
-import com.tdd.bookshelf.core.ui.common.item.TextFieldBox
+import com.tdd.bookshelf.core.ui.common.textfield.TextFieldBox
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

@@ -1,4 +1,4 @@
-package com.tdd.bookshelf.core.ui.common.item
+package com.tdd.bookshelf.core.ui.common.textfield
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
