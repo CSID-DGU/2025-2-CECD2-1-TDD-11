@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
 import com.tdd.bookshelf.core.designsystem.Gray1
+import com.tdd.bookshelf.core.designsystem.Gray4
 import com.tdd.bookshelf.core.designsystem.Main1
 import com.tdd.bookshelf.core.designsystem.White3
 
