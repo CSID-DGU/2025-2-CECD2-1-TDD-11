@@ -95,7 +95,8 @@ fun NavGraphBuilder.homeNavGraph(
     ) {
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(
-                goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
+//                goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
+                goToPastInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) }
             )
         }
     }

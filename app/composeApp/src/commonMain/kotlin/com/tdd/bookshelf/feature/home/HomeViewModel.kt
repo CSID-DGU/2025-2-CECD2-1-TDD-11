@@ -102,6 +102,8 @@ class HomeViewModel(
             MonthInterviewItemModel(26, 0, "", 0),
             MonthInterviewItemModel(27, 0, "", 0),
             MonthInterviewItemModel(28, 0, "", 0),
+            MonthInterviewItemModel(29, 0, "", 0),
+            MonthInterviewItemModel(30, 0, "", 0),
         )
 
         updateState(
