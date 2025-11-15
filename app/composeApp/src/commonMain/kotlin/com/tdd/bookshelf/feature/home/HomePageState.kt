@@ -4,10 +4,19 @@ import com.tdd.bookshelf.core.ui.base.PageState
 import com.tdd.bookshelf.domain.entity.response.autobiography.AllAutobiographyItemModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.ChapterItemModel
+import com.tdd.bookshelf.domain.entity.response.autobiography.CreatedMaterialIItemModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.SubChapterItemModel
+import com.tdd.bookshelf.domain.entity.response.interview.MonthInterviewItemModel
 import com.tdd.bookshelf.domain.entity.response.member.MemberInfoModel
 
 data class HomePageState(
+    val createdMaterialList: List<CreatedMaterialIItemModel> = emptyList(),
+    val autobiographyProgress: Int = 0,
+    val monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
+    val selectedDay: Int = 0,
+    val selectedDate: String = "",
+
+    // Legacy
     val chapterList: List<ChapterItemModel> = emptyList(),
     val subChapterList: List<SubChapterItemModel> = emptyList(),
     val currentChapterId: Int = 0,

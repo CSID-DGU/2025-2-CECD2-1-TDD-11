@@ -33,7 +33,7 @@ fun SelectCircleListItem(
     itemImg: DrawableResource = Res.drawable.img_chapter_detail,
     itemText: String,
     isSelected: Boolean = false,
-    onSelect: () -> Unit,
+    onSelect: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -82,7 +82,7 @@ fun SelectCircleListItemContent(
         Text(
             text = itemText,
             color = if (isSelected) Main1 else Gray4,
-            style = BookShelfTypo.Body3,
+            style = BookShelfTypo.Caption4,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(top = 5.dp)

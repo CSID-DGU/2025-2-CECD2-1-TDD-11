@@ -96,7 +96,6 @@ fun NavGraphBuilder.homeNavGraph(
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(
                 goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
-                goToDetailChapterPage = { autobiographyId -> navController.navigate(NavRoutes.DetailChapterScreen.setRouteModel(autobiographyId)) },
             )
         }
     }

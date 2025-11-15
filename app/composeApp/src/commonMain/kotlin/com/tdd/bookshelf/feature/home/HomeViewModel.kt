@@ -10,7 +10,9 @@ import com.tdd.bookshelf.domain.entity.response.autobiography.AllAutobiographyLi
 import com.tdd.bookshelf.domain.entity.response.autobiography.ChapterInfoModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.ChapterItemModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.ChapterListModel
+import com.tdd.bookshelf.domain.entity.response.autobiography.CreatedMaterialIItemModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.SubChapterItemModel
+import com.tdd.bookshelf.domain.entity.response.interview.MonthInterviewItemModel
 import com.tdd.bookshelf.domain.entity.response.interview.ai.InterviewQuestionsAIResponseModel
 import com.tdd.bookshelf.domain.entity.response.member.MemberInfoModel
 import com.tdd.bookshelf.domain.usecase.autobiograph.GetAllAutobiographyUseCase
@@ -20,6 +22,12 @@ import com.tdd.bookshelf.domain.usecase.interview.ai.PostCreateInterviewQuestion
 import com.tdd.bookshelf.domain.usecase.member.GetMemberInfoUseCase
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import kotlin.time.ExperimentalTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.LocalDate
+
 
 @KoinViewModel
 class HomeViewModel(
@@ -29,13 +37,130 @@ class HomeViewModel(
     private val postCreateInterviewQuestionUseCase: PostCreateInterviewQuestionUseCase,
     private val postCreateAutobiographyUseCase: PostCreateAutobiographyUseCase,
 ) : BaseViewModel<HomePageState>(
-        HomePageState(),
-    ) {
+    HomePageState(),
+) {
     init {
-        initSetChapterList()
-        initSetAllAutobiography(GetAutobiographyType.DEFAULT)
+//        initSetChapterList()
+//        initSetAllAutobiography(GetAutobiographyType.DEFAULT)
+        initSetTodayDate()
+        initSetCreatedMaterials()
+        initSetAutobiographyProgress()
+        initSetMonthInterviewList()
     }
 
+    private fun initSetCreatedMaterials() {
+        val createdMaterials: List<CreatedMaterialIItemModel> = listOf(
+            CreatedMaterialIItemModel(0, 0, 1, "가족", ""),
+            CreatedMaterialIItemModel(1, 0, 2, "성격", ""),
+        )
+
+        updateState(
+            uiState.value.copy(
+                createdMaterialList = createdMaterials
+            )
+        )
+    }
+
+    private fun initSetAutobiographyProgress() {
+        val progress = 25
+
+        updateState(
+            uiState.value.copy(
+                autobiographyProgress = progress
+            )
+        )
+    }
+
+    private fun initSetMonthInterviewList() {
+        val monthInterviews: List<MonthInterviewItemModel> = listOf(
+            MonthInterviewItemModel(0, 0, "오늘은 이런대화", 1),
+            MonthInterviewItemModel(1, 0, "이러쿵 저러쿵", 5),
+            MonthInterviewItemModel(2, 0, "", 0),
+            MonthInterviewItemModel(3, 0, "", 0),
+            MonthInterviewItemModel(4, 0, "", 0),
+            MonthInterviewItemModel(5, 0, "", 0),
+            MonthInterviewItemModel(6, 0, "", 0),
+            MonthInterviewItemModel(7, 0, "", 0),
+            MonthInterviewItemModel(8, 0, "", 0),
+            MonthInterviewItemModel(9, 0, "인터뷰를 하자", 10),
+            MonthInterviewItemModel(10, 0, "", 0),
+            MonthInterviewItemModel(11, 0, "", 0),
+            MonthInterviewItemModel(12, 0, "", 0),
+            MonthInterviewItemModel(13, 0, "", 0),
+            MonthInterviewItemModel(14, 0, "", 0),
+            MonthInterviewItemModel(15, 0, "", 0),
+            MonthInterviewItemModel(16, 0, "아아아아", 6),
+            MonthInterviewItemModel(17, 0, "", 0),
+            MonthInterviewItemModel(18, 0, "", 0),
+            MonthInterviewItemModel(19, 0, "", 0),
+            MonthInterviewItemModel(20, 0, "", 0),
+            MonthInterviewItemModel(21, 0, "", 0),
+            MonthInterviewItemModel(22, 0, "", 0),
+            MonthInterviewItemModel(23, 0, "", 0),
+            MonthInterviewItemModel(24, 0, "", 0),
+            MonthInterviewItemModel(25, 0, "", 0),
+            MonthInterviewItemModel(26, 0, "", 0),
+            MonthInterviewItemModel(27, 0, "", 0),
+            MonthInterviewItemModel(28, 0, "", 0),
+        )
+
+        updateState(
+            uiState.value.copy(
+                monthInterviewList = monthInterviews
+            )
+        )
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun onClickInterviewDate(day: Int) {
+        val today = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+        val targetDate = LocalDate(
+            year = today.year,
+            monthNumber = today.monthNumber,
+            dayOfMonth = day
+        )
+        val selectedDate = buildString {
+            append(targetDate.year.toString().padStart(4, '0'))
+            append('.')
+            append(targetDate.monthNumber.toString().padStart(2, '0'))
+            append('.')
+            append(targetDate.dayOfMonth.toString().padStart(2, '0'))
+        }
+
+
+        updateState(
+            uiState.value.copy(
+                selectedDay = day,
+                selectedDate = selectedDate
+            )
+        )
+    }
+
+    private fun initSetTodayDate() {
+        val today = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+        val todayDate = buildString {
+            append(today.year.toString().padStart(4, '0'))
+            append('.')
+            append(today.monthNumber.toString().padStart(2, '0'))
+            append('.')
+            append(today.dayOfMonth.toString().padStart(2, '0'))
+        }
+
+        updateState(
+            uiState.value.copy(
+                selectedDate = todayDate,
+                selectedDay = today.dayOfMonth
+            )
+        )
+    }
+
+
+
+    // Legacy
     private fun initSetChapterList() {
         viewModelScope.launch {
             getAutobiographiesChapterListUseCase(Unit).collect {
