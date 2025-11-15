@@ -26,6 +26,7 @@ fun NavGraphBuilder.loginNavGraph(
             LogInScreen(
                 goToOnboardingPage = { navController.navigate(NavRoutes.HomeScreen.route) },
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
+                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) }
             )
         }
     }

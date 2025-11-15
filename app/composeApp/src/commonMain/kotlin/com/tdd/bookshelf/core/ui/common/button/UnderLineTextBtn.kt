@@ -2,6 +2,7 @@ package com.tdd.bookshelf.core.ui.common.button
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ fun UnderLineTextBtn(
         ),
         textAlign = TextAlign.End,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(end = paddingEnd.dp)
             .clickable(
                 interactionSource = interactionSource,

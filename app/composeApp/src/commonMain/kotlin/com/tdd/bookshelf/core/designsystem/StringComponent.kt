@@ -29,14 +29,12 @@ const val Publication = "출판페이지"
 const val MyPage = "마이페이지"
 
 // LogIn
-const val LogInTitle = "Sign In"
-const val EmailHintText = "Email"
-const val PasswordHintText = "password"
-const val LogInBtn = "Log In"
+const val LogInText = "로그인"
+const val EmailHintText = "이메일을 입력해 주세요."
+const val PasswordHintText = "비밀번호를 입력해 주세요."
 
 // SignUp
-const val SignUpTitle = "Sign Up"
-const val SignUpBtn = "Sign Up"
+const val SignUpText = "회원가입"
 
 // Home
 const val HomeTitle = "당신의 이야기가 궁금해요"

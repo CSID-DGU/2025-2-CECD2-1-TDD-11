@@ -1,7 +1,7 @@
 package com.tdd.bookshelf.feature.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,21 +10,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tdd.bookshelf.core.designsystem.BackGround1
-import com.tdd.bookshelf.core.designsystem.Blue500
+import com.tdd.bookshelf.core.designsystem.BackGround2
+import com.tdd.bookshelf.core.designsystem.Black1
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
 import com.tdd.bookshelf.core.designsystem.EmailHintText
-import com.tdd.bookshelf.core.designsystem.LogInBtn
-import com.tdd.bookshelf.core.designsystem.LogInTitle
+import com.tdd.bookshelf.core.designsystem.LogInText
+import com.tdd.bookshelf.core.designsystem.Main1
 import com.tdd.bookshelf.core.designsystem.PasswordHintText
-import com.tdd.bookshelf.core.designsystem.SignUpTitle
+import com.tdd.bookshelf.core.designsystem.SignUpText
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn
+import com.tdd.bookshelf.core.ui.common.button.UnderLineTextBtn
 import com.tdd.bookshelf.core.ui.common.textfield.TextFieldBox
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -33,9 +34,12 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun LogInScreen(
     goToOnboardingPage: () -> Unit,
     goToSignUp: () -> Unit,
+    goToHome: () -> Unit,
 ) {
     val viewModel: LogInViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
@@ -43,11 +47,16 @@ internal fun LogInScreen(
                 is LogInEvent.GoToOnBoardingPage -> {
                     goToOnboardingPage()
                 }
+
+                is LogInEvent.GoToHomePage -> {
+                    goToHome()
+                }
             }
         }
     }
 
     LogInContent(
+        interactionSource = interactionSource,
         onClickLogInBtn = { viewModel.postEmailLogIn() },
         emailInput = uiState.emailInput,
         onEmailValueChange = { newValue -> viewModel.onEmailValueChange(newValue) },
@@ -59,6 +68,7 @@ internal fun LogInScreen(
 
 @Composable
 private fun LogInContent(
+    interactionSource: MutableInteractionSource = MutableInteractionSource(),
     onClickLogInBtn: () -> Unit = {},
     emailInput: String = "",
     onEmailValueChange: (String) -> Unit = {},
@@ -70,13 +80,12 @@ private fun LogInContent(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(BackGround1),
+                .background(BackGround2),
     ) {
         Text(
-            text = LogInTitle,
-            style = BookShelfTypo.SemiBold,
-            color = Blue500,
-            fontSize = 32.sp,
+            text = LogInText,
+            style = BookShelfTypo.Head20,
+            color = Black1,
             modifier =
                 Modifier
                     .align(Alignment.CenterHorizontally)
@@ -84,7 +93,7 @@ private fun LogInContent(
             textAlign = TextAlign.Center,
         )
 
-        Spacer(modifier = Modifier.padding(top = 150.dp))
+        Spacer(modifier = Modifier.padding(top = 60.dp))
 
         TextFieldBox(
             textInput = emailInput,
@@ -92,7 +101,7 @@ private fun LogInContent(
             hintText = EmailHintText,
         )
 
-        Spacer(modifier = Modifier.padding(top = 16.dp))
+        Spacer(modifier = Modifier.padding(top = 15.dp))
 
         TextFieldBox(
             textInput = passwordInput,
@@ -100,28 +109,25 @@ private fun LogInContent(
             hintText = PasswordHintText,
         )
 
-        Text(
-            text = SignUpTitle,
-            style = BookShelfTypo.SemiBold,
-            color = Blue500,
-            fontSize = 20.sp,
-            modifier =
-                Modifier
-                    .align(Alignment.Start)
-                    .padding(top = 20.dp, start = 25.dp)
-                    .clickable(
-                        onClick = onClickSignUp,
-                    ),
-            textAlign = TextAlign.Center,
+        Spacer(modifier = Modifier.padding(top = 15.dp))
+
+        UnderLineTextBtn(
+            textContent = SignUpText,
+            interactionSource = interactionSource,
+            textColor = Main1,
+            paddingEnd = 25,
+            onClick = onClickSignUp
         )
 
-        Spacer(modifier = Modifier.padding(top = 60.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         RectangleBtn(
-            btnContent = LogInBtn,
+            btnContent = LogInText,
             isBtnActivated = emailInput.isNotEmpty() && passwordInput.isNotEmpty(),
             onClickAction = onClickLogInBtn,
         )
+
+        Spacer(modifier = Modifier.padding(bottom = 80.dp))
     }
 }
 

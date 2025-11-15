@@ -15,8 +15,8 @@ class LogInViewModel(
     private val postEmailLogInUseCase: PostEmailLogInUseCase,
     private val saveTokenUseCase: SaveTokenUseCase,
 ) : BaseViewModel<LogInPageState>(
-        LogInPageState(),
-    ) {
+    LogInPageState(),
+) {
     fun onEmailValueChange(newValue: String) {
         updateState(
             uiState.value.copy(

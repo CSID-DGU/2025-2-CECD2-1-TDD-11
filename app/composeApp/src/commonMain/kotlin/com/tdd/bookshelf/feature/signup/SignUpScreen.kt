@@ -20,8 +20,7 @@ import com.tdd.bookshelf.core.designsystem.Blue500
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
 import com.tdd.bookshelf.core.designsystem.EmailHintText
 import com.tdd.bookshelf.core.designsystem.PasswordHintText
-import com.tdd.bookshelf.core.designsystem.SignUpBtn
-import com.tdd.bookshelf.core.designsystem.SignUpTitle
+import com.tdd.bookshelf.core.designsystem.SignUpText
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn
 import com.tdd.bookshelf.core.ui.common.textfield.TextFieldBox
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,7 +66,7 @@ private fun SignUpContent(
                 .background(BackGround1),
     ) {
         Text(
-            text = SignUpTitle,
+            text = SignUpText,
             style = BookShelfTypo.SemiBold,
             color = Blue500,
             fontSize = 32.sp,
@@ -97,7 +96,7 @@ private fun SignUpContent(
         Spacer(modifier = Modifier.padding(top = 60.dp))
 
         RectangleBtn(
-            btnContent = SignUpBtn,
+            btnContent = SignUpText,
             isBtnActivated = emailInput.isNotEmpty() && passwordInput.isNotEmpty(),
             onClickAction = onClickSignUpBtn,
         )
