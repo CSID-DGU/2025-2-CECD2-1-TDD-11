@@ -1,4 +1,4 @@
-package com.tdd.bookshelf.feature.login
+package com.tdd.bookshelf.feature.auth.login
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d

@@ -9,7 +9,7 @@ import androidx.navigation.navigation
 import com.tdd.bookshelf.feature.detailchapter.DetailChapterScreen
 import com.tdd.bookshelf.feature.home.HomeScreen
 import com.tdd.bookshelf.feature.interview.InterviewScreen
-import com.tdd.bookshelf.feature.login.LogInScreen
+import com.tdd.bookshelf.feature.auth.login.LogInScreen
 import com.tdd.bookshelf.feature.my.MyScreen
 import com.tdd.bookshelf.feature.onboarding.OnboardingScreen
 import com.tdd.bookshelf.feature.publication.PublicationScreen

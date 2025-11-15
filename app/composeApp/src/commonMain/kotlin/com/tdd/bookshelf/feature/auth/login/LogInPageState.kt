@@ -1,4 +1,4 @@
-package com.tdd.bookshelf.feature.login
+package com.tdd.bookshelf.feature.auth.login
 
 import com.tdd.bookshelf.core.ui.base.PageState
 

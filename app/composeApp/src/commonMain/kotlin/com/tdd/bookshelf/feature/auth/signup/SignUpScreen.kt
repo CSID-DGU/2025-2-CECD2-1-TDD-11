@@ -1,6 +1,7 @@
 package com.tdd.bookshelf.feature.signup
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -17,7 +19,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tdd.bookshelf.core.designsystem.BackGround2
 import com.tdd.bookshelf.core.designsystem.Black1
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
+import com.tdd.bookshelf.core.designsystem.ChangePasswordText
 import com.tdd.bookshelf.core.designsystem.EmailHintText
+import com.tdd.bookshelf.core.designsystem.Gray5
 import com.tdd.bookshelf.core.designsystem.PasswordHintText
 import com.tdd.bookshelf.core.designsystem.SignUpText
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn

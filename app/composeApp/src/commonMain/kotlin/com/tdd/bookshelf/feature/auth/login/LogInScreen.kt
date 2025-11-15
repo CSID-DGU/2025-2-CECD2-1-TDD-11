@@ -1,4 +1,4 @@
-package com.tdd.bookshelf.feature.login
+package com.tdd.bookshelf.feature.auth.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
