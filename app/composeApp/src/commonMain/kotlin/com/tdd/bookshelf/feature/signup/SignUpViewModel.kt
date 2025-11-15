@@ -44,7 +44,7 @@ class SignUpViewModel(
                 resultResponse(it, ::onSuccessPostEmailSignUp)
             }
 
-            emitEventFlow(SignUpEvent.GoToLogInPage)
+            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
         }
     }
 

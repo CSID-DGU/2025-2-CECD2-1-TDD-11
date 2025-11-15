@@ -36,6 +36,9 @@ const val PasswordHintText = "비밀번호를 입력해 주세요."
 // SignUp
 const val SignUpText = "회원가입"
 
+// Change Password
+const val ChangePasswordText = "비밀번호 재설정"
+
 // Home
 const val HomeTitle = "당신의 이야기가 궁금해요"
 const val HomeSemiTitle = "또 와주셔서 감사해요, 여행자님"

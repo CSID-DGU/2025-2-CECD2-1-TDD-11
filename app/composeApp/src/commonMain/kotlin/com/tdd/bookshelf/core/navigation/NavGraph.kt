@@ -41,7 +41,9 @@ fun NavGraphBuilder.signupNavGraph(
     ) {
         composable(NavRoutes.SignUpScreen.route) {
             SignUpScreen(
-                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+//                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                goToEmailCheckPage = {},
+                goToPasswordChangePage = {}
             )
         }
     }
