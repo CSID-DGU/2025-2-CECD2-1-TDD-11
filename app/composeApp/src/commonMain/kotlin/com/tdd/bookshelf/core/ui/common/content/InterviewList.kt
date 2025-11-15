@@ -17,6 +17,7 @@ import com.tdd.bookshelf.core.designsystem.BookShelfTypo
 import com.tdd.bookshelf.core.designsystem.Gray1
 import com.tdd.bookshelf.core.designsystem.Main1
 import com.tdd.bookshelf.core.designsystem.White3
+import com.tdd.bookshelf.core.ui.common.item.InterviewListItem
 import com.tdd.bookshelf.domain.entity.enums.ChatType
 import com.tdd.bookshelf.domain.entity.response.interview.InterviewChatItem
 
@@ -46,25 +47,5 @@ fun InterviewListContent(
                 chatText = item.content
             )
         }
-    }
-}
-
-@Composable
-fun InterviewListItem(
-    chatText: String,
-    chatType: ChatType,
-) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp, bottomStart = if (chatType == ChatType.BOT) 0.dp else 5.dp, bottomEnd = if (chatType == ChatType.BOT) 5.dp else 0.dp))
-            .background(if (chatType == ChatType.BOT) Gray1 else Main1)
-    ) {
-        Text(
-            text = chatText,
-            color = if (chatType == ChatType.BOT) Black1 else White3,
-            style = BookShelfTypo.Body2,
-            modifier = Modifier
-                .padding(vertical = 18.dp, horizontal = 20.dp)
-        )
     }
 }
