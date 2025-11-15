@@ -1,4 +1,4 @@
-package com.tdd.bookshelf.feature.signup
+package com.tdd.bookshelf.feature.auth.signup
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
@@ -15,7 +15,7 @@ class SignUpViewModel(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val postEmailSignUpUseCase: PostEmailSignUpUseCase,
 ) : BaseViewModel<SignUpPageState>(
-        SignUpPageState(),
+    SignUpPageState(),
     ) {
     fun onEmailValueChange(newValue: String) {
         updateState(
@@ -34,18 +34,19 @@ class SignUpViewModel(
     }
 
     fun postEmailSignUp() {
-        viewModelScope.launch {
-            postEmailSignUpUseCase(
-                EmailSignUpRequestModel(
-                    email = uiState.value.emailInput,
-                    password = uiState.value.passwordInput,
-                ),
-            ).collect {
-                resultResponse(it, ::onSuccessPostEmailSignUp)
-            }
-
-            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
-        }
+//        viewModelScope.launch {
+//            postEmailSignUpUseCase(
+//                EmailSignUpRequestModel(
+//                    email = uiState.value.emailInput,
+//                    password = uiState.value.passwordInput,
+//                ),
+//            ).collect {
+//                resultResponse(it, ::onSuccessPostEmailSignUp)
+//            }
+//
+//            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
+//        }
+        emitEventFlow(SignUpEvent.GoToEmailCheckPage)
     }
 
     private fun onSuccessPostEmailSignUp(data: AccessTokenModel) {

@@ -34,16 +34,17 @@ class LogInViewModel(
     }
 
     fun postEmailLogIn() {
-        viewModelScope.launch {
-            postEmailLogInUseCase(
-                EmailLogInRequestModel(
-                    email = uiState.value.emailInput,
-                    password = uiState.value.passwordInput,
-                ),
-            ).collect {
-                resultResponse(it, ::onSuccessPostEmailLogIn)
-            }
-        }
+//        viewModelScope.launch {
+//            postEmailLogInUseCase(
+//                EmailLogInRequestModel(
+//                    email = uiState.value.emailInput,
+//                    password = uiState.value.passwordInput,
+//                ),
+//            ).collect {
+//                resultResponse(it, ::onSuccessPostEmailLogIn)
+//            }
+//        }
+        emitEventFlow(LogInEvent.GoToHomePage)
     }
 
     private fun onSuccessPostEmailLogIn(data: AccessTokenModel) {

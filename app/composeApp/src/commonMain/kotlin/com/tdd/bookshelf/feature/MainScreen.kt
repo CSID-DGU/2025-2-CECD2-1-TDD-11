@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tdd.bookshelf.core.designsystem.White0
 import com.tdd.bookshelf.core.navigation.NavRoutes
 import com.tdd.bookshelf.core.navigation.detailChapterNavGraph
+import com.tdd.bookshelf.core.navigation.emailCheckNavGraph
 import com.tdd.bookshelf.core.navigation.homeNavGraph
 import com.tdd.bookshelf.core.navigation.interviewNavGraph
 import com.tdd.bookshelf.core.navigation.loginNavGraph
@@ -91,6 +92,9 @@ fun MainScreen() {
                 )
                 signupNavGraph(
                     navController = navController,
+                )
+                emailCheckNavGraph(
+                    navController = navController
                 )
                 onboardingNavGraph(
                     navController = navController,

@@ -1,9 +1,10 @@
 package com.tdd.bookshelf.core.designsystem
 
 // Common
-const val BookShelf = "인생책장"
+const val BookShelf = "대화로책"
 const val Empty = ""
 const val Blank = " "
+const val Confirm = "확인"
 
 // Publish Status
 const val Requested = "REQUESTED"
@@ -35,6 +36,10 @@ const val PasswordHintText = "비밀번호를 입력해 주세요."
 
 // SignUp
 const val SignUpText = "회원가입"
+
+// Email Check
+const val EmailCheckText = "이메일 인증"
+const val CodeHintText = "인증코드를 입력해 주세요."
 
 // Change Password
 const val ChangePasswordText = "비밀번호 재설정"

@@ -1,4 +1,4 @@
-package com.tdd.bookshelf.feature.signup
+package com.tdd.bookshelf.feature.auth.signup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,7 +31,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun SignUpScreen(
-    goToEmailCheckPage: () -> Unit,
+    goToEmailCheckPage: (String) -> Unit,
     goToPasswordChangePage: () -> Unit,
 ) {
     val viewModel: SignUpViewModel = koinViewModel()
@@ -43,7 +43,7 @@ internal fun SignUpScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is SignUpEvent.GoToEmailCheckPage -> {
-                    goToEmailCheckPage()
+                    goToEmailCheckPage(uiState.emailInput)
                 }
             }
         }

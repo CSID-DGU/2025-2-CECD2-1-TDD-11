@@ -1,11 +1,14 @@
 package com.tdd.bookshelf.core.navigation
 
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.tdd.bookshelf.feature.auth.emailcheck.EmailCheckScreen
 import com.tdd.bookshelf.feature.detailchapter.DetailChapterScreen
 import com.tdd.bookshelf.feature.home.HomeScreen
 import com.tdd.bookshelf.feature.interview.InterviewScreen
@@ -13,7 +16,7 @@ import com.tdd.bookshelf.feature.auth.login.LogInScreen
 import com.tdd.bookshelf.feature.my.MyScreen
 import com.tdd.bookshelf.feature.onboarding.OnboardingScreen
 import com.tdd.bookshelf.feature.publication.PublicationScreen
-import com.tdd.bookshelf.feature.signup.SignUpScreen
+import com.tdd.bookshelf.feature.auth.signup.SignUpScreen
 
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
@@ -42,8 +45,29 @@ fun NavGraphBuilder.signupNavGraph(
         composable(NavRoutes.SignUpScreen.route) {
             SignUpScreen(
 //                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
-                goToEmailCheckPage = {},
+                goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
                 goToPasswordChangePage = {}
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.emailCheckNavGraph(
+    navController: NavController
+) {
+    navigation(
+        startDestination = NavRoutes.EmailCheckScreen.route,
+        route = NavRoutes.EmailCheckGraph.route
+    ) {
+        composable(
+            NavRoutes.EmailCheckScreen.route,
+            arguments = listOf(navArgument("email") { type = NavType.StringType}),
+        ) {
+            val email = it.arguments?.getString("email") ?: ""
+
+            EmailCheckScreen(
+                email = email,
+                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) }
             )
         }
     }
