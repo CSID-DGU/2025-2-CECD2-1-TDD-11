@@ -21,17 +21,17 @@ class InterviewViewModel(
 ) : BaseViewModel<InterviewPageState>(
         InterviewPageState(),
     ) {
-    fun setInterview(interviewId: Int) {
-        d("[test] interviewViewModel -> $interviewId")
-        updateState(
-            uiState.value.copy(
-                interviewId = interviewId,
-            ),
-        )
 
-        initSetInterviewList(interviewId)
-//        initSetInterviewQuestion(interviewId)
-    }
+//    fun setInterview(interviewId: Int) {
+//        d("[test] interviewViewModel -> $interviewId")
+//        updateState(
+//            uiState.value.copy(
+//                interviewId = interviewId,
+//            ),
+//        )
+//
+//        initSetInterviewList(interviewId)
+//    }
 
     private fun initSetInterviewList(interviewId: Int) {
         viewModelScope.launch {

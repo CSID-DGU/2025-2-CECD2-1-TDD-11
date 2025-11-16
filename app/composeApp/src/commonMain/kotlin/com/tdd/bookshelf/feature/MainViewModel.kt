@@ -11,12 +11,16 @@ class MainViewModel : BaseViewModel<MainPageState>(
     fun setBottomNavType(route: String?) {
         val type =
             when (route) {
+                NavRoutes.PublicationScreen.route -> {
+                    BottomNavType.PUBLICATION
+                }
+
                 NavRoutes.HomeScreen.route -> {
                     BottomNavType.HOME
                 }
 
-                NavRoutes.MyPageScreen.route -> {
-                    BottomNavType.MY
+                NavRoutes.InterviewScreen.route -> {
+                    BottomNavType.INTERVIEW
                 }
 
                 else -> {

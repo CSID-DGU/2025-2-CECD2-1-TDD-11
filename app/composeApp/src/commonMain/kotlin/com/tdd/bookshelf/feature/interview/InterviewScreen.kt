@@ -49,10 +49,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun InterviewScreen(
-    interviewId: Int,
-    goBackPage: () -> Unit,
-) {
+internal fun InterviewScreen() {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -75,14 +72,11 @@ internal fun InterviewScreen(
             }
         }
 
-    LaunchedEffect(Unit) {
-        viewModel.setInterview(interviewId)
-    }
 
     InterviewContent(
         interviewChatList = mergedChat,
         interactionSource = interactionSource,
-        onClickBack = { goBackPage() },
+        onClickBack = {  },
         interviewProgressType = uiState.interviewProgressType,
         isInterviewProgressIng = (uiState.interviewProgressType == ConversationType.ING),
         onStartInterview = {

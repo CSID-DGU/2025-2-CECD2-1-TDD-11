@@ -131,16 +131,9 @@ fun NavGraphBuilder.interviewNavGraph(
         startDestination = NavRoutes.InterviewScreen.route,
         route = NavRoutes.InterviewGraph.route,
     ) {
-        composable(
-            route = NavRoutes.InterviewScreen.route,
-            arguments = listOf(navArgument("interviewId") { type = NavType.IntType }),
-        ) {
-            val interviewId = it.arguments?.getInt("interviewId") ?: 0
+        composable(route = NavRoutes.InterviewScreen.route) {
 
-            InterviewScreen(
-                interviewId = interviewId,
-                goBackPage = { navController.popBackStack() },
-            )
+            InterviewScreen()
         }
     }
 }

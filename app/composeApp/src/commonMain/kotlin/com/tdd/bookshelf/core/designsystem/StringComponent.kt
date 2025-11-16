@@ -36,8 +36,8 @@ const val Left = "LEFT"
 
 // Bottom
 const val Home = "홈"
-const val Publication = "출판페이지"
-const val MyPage = "마이페이지"
+const val Publication = "자서전"
+const val Interview = "인터뷰"
 
 // LogIn
 const val LogInText = "로그인"
