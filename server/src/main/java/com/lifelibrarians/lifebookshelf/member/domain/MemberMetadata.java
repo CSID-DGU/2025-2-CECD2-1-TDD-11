@@ -172,7 +172,6 @@ public class MemberMetadata {
 		this.gender = gender;
 		this.ageGroup = ageGroup;
 		this.occupation = occupation;
-		this.createdAt = LocalDateTime.now();
 	}
 
 	public void setMember(Member member) {
