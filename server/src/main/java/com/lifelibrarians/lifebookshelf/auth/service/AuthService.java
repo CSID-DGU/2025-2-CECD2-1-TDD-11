@@ -1,5 +1,6 @@
 package com.lifelibrarians.lifebookshelf.auth.service;
 
+import com.lifelibrarians.lifebookshelf.auth.domain.TemporaryUser;
 import com.lifelibrarians.lifebookshelf.auth.dto.EmailLoginRequestDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.EmailRegisterRequestDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.JwtLoginTokenDto;
@@ -10,12 +11,14 @@ import com.lifelibrarians.lifebookshelf.member.domain.LoginType;
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import com.lifelibrarians.lifebookshelf.member.domain.MemberRole;
 import com.lifelibrarians.lifebookshelf.member.domain.PasswordMember;
+import com.lifelibrarians.lifebookshelf.member.repository.MemberMetadataRepository;
 import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
 import com.lifelibrarians.lifebookshelf.member.repository.PasswordMemberRepository;
 
 import com.lifelibrarians.lifebookshelf.notification.service.NotificationCommandService;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -32,77 +35,110 @@ public class AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final MemberRepository memberRepository;
 	private final PasswordMemberRepository passwordMemberRepository;
+	private final MemberMetadataRepository memberMetadataRepository;
 	private final NotificationCommandService notificationService;
+	private final EmailService emailService;
+	private final TemporaryUserStore temporaryUserStore;
 
 	public void registerEmail(EmailRegisterRequestDto requestDto) {
-//		1. 이메일 중복 확인
 		Optional<Member> optionalMember = memberRepository.findByEmail(requestDto.getEmail());
 		if (optionalMember.isPresent()) {
 			if (optionalMember.get().getDeletedAt() != null) {
-				// 1-1. 이미 탈퇴한 회원인 경우
 				throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
 			} else {
 				throw AuthExceptionStatus.MEMBER_ALREADY_EXISTS.toServiceException();
 			}
 		}
 
-//		2. 회원가입
+		String code = generateVerificationCode();
+		TemporaryUser temporaryUser = TemporaryUser.builder()
+				.email(requestDto.getEmail())
+				.password(requestDto.getPassword())
+				.code(code)
+				.expiresAt(LocalDateTime.now().plusMinutes(5))
+				.build();
+		temporaryUserStore.save(requestDto.getEmail(), temporaryUser);
+		emailService.sendVerificationCode(requestDto.getEmail(), code);
+	}
+
+	public void verifyEmail(String email, String code) {
+		TemporaryUser temporaryUser = temporaryUserStore.find(email)
+				.orElseThrow(AuthExceptionStatus.INVALID_AUTH_CODE::toServiceException);
+
+		if (!temporaryUser.matchCode(code)) {
+			throw AuthExceptionStatus.INVALID_AUTH_CODE.toServiceException();
+		}
+
 		LocalDateTime now = LocalDateTime.now();
-		PasswordMember passwordMember = PasswordMember.of(
-				requestDto.getPassword()
-		);
+		PasswordMember passwordMember = PasswordMember.of(temporaryUser.getPassword());
 		passwordMemberRepository.save(passwordMember);
 		Member member = Member.of(
 				LoginType.PASSWORD,
-				requestDto.getEmail(),
+				temporaryUser.getEmail(),
 				MemberRole.MEMBER,
 				null,
-//              이메일 @ 앞 부분 + 6자리 랜덤 문자열
-				requestDto.getEmail().split("@")[0] + UUID.randomUUID().toString().substring(0, 6),
+				temporaryUser.getEmail().split("@")[0] + UUID.randomUUID().toString().substring(0, 6),
 				now,
 				now,
 				null
 		);
 		member.addPasswordMember(passwordMember);
 		memberRepository.save(member);
+		temporaryUserStore.remove(email);
 	}
 
 	public JwtLoginTokenDto loginEmail(EmailLoginRequestDto requestDto) {
-//		1. 이메일로 회원 조회
 		Optional<Member> member = memberRepository.findByEmail(requestDto.getEmail());
 
-//		1-1. 이미 탈퇴한 회원인 경우
 		if (member.isPresent() && member.get().getDeletedAt() != null) {
 			throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
 		}
 
-//		2. 이메일 혹은 비밀번호가 틀린 경우
 		if (member.isEmpty() || !member.get().getPasswordMember()
 				.matchPassword(requestDto.getPassword())) {
 			throw AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT.toServiceException();
 		}
 
-//      3. 이메일 인증이 되지 않은 회원인 경우
 		if (member.get().getRole() == MemberRole.PRE_MEMBER) {
 			throw AuthExceptionStatus.EMAIL_NOT_VERIFIED.toServiceException();
 		}
 
-//	    4. 이미 탈퇴한 회원인 경우
 		if (member.get().getDeletedAt() != null) {
 			throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
 		}
 
-//		5. JWT 토큰 생성
 		Jwt jwt = jwtTokenProvider.createMemberAccessToken(member.get().getId());
 
-//		6. 디바이스 토큰 추가
 		if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
 			notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
 					LocalDateTime.now());
 		}
+
+		boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.get().getId())
+				.map(metadata -> metadata.getGender() != null 
+						&& metadata.getOccupation() != null 
+						&& metadata.getAgeGroup() != null)
+				.orElse(false);
+
 		return JwtLoginTokenDto.builder()
 				.accessToken(jwt.getTokenValue())
+				.refreshToken(null)
+				.metadataSuccessed(metadataSuccessed)
 				.build();
+	}
+
+	public void resetPassword(String email) {
+		Member member = memberRepository.findByEmail(email)
+				.orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
+
+		if (member.getDeletedAt() != null) {
+			throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
+		}
+
+		String tempPassword = generateTemporaryPassword();
+		member.getPasswordMember().updatePassword(tempPassword);
+		passwordMemberRepository.save(member.getPasswordMember());
+		emailService.sendTemporaryPassword(email, tempPassword);
 	}
 
 	public void unregister(Long memberId) {
@@ -111,5 +147,13 @@ public class AuthService {
 		LocalDateTime now = LocalDateTime.now();
 		member.softDelete(now);
 		memberRepository.save(member);
+	}
+
+	private String generateVerificationCode() {
+		return String.format("%06d", new Random().nextInt(1000000));
+	}
+
+	private String generateTemporaryPassword() {
+		return UUID.randomUUID().toString().substring(0, 12);
 	}
 }

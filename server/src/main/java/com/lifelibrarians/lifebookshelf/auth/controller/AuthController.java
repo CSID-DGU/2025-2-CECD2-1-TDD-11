@@ -55,6 +55,7 @@ public class AuthController {
                     AuthExceptionStatus.EMAIL_TOO_LONG,
                     AuthExceptionStatus.PASSWORD_FORMAT_ERROR,
                     AuthExceptionStatus.MEMBER_ALREADY_EXISTS,
+                    AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN
             }
     )
     @PostMapping(value = "/email-register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -85,6 +86,7 @@ public class AuthController {
     public void verifyEmail(
             @Valid @ModelAttribute VerifyEmailRequestDto requestDto
     ) {
+        authService.verifyEmail(requestDto.getEmail(), requestDto.getVerificationCode());
     }
 
     @Operation(summary = "이메일 로그인", description = "이메일 로그인을 요청합니다.")
@@ -120,7 +122,6 @@ public class AuthController {
             authExceptionStatuses = {
                     AuthExceptionStatus.INVALID_EMAIL_FORMAT,
                     AuthExceptionStatus.EMAIL_TOO_LONG,
-                    AuthExceptionStatus.EMAIL_NOT_VERIFIED,
                     AuthExceptionStatus.MEMBER_NOT_FOUND
             }
     )
@@ -128,6 +129,7 @@ public class AuthController {
     public void resetPassword(
             @Valid @ModelAttribute PasswordResetRequestDto requestDto
     ) {
+        authService.resetPassword(requestDto.getEmail());
     }
 
     @Operation(summary = "회원탈퇴 요청", description = "회원탈퇴를 요청합니다.")
