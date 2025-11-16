@@ -138,3 +138,4 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"세션 종료 실패: {str(e)}")
+
