@@ -24,16 +24,6 @@ run-springboot:
 # 3-1. Spring Boot 서버 디버그 모드 실행
 debug-springboot:
 	@bash ./scripts/server/debug-springboot-trace.sh
-
-# OS별 스프링부트 종료 명령 정의
-ifeq ($(OS),Windows_NT)
-	# Windows (PowerShell 사용)
-	STOP_SPRING_CMD = powershell -Command "$$p = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess; if ($$p) { Stop-Process -Id $$p -Force; Write-Output '[Makefile] Spring Boot process stopped (PID: ' + $$p + ')'; } else { Write-Output '[Makefile] There is no running Spring Boot server on port 8080.' }"
-else
-	# macOS / Linux
-	STOP_SPRING_CMD = sh -c 'PID=$$(lsof -ti :8080); if [ -n "$$PID" ]; then kill $$PID && echo "[Makefile] Spring Boot process stopped (PID: $$PID)"; else echo "[Makefile] There is no running Spring Boot server on port 8080."; fi'
-endif
-
 # localstack, mariadb, springboot 종료
 stop-localstack:
 	@echo "[Makefile] Stopping LocalStack container..."
@@ -47,7 +37,18 @@ stop-mariadb:
 
 stop-springboot:
 	@echo "[Makefile] Stopping Spring Boot server..."
-	@$(STOP_SPRING_CMD)
+	@if command -v lsof >/dev/null 2>&1; then \
+		PID=$$(lsof -ti :8080 || true); \
+		if [ -n "$$PID" ]; then \
+			kill $$PID && echo "[Makefile] Spring Boot process stopped (PID: $$PID)"; \
+		else \
+			echo "[Makefile] There is no running Spring Boot server on port 8080."; \
+		fi; \
+	elif command -v powershell >/dev/null 2>&1; then \
+		powershell -Command '$$p = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess; if ($$p) { Stop-Process -Id $$p -Force; Write-Output "[Makefile] Spring Boot process stopped (PID: $$p)"; } else { Write-Output "[Makefile] There is no running Spring Boot server on port 8080." }'; \
+	else \
+		echo "[Makefile] Could not find lsof or powershell. Please stop Spring Boot manually (Ctrl+C)."; \
+	fi
 
 rm-localstack:
 	@echo "[Makefile] Removing LocalStack container..."

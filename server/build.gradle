@@ -37,6 +37,9 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 
     // AWS
+    implementation platform("software.amazon.awssdk:bom:2.25.40")
+    implementation "software.amazon.awssdk:ses"
+    implementation "software.amazon.awssdk:s3"
     implementation platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.8")
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     // LocalStack 의존성: local, test 프로필에서만 추가
