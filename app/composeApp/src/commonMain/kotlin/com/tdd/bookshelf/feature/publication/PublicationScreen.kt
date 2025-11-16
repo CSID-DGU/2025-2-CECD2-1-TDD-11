@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -17,10 +18,16 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bookshelf.composeapp.generated.resources.Res
@@ -28,6 +35,7 @@ import bookshelf.composeapp.generated.resources.img_chapter_detail
 import com.tdd.bookshelf.core.designsystem.BackGround2
 import com.tdd.bookshelf.core.designsystem.Black1
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
+import com.tdd.bookshelf.core.designsystem.Empty
 import com.tdd.bookshelf.core.designsystem.Main1
 import com.tdd.bookshelf.core.designsystem.PublicationBookDelete
 import com.tdd.bookshelf.core.designsystem.PublicationBookWholeContent
@@ -38,6 +46,7 @@ import com.tdd.bookshelf.core.ui.common.content.BasicDivider
 import com.tdd.bookshelf.core.ui.common.content.ItemContentBox
 import com.tdd.bookshelf.core.ui.common.content.TopBarContent
 import com.tdd.bookshelf.core.ui.common.item.SelectCircleListItem
+import com.tdd.bookshelf.core.ui.util.paginateText
 import com.tdd.bookshelf.domain.entity.response.autobiography.AllAutobiographyItemModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -167,19 +176,49 @@ private fun PublicationBookPreviewContent(
     bookImg: String? = "",
     modifier: Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val textMeasurer = rememberTextMeasurer()
+    val autobiographyTextStyle = BookShelfTypo.Body2
 
-    HorizontalPager(
-        state = pagerState,
-        modifier = modifier.fillMaxWidth()
-    ) { page ->
-        PublicationBookItem(
-            modifier = Modifier.fillMaxWidth(),
-            isFirstPage = (page == 0),
-            bookTitle = title,
-            coverImage = bookImg,
-            bookDetailText = content
-        )
+    var containerSize by remember { mutableStateOf<IntSize?>(null) }
+    var pages by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { coordinates ->
+                containerSize = coordinates.size
+            }
+    ) {
+        val size = containerSize
+
+        LaunchedEffect(content, size, autobiographyTextStyle) {
+            if (size != null) {
+                pages = paginateText(
+                    fullText = content,
+                    textMeasurer = textMeasurer,
+                    maxWidthPx = size.width,
+                    maxHeightPx = size.height,
+                    textStyle = autobiographyTextStyle
+                )
+            }
+        }
+
+        if (size != null && pages.isNotEmpty()) {
+            val pagerState = rememberPagerState(pageCount = { pages.size })
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                PublicationBookItem(
+                    modifier = Modifier.fillMaxSize(),
+                    isFirstPage = (page == 0),
+                    bookTitle = title,
+                    coverImage = bookImg,
+                    bookDetailText = if (page != 0) pages[page - 1] else Empty
+                )
+            }
+        }
     }
 }
 
