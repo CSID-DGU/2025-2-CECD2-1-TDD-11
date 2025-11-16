@@ -13,7 +13,7 @@ data class HomePageState(
     val createdMaterialList: List<CreatedMaterialIItemModel> = emptyList(),
     val autobiographyProgress: Int = 0,
     val monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
-    val selectedDay: Int = 0,
+    val selectedDay: Int = 1,
     val selectedDate: String = "",
 
     // Legacy

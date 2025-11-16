@@ -17,6 +17,7 @@ import com.tdd.bookshelf.feature.my.MyScreen
 import com.tdd.bookshelf.feature.onboarding.OnboardingScreen
 import com.tdd.bookshelf.feature.publication.PublicationScreen
 import com.tdd.bookshelf.feature.auth.signup.SignUpScreen
+import com.tdd.bookshelf.feature.home.interview.PastInterviewScreen
 
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
@@ -96,7 +97,28 @@ fun NavGraphBuilder.homeNavGraph(
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(
 //                goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
-                goToPastInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) }
+                goToPastInterviewPage = { date -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date)) }
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.pastInterviewNavGraph(
+    navController: NavController
+) {
+    navigation(
+        startDestination = NavRoutes.PastInterviewScreen.route,
+        route = NavRoutes.PastInterviewGraph.route
+    ) {
+        composable(
+            route = NavRoutes.PastInterviewScreen.route,
+            arguments = listOf(navArgument("date") { type = NavType.StringType}),
+        ) {
+            val date = it.arguments?.getString("date") ?: ""
+
+            PastInterviewScreen(
+                goBackToHome = { navController.popBackStack() },
+                selectedDate = date
             )
         }
     }

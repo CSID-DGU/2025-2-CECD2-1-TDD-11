@@ -20,9 +20,10 @@ import com.tdd.bookshelf.domain.entity.enums.ChatType
 fun InterviewListItem(
     chatText: String,
     chatType: ChatType,
+    modifier: Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp, bottomStart = if (chatType == ChatType.BOT) 0.dp else 5.dp, bottomEnd = if (chatType == ChatType.BOT) 5.dp else 0.dp))
             .background(if (chatType == ChatType.BOT) Gray1 else Main1)
     ) {

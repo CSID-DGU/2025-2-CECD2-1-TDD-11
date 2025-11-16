@@ -71,7 +71,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun HomeScreen(
-    goToPastInterviewPage: () -> Unit,
+    goToPastInterviewPage: (String) -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -93,7 +93,7 @@ internal fun HomeScreen(
         selectedDay = uiState.selectedDay,
         selectedDate = uiState.selectedDate,
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
-        onClickSummary = { goToPastInterviewPage() }
+        onClickSummary = { goToPastInterviewPage(uiState.selectedDate) }
     )
 }
 
@@ -347,6 +347,8 @@ private fun CalendarDayOfMonth(
                 horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 week.forEach { day ->
+                    val index = day.dayOfMonth - 1
+
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(1f)
