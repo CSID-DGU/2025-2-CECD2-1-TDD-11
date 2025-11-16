@@ -150,6 +150,7 @@ private fun PublicationBookPreview(
         Spacer(modifier = Modifier.padding(top = 10.dp))
 
         PublicationBookPreviewContent(
+            autobiographyId = autobiography.autobiographyId,
             title = autobiography.title,
             content = autobiography.contentPreview,
             bookImg = autobiography.coverImageUrl,
@@ -172,6 +173,7 @@ private fun PublicationBookPreview(
 
 @Composable
 private fun PublicationBookPreviewContent(
+    autobiographyId: Int,
     title: String,
     content: String,
     bookImg: String? = "",
@@ -215,6 +217,10 @@ private fun PublicationBookPreviewContent(
 
         if (size != null && pages.isNotEmpty()) {
             val pagerState = rememberPagerState(pageCount = { pages.size + 1 })
+
+            LaunchedEffect(autobiographyId, pages.size) {
+                pagerState.scrollToPage(0)
+            }
 
             HorizontalPager(
                 state = pagerState,
