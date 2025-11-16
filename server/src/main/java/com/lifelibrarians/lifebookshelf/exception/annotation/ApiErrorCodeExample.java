@@ -2,6 +2,7 @@ package com.lifelibrarians.lifebookshelf.exception.annotation;
 
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
+import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.CommunityExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.MemberExceptionStatus;
@@ -19,8 +20,7 @@ import java.lang.annotation.Target;
  * 해당 API에서 발생할 수 있는 예외의 종류를 도메인 별로 명세합니다.
  * ex. 어떤 API에서 AuthExceptionStatus.UNAUTHORIZED, MemberExceptionStatus.NOT_FOUND_MEMBER
  * 예외가 발생할 수 있다면
- *
- *        @ApiErrorCodeExample(
+ *        @ ApiErrorCodeExample(
  *            authExceptionStatuses = {
  * 					AuthExceptionStatus.UNAUTHORIZED,
  *            },
@@ -48,4 +48,6 @@ public @interface ApiErrorCodeExample {
 	CommunityExceptionStatus[] communityExceptionStatuses() default {};
 
 	UtilsExceptionStatus[] utilsExceptionStatuses() default {};
+
+	CommonExceptionStatus[] commonExceptionStatuses() default {};
 }

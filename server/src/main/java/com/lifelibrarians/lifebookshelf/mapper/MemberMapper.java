@@ -27,6 +27,8 @@ public abstract class MemberMapper {
 
 	@Mapping(source = "id", target = "memberId")
 	@Mapping(source = "profileImageUrl", target = "profileImageUrl", qualifiedByName = "mapImageUrl")
+	@Mapping(target = "metadata", ignore = true)
+	@Mapping(target = "activitySummary", ignore = true)
 	public abstract MemberPreviewDto toMemberPreviewDto(Member member);
 
 	@Mapping(source = "id", target = "memberId")

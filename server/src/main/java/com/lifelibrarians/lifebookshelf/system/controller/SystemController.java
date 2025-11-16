@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v2/system")
-@Tag(name = "시스템 (System)", description = "시스템 관련 API")
+@Tag(name = "시스템 (System)", description = "시스템 관련 API. 서비스 구현 안 됨. DB도 없음")
 @Logging
 public class SystemController {
 
