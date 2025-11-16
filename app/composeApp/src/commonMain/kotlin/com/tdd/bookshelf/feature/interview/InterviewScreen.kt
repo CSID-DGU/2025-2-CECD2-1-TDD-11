@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger.Companion.d
+import com.tdd.bookshelf.core.designsystem.BackGround2
 import com.tdd.bookshelf.core.designsystem.InterviewScreenTitle
 import com.tdd.bookshelf.core.designsystem.White0
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn
@@ -92,7 +93,7 @@ private fun InterviewContent(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(White0),
+                .background(BackGround2),
     ) {
         TopBarContent(
             content = InterviewScreenTitle,

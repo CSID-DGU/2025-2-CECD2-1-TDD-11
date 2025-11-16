@@ -68,6 +68,11 @@ const val InterviewScreenTitle = "인터뷰"
 const val InterviewStartBtn = "답변 시작하기"
 const val InterviewFinishBtn = "답변 중단하기"
 
+// Publication
+const val PublicationTitle = "생성된 자서전"
+const val PublicationBookWholeContent = "전체 보기"
+const val PublicationBookDelete = "자서전 삭제하기"
+
 // Detail Chapter
 const val DetailChapterTitle = "Detail Chapter"
 const val ChatAgainBtn = "다시 채팅하기"
