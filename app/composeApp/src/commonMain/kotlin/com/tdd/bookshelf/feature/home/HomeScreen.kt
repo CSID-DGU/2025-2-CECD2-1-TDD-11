@@ -302,47 +302,6 @@ private fun HomeInterviewCalendar(
             }
         }
     )
-
-//    Column(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .padding(top = 20.dp, start = 20.dp, end = 20.dp)
-//            .clip(RoundedCornerShape(5.dp))
-//            .background(BackGround1)
-//            .border(1.dp, Gray1, RoundedCornerShape(5.dp))
-//    ) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp)
-//        ) {
-//            Text(
-//                text = selectedDate,
-//                color = Black1,
-//                style = BookShelfTypo.Body3,
-//                modifier = Modifier
-//                    .align(Alignment.CenterStart)
-//            )
-//
-//            Text(
-//                text = "${selectedDay}일 ${interviewList[selectedDay].totalAnswerCount}번의 대화 수행",
-//                color = Main1,
-//                style = BookShelfTypo.Caption4,
-//                modifier = Modifier
-//                    .align(Alignment.CenterEnd)
-//            )
-//        }
-//
-//        CalendarWeekTitle()
-//
-//        CalendarDayOfMonth(
-//            interactionSource = interactionSource,
-//            days = days,
-//            onSelectDay = onSelectDay,
-//            selectedDay = selectedDay,
-//            interviewList = interviewList
-//        )
-//    }
 }
 
 @Composable
@@ -519,52 +478,6 @@ private fun HomeInterviewSummary(
             }
         }
     )
-
-
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 20.dp, vertical = 15.dp)
-//            .clip(RoundedCornerShape(5.dp))
-//            .background(BackGround1)
-//            .border(1.dp, Gray1, RoundedCornerShape(5.dp))
-//            .clickable(
-//                interactionSource = interactionSource,
-//                indication = null,
-//                onClick = onClick
-//            )
-//    ) {
-//        Text(
-//            text = selectedDate,
-//            color = Black1,
-//            style = BookShelfTypo.Body4,
-//            modifier = Modifier
-//                .padding(top = 15.dp, start = 20.dp)
-//        )
-//
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(horizontal = 10.dp, vertical = 12.dp)
-//        ) {
-//            Text(
-//                text = selectedDateSummary,
-//                color = Black1,
-//                style = BookShelfTypo.Caption4,
-//                modifier = Modifier
-//                    .weight(1f)
-//            )
-//
-//            AsyncImage(
-//                model = Res.getUri("files/ic_right.svg"),
-//                contentDescription = "move",
-//                modifier = Modifier
-//                    .padding(end = 4.dp)
-//                    .align(Alignment.Bottom)
-//                    .size(24.dp),
-//            )
-//        }
-//    }
 }
 
 @Preview

@@ -2,19 +2,18 @@ package com.tdd.bookshelf.feature.publication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,13 +28,11 @@ import bookshelf.composeapp.generated.resources.img_chapter_detail
 import com.tdd.bookshelf.core.designsystem.BackGround2
 import com.tdd.bookshelf.core.designsystem.Black1
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
-import com.tdd.bookshelf.core.designsystem.Gray3
 import com.tdd.bookshelf.core.designsystem.Main1
 import com.tdd.bookshelf.core.designsystem.PublicationBookDelete
 import com.tdd.bookshelf.core.designsystem.PublicationBookWholeContent
 import com.tdd.bookshelf.core.designsystem.PublicationTitle
 import com.tdd.bookshelf.core.designsystem.Red1
-import com.tdd.bookshelf.core.designsystem.White3
 import com.tdd.bookshelf.core.ui.common.button.UnderLineTextBtn
 import com.tdd.bookshelf.core.ui.common.content.BasicDivider
 import com.tdd.bookshelf.core.ui.common.content.ItemContentBox
@@ -170,35 +167,52 @@ private fun PublicationBookPreviewContent(
     bookImg: String? = "",
     modifier: Modifier
 ) {
+    val pagerState = rememberPagerState(pageCount = { 3 })
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier.fillMaxWidth()
+    ) { page ->
+        PublicationBookItem(
+            modifier = Modifier.fillMaxWidth(),
+            isFirstPage = (page == 0),
+            bookTitle = title,
+            coverImage = bookImg,
+            bookDetailText = content
+        )
+    }
+}
+
+@Composable
+private fun PublicationBookItem(
+    modifier: Modifier,
+    isFirstPage: Boolean,
+    bookTitle: String,
+    coverImage: String? = "",
+    bookDetailText: String
+) {
     ItemContentBox(
         modifier = modifier,
         paddingStart = 50,
         paddingEnd = 50,
         content = {
-            Image(
-                painter = painterResource(Res.drawable.img_chapter_detail),
-                contentDescription = "autobiography cover",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(5.dp)),
-            )
+            if (isFirstPage) {
+                Image(
+                    painter = painterResource(Res.drawable.img_chapter_detail),
+                    contentDescription = "autobiography cover",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(5.dp)),
+                )
+            } else {
+                Text(
+                    text = bookDetailText,
+                    color = Black1,
+                    style = BookShelfTypo.Body2,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 15.dp)
+                )
+            }
         }
     )
-//    Box(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 50.dp)
-//            .height(340.dp)
-//            .clip(RoundedCornerShape(5.dp))
-//            .background(White3)
-//            .border(1.dp, Gray3, RoundedCornerShape(5.dp))
-//    ) {
-//        Image(
-//            painter = painterResource(Res.drawable.img_chapter_detail),
-//            contentDescription = "autobiography cover",
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .clip(RoundedCornerShape(5.dp)),
-//        )
-//    }
 }
