@@ -1,12 +1,46 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.jetbrains.kotlin.android) apply false
-    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.hilt) apply false
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.kotlinx.serialization) apply false
+    alias(libs.plugins.verify.detekt) apply false
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.google.serive) apply false
+    alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.baselineprofile) apply false
+    alias(libs.plugins.jetbrains.compose) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.roborazzi.plugin) apply false
+    alias(libs.plugins.ktorfit) apply false
+    alias(libs.plugins.compose.hotreload) apply false
+    alias(libs.plugins.kotest.multiplatform) apply false
+    alias(libs.plugins.ktlint) apply false
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    extensions.configure<KtlintExtension>("ktlint") {
+        version.set("1.2.1")
+        android.set(true)
+        ignoreFailures.set(false)
+
+        filter {
+            exclude { tree ->
+                val path = tree.file.path
+                path.contains("${File.separator}build${File.separator}")
+            }
+
+        }
+    }
 }
