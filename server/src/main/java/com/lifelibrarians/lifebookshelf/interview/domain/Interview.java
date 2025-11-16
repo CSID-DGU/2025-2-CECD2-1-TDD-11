@@ -29,6 +29,10 @@ public class Interview {
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
+
+	/** V2: 하루 인터뷰 요약문 */
+	@Column(length = 255)
+	private String summary;
 	/* } 고유 정보 */
 
 	/* 연관 정보 { */
@@ -36,6 +40,8 @@ public class Interview {
 	@JoinColumn(name = "autobiography_id", nullable = false)
 	private Autobiography autobiography;
 
+	/** V2에서는 사용하지 않는 필드 (기존 호환용) */
+	@Deprecated
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "chapter_id", nullable = false)
 	private Chapter chapter;
@@ -44,19 +50,23 @@ public class Interview {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "interview",
+			cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<InterviewQuestion> questions = new ArrayList<>();
 
+	/** V2에서는 사용하지 않는 필드 (기존 호환용) */
+	@Deprecated
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "current_question_id")
 	private InterviewQuestion currentQuestion;
-
 
 	@OneToMany(mappedBy = "interview")
 	private Set<Conversation> interviewConversations;
 	/* } 연관 정보 */
 
-	/* 생성자 { */
+	/* 생성자 (V1) { */
+	/** V1용 – chapter / currentQuestion 사용 */
+	@Deprecated
 	protected Interview(
 			LocalDateTime createdAt,
 			Autobiography autobiography,
@@ -71,6 +81,8 @@ public class Interview {
 		this.currentQuestion = currentQuestion;
 	}
 
+	/** V1용 팩토리 – 기존 코드 그대로 사용 가능 */
+	@Deprecated
 	public static Interview of(
 			LocalDateTime createdAt,
 			Autobiography autobiography,
@@ -78,17 +90,36 @@ public class Interview {
 			Member member,
 			InterviewQuestion currentQuestion
 	) {
-		return new Interview(
-				createdAt,
-				autobiography,
-				chapter,
-				member,
-				currentQuestion
-		);
+		return new Interview(createdAt, autobiography, chapter, member, currentQuestion);
 	}
-	/* } 생성자 */
+	/* } 생성자 (V1) */
 
-	/* 연관 관계 편의 메소드 { */
+	/* 생성자 (V2) { */
+	/** V2용 – summary만 받음, chapter/currentQuestion는 사용하지 않음 */
+	protected Interview(
+			LocalDateTime createdAt,
+			Autobiography autobiography,
+			Member member,
+			String summary
+	) {
+		this.createdAt = createdAt;
+		this.autobiography = autobiography;
+		this.member = member;
+		this.summary = summary;
+	}
+
+	public static Interview ofV2(
+			LocalDateTime createdAt,
+			Autobiography autobiography,
+			Member member,
+			String summary
+	) {
+		return new Interview(createdAt, autobiography, member, summary);
+	}
+	/* } 생성자 (V2) */
+
+	/* 연관 관계 편의 메서드 { */
+	@Deprecated
 	public void setCurrentQuestion(InterviewQuestion interviewQuestion) {
 		this.currentQuestion = interviewQuestion;
 		interviewQuestion.setInterview(this);
@@ -100,5 +131,5 @@ public class Interview {
 			interviewQuestion.setInterview(this);
 		}
 	}
-	/* } 연관 관계 편의 메소드 */
+	/* } 연관 관계 편의 메서드 */
 }
