@@ -14,9 +14,9 @@ class PublicationViewModel(): BaseViewModel<PublicationPageState>(
 
     private fun initSetAutobiographyList() {
         val autobiographies: List<AllAutobiographyItemModel> = listOf(
-            AllAutobiographyItemModel(0, 0, 0, "나의 인생", "", "", "", ""),
-            AllAutobiographyItemModel(1, 0, 0, "나의 인생", "", "", "", ""),
-            AllAutobiographyItemModel(2, 0, 0, "나의 인생", "", "", "", "")
+            AllAutobiographyItemModel(0, 0, 0, "자서전1", "", "", "", ""),
+            AllAutobiographyItemModel(1, 0, 0, "자서전2", "", "", "", ""),
+            AllAutobiographyItemModel(2, 0, 0, "자서전3", "", "", "", "")
         )
 
         updateState(

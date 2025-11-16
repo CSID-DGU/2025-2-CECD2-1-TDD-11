@@ -38,6 +38,7 @@ import com.tdd.bookshelf.core.designsystem.Red1
 import com.tdd.bookshelf.core.designsystem.White3
 import com.tdd.bookshelf.core.ui.common.button.UnderLineTextBtn
 import com.tdd.bookshelf.core.ui.common.content.BasicDivider
+import com.tdd.bookshelf.core.ui.common.content.ItemContentBox
 import com.tdd.bookshelf.core.ui.common.content.TopBarContent
 import com.tdd.bookshelf.core.ui.common.item.SelectCircleListItem
 import com.tdd.bookshelf.domain.entity.response.autobiography.AllAutobiographyItemModel
@@ -144,10 +145,11 @@ private fun PublicationBookPreview(
         PublicationBookPreviewContent(
             title = autobiography.title,
             content = autobiography.contentPreview,
-            bookImg = autobiography.coverImageUrl
+            bookImg = autobiography.coverImageUrl,
+            modifier = Modifier.weight(1f)
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.padding(top = 40.dp))
 
         UnderLineTextBtn(
             interactionSource = interactionSource,
@@ -166,22 +168,37 @@ private fun PublicationBookPreviewContent(
     title: String,
     content: String,
     bookImg: String? = "",
+    modifier: Modifier
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 50.dp)
-            .height(340.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(White3)
-            .border(1.dp, Gray3, RoundedCornerShape(5.dp))
-    ) {
-        Image(
-            painter = painterResource(Res.drawable.img_chapter_detail),
-            contentDescription = "autobiography cover",
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(5.dp)),
-        )
-    }
+    ItemContentBox(
+        modifier = modifier,
+        paddingStart = 50,
+        paddingEnd = 50,
+        content = {
+            Image(
+                painter = painterResource(Res.drawable.img_chapter_detail),
+                contentDescription = "autobiography cover",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(5.dp)),
+            )
+        }
+    )
+//    Box(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .padding(horizontal = 50.dp)
+//            .height(340.dp)
+//            .clip(RoundedCornerShape(5.dp))
+//            .background(White3)
+//            .border(1.dp, Gray3, RoundedCornerShape(5.dp))
+//    ) {
+//        Image(
+//            painter = painterResource(Res.drawable.img_chapter_detail),
+//            contentDescription = "autobiography cover",
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .clip(RoundedCornerShape(5.dp)),
+//        )
+//    }
 }
