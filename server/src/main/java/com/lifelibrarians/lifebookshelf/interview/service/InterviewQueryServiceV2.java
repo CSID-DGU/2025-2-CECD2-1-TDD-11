@@ -24,7 +24,7 @@ public class InterviewQueryServiceV2 {
 			throw CommonExceptionStatus.MONTH_OUT_OF_BOUNDS.toServiceException();
 		}
 		
-		// TODO: 실제 구현 필요 - Interview와 Conversation 데이터를 조회하여 요약 생성
+		// TODO: 실제 구현 필요 - Interview summary. 이거 아직도 안했엇네
 		// 현재는 빈 리스트 반환
 		List<InterviewSummaryResponseDto.InterviewSummaryDto> summaries = new ArrayList<>();
 		
