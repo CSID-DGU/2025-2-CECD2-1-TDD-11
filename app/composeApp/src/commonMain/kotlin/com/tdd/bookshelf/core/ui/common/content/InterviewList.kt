@@ -15,19 +15,22 @@ import com.tdd.bookshelf.domain.entity.response.interview.InterviewChatItem
 @Composable
 fun InterviewList(
     interviewList: List<InterviewChatItem>,
+    modifier: Modifier
 ) {
 
     InterviewListContent(
-        interviewList = interviewList
+        interviewList = interviewList,
+        modifier = modifier
     )
 }
 
 @Composable
 private fun InterviewListContent(
     interviewList: List<InterviewChatItem>,
+    modifier: Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(30.dp)

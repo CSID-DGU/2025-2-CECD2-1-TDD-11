@@ -64,7 +64,9 @@ const val HomeCurrentProgressTitle = "현재 진행하고 있는 페이지"
 const val HomeCurrentChapterEmpty = "진행하고 있는 챕터가 없습니다"
 
 // Interview
-const val InterviewScreenTitle = "Interview Chat"
+const val InterviewScreenTitle = "인터뷰"
+const val InterviewStartBtn = "답변 시작하기"
+const val InterviewFinishBtn = "답변 중단하기"
 
 // Detail Chapter
 const val DetailChapterTitle = "Detail Chapter"

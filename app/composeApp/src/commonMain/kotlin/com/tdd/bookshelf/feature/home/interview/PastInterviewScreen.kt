@@ -59,7 +59,8 @@ private fun PastInterviewContent(
         )
 
         InterviewList(
-            interviewList = interviewList
+            interviewList = interviewList,
+            modifier = Modifier.weight(1f)
         )
     }
 }
