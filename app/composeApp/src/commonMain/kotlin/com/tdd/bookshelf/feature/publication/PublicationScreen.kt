@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -178,6 +179,7 @@ private fun PublicationBookPreviewContent(
 ) {
     val textMeasurer = rememberTextMeasurer()
     val autobiographyTextStyle = BookShelfTypo.Body2
+    val density = LocalDensity.current
 
     var containerSize by remember { mutableStateOf<IntSize?>(null) }
     var pages by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -193,18 +195,26 @@ private fun PublicationBookPreviewContent(
 
         LaunchedEffect(content, size, autobiographyTextStyle) {
             if (size != null) {
-                pages = paginateText(
-                    fullText = content,
-                    textMeasurer = textMeasurer,
-                    maxWidthPx = size.width,
-                    maxHeightPx = size.height,
-                    textStyle = autobiographyTextStyle
-                )
+                with(density) {
+                    val horizontalPaddingPx = (50.dp + 50.dp + 20.dp + 20.dp).roundToPx()
+                    val verticalPaddingPx = (15.dp * 2).roundToPx()
+
+                    val maxWidthPx = (size.width - horizontalPaddingPx).coerceAtLeast(0)
+                    val maxHeightPx = (size.height - verticalPaddingPx).coerceAtLeast(0)
+
+                    pages = paginateText(
+                        fullText = content,
+                        textMeasurer = textMeasurer,
+                        maxWidthPx = maxWidthPx,
+                        maxHeightPx = maxHeightPx,
+                        textStyle = autobiographyTextStyle
+                    )
+                }
             }
         }
 
         if (size != null && pages.isNotEmpty()) {
-            val pagerState = rememberPagerState(pageCount = { pages.size })
+            val pagerState = rememberPagerState(pageCount = { pages.size + 1 })
 
             HorizontalPager(
                 state = pagerState,
