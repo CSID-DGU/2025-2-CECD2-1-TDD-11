@@ -31,13 +31,31 @@ public class JwtTokenProvider {
 		Instant now = Instant.now();
 		JwsHeader header = JwsHeader
 				.with(MacAlgorithm.HS256)
-//			.header(TOKEN_TYPE, TokenType.ACCESS)
 				.build();
 		JwtClaimsSet claims = JwtClaimsSet.builder()
 				.issuedAt(now)
 				.expiresAt(now.plusSeconds(jwtProperties.getAccessTokenExpirationTime()))
 				.claim(JwtProperties.MEMBER_ID, memberId)
 				.claim(JwtProperties.ROLES, List.of(MemberRole.MEMBER.name()))
+				.build();
+		return jwtEncoder.encode(JwtEncoderParameters.from(header, claims));
+	}
+
+	/**
+	 * memberId를 받아서 refreshToken을 생성한다.
+	 *
+	 * @param memberId 회원 고유 ID
+	 * @return refreshToken
+	 */
+	public Jwt createMemberRefreshToken(Long memberId) {
+		Instant now = Instant.now();
+		JwsHeader header = JwsHeader
+				.with(MacAlgorithm.HS256)
+				.build();
+		JwtClaimsSet claims = JwtClaimsSet.builder()
+				.issuedAt(now)
+				.expiresAt(now.plusSeconds(jwtProperties.getRefreshTokenExpirationTime()))
+				.claim(JwtProperties.MEMBER_ID, memberId)
 				.build();
 		return jwtEncoder.encode(JwtEncoderParameters.from(header, claims));
 	}

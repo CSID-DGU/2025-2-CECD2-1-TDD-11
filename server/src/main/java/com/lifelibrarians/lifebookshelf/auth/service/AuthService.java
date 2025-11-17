@@ -107,7 +107,8 @@ public class AuthService {
 			throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
 		}
 
-		Jwt jwt = jwtTokenProvider.createMemberAccessToken(member.get().getId());
+		Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.get().getId());
+		Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.get().getId());
 
 		if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
 			notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
@@ -121,8 +122,8 @@ public class AuthService {
 				.orElse(false);
 
 		return JwtLoginTokenDto.builder()
-				.accessToken(jwt.getTokenValue())
-				.refreshToken(null)
+				.accessToken(accessToken.getTokenValue())
+				.refreshToken(refreshToken.getTokenValue())
 				.metadataSuccessed(metadataSuccessed)
 				.build();
 	}
