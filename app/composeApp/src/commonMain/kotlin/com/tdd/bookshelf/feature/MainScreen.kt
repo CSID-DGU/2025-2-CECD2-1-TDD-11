@@ -50,30 +50,30 @@ fun MainScreen() {
     }
 
     Scaffold(
-        bottomBar = {
-            AnimatedVisibility(
-                visible = uiState.bottomNavType != BottomNavType.DEFAULT,
-                modifier = Modifier.background(White0),
-                enter = fadeIn() + slideIn { IntOffset(0, 0) },
-                exit = fadeOut() + slideOut { IntOffset(0, 0) },
-            ) {
-                BottomNavBar(
-                    modifier = Modifier.navigationBarsPadding(),
-                    interactionSource = interactionSource,
-                    type = uiState.bottomNavType,
-                    onClick = { route: String ->
-                        if (navController.currentDestination?.route != route) {
-                            navController.navigate(route) {
-                                popUpTo(navController.currentDestination?.route!!) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                            }
-                        }
-                    },
-                )
-            }
-        },
+//        bottomBar = {
+//            AnimatedVisibility(
+//                visible = uiState.bottomNavType != BottomNavType.DEFAULT,
+//                modifier = Modifier.background(White0),
+//                enter = fadeIn() + slideIn { IntOffset(0, 0) },
+//                exit = fadeOut() + slideOut { IntOffset(0, 0) },
+//            ) {
+//                BottomNavBar(
+//                    modifier = Modifier.navigationBarsPadding(),
+//                    interactionSource = interactionSource,
+//                    type = uiState.bottomNavType,
+//                    onClick = { route: String ->
+//                        if (navController.currentDestination?.route != route) {
+//                            navController.navigate(route) {
+//                                popUpTo(navController.currentDestination?.route!!) {
+//                                    inclusive = true
+//                                }
+//                                launchSingleTop = true
+//                            }
+//                        }
+//                    },
+//                )
+//            }
+//        },
         snackbarHost = {},
     ) { innerPadding ->
         Box(

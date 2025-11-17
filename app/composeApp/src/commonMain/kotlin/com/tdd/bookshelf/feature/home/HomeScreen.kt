@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -99,6 +100,19 @@ private fun HomeContent(
                 .fillMaxSize()
                 .background(White0),
     ) {
+        Text(
+            text = "회원탈퇴",
+            color = Neutral500,
+            style = BookShelfTypo.SemiBold.copy(
+                textDecoration = TextDecoration.Underline
+            ),
+            fontSize = 15.sp,
+            modifier =
+                Modifier
+                    .align(Alignment.End)
+                    .padding(top = 45.dp, end = 25.dp),
+        )
+
         Text(
             text = HomeSemiTitle,
             color = Neutral500,

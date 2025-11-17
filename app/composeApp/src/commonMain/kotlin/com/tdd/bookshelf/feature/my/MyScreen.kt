@@ -111,15 +111,15 @@ private fun MyContent(
             userBirthDay = userBirthDay,
         )
 
-        PublicationStatus(
-            submitUI = publicationStatusUI(publishStatus).submitUI,
-            progressUI = publicationStatusUI(publishStatus).progressUI,
-            completeUI = publicationStatusUI(publishStatus).completeUI,
-        )
-
-        PublicationBookBox(
-            publishBookList = publishBookList,
-        )
+//        PublicationStatus(
+//            submitUI = publicationStatusUI(publishStatus).submitUI,
+//            progressUI = publicationStatusUI(publishStatus).progressUI,
+//            completeUI = publicationStatusUI(publishStatus).completeUI,
+//        )
+//
+//        PublicationBookBox(
+//            publishBookList = publishBookList,
+//        )
 
         MySettingBox(
             onClickAlarm = onClickAlarm,
@@ -143,15 +143,15 @@ private fun MyProfileBox(
                 .clip(RoundedCornerShape(8.dp))
                 .background(Blue900),
     ) {
-        AsyncImage(
-            model = Res.getUri("files/ic_profile_default.svg"),
-            contentDescription = "",
-            modifier =
-                Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(start = 22.dp, top = 17.dp, bottom = 17.dp)
-                    .size(42.dp),
-        )
+//        AsyncImage(
+//            model = Res.getUri("files/ic_profile_default.svg"),
+//            contentDescription = "",
+//            modifier =
+//                Modifier
+//                    .align(Alignment.CenterVertically)
+//                    .padding(start = 22.dp, top = 17.dp, bottom = 17.dp)
+//                    .size(42.dp),
+//        )
 
         Column(
             modifier =
@@ -174,14 +174,14 @@ private fun MyProfileBox(
             )
         }
 
-        AsyncImage(
-            model = Res.getUri("files/ic_pen.svg"),
-            contentDescription = "edit",
-            modifier =
-                Modifier
-                    .padding(horizontal = 22.dp, vertical = 26.dp)
-                    .size(24.dp),
-        )
+//        AsyncImage(
+//            model = Res.getUri("files/ic_pen.svg"),
+//            contentDescription = "edit",
+//            modifier =
+//                Modifier
+//                    .padding(horizontal = 22.dp, vertical = 26.dp)
+//                    .size(24.dp),
+//        )
     }
 }
 
@@ -399,11 +399,13 @@ private fun MySettingBox(
                 .clip(RoundedCornerShape(8.dp))
                 .background(White0),
     ) {
-        SettingAlarm(
-            onClickAction = onClickAlarm,
-            isActivated = isAlarmActivated,
-            interactionSource = interactionSource,
-        )
+//        SettingAlarm(
+//            onClickAction = onClickAlarm,
+//            isActivated = isAlarmActivated,
+//            interactionSource = interactionSource,
+//        )
+
+        SettingUserLogOut()
 
         SettingUserDelete()
     }
@@ -473,6 +475,36 @@ private fun SettingAlarm(
                         .align(if (isActivated) Alignment.CenterEnd else Alignment.CenterStart)
                         .clip(CircleShape)
                         .background(if (isActivated) Blue300 else Gray300),
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun SettingUserLogOut() {
+    Row {
+        AsyncImage(
+            model = Res.getUri("files/ic_user_delete.svg"),
+            contentDescription = "",
+            modifier =
+                Modifier
+                    .padding(top = 12.dp, start = 17.dp, bottom = 30.dp, end = 16.dp)
+                    .size(40.dp)
+                    .clip(CircleShape),
+        )
+
+        Column(
+            modifier =
+                Modifier
+                    .align(Alignment.CenterVertically)
+                    .weight(1f),
+        ) {
+            Text(
+                text = "로그아웃",
+                color = Gray900,
+                style = BookShelfTypo.Medium,
+                fontSize = 13.sp,
             )
         }
     }
