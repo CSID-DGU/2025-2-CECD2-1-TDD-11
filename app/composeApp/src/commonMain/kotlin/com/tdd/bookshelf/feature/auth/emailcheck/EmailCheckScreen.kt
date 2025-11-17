@@ -51,7 +51,7 @@ internal fun EmailCheckScreen(
         onClickCheckBtn = { viewModel.postCheckEmail() },
         email = uiState.email,
         codeInput = uiState.codeInput,
-        onCodeValueChange = { newValue -> viewModel.onCodeValueChange(newValue) }
+        onCodeValueChange = { newValue -> viewModel.onCodeValueChange(newValue) },
     )
 }
 
@@ -82,7 +82,7 @@ fun EmailCheckContent(
         Spacer(modifier = Modifier.padding(top = 60.dp))
 
         DisEnabledTextFieldBox(
-            textContent = email
+            textContent = email,
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))

@@ -20,7 +20,8 @@ enum class BottomNavType(
     PUBLICATION(Publication, Res.drawable.img_book, NavRoutes.PublicationScreen.route),
     HOME(Home, Res.drawable.img_home, NavRoutes.HomeScreen.route),
     INTERVIEW(Interview, Res.drawable.img_profile, NavRoutes.InterviewScreen.route),
-    DEFAULT(Empty, Res.drawable.ic_transparent, "");
+    DEFAULT(Empty, Res.drawable.ic_transparent, ""),
+    ;
 
     companion object {
         fun getBottomNavIcon(navType: BottomNavType): DrawableResource =

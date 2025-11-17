@@ -1,7 +1,6 @@
 package com.tdd.bookshelf.core.navigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -30,7 +29,7 @@ fun NavGraphBuilder.loginNavGraph(
             LogInScreen(
                 goToOnboardingPage = { navController.navigate(NavRoutes.HomeScreen.route) },
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
-                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) }
+                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) },
             )
         }
     }
@@ -47,28 +46,28 @@ fun NavGraphBuilder.signupNavGraph(
             SignUpScreen(
 //                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
-                goToPasswordChangePage = {}
+                goToPasswordChangePage = {},
             )
         }
     }
 }
 
 fun NavGraphBuilder.emailCheckNavGraph(
-    navController: NavController
+    navController: NavController,
 ) {
     navigation(
         startDestination = NavRoutes.EmailCheckScreen.route,
-        route = NavRoutes.EmailCheckGraph.route
+        route = NavRoutes.EmailCheckGraph.route,
     ) {
         composable(
             NavRoutes.EmailCheckScreen.route,
-            arguments = listOf(navArgument("email") { type = NavType.StringType}),
+            arguments = listOf(navArgument("email") { type = NavType.StringType }),
         ) {
             val email = it.arguments?.getString("email") ?: ""
 
             EmailCheckScreen(
                 email = email,
-                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) }
+                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
             )
         }
     }
@@ -97,28 +96,28 @@ fun NavGraphBuilder.homeNavGraph(
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(
 //                goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
-                goToPastInterviewPage = { date -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date)) }
+                goToPastInterviewPage = { date -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date)) },
             )
         }
     }
 }
 
 fun NavGraphBuilder.pastInterviewNavGraph(
-    navController: NavController
+    navController: NavController,
 ) {
     navigation(
         startDestination = NavRoutes.PastInterviewScreen.route,
-        route = NavRoutes.PastInterviewGraph.route
+        route = NavRoutes.PastInterviewGraph.route,
     ) {
         composable(
             route = NavRoutes.PastInterviewScreen.route,
-            arguments = listOf(navArgument("date") { type = NavType.StringType}),
+            arguments = listOf(navArgument("date") { type = NavType.StringType }),
         ) {
             val date = it.arguments?.getString("date") ?: ""
 
             PastInterviewScreen(
                 goBackToHome = { navController.popBackStack() },
-                selectedDate = date
+                selectedDate = date,
             )
         }
     }
@@ -132,7 +131,6 @@ fun NavGraphBuilder.interviewNavGraph(
         route = NavRoutes.InterviewGraph.route,
     ) {
         composable(route = NavRoutes.InterviewScreen.route) {
-
             InterviewScreen()
         }
     }

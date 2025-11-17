@@ -42,7 +42,7 @@ fun SelectCircleListItem(
         itemImg = itemImg,
         itemText = itemText,
         isSelected = isSelected,
-        onSelect = onSelect
+        onSelect = onSelect,
     )
 }
 
@@ -56,26 +56,29 @@ fun SelectCircleListItemContent(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onSelect
-            )
+        modifier =
+            Modifier
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onSelect,
+                ),
     ) {
         Box(
-            modifier = Modifier
-                .size(70.dp)
-                .clip(CircleShape)
-                .border(1.dp, if (isSelected) Main1 else Gray1, CircleShape)
-                .background(BackGround1)
+            modifier =
+                Modifier
+                    .size(70.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, if (isSelected) Main1 else Gray1, CircleShape)
+                    .background(BackGround1),
         ) {
             Image(
                 painter = painterResource(itemImg),
                 contentDescription = "list item",
-                modifier = Modifier
-                    .size(50.dp)
-                    .align(Alignment.Center)
+                modifier =
+                    Modifier
+                        .size(50.dp)
+                        .align(Alignment.Center),
             )
         }
 
@@ -84,8 +87,9 @@ fun SelectCircleListItemContent(
             color = if (isSelected) Main1 else Gray4,
             style = BookShelfTypo.Caption4,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(top = 5.dp)
+            modifier =
+                Modifier
+                    .padding(top = 5.dp),
         )
     }
 }

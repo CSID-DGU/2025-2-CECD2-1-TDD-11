@@ -18,7 +18,8 @@ fun TextFieldBox(
         hintText = hintText,
         errorText = errorText,
         isError = isError,
-        modifier = Modifier
-            .wrapContentHeight()
+        modifier =
+            Modifier
+                .wrapContentHeight(),
     )
 }

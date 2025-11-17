@@ -1,7 +1,6 @@
 package com.tdd.bookshelf.feature.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -78,9 +77,10 @@ internal fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
-    val today = Clock.System.now()
-        .toLocalDateTime(TimeZone.currentSystemDefault())
-        .date
+    val today =
+        Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
     var year by remember { mutableIntStateOf(today.year) }
     var month by remember { mutableIntStateOf(today.monthNumber) }
     var days by remember { mutableStateOf(generateCalendarDays(year, month)) }
@@ -94,7 +94,7 @@ internal fun HomeScreen(
         selectedDay = uiState.selectedDay,
         selectedDate = uiState.selectedDate,
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
-        onClickSummary = { goToPastInterviewPage(uiState.selectedDate) }
+        onClickSummary = { goToPastInterviewPage(uiState.selectedDate) },
     )
 }
 
@@ -123,18 +123,19 @@ private fun HomeContent(
             text = HomeTitle,
             color = Black1,
             style = BookShelfTypo.Body1,
-            modifier = Modifier
-                .padding(start = 20.dp)
+            modifier =
+                Modifier
+                    .padding(start = 20.dp),
         )
 
         HomeMaterialList(
-            createdMaterialList = createdMaterialList
+            createdMaterialList = createdMaterialList,
         )
 
         BasicDivider()
 
         HomeProgress(
-            progress = interviewProgress
+            progress = interviewProgress,
         )
 
         HomeInterviewCalendar(
@@ -144,14 +145,14 @@ private fun HomeContent(
             interviewList = monthInterviewList,
             interactionSource = interactionSource,
             days = days,
-            onSelectDay = onSelectDay
+            onSelectDay = onSelectDay,
         )
 
         HomeInterviewSummary(
             selectedDate = selectedDate,
             selectedDateSummary = monthInterviewList[selectedDay].summary,
             interactionSource = interactionSource,
-            onClick = onClickSummary
+            onClick = onClickSummary,
         )
     }
 }
@@ -160,25 +161,28 @@ private fun HomeContent(
 @Composable
 private fun HomeTopBar() {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 20.dp, top = 25.dp, bottom = 25.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, top = 25.dp, bottom = 25.dp),
     ) {
         Text(
             text = BookShelf,
             color = Black1,
             style = BookShelfTypo.Head1,
-            modifier = Modifier
-                .align(Alignment.CenterStart)
+            modifier =
+                Modifier
+                    .align(Alignment.CenterStart),
         )
 
         AsyncImage(
             model = Res.getUri("files/ic_home_settings.svg"),
             contentDescription = "setting",
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(top = 20.dp, end = 15.dp)
-                .size(24.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(top = 20.dp, end = 15.dp)
+                    .size(24.dp),
         )
     }
 }
@@ -188,11 +192,12 @@ private fun HomeMaterialList(
     createdMaterialList: List<CreatedMaterialIItemModel>,
 ) {
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 20.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 20.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp),
     ) {
         itemsIndexed(createdMaterialList) { index, item ->
             SelectCircleListItem(
@@ -211,42 +216,47 @@ private fun HomeProgress(
     val progressBox = (progress / 100f).coerceIn(0f, 1f)
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 20.dp, bottom = 5.dp)
-            .padding(horizontal = 20.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 5.dp)
+                .padding(horizontal = 20.dp),
     ) {
         Text(
             text = HomeProgressTitle,
             color = Black1,
             style = BookShelfTypo.Body1,
-            modifier = Modifier
-                .align(Alignment.CenterStart)
+            modifier =
+                Modifier
+                    .align(Alignment.CenterStart),
         )
 
         Text(
-            text = "$HomeProgressFinish${progress}%",
+            text = "$HomeProgressFinish$progress%",
             color = Main1,
             style = BookShelfTypo.Caption2,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd),
         )
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(5.dp)
-            .padding(horizontal = 24.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(Gray1)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(5.dp)
+                .padding(horizontal = 24.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Gray1),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth(progressBox)
-                .height(5.dp)
-                .clip(RoundedCornerShape(5.dp))
-                .background(Main1)
+            modifier =
+                Modifier
+                    .fillMaxWidth(progressBox)
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Main1),
         )
     }
 }
@@ -269,24 +279,27 @@ private fun HomeInterviewCalendar(
         content = {
             Column {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp),
                 ) {
                     Text(
                         text = selectedDate,
                         color = Black1,
                         style = BookShelfTypo.Body3,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterStart),
                     )
 
                     Text(
                         text = "${selectedDay}일 ${interviewList[selectedDay].totalAnswerCount}번의 대화 수행",
                         color = Main1,
                         style = BookShelfTypo.Caption4,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd),
                     )
                 }
 
@@ -297,10 +310,10 @@ private fun HomeInterviewCalendar(
                     days = days,
                     onSelectDay = onSelectDay,
                     selectedDay = selectedDay,
-                    interviewList = interviewList
+                    interviewList = interviewList,
                 )
             }
-        }
+        },
     )
 }
 
@@ -309,9 +322,10 @@ private fun CalendarWeekTitle() {
     val weeks: List<String> = listOf(Sun, Mon, Tue, Wed, Thu, Fri, Sat)
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
     ) {
         weeks.forEach { week ->
             Text(
@@ -319,9 +333,10 @@ private fun CalendarWeekTitle() {
                 color = Black1,
                 style = BookShelfTypo.Body3,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 10.dp)
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(vertical = 10.dp),
             )
         }
     }
@@ -336,25 +351,28 @@ private fun CalendarDayOfMonth(
     interviewList: List<MonthInterviewItemModel>,
 ) {
     Column(
-        modifier = Modifier
-            .padding(top = 12.dp, bottom = 20.dp, start = 24.dp, end = 24.dp)
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier =
+            Modifier
+                .padding(top = 12.dp, bottom = 20.dp, start = 24.dp, end = 24.dp)
+                .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         days.chunked(7).forEach { week ->
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(0.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 week.forEach { day ->
                     val index = day.dayOfMonth - 1
 
                     BoxWithConstraints(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
                     ) {
                         CalendarDateItem(
                             day = day.dayOfMonth,
@@ -362,7 +380,7 @@ private fun CalendarDayOfMonth(
                             interactionSource = interactionSource,
                             onSelect = { onSelectDay(day.dayOfMonth) },
                             isSelectedDate = (day.dayOfMonth == selectedDay),
-                            isInterviewNumNotZero = (interviewList[day.dayOfMonth].totalAnswerCount != 0)
+                            isInterviewNumNotZero = (interviewList[day.dayOfMonth].totalAnswerCount != 0),
                         )
                     }
                 }
@@ -387,22 +405,24 @@ private fun CalendarDateItem(
     isInterviewNumNotZero: Boolean,
 ) {
     Column(
-        modifier = modifier
-            .clickable(
-                enabled = isInterviewNumNotZero,
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onSelect
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .clickable(
+                    enabled = isInterviewNumNotZero,
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onSelect,
+                ),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .size(26.dp)
-                .clip(CircleShape)
-                .background(if (isInterviewNumNotZero) Main1 else BackGround1)
-                .align(Alignment.CenterHorizontally),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(if (isInterviewNumNotZero) Main1 else BackGround1)
+                    .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = day.toString(),
@@ -414,11 +434,12 @@ private fun CalendarDateItem(
 
         if (isSelectedDate) {
             Box(
-                modifier = Modifier
-                    .padding(top = 2.dp)
-                    .size(6.dp)
-                    .clip(CircleShape)
-                    .background(Main1)
+                modifier =
+                    Modifier
+                        .padding(top = 2.dp)
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Main1),
             )
         }
     }
@@ -433,12 +454,13 @@ private fun HomeInterviewSummary(
     interactionSource: MutableInteractionSource,
 ) {
     ItemContentBox(
-        modifier = Modifier
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            ),
+        modifier =
+            Modifier
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ),
         paddingTop = 15,
         paddingBottom = 15,
         paddingStart = 20,
@@ -449,34 +471,38 @@ private fun HomeInterviewSummary(
                     text = selectedDate,
                     color = Black1,
                     style = BookShelfTypo.Body4,
-                    modifier = Modifier
-                        .padding(top = 15.dp, start = 20.dp)
+                    modifier =
+                        Modifier
+                            .padding(top = 15.dp, start = 20.dp),
                 )
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 12.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 12.dp),
                 ) {
                     Text(
                         text = selectedDateSummary,
                         color = Black1,
                         style = BookShelfTypo.Caption4,
-                        modifier = Modifier
-                            .weight(1f)
+                        modifier =
+                            Modifier
+                                .weight(1f),
                     )
 
                     AsyncImage(
                         model = Res.getUri("files/ic_right.svg"),
                         contentDescription = "move",
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .align(Alignment.Bottom)
-                            .size(24.dp),
+                        modifier =
+                            Modifier
+                                .padding(end = 4.dp)
+                                .align(Alignment.Bottom)
+                                .size(24.dp),
                     )
                 }
             }
-        }
+        },
     )
 }
 

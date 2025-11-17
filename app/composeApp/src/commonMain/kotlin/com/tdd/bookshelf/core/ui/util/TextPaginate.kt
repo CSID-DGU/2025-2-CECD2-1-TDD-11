@@ -25,14 +25,16 @@ fun paginateText(
             val mid = (low + high) / 2
             val candidate = fullText.substring(startIndex, mid)
 
-            val result = textMeasurer.measure(
-                text = candidate,
-                style = textStyle,
-                constraints = Constraints(
-                    maxWidth = maxWidthPx,
-                    maxHeight = maxHeightPx
+            val result =
+                textMeasurer.measure(
+                    text = candidate,
+                    style = textStyle,
+                    constraints =
+                        Constraints(
+                            maxWidth = maxWidthPx,
+                            maxHeight = maxHeightPx,
+                        ),
                 )
-            )
 
             if (!result.hasVisualOverflow && result.size.height <= maxHeightPx) {
                 best = mid
@@ -42,12 +44,14 @@ fun paginateText(
             }
         }
 
-
         val rawPageText = fullText.substring(startIndex, best)
         val lastSpace = rawPageText.lastIndexOf(' ')
-        val pageText = if (lastSpace > 0 && best < fullText.length) {
-            rawPageText.substring(0, lastSpace)
-        } else rawPageText
+        val pageText =
+            if (lastSpace > 0 && best < fullText.length) {
+                rawPageText.substring(0, lastSpace)
+            } else {
+                rawPageText
+            }
 
         pages += pageText
         startIndex += pageText.length

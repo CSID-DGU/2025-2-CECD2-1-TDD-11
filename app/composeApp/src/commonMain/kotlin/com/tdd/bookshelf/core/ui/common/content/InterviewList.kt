@@ -15,32 +15,33 @@ import com.tdd.bookshelf.domain.entity.response.interview.InterviewChatItem
 @Composable
 fun InterviewList(
     interviewList: List<InterviewChatItem>,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
-
     InterviewListContent(
         interviewList = interviewList,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
 @Composable
 private fun InterviewListContent(
     interviewList: List<InterviewChatItem>,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(30.dp)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(30.dp),
     ) {
         interviewList.forEach { item ->
             InterviewListItem(
                 chatType = item.chatType,
                 chatText = item.content,
-                modifier = Modifier
-                    .align(if (item.chatType == ChatType.BOT) Alignment.Start else Alignment.End)
+                modifier =
+                    Modifier
+                        .align(if (item.chatType == ChatType.BOT) Alignment.Start else Alignment.End),
             )
         }
     }

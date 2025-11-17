@@ -4,14 +4,14 @@ import com.tdd.bookshelf.core.ui.base.BaseViewModel
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class EmailCheckViewModel(): BaseViewModel<EmailCheckPageState>(
-    EmailCheckPageState()
+class EmailCheckViewModel() : BaseViewModel<EmailCheckPageState>(
+    EmailCheckPageState(),
 ) {
     fun setEmail(email: String) {
         updateState(
             uiState.value.copy(
-                email = email
-            )
+                email = email,
+            ),
         )
     }
 

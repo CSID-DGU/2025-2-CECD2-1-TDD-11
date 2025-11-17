@@ -23,12 +23,13 @@ fun ItemContentBox(
     content: @Composable () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = paddingStart.dp, end = paddingEnd.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(BackGround1)
-            .border(1.dp, Gray1, RoundedCornerShape(5.dp))
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(top = paddingTop.dp, bottom = paddingBottom.dp, start = paddingStart.dp, end = paddingEnd.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(BackGround1)
+                .border(1.dp, Gray1, RoundedCornerShape(5.dp)),
     ) {
         content()
     }

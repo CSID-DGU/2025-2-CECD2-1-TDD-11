@@ -56,7 +56,7 @@ internal fun SignUpScreen(
         onEmailValueChange = { newValue -> viewModel.onEmailValueChange(newValue) },
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
-        onClickChangePassword = { goToPasswordChangePage() }
+        onClickChangePassword = { goToPasswordChangePage() },
     )
 }
 
@@ -110,7 +110,7 @@ private fun SignUpContent(
             interactionSource = interactionSource,
             textColor = Gray5,
             paddingEnd = 25,
-            onClick = onClickChangePassword
+            onClick = onClickChangePassword,
         )
 
         Spacer(modifier = Modifier.weight(1f))

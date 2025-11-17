@@ -95,7 +95,7 @@ fun MainScreen() {
                     navController = navController,
                 )
                 emailCheckNavGraph(
-                    navController = navController
+                    navController = navController,
                 )
                 onboardingNavGraph(
                     navController = navController,
@@ -104,7 +104,7 @@ fun MainScreen() {
                     navController = navController,
                 )
                 pastInterviewNavGraph(
-                    navController = navController
+                    navController = navController,
                 )
                 interviewNavGraph(
                     navController = navController,

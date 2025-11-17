@@ -11,13 +11,14 @@ import com.tdd.bookshelf.core.designsystem.Main1
 @Composable
 fun SeriesNumText(
     totalNum: Int,
-    currentNum: Int
+    currentNum: Int,
 ) {
     Text(
         text = "$currentNum/$totalNum",
         color = Main1,
         style = BookShelfTypo.Head3,
-        modifier = Modifier
-            .padding(start = 20.dp)
+        modifier =
+            Modifier
+                .padding(start = 20.dp),
     )
 }

@@ -18,7 +18,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.bookshelf.core.designsystem.BackGround2
 import com.tdd.bookshelf.core.designsystem.InterviewScreenTitle
-import com.tdd.bookshelf.core.designsystem.White0
 import com.tdd.bookshelf.core.ui.common.button.RectangleBtn
 import com.tdd.bookshelf.core.ui.common.content.InterviewList
 import com.tdd.bookshelf.core.ui.common.content.TopBarContent
@@ -46,15 +45,14 @@ internal fun InterviewScreen() {
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
                 d("[인터뷰] 대화 -> $partial")
                 uiState.interviewChatList +
-                        InterviewChatItem(
-                            content = partial,
-                            chatType = ChatType.HUMAN,
-                        )
+                    InterviewChatItem(
+                        content = partial,
+                        chatType = ChatType.HUMAN,
+                    )
             } else {
                 uiState.interviewChatList
             }
         }
-
 
     InterviewContent(
         interviewChatList = mergedChat,
@@ -98,18 +96,19 @@ private fun InterviewContent(
         TopBarContent(
             content = InterviewScreenTitle,
             interactionSource = interactionSource,
-            iconVisible = false
+            iconVisible = false,
         )
 
         InterviewList(
             interviewList = interviewChatList,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         RectangleBtn(
-            btnContent = ConversationType.getConversationBtnImg(
-                interviewProgressType,
-            ),
+            btnContent =
+                ConversationType.getConversationBtnImg(
+                    interviewProgressType,
+                ),
             isBtnActivated = true,
             onClickAction = {
                 if (isInterviewProgressIng) {
@@ -117,7 +116,7 @@ private fun InterviewContent(
                 } else {
                     onStartInterview()
                 }
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(15.dp))

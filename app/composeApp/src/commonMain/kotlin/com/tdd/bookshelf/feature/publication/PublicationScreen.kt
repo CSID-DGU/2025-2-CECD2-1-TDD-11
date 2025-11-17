@@ -63,7 +63,7 @@ internal fun PublicationScreen() {
         interactionSource = interactionSource,
         autobiographyList = uiState.autobiographyList,
         selectedAutobiographyId = uiState.selectedAutobiographyId,
-        onSelectAutobiographyId = { viewModel.setSelectedAutobiographyId(it) }
+        onSelectAutobiographyId = { viewModel.setSelectedAutobiographyId(it) },
     )
 }
 
@@ -83,20 +83,20 @@ private fun PublicationContent(
         TopBarContent(
             content = PublicationTitle,
             interactionSource = interactionSource,
-            iconVisible = false
+            iconVisible = false,
         )
 
         PublicationAutobiographies(
             autobiographyList = autobiographyList,
             selectedId = selectedAutobiographyId,
-            onSelect = onSelectAutobiographyId
+            onSelect = onSelectAutobiographyId,
         )
 
         BasicDivider()
 
         PublicationBookPreview(
             autobiography = autobiographyList.firstOrNull { it.autobiographyId == selectedAutobiographyId } ?: AllAutobiographyItemModel(),
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
     }
 }
@@ -108,18 +108,19 @@ private fun PublicationAutobiographies(
     onSelect: (Int) -> Unit,
 ) {
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 20.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 20.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp),
     ) {
         itemsIndexed(autobiographyList) { index, item ->
             SelectCircleListItem(
                 itemImg = Res.drawable.img_chapter_detail,
                 itemText = item.title,
                 isSelected = (selectedId == item.autobiographyId),
-                onSelect = { onSelect(item.autobiographyId) }
+                onSelect = { onSelect(item.autobiographyId) },
             )
         }
     }
@@ -135,8 +136,9 @@ private fun PublicationBookPreview(
             text = autobiography.title,
             color = Black1,
             style = BookShelfTypo.Head3,
-            modifier = Modifier
-                .padding(top = 40.dp, start = 20.dp)
+            modifier =
+                Modifier
+                    .padding(top = 40.dp, start = 20.dp),
         )
 
         UnderLineTextBtn(
@@ -144,7 +146,7 @@ private fun PublicationBookPreview(
             textContent = PublicationBookWholeContent,
             textColor = Main1,
             onClick = {},
-            paddingEnd = 58
+            paddingEnd = 58,
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -154,7 +156,7 @@ private fun PublicationBookPreview(
             title = autobiography.title,
             content = autobiography.contentPreview,
             bookImg = autobiography.coverImageUrl,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         Spacer(modifier = Modifier.padding(top = 40.dp))
@@ -164,7 +166,7 @@ private fun PublicationBookPreview(
             textContent = PublicationBookDelete,
             textColor = Red1,
             onClick = {},
-            paddingEnd = 20
+            paddingEnd = 20,
         )
 
         Spacer(modifier = Modifier.padding(bottom = 20.dp))
@@ -177,7 +179,7 @@ private fun PublicationBookPreviewContent(
     title: String,
     content: String,
     bookImg: String? = "",
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val autobiographyTextStyle = BookShelfTypo.Body2
@@ -187,11 +189,12 @@ private fun PublicationBookPreviewContent(
     var pages by remember { mutableStateOf<List<String>>(emptyList()) }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { coordinates ->
-                containerSize = coordinates.size
-            }
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    containerSize = coordinates.size
+                },
     ) {
         val size = containerSize
 
@@ -204,13 +207,14 @@ private fun PublicationBookPreviewContent(
                     val maxWidthPx = (size.width - horizontalPaddingPx).coerceAtLeast(0)
                     val maxHeightPx = (size.height - verticalPaddingPx).coerceAtLeast(0)
 
-                    pages = paginateText(
-                        fullText = content,
-                        textMeasurer = textMeasurer,
-                        maxWidthPx = maxWidthPx,
-                        maxHeightPx = maxHeightPx,
-                        textStyle = autobiographyTextStyle
-                    )
+                    pages =
+                        paginateText(
+                            fullText = content,
+                            textMeasurer = textMeasurer,
+                            maxWidthPx = maxWidthPx,
+                            maxHeightPx = maxHeightPx,
+                            textStyle = autobiographyTextStyle,
+                        )
                 }
             }
         }
@@ -224,14 +228,14 @@ private fun PublicationBookPreviewContent(
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) { page ->
                 PublicationBookItem(
                     modifier = Modifier.fillMaxSize(),
                     isFirstPage = (page == 0),
                     bookTitle = title,
                     coverImage = bookImg,
-                    bookDetailText = if (page != 0) pages[page - 1] else Empty
+                    bookDetailText = if (page != 0) pages[page - 1] else Empty,
                 )
             }
         }
@@ -244,7 +248,7 @@ private fun PublicationBookItem(
     isFirstPage: Boolean,
     bookTitle: String,
     coverImage: String? = "",
-    bookDetailText: String
+    bookDetailText: String,
 ) {
     ItemContentBox(
         modifier = modifier,
@@ -255,19 +259,21 @@ private fun PublicationBookItem(
                 Image(
                     painter = painterResource(Res.drawable.img_chapter_detail),
                     contentDescription = "autobiography cover",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(5.dp)),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(5.dp)),
                 )
             } else {
                 Text(
                     text = bookDetailText,
                     color = Black1,
                     style = BookShelfTypo.Body2,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 15.dp)
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 20.dp, vertical = 15.dp),
                 )
             }
-        }
+        },
     )
 }

@@ -4,7 +4,10 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 
-fun generateCalendarDays(year: Int, month: Int): List<LocalDate> {
+fun generateCalendarDays(
+    year: Int,
+    month: Int,
+): List<LocalDate> {
     val days = mutableListOf<LocalDate>()
     var date = LocalDate(year, month, 1)
 
@@ -20,7 +23,10 @@ fun generateCalendarDays(year: Int, month: Int): List<LocalDate> {
 private fun isLeapYear(year: Int): Boolean =
     (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
 
-fun setBeforeYearMonth(currentYear: Int, currentMonth: Int): List<Int> {
+fun setBeforeYearMonth(
+    currentYear: Int,
+    currentMonth: Int,
+): List<Int> {
     return if (currentMonth == 1) {
         listOf(currentYear - 1, 12)
     } else {
@@ -28,7 +34,10 @@ fun setBeforeYearMonth(currentYear: Int, currentMonth: Int): List<Int> {
     }
 }
 
-fun setAfterYearMonth(currentYear: Int, currentMonth: Int): List<Int> {
+fun setAfterYearMonth(
+    currentYear: Int,
+    currentMonth: Int,
+): List<Int> {
     return if (currentMonth == 12) {
         listOf(currentYear + 1, 1)
     } else {

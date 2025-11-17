@@ -4,5 +4,5 @@ import com.tdd.bookshelf.core.ui.base.PageState
 
 data class EmailCheckPageState(
     val email: String = "",
-    val codeInput: String = ""
-): PageState
+    val codeInput: String = "",
+) : PageState

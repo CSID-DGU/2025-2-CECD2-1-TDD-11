@@ -34,7 +34,7 @@ internal fun PastInterviewScreen(
         interactionSource = interactionSource,
         interviewList = uiState.interviewList,
         onClickBack = { goBackToHome() },
-        selectedDate = uiState.selectedDate
+        selectedDate = uiState.selectedDate,
     )
 }
 
@@ -52,15 +52,15 @@ private fun PastInterviewContent(
                 .background(BackGround2),
     ) {
         TopBarContent(
-            content = "${selectedDate} 대화 내역",
+            content = "$selectedDate 대화 내역",
             onClickIcon = onClickBack,
             interactionSource = interactionSource,
-            iconVisible = true
+            iconVisible = true,
         )
 
         InterviewList(
             interviewList = interviewList,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }

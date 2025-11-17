@@ -43,7 +43,7 @@ fun BasicTextFieldBoxContent(
     isError: Boolean = false,
     maxTextNum: Int = 0,
     isTextNumVisible: Boolean = false,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -69,7 +69,8 @@ fun BasicTextFieldBoxContent(
     }
 
     Box(
-        modifier = modifier
+        modifier =
+            modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .clip(RoundedCornerShape(5.dp))
@@ -126,10 +127,11 @@ fun BasicTextFieldBoxContent(
             text = errorText,
             color = Red1,
             style = BookShelfTypo.Body3,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 10.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 10.dp),
         )
     }
 
@@ -139,10 +141,11 @@ fun BasicTextFieldBoxContent(
             color = Gray3,
             style = BookShelfTypo.Caption2,
             textAlign = TextAlign.End,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 10.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 10.dp),
         )
     }
 }
