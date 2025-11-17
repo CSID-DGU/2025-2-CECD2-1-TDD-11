@@ -23,6 +23,13 @@ class LocalDataStore(
         }
     }
 
+    suspend fun clearAccessToken() {
+        dataStore.edit { preferences ->
+            preferences.remove(ACCESS_TOKEN_KEY)
+            d("[dataStore] access token removed")
+        }
+    }
+
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
     }

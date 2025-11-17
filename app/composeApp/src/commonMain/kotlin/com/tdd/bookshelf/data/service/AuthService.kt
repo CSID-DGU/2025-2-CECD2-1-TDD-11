@@ -1,6 +1,7 @@
 package com.tdd.bookshelf.data.service
 
 import com.tdd.bookshelf.data.base.EndPoints
+import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.Multipart
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Part
@@ -21,4 +22,7 @@ interface AuthService {
         @Part("email") email: String,
         @Part("password") password: String,
     ): HttpResponse
+
+    @DELETE(EndPoints.Auth.DELETE)
+    suspend fun deleteUser(): HttpResponse
 }

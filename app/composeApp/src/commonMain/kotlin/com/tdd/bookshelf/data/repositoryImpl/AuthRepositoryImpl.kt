@@ -4,6 +4,7 @@ import com.tdd.bookshelf.data.dataSource.AuthDataSource
 import com.tdd.bookshelf.data.dataStore.LocalDataStore
 import com.tdd.bookshelf.data.mapper.auth.EmailLogInMapper
 import com.tdd.bookshelf.data.mapper.auth.EmailSignUpMapper
+import com.tdd.bookshelf.data.mapper.base.DefaultBooleanMapper
 import com.tdd.bookshelf.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.bookshelf.domain.entity.request.auth.EmailSignUpRequestModel
 import com.tdd.bookshelf.domain.entity.response.auth.AccessTokenModel
@@ -38,4 +39,10 @@ class AuthRepositoryImpl(
                 request.password,
             )
         })
+
+    override suspend fun deleteUser(): Flow<Result<Unit>> =
+        flow {
+            authDataSource.deleteUser()
+            localDataStore.clearAccessToken()
+        }
 }

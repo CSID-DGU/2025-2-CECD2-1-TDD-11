@@ -56,6 +56,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun HomeScreen(
     goToInterviewPage: (Int) -> Unit,
     goToDetailChapterPage: (Int) -> Unit,
+    goToLogInPage: () -> Unit
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,6 +68,9 @@ internal fun HomeScreen(
             when (event) {
                 is HomeEvent.GoToDetailChapterPage -> {
                     goToDetailChapterPage(viewModel.checkAutobiographyId())
+                }
+                is HomeEvent.GoToLogInPage -> {
+                    goToLogInPage()
                 }
             }
         }

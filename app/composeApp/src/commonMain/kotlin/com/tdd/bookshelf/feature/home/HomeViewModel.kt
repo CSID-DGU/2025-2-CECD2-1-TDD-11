@@ -13,6 +13,7 @@ import com.tdd.bookshelf.domain.entity.response.autobiography.ChapterListModel
 import com.tdd.bookshelf.domain.entity.response.autobiography.SubChapterItemModel
 import com.tdd.bookshelf.domain.entity.response.interview.ai.InterviewQuestionsAIResponseModel
 import com.tdd.bookshelf.domain.entity.response.member.MemberInfoModel
+import com.tdd.bookshelf.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.bookshelf.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.bookshelf.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
 import com.tdd.bookshelf.domain.usecase.autobiograph.PostCreateAutobiographyUseCase
@@ -28,6 +29,7 @@ class HomeViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
     private val postCreateInterviewQuestionUseCase: PostCreateInterviewQuestionUseCase,
     private val postCreateAutobiographyUseCase: PostCreateAutobiographyUseCase,
+    private val deleteUserUseCase: DeleteUserUseCase
 ) : BaseViewModel<HomePageState>(
         HomePageState(),
     ) {
@@ -229,5 +231,13 @@ class HomeViewModel(
             }
 
         return interviewQuestionModels
+    }
+
+    fun deleteUser() {
+        viewModelScope.launch {
+            deleteUserUseCase(Unit).collect { resultResponse(it, {}) }
+
+            emitEventFlow(HomeEvent.GoToLogInPage)
+        }
     }
 }

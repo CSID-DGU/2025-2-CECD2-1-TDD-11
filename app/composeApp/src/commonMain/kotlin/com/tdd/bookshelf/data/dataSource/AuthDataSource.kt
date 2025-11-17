@@ -13,4 +13,6 @@ interface AuthDataSource {
         email: String,
         password: String,
     ): HttpResponse
+
+    suspend fun deleteUser(): HttpResponse
 }
