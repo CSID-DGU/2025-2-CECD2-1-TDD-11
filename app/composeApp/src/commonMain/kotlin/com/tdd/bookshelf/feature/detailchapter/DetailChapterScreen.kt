@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bookshelf.composeapp.generated.resources.Res
 import bookshelf.composeapp.generated.resources.img_chapter_detail
-import bookshelf.composeapp.generated.resources.img_edit
 import com.tdd.bookshelf.core.designsystem.BackGround3
 import com.tdd.bookshelf.core.designsystem.Black900
 import com.tdd.bookshelf.core.designsystem.BookShelfTypo
@@ -137,9 +135,9 @@ private fun DetailTopBar(
                     .weight(1f),
         )
 
-        DetailChatAgainBtn(
-            onClick = {},
-        )
+//        DetailChatAgainBtn(
+//            onClick = {},
+//        )
     }
 }
 
@@ -165,14 +163,14 @@ private fun DetailTitleBar(
                     .weight(1f),
         )
 
-        Image(
-            painter = painterResource(Res.drawable.img_edit),
-            contentDescription = "chapter edit",
-            modifier =
-                Modifier
-                    .padding(end = 5.dp)
-                    .size(width = 35.dp, height = 45.dp),
-        )
+//        Image(
+//            painter = painterResource(Res.drawable.img_edit),
+//            contentDescription = "chapter edit",
+//            modifier =
+//                Modifier
+//                    .padding(end = 5.dp)
+//                    .size(width = 35.dp, height = 45.dp),
+//        )
     }
 }
 
