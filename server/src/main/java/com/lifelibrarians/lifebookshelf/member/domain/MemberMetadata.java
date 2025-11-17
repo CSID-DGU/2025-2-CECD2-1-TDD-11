@@ -9,75 +9,80 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "member_metadatas") // ← 테이블명 실제 스키마와 맞춤
+@Table(name = "member_metadatas")
 @Getter
 @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberMetadata {
 
-	/* 고유 정보 { */
+	/* ====== PK ====== */
 	@Id
-	@Column(nullable = false, updatable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	/* ====== V2 주요 필드 ====== */
 	@Column(nullable = false)
 	private String name;
-
-	@Column(name = "borned_at", nullable = false)
-	private LocalDate bornedAt;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private GenderType gender;
 
-	@Column(name = "has_children", nullable = false)
-	private Boolean hasChildren;
+	@Column(name = "age_group")
+	private String ageGroup;
 
 	@Column
 	private String occupation;
 
-	@Column(name = "education_level")
-	private String educationLevel;
-
-	@Column(name = "marital_status")
-	private String maritalStatus;
-
-	@Column(name = "created_at", nullable = false)
+	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at")
+	@Column(name = "deleted_at")
+	private LocalDateTime deletedAt;
+
+
+	/* ====== V1 legacy 필드 (read-only, deprecated) ====== */
+	@Deprecated
+	@Column(name = "borned_at", insertable = false, updatable = false)
+	private LocalDate bornedAt;
+
+	@Deprecated
+	@Column(name = "education_level", insertable = false, updatable = false)
+	private String educationLevel;
+
+	@Deprecated
+	@Column(name = "has_children", insertable = false, updatable = false)
+	private Boolean hasChildren;
+
+	@Deprecated
+	@Column(name = "marital_status", insertable = false, updatable = false)
+	private String maritalStatus;
+
+	@Deprecated
+	@Column(name = "updated_at", insertable = false, updatable = false)
 	private LocalDateTime updatedAt;
-	/* } 고유 정보 */
 
-	/* ▼ v2 추가 필드들 */
-	@Column(length = 50)
-	private String theme;              // 주제
 
-	@Column(name = "age_group")
-	private String ageGroup;           // '1020','30','40','50','60','70+' → 일단 String으로 매핑
-
-	@Column(length = 50)
-	private String job;                // 짧은 직업명
-
-	@Lob
-	@Column(name = "why_create", columnDefinition = "TEXT")
-	private String whyCreate;          // 생성 목적(문장)
-	/* ▲ v2 추가 */
-
-	/* 연관 정보 { */
+	/* ====== Member 연관관계 ====== */
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
-	/* } 연관 정보 */
 
-	/* 생성자 { */
+
+	/* ====== V1 full 생성자 (deprecated) ====== */
+	@Deprecated
 	protected MemberMetadata(
-			String name, LocalDate bornedAt,
-			GenderType gender, Boolean hasChildren,
-			String occupation, String educationLevel, String maritalStatus,
-			LocalDateTime createdAt, LocalDateTime updatedAt, Member member,
-			String theme, String ageGroup, String job, String whyCreate
+			String name,
+			LocalDate bornedAt,
+			GenderType gender,
+			Boolean hasChildren,
+			String occupation,
+			String educationLevel,
+			String maritalStatus,
+			LocalDateTime createdAt,
+			LocalDateTime updatedAt,
+			LocalDateTime deletedAt,
+			Member member
 	) {
 		this.name = name;
 		this.bornedAt = bornedAt;
@@ -89,31 +94,17 @@ public class MemberMetadata {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 		this.member = member;
-		this.theme = theme;
-		this.ageGroup = ageGroup;
-		this.job = job;
-		this.whyCreate = whyCreate;
 	}
 
-	public static MemberMetadata of(
-			String name, LocalDate bornedAt,
-			GenderType gender, Boolean hasChildren,
-			String occupation, String educationLevel, String maritalStatus,
-			LocalDateTime createdAt, LocalDateTime updatedAt, Member member,
-			String theme, String ageGroup, String job, String whyCreate
-	) {
-		return new MemberMetadata(
-				name, bornedAt, gender, hasChildren,
-				occupation, educationLevel, maritalStatus,
-				createdAt, updatedAt, member,
-				theme, ageGroup, job, whyCreate
-		);
-	}
-	/* } 생성자 */
-
+	@Deprecated
 	public void update(
-			String name, LocalDate bornedAt, GenderType gender, boolean hasChildren,
-			String occupation, String educationLevel, String maritalStatus
+			String name,
+			LocalDate bornedAt,
+			GenderType gender,
+			Boolean hasChildren,
+			String occupation,
+			String educationLevel,
+			String maritalStatus
 	) {
 		this.name = name;
 		this.bornedAt = bornedAt;
@@ -124,15 +115,63 @@ public class MemberMetadata {
 		this.maritalStatus = maritalStatus;
 		this.updatedAt = LocalDateTime.now();
 	}
-
-	/** v2 필드만 별도로 갱신하고 싶을 때 */
-	public void updateV2(GenderType gender, String theme, String ageGroup, String job, String whyCreate) {
+	/* ====== V2 생성자 ====== */
+	protected MemberMetadata(
+			String name,
+			GenderType gender,
+			String ageGroup,
+			String occupation,
+			Member member
+	) {
+		this.name = name;
 		this.gender = gender;
-		this.theme = theme;
 		this.ageGroup = ageGroup;
-		this.job = job;
-		this.whyCreate = whyCreate;
-		this.updatedAt = LocalDateTime.now();
+		this.occupation = occupation;
+		this.member = member;
+		this.createdAt = LocalDateTime.now();
+	}
+
+
+	/* ====== 팩토리 메서드 ====== */
+	@Deprecated
+	public static MemberMetadata of(
+			String name,
+			LocalDate bornedAt,
+			GenderType gender,
+			Boolean hasChildren,
+			String occupation,
+			String educationLevel,
+			String maritalStatus,
+			LocalDateTime createdAt,
+			LocalDateTime updatedAt,
+			LocalDateTime deletedAt,
+			Member member
+	) {
+		return new MemberMetadata(
+				name, bornedAt, gender, hasChildren,
+				occupation, educationLevel, maritalStatus,
+				createdAt, updatedAt, deletedAt,
+				member
+		);
+	}
+
+	/** V2 전용 생성 */
+	public static MemberMetadata ofV2(
+			String name,
+			GenderType gender,
+			String ageGroup,
+			String occupation,
+			Member member
+	) {
+		return new MemberMetadata(name, gender, ageGroup, occupation, member);
+	}
+
+	/** V2 업데이트 */
+	public void updateV2(String name, GenderType gender, String ageGroup, String occupation) {
+		this.name = name;
+		this.gender = gender;
+		this.ageGroup = ageGroup;
+		this.occupation = occupation;
 	}
 
 	public void setMember(Member member) {

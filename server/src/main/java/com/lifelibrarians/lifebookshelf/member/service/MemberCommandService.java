@@ -18,6 +18,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.Null;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -49,11 +51,8 @@ public class MemberCommandService {
 					requestDto.getMaritalStatus(),
 					now,
 					now,
-					member,
-					null, // theme
-					null, // ageGroup
-					null, // job
-					null  // whyCreate
+					now,
+					member
 			);
 
 			memberMetadata = memberMetadataRepository.save(
