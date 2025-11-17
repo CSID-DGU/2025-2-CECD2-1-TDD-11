@@ -86,6 +86,7 @@ internal fun HomeScreen(
             viewModel.setAutobiographyId(detailChapterId)
         },
         currentChapter = uiState.currentChapter,
+        onClickDeleteUser = { viewModel.deleteUser() }
     )
 }
 
@@ -97,6 +98,7 @@ private fun HomeContent(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     onClickChapterDetail: (Int) -> Unit = {},
     currentChapter: SubChapterItemModel = SubChapterItemModel(),
+    onClickDeleteUser: () -> Unit = {}
 ) {
     Column(
         modifier =
@@ -114,7 +116,12 @@ private fun HomeContent(
             modifier =
                 Modifier
                     .align(Alignment.End)
-                    .padding(top = 45.dp, end = 25.dp),
+                    .padding(top = 45.dp, end = 25.dp)
+                    .clickable(
+                        onClick = onClickDeleteUser,
+                        interactionSource = interactionSource,
+                        indication = null
+                    ),
         )
 
         Text(

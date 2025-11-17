@@ -1,0 +1,15 @@
+package com.tdd.bookshelf.domain.usecase.auth
+
+import com.tdd.bookshelf.domain.base.UseCase
+import com.tdd.bookshelf.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Factory
+
+@Factory
+class DeleteUserUseCase(
+    private val repository: AuthRepository
+): UseCase<Unit, Result<Unit>>() {
+
+    override suspend fun invoke(request: Unit): Flow<Result<Unit>> =
+        repository.deleteUser()
+}
