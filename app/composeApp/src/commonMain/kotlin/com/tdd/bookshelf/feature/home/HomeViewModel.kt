@@ -29,7 +29,7 @@ class HomeViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
     private val postCreateInterviewQuestionUseCase: PostCreateInterviewQuestionUseCase,
     private val postCreateAutobiographyUseCase: PostCreateAutobiographyUseCase,
-    private val deleteUserUseCase: DeleteUserUseCase
+    private val deleteUserUseCase: DeleteUserUseCase,
 ) : BaseViewModel<HomePageState>(
         HomePageState(),
     ) {

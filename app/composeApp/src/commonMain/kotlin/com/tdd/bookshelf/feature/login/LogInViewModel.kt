@@ -23,8 +23,8 @@ class LogInViewModel(
     private val putEditMemberInfoUseCase: PutEditMemberInfoUseCase,
     private val postCreateAutobiographyChaptersUseCase: PostCreateAutobiographyChaptersUseCase,
 ) : BaseViewModel<LogInPageState>(
-    LogInPageState(),
-) {
+        LogInPageState(),
+    ) {
     fun onEmailValueChange(newValue: String) {
         updateState(
             uiState.value.copy(
@@ -72,7 +72,7 @@ class LogInViewModel(
     private fun putEditMemberInfo() {
         viewModelScope.launch {
             putEditMemberInfoUseCase(
-                EditMemberInfoModel("홍길동", "2000-01-01", "MALE", false, "Software Engineer", "대학교 재학", "미혼")
+                EditMemberInfoModel("홍길동", "2000-01-01", "MALE", false, "Software Engineer", "대학교 재학", "미혼"),
             ).collect { resultResponse(it, {}) }
 
             postCreateAutobiographyChapter()
@@ -85,12 +85,15 @@ class LogInViewModel(
                 CreateAutobiographyChaptersRequestModel(
                     listOf(
                         CreateChapterItemModel(
-                            "1", "유년기", "출생부터 10세까지", listOf(
-                                CreateSubChapterItemModel("1.1", "첫 기억", "가장 오래된 추억, 가족과 함께한 행복한 순간")
-                            )
-                        )
-                    )
-                )
+                            "1",
+                            "유년기",
+                            "출생부터 10세까지",
+                            listOf(
+                                CreateSubChapterItemModel("1.1", "첫 기억", "가장 오래된 추억, 가족과 함께한 행복한 순간"),
+                            ),
+                        ),
+                    ),
+                ),
             ).collect { resultResponse(it, {}) }
 
             emitEventFlow(LogInEvent.GoToOnBoardingPage)

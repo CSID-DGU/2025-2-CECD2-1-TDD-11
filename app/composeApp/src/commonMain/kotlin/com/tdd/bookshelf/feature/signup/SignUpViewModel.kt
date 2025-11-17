@@ -15,8 +15,8 @@ class SignUpViewModel(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val postEmailSignUpUseCase: PostEmailSignUpUseCase,
 ) : BaseViewModel<SignUpPageState>(
-    SignUpPageState(),
-) {
+        SignUpPageState(),
+    ) {
     fun onEmailValueChange(newValue: String) {
         updateState(
             uiState.value.copy(

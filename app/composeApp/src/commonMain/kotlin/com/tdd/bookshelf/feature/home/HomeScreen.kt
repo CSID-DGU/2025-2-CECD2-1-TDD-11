@@ -56,7 +56,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun HomeScreen(
     goToInterviewPage: (Int) -> Unit,
     goToDetailChapterPage: (Int) -> Unit,
-    goToLogInPage: () -> Unit
+    goToLogInPage: () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -86,7 +86,7 @@ internal fun HomeScreen(
             viewModel.setAutobiographyId(detailChapterId)
         },
         currentChapter = uiState.currentChapter,
-        onClickDeleteUser = { viewModel.deleteUser() }
+        onClickDeleteUser = { viewModel.deleteUser() },
     )
 }
 
@@ -98,7 +98,7 @@ private fun HomeContent(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     onClickChapterDetail: (Int) -> Unit = {},
     currentChapter: SubChapterItemModel = SubChapterItemModel(),
-    onClickDeleteUser: () -> Unit = {}
+    onClickDeleteUser: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -109,9 +109,10 @@ private fun HomeContent(
         Text(
             text = "회원탈퇴",
             color = Neutral500,
-            style = BookShelfTypo.SemiBold.copy(
-                textDecoration = TextDecoration.Underline
-            ),
+            style =
+                BookShelfTypo.SemiBold.copy(
+                    textDecoration = TextDecoration.Underline,
+                ),
             fontSize = 15.sp,
             modifier =
                 Modifier
@@ -120,7 +121,7 @@ private fun HomeContent(
                     .clickable(
                         onClick = onClickDeleteUser,
                         interactionSource = interactionSource,
-                        indication = null
+                        indication = null,
                     ),
         )
 

@@ -70,7 +70,7 @@ fun NavGraphBuilder.homeNavGraph(
             HomeScreen(
                 goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
                 goToDetailChapterPage = { autobiographyId -> navController.navigate(NavRoutes.DetailChapterScreen.setRouteModel(autobiographyId)) },
-                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route )}
+                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
             )
         }
     }
