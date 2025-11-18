@@ -1,6 +1,7 @@
-promptflow
-promptflow[azure]
-promptflow-tools
+promptflow>=1.8.0
+promptflow[azure]>=1.8.0
+promptflow-tools>=1.8.0
+
 python-dotenv
 
 fastapi

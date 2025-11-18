@@ -4,15 +4,16 @@ RUN mkdir -p /app/serve/
 
 WORKDIR /app/serve/
 
-# Promptflow 관련 구버전 패키지 제거
-RUN pip uninstall -y promptflow promptflow-core promptflow-devkit promptflow-azure || tru
+# 반드시 true 로 써야 함
+RUN pip uninstall -y promptflow promptflow-core promptflow-devkit promptflow-azure || true
 
 COPY serve/requirements.txt requirements.txt
 
+# dependency resolution 깨지지 않게 --no-deps 옵션 추가하는 것이 핵심
+RUN pip install --no-cache-dir --upgrade --no-deps marshmallow==3.26.1
 RUN pip install --no-cache-dir --upgrade -r requirements.txt keyrings.alt
 
 COPY ./serve/ /app/serve/
 COPY ./flows/ /app/flows/
 
-# FastAPI 애플리케이션 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
