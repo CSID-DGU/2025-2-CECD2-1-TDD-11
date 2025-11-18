@@ -29,6 +29,15 @@ jobs:
         with:
           distribution: temurin
           java-version: 11 
+      
+      - name: Inject production configuration
+        run: |
+          # Decode and inject application-prod.yml
+          echo "${{ secrets.SERVER_PROD_APPLICATION_YML }}" | base64 -d > server/src/main/resources/application-prod.yml
+          
+          # Change active profile to prod in application.yml
+          sed -i 's/active: .*/active: prod/' server/src/main/resources/application.yml
+
       - name: Build server JAR
         working-directory: server
         run: ./gradlew clean bootJar -x test
@@ -47,14 +56,6 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Inject production configuration
-        run: |
-          # Decode and inject application-prod.yml
-          echo "${{ secrets.SERVER_PROD_APPLICATION_YML }}" | base64 -d > server/src/main/resources/application-prod.yml
-          
-          # Change active profile to prod in application.yml
-          sed -i 's/active: .*/active: prod/' server/src/main/resources/application.yml
 
       - name: Build and push Docker image
         run: |
