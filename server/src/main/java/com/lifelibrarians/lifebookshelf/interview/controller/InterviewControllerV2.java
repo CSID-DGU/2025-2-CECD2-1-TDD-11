@@ -4,7 +4,8 @@ import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewSummaryResponseDto;
-import com.lifelibrarians.lifebookshelf.interview.service.InterviewFacadeServiceV2;
+import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
+import com.lifelibrarians.lifebookshelf.interview.service.InterviewFacadeService;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,16 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Logging
 public class InterviewControllerV2 {
 
-	private final InterviewFacadeServiceV2 interviewFacadeServiceV2;
+	private final InterviewFacadeService interviewFacadeService;
 
-	@Operation(summary = "특정 월에 대한 인터뷰 요약 조회", description = "달-일 별로 summary한 conversations(사용자응답)의 갯수와 요약본을 반환합니다.")
+	@Operation(summary = "특정 날짜의 인터뷰 요약 조회", description = "달-일 별로 summary한 conversations(사용자응답)의 갯수와 요약본을 반환합니다.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok"),
 	})
 	@ApiErrorCodeExample(
 			commonExceptionStatuses = {
-					com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus.YEAR_OUT_OF_BOUNDS,
-					com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus.MONTH_OUT_OF_BOUNDS
+					CommonExceptionStatus.INVALID_YEAR,
+					CommonExceptionStatus.INVALID_MONTH,
 			}
 	)
 	@PreAuthorize("isAuthenticated()")
@@ -44,6 +45,6 @@ public class InterviewControllerV2 {
 			@RequestParam("year") @Parameter(description = "년도", example = "2024") Integer year,
 			@RequestParam("month") @Parameter(description = "월", example = "12") Integer month
 	) {
-		return interviewFacadeServiceV2.getInterviewSummaries(memberSessionDto.getMemberId(), year, month);
+		return interviewFacadeService.getInterviewSummaries(memberSessionDto.getMemberId(), year, month);
 	}
 }

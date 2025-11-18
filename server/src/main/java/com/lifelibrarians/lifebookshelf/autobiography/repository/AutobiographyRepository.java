@@ -25,6 +25,10 @@ public interface AutobiographyRepository extends JpaRepository<Autobiography, Lo
 	@Query("SELECT a FROM Autobiography a JOIN FETCH a.autobiographyInterviews WHERE a.member.id = :memberId")
 	List<Autobiography> findWithInterviewByMemberId(Long memberId);
 
+	@Query(value = "SELECT a FROM Autobiography a JOIN FETCH a.autobiographyInterviews WHERE a.member.id = :memberId",
+			countQuery = "SELECT COUNT(a) FROM Autobiography a WHERE a.member.id = :memberId")
+	Page<Autobiography> findWithInterviewByMemberId(Long memberId, Pageable pageable);
+
 	// 관리자용 검색 및 필터링 쿼리
 	@Query("SELECT a FROM Autobiography a " +
 			"WHERE (:search = '' OR LOWER(a.title) LIKE LOWER(CONCAT('%', :search, '%'))) " +

@@ -15,25 +15,26 @@ import java.util.List;
 @ToString
 public class InterviewSummaryResponseDto {
 
-	@Schema(description = "인터뷰 요약 목록")
-	private final List<InterviewSummaryDto> interviews;
+    @Schema(description = "인터뷰 목록")
+    private final List<InterviewSummaryDto> interviews;
 
-	@Builder
-	@AllArgsConstructor
-	@Getter
-	@ToString
-	public static class InterviewSummaryDto {
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    @Schema(description = "인터뷰 요약 정보")
+    @ToString
+    public static class InterviewSummaryDto {
 
-		@Schema(description = "인터뷰 ID", example = "1")
-		private final Long id;
+        @Schema(description = "인터뷰 ID", example = "1")
+        private final Long id;
 
-		@Schema(description = "마지막 페이지", example = "5")
-		private final Integer totalPages;
+        @Schema(description = "마지막 페이지", example = "5")
+        private final Integer totalPages;
 
-		@Schema(description = "요약", example = "오늘은 좋은 하루였습니다.")
-		private final String summary;
+        @Schema(description = "요약", example = "오늘은 어린 시절에 대해 이야기했습니다.")
+        private final String summary;
 
-		@Schema(description = "총 답변 수", example = "10")
-		private final Integer totalAnswerCount;
-	}
+        @Schema(description = "총 답변 수", example = "10")
+        private final Integer totalAnswerCount;
+    }
 }
