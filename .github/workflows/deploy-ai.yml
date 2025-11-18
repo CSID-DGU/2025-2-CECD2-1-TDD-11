@@ -47,25 +47,26 @@ jobs:
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
-              "cd /opt/deploy",
-              "aws s3 cp s3://talktobook-deploy/docker-compose.ai.prod.yml .",
-              "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-              "cat > .env << EOF",
-              "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",
-              "ECR_REPOSITORY_AI=${{ secrets.ECR_REPOSITORY_AI }}",
-              "IMAGE_TAG=${{ github.sha }}",
-              "REDIS_PORT=${{ secrets.REDIS_PORT }}",
-              "DEBUG=True",
-              "LOG_LEVEL=DEBUG",
-              "AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}",
-              "LIFE_BOOKSHELF_AI_JWT_SECRET_KEY=${{ secrets.LIFE_BOOKSHELF_AI_JWT_SECRET_KEY }}",
-              "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}",
-              "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}",
-              "EOF",
-              "docker-compose -f docker-compose.ai.prod.yml pull",
-              "docker-compose -f docker-compose.ai.prod.yml down",
-              "docker-compose -f docker-compose.ai.prod.yml up -d",
-              "docker image prune -f"
-            ]' \
+              "bash -c \"\
+              cd /opt/deploy && \
+              aws s3 cp s3://talktobook-deploy/docker-compose.ai.prod.yml . && \
+              aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }} && \
+              cat > .env <<EOF
+              ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}
+              ECR_REPOSITORY_AI=${{ secrets.ECR_REPOSITORY_AI }}
+              IMAGE_TAG=${{ github.sha }}
+              REDIS_PORT=${{ secrets.REDIS_PORT }}
+              DEBUG=True
+              LOG_LEVEL=DEBUG
+              AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}
+              LIFE_BOOKSHELF_AI_JWT_SECRET_KEY=${{ secrets.LIFE_BOOKSHELF_AI_JWT_SECRET_KEY }}
+              RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
+              RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
+              EOF
+              docker-compose -f docker-compose.ai.prod.yml pull && \
+              docker-compose -f docker-compose.ai.prod.yml down && \
+              docker-compose -f docker-compose.ai.prod.yml up -d && \
+              docker image prune -f\""
+              ]' \
             --instance-ids ${{ secrets.AI_INSTANCE_ID }} \
             --region ${{ env.AWS_REGION }}
