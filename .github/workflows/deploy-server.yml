@@ -31,11 +31,11 @@ jobs:
           java-version: 11 
       - name: Build server JAR
         working-directory: server
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean bootJar -x test
     
       - name: Normalize JAR name
         run: |
-          JAR_FILE=$(ls server/build/libs/*.jar | sort | head -n 1)
+          JAR_FILE=$(find server/build/libs -name "*SNAPSHOT.jar" ! -name "*plain*" | head -n 1)
           cp "$JAR_FILE" server/lifebookshelf.jar
 
       - name: Configure AWS credentials
