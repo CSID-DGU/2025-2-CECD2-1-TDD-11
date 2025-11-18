@@ -27,7 +27,12 @@ jobs:
       - name: Build server JAR
         working-directory: server
         run: ./gradlew clean build -x test
-      
+    
+      - name: Normalize JAR name
+        run: |
+          JAR_FILE=$(ls server/build/libs/*.jar | sort | head -n 1)
+          cp "$JAR_FILE" server/lifebookshelf.jar
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
