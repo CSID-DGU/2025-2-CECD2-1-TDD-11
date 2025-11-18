@@ -57,7 +57,7 @@ public class Interview {
 	/** V2에서는 사용하지 않는 필드 (기존 호환용) */
 	@Deprecated
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "current_question_id")
+	@JoinColumn(name = "current_question_id", nullable = true)
 	private InterviewQuestion currentQuestion;
 
 	@OneToMany(mappedBy = "interview")

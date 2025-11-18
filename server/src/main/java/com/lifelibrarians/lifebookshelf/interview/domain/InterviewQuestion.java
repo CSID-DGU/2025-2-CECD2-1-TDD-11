@@ -20,8 +20,8 @@ public class InterviewQuestion {
 	@Column(nullable = false, updatable = false)
 	private Long id;
 
-	@Column(name = "order", nullable = false)
-	private Integer order;
+	@Column(name = "question_order", nullable = false)
+	private Integer question_order;
 
 	@Lob
 	@Column(nullable = false)
@@ -44,35 +44,35 @@ public class InterviewQuestion {
 
 	/* 생성자 (V1) { */
 	protected InterviewQuestion(
-			Integer order,
+			Integer question_order,
 			String questionText,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		this.order = order;
+		this.question_order = question_order;
 		this.questionText = questionText;
 		this.createdAt = createdAt;
 		this.interview = interview;
 	}
 	public static InterviewQuestion of(
-			Integer order,
+			Integer question_order,
 			String questionText,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		return new InterviewQuestion(order, questionText, createdAt, interview);
+		return new InterviewQuestion(question_order, questionText, createdAt, interview);
 	}
 	/* } 생성자 (V1) */
 
 	/* 생성자 (V2) { */
 	protected InterviewQuestion(
-			Integer order,
+			Integer question_order,
 			String questionText,
 			String materials,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		this.order = order;
+		this.question_order = question_order;
 		this.questionText = questionText;
 		this.materials = materials;
 		this.createdAt = createdAt;
@@ -80,13 +80,13 @@ public class InterviewQuestion {
 	}
 
 	public static InterviewQuestion ofV2(
-			Integer order,
+			Integer question_order,
 			String questionText,
 			String materials,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		return new InterviewQuestion(order, questionText, materials, createdAt, interview);
+		return new InterviewQuestion(question_order, questionText, materials, createdAt, interview);
 	}
 	/* } 생성자 (V2) */
 
