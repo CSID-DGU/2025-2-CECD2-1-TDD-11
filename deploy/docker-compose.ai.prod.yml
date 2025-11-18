@@ -4,7 +4,7 @@ services:
     restart: always
     container_name: "talktobook-ai"
     ports:
-      - "8000:8000"
+      - "3000:3000"
     env_file:
       - .env
     networks:

@@ -3,18 +3,19 @@ FROM python:3.10-slim
 RUN mkdir -p /app/serve/
 WORKDIR /app/serve/
 
-# Promptflow 구버전 완전 제거
+# Promptflow 구버전 흔적 제거
 RUN pip uninstall -y promptflow promptflow-core promptflow-devkit promptflow-azure || true
 
 COPY serve/requirements.txt requirements.txt
 
-# marshmallow 강제 설치 (Promptflow가 나중에 올려도 override 됨)
-RUN pip install --no-cache-dir --upgrade --no-deps marshmallow==3.26.1
+# Promptflow 1.7.x는 marshmallow 3.19.0 필요
+RUN pip install --no-cache-dir --upgrade --no-deps marshmallow==3.19.0
 
-# dependencies 설치 (Promptflow 포함)
+# 모든 의존성 설치
 RUN pip install --no-cache-dir --upgrade -r requirements.txt keyrings.alt
 
 COPY ./serve/ /app/serve/
 COPY ./flows/ /app/flows/
 
+# FastAPI 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
