@@ -11,10 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,7 +25,8 @@ public class InterviewService {
     private final InterviewRepository interviewRepository;
     private final MemberRepository memberRepository;
 
-    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul") // 매일 자정
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") // 매일 자정
     public void createInterviewsForAllMembers() {
         log.info("[InterviewScheduler] Starting daily interview generation...");
 
@@ -44,11 +45,17 @@ public class InterviewService {
             for (AutobiographyStatus status : statusList) {
                 // creating / finish 상태 제외
                 AutobiographyStatusType type = status.getStatus();
+                LocalDateTime now = LocalDateTime.now();
 
                 // creating, finish 제외
                 if (type == AutobiographyStatusType.CREATING ||
                         type == AutobiographyStatusType.FINISH) {
                     continue;
+                }
+
+                if (type == AutobiographyStatusType.EMPTY) {
+                    log.debug("[InterviewScheduler] Autobiography Status Type is Empty {}", member.getId());
+                    status.updateStatusType(AutobiographyStatusType.PROGRESSING, now);
                 }
 
                 if (status.getCurrentAutobiography() == null) {
@@ -57,7 +64,7 @@ public class InterviewService {
                 }
 
                 Interview interview = Interview.ofV2(
-                        LocalDateTime.now(),
+                        now,
                         status.getCurrentAutobiography(),
                         member,
                         null         // summary

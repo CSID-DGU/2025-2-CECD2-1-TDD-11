@@ -59,11 +59,9 @@ public class AutobiographyStatus {
     /* } 생성자 */
 
     /* 비즈니스 메서드 { */
-    public void updateStatus(AutobiographyStatusType status,
-                             Autobiography currentAutobiography,
+    public void updateStatusType(AutobiographyStatusType status,
                              LocalDateTime now) {
         this.status = status;
-        this.currentAutobiography = currentAutobiography;
         this.updatedAt = now;
     }
     /* } 비즈니스 메서드 */
