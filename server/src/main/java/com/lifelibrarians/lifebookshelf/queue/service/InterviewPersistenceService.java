@@ -14,7 +14,6 @@ import com.lifelibrarians.lifebookshelf.interview.repository.ConversationReposit
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewQuestionRepository;
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewRepository;
 import com.lifelibrarians.lifebookshelf.log.Logging;
-import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
 import com.lifelibrarians.lifebookshelf.queue.dto.request.InterviewPayloadRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,11 +47,16 @@ public class InterviewPersistenceService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // 2. 인터뷰 질문 저장
+        int nextQuestionOrder = interview.getQuestions().stream()
+                .map(InterviewQuestion::getQuestionOrder)
+                .max(Integer::compareTo)
+                .orElse(0) + 1;
+
+        // 4. 인터뷰 질문 저장
         InterviewQuestion question = InterviewQuestion.ofV2(
-                payload.getInterviewQuestion().getQuestionOrder(),
+                nextQuestionOrder,
                 payload.getInterviewQuestion().getQuestionText(),
-                payload.getInterviewQuestion().getMaterials(), // material은 임시로 빈 문자열로 설정
+                payload.getInterviewQuestion().getMaterials(), // material은 빈 문자열 허용
                 now,
                 interview
         );
