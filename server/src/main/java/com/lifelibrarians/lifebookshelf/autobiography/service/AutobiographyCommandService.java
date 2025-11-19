@@ -1,13 +1,24 @@
 package com.lifelibrarians.lifebookshelf.autobiography.service;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
+import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
+import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.image.service.ImageService;
+import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
+import com.lifelibrarians.lifebookshelf.interview.repository.InterviewRepository;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import com.lifelibrarians.lifebookshelf.member.domain.Member;
+import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,9 +31,61 @@ import org.springframework.transaction.annotation.Transactional;
 public class AutobiographyCommandService {
 
 	private final AutobiographyRepository autobiographyRepository;
+    private final AutobiographyStatusRepository autobiographyStatusRepository;
+    private final InterviewRepository interviewRepository;
+    private final MemberRepository memberRepository;
 	private final ImageService imageService;
 	@Value("${images.path.bio-cover}")
 	public String BIO_COVER_IMAGE_DIR;
+
+    public AutobiographyInitResponseDto initAutobiography(Long memberId, AutobiographyInitRequestDto requestDto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (requestDto.getReason() != null && requestDto.getReason().length() > 500) {
+            throw AutobiographyExceptionStatus.REASON_LENGTH_EXCEEDED.toServiceException();
+        }
+
+        Autobiography autobiography = Autobiography.ofV2(
+                null,
+                null,
+                null,
+
+                requestDto.getTheme(),
+                requestDto.getReason(),
+                now,
+                now,
+                member
+        );
+        // save init autobiography
+        Autobiography savedAutobiography = autobiographyRepository.save(autobiography);
+
+        AutobiographyStatus autobiographyStatus = AutobiographyStatus.of(
+                AutobiographyStatusType.EMPTY,
+                member,
+                autobiography,
+                now
+        );
+
+        autobiographyStatusRepository.save(autobiographyStatus);
+
+        // save init interview
+        Interview interview = Interview.ofV2(
+                now,
+                autobiography,
+                member,
+                null
+        );
+
+        Interview savedInterview = interviewRepository.save(interview);
+
+        return AutobiographyInitResponseDto.builder()
+                .autobiographyId(savedAutobiography.getId())
+                .interviewId(savedInterview.getId())
+                .build();
+    }
 
 	public void patchAutobiography(Long memberId, Long autobiographyId, AutobiographyUpdateRequestDto requestDto) {
 		Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
