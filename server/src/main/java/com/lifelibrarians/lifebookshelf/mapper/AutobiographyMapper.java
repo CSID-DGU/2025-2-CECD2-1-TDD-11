@@ -1,6 +1,7 @@
 package com.lifelibrarians.lifebookshelf.mapper;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyPreviewDto;
 import com.lifelibrarians.lifebookshelf.image.service.ImageService;
@@ -20,13 +21,13 @@ public abstract class AutobiographyMapper {
 		return imageService.getImageUrl(profileImageUrl);
 	}
 
-	@Mapping(source = "autobiography.id", target = "autobiographyId")
-	@Mapping(source = "autobiography.content", target = "contentPreview", qualifiedByName = "truncate")
-	@Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
-	public abstract AutobiographyPreviewDto toAutobiographyPreviewDto(Autobiography autobiography,
-			Long chapterId,
-			Long interviewId
-	);
+    @Mapping(source = "autobiography.id", target = "autobiographyId")
+    @Mapping(source = "autobiography.content", target = "contentPreview", qualifiedByName = "truncate")
+    @Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
+    @Mapping(source = "autobiography.updatedAt", target = "updatedAt")
+    @Mapping(source = "autobiography.createdAt", target = "createdAt")
+    @Mapping(source = "status.status", target = "status")
+    public abstract AutobiographyPreviewDto toAutobiographyPreviewDto(Autobiography autobiography, AutobiographyStatus status);
 
 	@Mapping(source = "autobiography.id", target = "autobiographyId")
 	@Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")

@@ -25,19 +25,23 @@ public class AutobiographyQueryService {
 	private final AutobiographyRepository autobiographyRepository;
 	private final AutobiographyMapper autobiographyMapper;
 
-	public AutobiographyListResponseDto getAutobiographies(Long memberId, Pageable pageable) {
-		Page<Autobiography> autobiographyPage = autobiographyRepository.findWithInterviewByMemberId(memberId, pageable);
-		List<AutobiographyPreviewDto> autobiographyPreviewDtos = autobiographyPage.getContent().stream()
-				.map(autobiography -> autobiographyMapper.toAutobiographyPreviewDto(
-						autobiography,
-						autobiography.getChapter().getId(),
-						autobiography.getAutobiographyInterviews().get(0).getId()
-				))
-				.collect(Collectors.toList());
-		return AutobiographyListResponseDto.builder()
-				.results(autobiographyPreviewDtos)
-				.build();
-	}
+    public AutobiographyListResponseDto getAutobiographies(Long memberId, Pageable pageable) {
+
+        Page<Autobiography> autobiographyPage =
+                autobiographyRepository.findWithAtLeastOneInterview(memberId, pageable);
+
+        List<AutobiographyPreviewDto> dtoList =
+                autobiographyPage.getContent().stream()
+                        .map(a -> autobiographyMapper.toAutobiographyPreviewDto(
+                                a,
+                                a.getAutobiographyStatus()   // 그냥 이거 한 줄이면 됨
+                        ))
+                        .collect(Collectors.toList());
+
+        return AutobiographyListResponseDto.builder()
+                .results(dtoList)
+                .build();
+    }
 
 	public AutobiographyDetailResponseDto getAutobiography(Long memberId, Long autobiographyId) {
 		Autobiography autobiography = autobiographyRepository.findWithInterviewById(autobiographyId)
