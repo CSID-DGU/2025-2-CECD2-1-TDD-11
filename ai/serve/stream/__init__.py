@@ -3,7 +3,7 @@ import json
 import pika
 import os
 from logs import get_logger
-from payload_models import (InterviewPayload,CategoriesPayload)
+from stream.dto import InterviewPayload, CategoriesPayload
 
 logger = get_logger()
 
