@@ -41,6 +41,7 @@ class MaterialsPayload(BaseModel):
 class CategoriesPayload(BaseModel):
     autobiographyId: int
     userId: int
+    themeId: int  # 추가된 필드
     categoryId: int
     chunks: Optional[list[ChunksPayload]] = []
     materials: Optional[list[MaterialsPayload]] = []

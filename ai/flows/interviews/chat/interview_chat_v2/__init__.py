@@ -21,6 +21,8 @@ import redis
 def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk_deltas=None, material_deltas=None):
     """실제 변화량을 CategoriesPayload로 전송"""
     try:
+        # print(f"[DEBUG] publish_delta_change called with theme_id={theme_id}, category_id={category_id}")
+        
         # serve 디렉토리 경로 추가
         serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
         sys.path.insert(0, serve_dir)
@@ -71,8 +73,10 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
             materials=materials
         )
         
+        # print(f"[AI_SEND] CategoriesPayload: autobiographyId={payload.autobiographyId}, userId={payload.userId}, themeId={payload.themeId}, categoryId={payload.categoryId}, chunks={len(payload.chunks)}, materials={len(payload.materials)}")
+        
         publish_categories_message(payload)
-        print(f"[DEBUG] Published delta change: category={category_id}, {len(chunks)} chunks, {len(materials)} materials")
+        # print(f"[DEBUG] Published delta change: category={category_id}, {len(chunks)} chunks, {len(materials)} materials")
         
     except Exception as e:
         print(f"[WARN] Delta 발행 실패: {e}")
@@ -202,7 +206,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
     session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None
-    print(f"[DEBUG] Session loaded")
+    # print(f"[DEBUG] Session loaded")
 
     # 첫 질문 분기
     if not session_data or not session_data.get("last_question"):
@@ -292,7 +296,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             matched_materials.append(key)
             axes_analysis_by_material[key] = item.get("axes", {})
 
-        print(f"[INFO] LLM 분석 완료: {len(matched_materials)}개 소재 매칭")
+        # print(f"[INFO] LLM 분석 완료: {len(matched_materials)}개 소재 매칭")
 
         # 소재 ID 매핑
         for material_name in matched_materials:
@@ -508,7 +512,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             from datetime import datetime, timezone
             serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
             sys.path.insert(0, serve_dir)
-            from stream import publish_persistence_message
+            from stream import publish_categories_message
             from stream.dto import ChunksPayload, MaterialsPayload, CategoriesPayload
             
             now = datetime.now(timezone.utc)
@@ -554,11 +558,20 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                             ))
                 
                 if chunks_deltas or materials_deltas:
-                    publish_persistence_message(CategoriesPayload(
-                        autobiographyId=str(session_data.get("metrics", {}).get("autobiography_id")),
-                        userId=str(session_data.get("metrics", {}).get("user_id")),
-                        categoryId=cat_num, chunks=chunks_deltas, materials=materials_deltas
-                    ))
+                    # AI cat_num을 DB 매핑으로 변환
+                    theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
+                    
+                    final_payload = CategoriesPayload(
+                        autobiographyId=int(autobiography_id),  # str() 제거하고 int() 사용
+                        userId=int(user_id),  # str() 제거하고 int() 사용
+                        themeId=theme_id,  # 올바른 theme_id 사용
+                        categoryId=category_order,  # DB의 category_order 사용
+                        chunks=chunks_deltas, materials=materials_deltas
+                    )
+                    
+                    # print(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
+                    
+                    publish_categories_message(final_payload)
         except Exception as e:
             print(f"[WARN] Delta 발행 실패: {e}")
 

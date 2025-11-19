@@ -27,11 +27,6 @@ session_manager = SessionManager()
 flow_path = flows_dir / "flow.dag.yaml"
 flow = load_flow(str(flow_path))
 
-# 임시 함수 정의
-def calculate_metrics_delta(previous_metrics, current_metrics, user_id, autobiography_id):
-    """임시 함수 - 실제 구현 필요"""
-    print(f"[DEBUG] calculate_metrics_delta called")
-    return []  # 빈 리스트 반환
 
 @router.post("/api/v2/interviews/start/{autobiography_id}", response_model=SessionStartResponseDto, dependencies=[Depends(AuthRequired())])
 async def start_session(http_request: Request, autobiography_id: int, request: SessionStartRequestDto):
@@ -82,7 +77,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
                     "session_id": session_key,
                     "user_id": user_id,
                     "autobiography_id": autobiography_id,
-                    "categories": {},
+                    "categories": [],  # Changed from {} to []
                     "engine_state": {"last_material_id": None},
                     "asked_total": 0
                 },
@@ -158,13 +153,6 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         # flow 실행 후 metrics 로드
         updated_session_data = session_manager.load_session(session_key)
         current_metrics = updated_session_data.get("metrics", {})
-        
-        # 증가 폭 계산
-        deltas = calculate_metrics_delta(previous_metrics, current_metrics, user_id, autobiography_id)
-        
-        # 변경된 부분만 queue에 발행
-        for delta in deltas:
-            publish_persistence_message(delta)
         
         next_question_data = result.get("next_question")
         next_question = next_question_data.get("text") if isinstance(next_question_data, dict) else next_question_data
