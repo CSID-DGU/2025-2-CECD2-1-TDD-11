@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Logging
 public class InterviewPersistenceService {
-    private final MemberRepository memberRepository;
     private final InterviewRepository interviewRepository;
     private final InterviewQuestionRepository interviewQuestionRepository;
     private final ConversationRepository conversationRepository;

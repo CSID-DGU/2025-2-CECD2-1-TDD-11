@@ -17,11 +17,66 @@ from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories
 from engine.generators import generate_first_question, generate_question_llm
 import redis
 
-# 임시 함수 정의
-def publish_delta_change(**kwargs):
-    """임시 함수 - 실제 구현 필요"""
-    print(f"[DEBUG] publish_delta_change called with: {kwargs}")
-    pass
+# 실제 함수 구현
+def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk_deltas=None, material_deltas=None):
+    """실제 변화량을 CategoriesPayload로 전송"""
+    try:
+        # serve 디렉토리 경로 추가
+        serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
+        sys.path.insert(0, serve_dir)
+        from stream import publish_categories_message
+        from stream.dto import ChunksPayload, MaterialsPayload, CategoriesPayload
+        
+        # None 값 체크
+        if user_id is None or autobiography_id is None:
+            print("[DEBUG] Skipping publish_delta_change due to None values")
+            return
+            
+        # 현재 시간
+        from datetime import datetime, timezone
+        timestamp = datetime.now(timezone.utc)
+        
+        # ChunksPayload 생성 (chunk_id를 chunkOrder로 매핑)
+        chunks = []
+        if chunk_deltas:
+            for chunk_data in chunk_deltas:
+                chunks.append(ChunksPayload(
+                    categoryId=category_id,
+                    chunkOrder=chunk_data.get('chunk_id', 0),  # chunk_id → chunkOrder
+                    weight=chunk_data.get('weight_delta', 0),   # 변화량
+                    timestamp=timestamp
+                ))
+        
+        # MaterialsPayload 생성 (material_id를 materialOrder로 매핑)
+        materials = []
+        if material_deltas:
+            for material_data in material_deltas:
+                materials.append(MaterialsPayload(
+                    chunkId=material_data.get('chunk_id', 0),     # 어느 chunk에 속하는지
+                    materialOrder=material_data.get('material_id', 0), # material_id → materialOrder
+                    example=material_data.get('example_delta', 0),     # 변화량
+                    similarEvent=material_data.get('similar_event_delta', 0), # 변화량
+                    count=material_data.get('count_delta', 0),         # 변화량
+                    principle=material_data.get('principle_delta', [0,0,0,0,0,0]), # 변화량 배열
+                    timestamp=timestamp
+                ))
+        
+        # CategoriesPayload 생성 및 전송
+        payload = CategoriesPayload(
+            autobiographyId=int(autobiography_id),
+            userId=int(user_id),
+            themeId=theme_id,
+            categoryId=category_id,
+            chunks=chunks,
+            materials=materials
+        )
+        
+        publish_categories_message(payload)
+        print(f"[DEBUG] Published delta change: category={category_id}, {len(chunks)} chunks, {len(materials)} materials")
+        
+    except Exception as e:
+        print(f"[WARN] Delta 발행 실패: {e}")
+        pass
 
 
 # ------------------------ 간단 헬퍼 ------------------------
@@ -95,8 +150,45 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: List[st
         return []  # 폴백: 빈 결과
 
 
+# AI cat_num을 DB의 theme_id, category_order로 변환하는 함수
+def convert_cat_num_to_db_mapping(cat_num):
+    """AI의 cat_num(0-based)을 DB의 (theme_id, category_order)로 변환"""
+    # material.json의 category 순서와 DB의 theme-category 매핑
+    # AI material.json: 0=부모, 1=조부모, 2=형제, 3=자녀/육아, 4=친척, 5=가족사건, 6=연인, 7=결혼, 8=배우자, 9=자녀/육아, 10=친구, 11=직장, 12=진로, 13=문제해결, 14=생애주기, 15=성격, 16=취미, 17=반려동물, 18=철학, 19=주거지, 20=생활, 21=금전
+    
+    # DB 매핑 (theme_id, category_order)
+    mapping = [
+        (1, 1),  # 0: 부모
+        (1, 2),  # 1: 조부모  
+        (1, 3),  # 2: 형제
+        (1, 4),  # 3: 자녀/육아
+        (1, 5),  # 4: 친척
+        (1, 6),  # 5: 가족 사건
+        (2, 1),  # 6: 연인
+        (2, 2),  # 7: 결혼
+        (2, 3),  # 8: 배우자
+        (3, 1),  # 9: 자녀/육아 (다른 theme)
+        (6, 1),  # 10: 친구
+        (7, 1),  # 11: 직장
+        (7, 2),  # 12: 진로
+        (7, 3),  # 13: 문제해결(과정)
+        (8, 1),  # 14: 생애주기
+        (5, 1),  # 15: 성격
+        (11, 1), # 16: 취미
+        (12, 1), # 17: 반려동물
+        (9, 2),  # 18: 철학
+        (4, 1),  # 19: 주거지
+        (3, 3),  # 20: 생활
+        (10, 1), # 21: 금전
+    ]
+    
+    if 0 <= cat_num < len(mapping):
+        return mapping[cat_num]
+    else:
+        return (1, 1)  # 기본값
+
 @tool
-def interview_engine(sessionId: str, answer_text: str) -> Dict:
+def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiography_id: int) -> Dict:
     """인터뷰 엔진 - Redis에서 세션 로드하여 다음 질문 생성"""
 
     # Redis에서 세션 로드
@@ -249,16 +341,29 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
 
                 # material 변경사항 발행
                 if any(principle_delta) or example_delta or similar_event_delta:
+                    print(f"[DEBUG] Material changes detected: principle_delta={principle_delta}, example_delta={example_delta}, similar_event_delta={similar_event_delta}")
+                    
+                    # material 변화량 데이터 구성
+                    material_deltas = [{
+                        'chunk_id': chunk_num,
+                        'material_id': material.order,
+                        'example_delta': example_delta,
+                        'similar_event_delta': similar_event_delta,
+                        'count_delta': 0,
+                        'principle_delta': principle_delta
+                    }]
+                    
+                    # AI cat_num을 DB 매핑으로 변환
+                    theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
+                    
+                    print(f"[DEBUG] publish_delta_change params: user_id={user_id}, autobiography_id={autobiography_id}, theme_id={theme_id}, category_order={category_order}")
+                    
                     publish_delta_change(
-                        user_id=session_data.get("user_id"),
-                        autobiography_id=session_data.get("autobiography_id"), 
-                        cat_num=cat_num,
-                        chunk_num=chunk_num,
-                        material_order=material.order,
-                        change_type="material_update",
-                        principle_delta=principle_delta,
-                        example_delta=example_delta,
-                        similar_event_delta=similar_event_delta
+                        user_id=user_id,
+                        autobiography_id=autobiography_id, 
+                        theme_id=theme_id,
+                        category_id=category_order,  # DB의 category order 사용
+                        material_deltas=material_deltas
                     )
 
                 # ========== CHUNK WEIGHT 증가 부분 ==========
@@ -267,13 +372,21 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                 category.chunk_weight[chunk_num] = old_weight + 1  # ★ CHUNK WEIGHT 증가 지점 (+1씩 누적)
                 
                 # chunk weight 증가 발행
+                # chunk weight 변화량 데이터 구성
+                chunk_deltas = [{
+                    'chunk_id': chunk_num,
+                    'weight_delta': 1  # weight 증가
+                }]
+                
+                # AI cat_num을 DB 매핑으로 변환
+                theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
+                
                 publish_delta_change(
-                    user_id=session_data.get("user_id"),
-                    autobiography_id=session_data.get("autobiography_id"),
-                    cat_num=cat_num,
-                    chunk_num=chunk_num,
-                    material_order=None,
-                    change_type="chunk_weight"
+                    user_id=user_id,
+                    autobiography_id=autobiography_id,
+                    theme_id=theme_id,
+                    category_id=category_order,  # DB의 category order 사용
+                    chunk_deltas=chunk_deltas
                 )
                 
                 # ========== MATERIAL COUNT 증가 부분 ==========

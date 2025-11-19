@@ -57,7 +57,9 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         
         result = flow(
             sessionId=session_key,
-            answer_text=""
+            answer_text="",
+            user_id=user_id,
+            autobiography_id=autobiography_id
         )
         
         first_question_data = result.get("next_question")
@@ -148,7 +150,9 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         # 다음 질문 생성
         result = flow(
             sessionId=session_key,
-            answer_text=request.answer_text
+            answer_text=request.answer_text,
+            user_id=user_id,
+            autobiography_id=autobiography_id
         )
         
         # flow 실행 후 metrics 로드

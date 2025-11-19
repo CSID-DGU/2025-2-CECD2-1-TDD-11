@@ -39,8 +39,8 @@ class MaterialsPayload(BaseModel):
     timestamp: datetime
 
 class CategoriesPayload(BaseModel):
-    autobiographyId: str
-    userId: str
+    autobiographyId: int
+    userId: int
     categoryId: int
     chunks: Optional[list[ChunksPayload]] = []
     materials: Optional[list[MaterialsPayload]] = []

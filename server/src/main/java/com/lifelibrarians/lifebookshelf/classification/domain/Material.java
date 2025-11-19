@@ -66,4 +66,26 @@ public class Material {
         return new Material(order, name, example, similarEvent, count, principle, chunk);
     }
     /* } 생성자 */
+
+    /* 업데이트 메서드 { */
+    public void updateExample(Integer example) {
+        this.example = example;
+    }
+
+    public void updateSimilarEvent(Integer similarEvent) {
+        this.similarEvent = similarEvent;
+    }
+
+    public void updateCount(Integer count) {
+        this.count = count;
+    }
+
+    public void updatePrinciple(String principle) {
+        this.principle = principle;
+    }
+
+    public Integer getMaterialOrder() {
+        return this.order;
+    }
+    /* } 업데이트 메서드 */
 }

@@ -51,4 +51,14 @@ public class Chunk {
         return new Chunk(order, name, weight, category);
     }
     /* } 생성자 */
+
+    /* 업데이트 메서드 { */
+    public void updateWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public Integer getChunkOrder() {
+        return this.order;
+    }
+    /* } 업데이트 메서드 */
 }

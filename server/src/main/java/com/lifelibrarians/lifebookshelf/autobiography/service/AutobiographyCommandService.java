@@ -8,6 +8,7 @@ import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyU
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
+import com.lifelibrarians.lifebookshelf.classification.service.ClassificationInitService;
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.image.service.ImageService;
@@ -35,6 +36,9 @@ public class AutobiographyCommandService {
     private final InterviewRepository interviewRepository;
     private final MemberRepository memberRepository;
 	private final ImageService imageService;
+
+    private final ClassificationInitService classificationInitService;
+
 	@Value("${images.path.bio-cover}")
 	public String BIO_COVER_IMAGE_DIR;
 
@@ -70,6 +74,9 @@ public class AutobiographyCommandService {
         );
 
         autobiographyStatusRepository.save(autobiographyStatus);
+
+        // AI 데이터 기반으로 분류 체계 초기화
+        classificationInitService.initializeFromAiData(autobiography);
 
         // save init interview
         Interview interview = Interview.ofV2(

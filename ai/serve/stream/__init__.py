@@ -13,7 +13,7 @@ def publish_persistence_message(payload: InterviewPayload):
     interview에 대한 응답 메시지를 publish하는 함수.
     """
     rabbitmq_host = os.environ.get("RABBITMQ_HOST")
-    rabbitmq_port = int(os.environ.get("RABBITMQ_PORT", 5672))
+    rabbitmq_port = int(os.environ.get("RABBITMQ_PORT"))
     rabbitmq_user = os.environ.get("RABBITMQ_USER")
     rabbitmq_password = os.environ.get("RABBITMQ_PASSWORD")
     
@@ -69,8 +69,8 @@ def publish_categories_message(payload: CategoriesPayload):
     body = payload.model_dump_json()
     
     channel.basic_publish(
-        exchange='ai.request.exchange',
-        routing_key='ai.persistence',
+        exchange='interview.meta.exchange',
+        routing_key='interview.meta',
         body=body,
         properties=pika.BasicProperties(
             content_type="application/json",
