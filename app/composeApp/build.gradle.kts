@@ -34,6 +34,7 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
+            binaryOption("bundleId", "com.tdd.talktobook")
             isStatic = true
         }
     }
