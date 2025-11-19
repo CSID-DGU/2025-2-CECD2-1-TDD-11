@@ -233,3 +233,4 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
         print(f"[ERROR] 세션 종료 실패: {str(e)}")
         print(f"[ERROR] 스택트레이스: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"세션 종료 실패: {str(e)}")
+
