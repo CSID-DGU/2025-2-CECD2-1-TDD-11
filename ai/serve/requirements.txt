@@ -5,3 +5,5 @@ python-jose[cryptography]==3.3.0
 python-multipart==0.0.6
 promptflow==1.8.0
 redis==5.0.1
+
+pika
