@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class InterviewConsumer {
     private final InterviewPersistenceService interviewPersistenceService;
 
-    @RabbitListener(queues = "interview-queue")
+    @RabbitListener(queues = "ai.persistence.queue")
     public void receive(InterviewPayloadRequestDto dto) {
         interviewPersistenceService.receiveInterviewPayload(dto);
     }
