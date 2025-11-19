@@ -1,10 +1,11 @@
 package com.lifelibrarians.lifebookshelf.queue.service;
 
+import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.MemberExceptionStatus;
 import com.lifelibrarians.lifebookshelf.interview.domain.Conversation;
 import com.lifelibrarians.lifebookshelf.interview.domain.ConversationType;
 import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,12 +47,14 @@ public class InterviewPersistenceService {
             throw AuthExceptionStatus.MEMBER_NOT_FOUND.toServiceException();
         }
 
+        LocalDateTime now = LocalDateTime.now();
+
         // 2. 인터뷰 질문 저장
         InterviewQuestion question = InterviewQuestion.ofV2(
                 payload.getInterviewQuestion().getQuestionOrder(),
                 payload.getInterviewQuestion().getQuestionText(),
                 payload.getInterviewQuestion().getMaterials(), // material은 임시로 빈 문자열로 설정
-                payload.getInterviewQuestion().getTimestamp(),
+                now,
                 interview
         );
 
@@ -64,11 +68,19 @@ public class InterviewPersistenceService {
                             dto.getContent(),
                             type,
                             interview,
-                            dto.getTimestamp()
+                            now
                     );
                 })
                 .collect(Collectors.toList());
 
         conversationRepository.saveAll(conversations);
+
+        Autobiography autobiography = autobiographyRepository.findById(payload.getAutobiographyId())
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+
+        if (autobiography.getAutobiographyStatus().getStatus() == AutobiographyStatusType.EMPTY) {
+            // 최초 인터뷰 응답이 저장되는 경우, 자서전 상태를 PROGRESSING으로 변경
+            autobiography.getAutobiographyStatus().updateStatusType(AutobiographyStatusType.PROGRESSING, now);
+        }
     }
 }

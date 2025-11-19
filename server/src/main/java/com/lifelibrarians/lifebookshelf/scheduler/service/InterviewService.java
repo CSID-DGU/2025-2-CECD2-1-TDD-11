@@ -53,11 +53,6 @@ public class InterviewService {
                     continue;
                 }
 
-                if (type == AutobiographyStatusType.EMPTY) {
-                    log.debug("[InterviewScheduler] Autobiography Status Type is Empty {}", member.getId());
-                    status.updateStatusType(AutobiographyStatusType.PROGRESSING, now);
-                }
-
                 if (status.getCurrentAutobiography() == null) {
                     log.error("[InterviewScheduler] No autobiography found for member {}", member.getId());
                     continue;
