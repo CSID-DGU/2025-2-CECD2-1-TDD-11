@@ -38,11 +38,11 @@ public class AutobiographyController {
             @ApiResponse(responseCode = "201", description = "created"),
     })
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/init")
+    @PostMapping(value = "/init", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public AutobiographyInitResponseDto initAutobiography(
             @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @Valid@ModelAttribute AutobiographyInitRequestDto requestDto
+            @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
     ) {
         return autobiographyFacadeService.initAutobiography(memberSessionDto.getMemberId(), requestDto);
     }
