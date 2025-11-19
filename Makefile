@@ -20,7 +20,7 @@ clean-server: rm-localstack rm-mariadb clean-gradle
 
 # AI 서버 기본 실행 타겟
 install-ai: copy-config-ai set-virtual-environment
-run-ai: run-redis run-ai-server
+run-ai: run-redis-ai run-ai-server
 stop-ai: stop-redis stop-ai-server
 clean-ai: rm-redis clean-ai-server
 
