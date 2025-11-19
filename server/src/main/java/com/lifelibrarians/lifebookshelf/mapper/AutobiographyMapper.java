@@ -2,6 +2,7 @@ package com.lifelibrarians.lifebookshelf.mapper;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyCurrentResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyPreviewDto;
 import com.lifelibrarians.lifebookshelf.image.service.ImageService;
@@ -40,6 +41,9 @@ public abstract class AutobiographyMapper {
 	@Mapping(source = "id", target = "autobiographyId")
 	@Mapping(source = "coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
 	public abstract AutobiographyDetailResponseDto toAutobiographyDetailResponseDto(Autobiography autobiography);
+
+    @Mapping(source="id", target="autobiographyId")
+    public abstract AutobiographyCurrentResponseDto toAutobiographyCurrentResponseDto(Autobiography autobiography);
 
 	@Named("truncate")
 	String truncateContent(String content) {

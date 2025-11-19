@@ -1,14 +1,19 @@
 package com.lifelibrarians.lifebookshelf.autobiography.service;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyCurrentResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyListResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyPreviewDto;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
+import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import com.lifelibrarians.lifebookshelf.mapper.AutobiographyMapper;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AutobiographyQueryService {
 
 	private final AutobiographyRepository autobiographyRepository;
+    private final AutobiographyStatusRepository autobiographyStatusRepository;
 	private final AutobiographyMapper autobiographyMapper;
 
     public AutobiographyListResponseDto getAutobiographies(Long memberId, Pageable pageable) {
@@ -52,4 +58,15 @@ public class AutobiographyQueryService {
 		}
 		return autobiographyMapper.toAutobiographyDetailResponseDto(autobiography);
 	}
+
+    public AutobiographyCurrentResponseDto getCurrentAutobiography(Long memberId) {
+        AutobiographyStatus status = autobiographyStatusRepository
+                .findTopByMemberIdAndStatusOrderByUpdatedAtDesc(
+                        memberId,
+                        AutobiographyStatusType.PROGRESSING
+                )
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
+
+        return autobiographyMapper.toAutobiographyCurrentResponseDto(status.getCurrentAutobiography());
+    }
 }

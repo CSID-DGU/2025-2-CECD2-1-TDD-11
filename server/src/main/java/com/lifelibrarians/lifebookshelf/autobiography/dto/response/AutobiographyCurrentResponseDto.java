@@ -9,13 +9,9 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @Getter
-@Schema(description = "초기 자서전 id와 Interview id 응답 DTO")
+@Schema(description = "자서전과 최신 interview id")
 @ToString
-public class AutobiographyInitResponseDto {
+public class AutobiographyCurrentResponseDto {
     @Schema(description = "자서전 ID", example = "1")
     private final Long autobiographyId;
-
-    @Schema(description = "인터뷰 ID", example = "1")
-    private final Long interviewId;
-
 }

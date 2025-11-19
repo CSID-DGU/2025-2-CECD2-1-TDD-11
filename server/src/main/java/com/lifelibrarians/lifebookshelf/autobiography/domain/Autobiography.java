@@ -128,7 +128,7 @@ public class Autobiography {
 	/* } 생성자 (V2) */
 
 	/* 업데이트 메서드 (V1) { */
-	public void updateAutoBiography(String title, String content, String preSignedCoverImageUrl,
+	public void updateAutoBiography(String title, String content, String preSignedImageUrl,
 									LocalDateTime now) {
 		if (title != null && !title.isEmpty()) {
 			this.title = title;
@@ -136,8 +136,8 @@ public class Autobiography {
 		if (content != null && !content.isEmpty()) {
 			this.content = content;
 		}
-		if (preSignedCoverImageUrl != null && !preSignedCoverImageUrl.isEmpty()) {
-			this.coverImageUrl = preSignedCoverImageUrl;
+		if (preSignedImageUrl != null && !preSignedImageUrl.isEmpty()) {
+			this.coverImageUrl = preSignedImageUrl;
 		}
 		this.updatedAt = now;
 	}

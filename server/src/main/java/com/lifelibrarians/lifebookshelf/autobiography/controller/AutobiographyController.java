@@ -4,6 +4,7 @@ import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyCurrentResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyListResponseDto;
@@ -102,6 +103,24 @@ public class AutobiographyController {
 	) {
 		autobiographyFacadeService.patchAutobiography(memberSessionDto.getMemberId(), autobiographyId, requestDto);
 	}
+
+    @Operation(summary = "현재 진행중인 자서전 id 조회", description = "자서전 상태가 PROGRESSING인 자서전 중 updatedAt이 가장 최신인 자서전의 id를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/current")
+    public AutobiographyCurrentResponseDto getCurrentAutobiography(
+            @LoginMemberInfo MemberSessionDto memberSessionDto
+    ) {
+        return autobiographyFacadeService.getCurrentAutobiography(memberSessionDto.getMemberId());
+    }
 
 	@Operation(summary = "특정 자서전 삭제 요청", description = "자서전 id로 자서전을 삭제합니다.")
 	@ApiResponses(value = {
