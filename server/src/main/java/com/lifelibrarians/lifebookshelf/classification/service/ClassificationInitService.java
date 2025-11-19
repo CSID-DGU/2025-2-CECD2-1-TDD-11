@@ -77,7 +77,7 @@ public class ClassificationInitService {
 
                         Material material = Material.of(
                                 j + 1, materialName, 0, 0, 0,
-                                Arrays.toString(new int[]{0,0,0,0,0,0}), chunk
+                                Arrays.toString(new int[]{0,0,0,0,0,0}), chunk, null
                         );
                         materialRepository.save(material);
                     }

@@ -61,7 +61,24 @@ public class AutobiographyController {
 		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), PageRequest.of(page, size));
 	}
 
-	@Operation(summary = "특정 자서전 상세 조회", description = "자서전 id로 자서전의 상세 정보를 조회합니다.")
+    @Operation(summary = "특정 자서전에서 count된 소재를 오름차순으로 반환", description = "auto id에 맞는 자서전에서 count 된 모든 소재에서 가 해당 자서전에서 count 된 소재를 count(가중치) 기준 내림차순으로 반환한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{autobiographyId}/materials")
+    @ResponseStatus(HttpStatus.OK)
+    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, PageRequest.of(page, size));
+    }
+
+
+    @Operation(summary = "특정 자서전 상세 조회", description = "자서전 id로 자서전의 상세 정보를 조회합니다.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok"),
 	})

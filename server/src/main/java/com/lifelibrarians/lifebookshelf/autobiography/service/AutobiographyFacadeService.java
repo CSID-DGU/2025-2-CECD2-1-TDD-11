@@ -24,6 +24,10 @@ public class AutobiographyFacadeService {
 		return autobiographyQueryService.getAutobiographies(memberId, pageable);
 	}
 
+    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, Pageable pageable) {
+        return autobiographyQueryService.getAutobiographyMaterials(memberId, autobiographyId, pageable);
+    }
+
 	public AutobiographyDetailResponseDto getAutobiography(Long memberId, Long autobiographyId) {
 		return autobiographyQueryService.getAutobiography(memberId, autobiographyId);
 	}

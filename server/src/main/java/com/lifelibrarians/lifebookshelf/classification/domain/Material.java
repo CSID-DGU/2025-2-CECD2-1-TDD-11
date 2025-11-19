@@ -39,6 +39,9 @@ public class Material {
     private String principle;
     /* } 고유 정보 */
 
+    @Column(nullable = true, name = "image_url")
+    private String imageUrl;
+
     /* 연관 정보 { */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chunk_id", nullable = false)
@@ -49,7 +52,7 @@ public class Material {
     protected Material(Integer order, String name,
                        Integer example, Integer similarEvent,
                        Integer count, String principle,
-                       Chunk chunk) {
+                       Chunk chunk, String imageUrl) {
         this.order = order;
         this.name = name;
         this.example = example;
@@ -57,13 +60,14 @@ public class Material {
         this.count = count;
         this.principle = principle;
         this.chunk = chunk;
+        this.imageUrl = imageUrl;
     }
 
     public static Material of(Integer order, String name,
                               Integer example, Integer similarEvent,
                               Integer count, String principle,
-                              Chunk chunk) {
-        return new Material(order, name, example, similarEvent, count, principle, chunk);
+                              Chunk chunk, String imageUrl) {
+        return new Material(order, name, example, similarEvent, count, principle, chunk, imageUrl);
     }
     /* } 생성자 */
 
