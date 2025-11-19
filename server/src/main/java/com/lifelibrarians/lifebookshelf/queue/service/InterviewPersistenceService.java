@@ -49,7 +49,7 @@ public class InterviewPersistenceService {
         InterviewQuestion question = InterviewQuestion.ofV2(
                 payload.getInterviewQuestion().getQuestionOrder(),
                 payload.getInterviewQuestion().getQuestionText(),
-                "", // material은 임시로 빈 문자열로 설정
+                payload.getInterviewQuestion().getMaterials(), // material은 임시로 빈 문자열로 설정
                 payload.getInterviewQuestion().getTimestamp(),
                 interview
         );

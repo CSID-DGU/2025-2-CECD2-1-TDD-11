@@ -28,5 +28,6 @@ public class InterviewPayloadRequestDto {
         private String questionText;
         private int questionOrder;
         private LocalDateTime timestamp;
+        private String materials;
     }
 }
