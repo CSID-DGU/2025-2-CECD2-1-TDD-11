@@ -3,11 +3,13 @@ package com.lifelibrarians.lifebookshelf.interview.controller;
 import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
+import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionResponseDto;
 
 import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
 
+import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewSummaryOfMonthResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.service.InterviewFacadeService;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +76,24 @@ public class InterviewController {
 		return interviewFacadeService.getQuestions(memberSessionDto.getMemberId(), interviewId);
 	}
 
-
+    @Operation(summary = "특정 날짜의 인터뷰 요약 조회", description = "달-일 별로 summary한 conversations(사용자응답)의 갯수와 요약본을 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            commonExceptionStatuses = {
+                    CommonExceptionStatus.INVALID_YEAR,
+                    CommonExceptionStatus.INVALID_MONTH,
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{autobiographyId}/interviews/summaries")
+    public InterviewSummaryOfMonthResponseDto getInterviewSummaries(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable ("autobiographyId") @Parameter(description = "자서전 ID", example = "1") Long autobiographyId,
+            @RequestParam("year") @Parameter(description = "년도", example = "2024") Integer year,
+            @RequestParam("month") @Parameter(description = "월", example = "12") Integer month
+    ) {
+        return interviewFacadeService.getInterviewSummaries(memberSessionDto.getMemberId(), autobiographyId, year, month);
+    }
 }

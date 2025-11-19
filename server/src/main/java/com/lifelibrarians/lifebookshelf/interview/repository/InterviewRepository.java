@@ -1,6 +1,8 @@
 package com.lifelibrarians.lifebookshelf.interview.repository;
 
 import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
+
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +21,12 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 	Long countByMemberId(@Param("memberId") Long memberId);
 
     Optional<Interview> findTopByAutobiographyIdOrderByCreatedAtDesc(Long autobiographyId);
+
+    // 특정 auto id의 인터뷰 중 특정 년, 월의 모든 인터뷰 조회
+    @Query("SELECT i FROM Interview i WHERE i.autobiography.id = :autobiographyId "
+            + "AND FUNCTION('YEAR', i.createdAt) = :year "
+            + "AND FUNCTION('MONTH', i.createdAt) = :month")
+    List<Interview> findAllByAutobiographyIdAndYearAndMonth(@Param("autobiographyId") Long autobiographyId,
+                                                            @Param("year") Integer year,
+                                                            @Param("month") Integer month);
 }

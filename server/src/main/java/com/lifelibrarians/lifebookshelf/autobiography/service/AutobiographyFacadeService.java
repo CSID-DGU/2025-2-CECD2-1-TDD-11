@@ -2,10 +2,7 @@ package com.lifelibrarians.lifebookshelf.autobiography.service;
 
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyCurrentResponseDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyListResponseDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
