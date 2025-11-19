@@ -33,5 +33,6 @@ public interface InterviewMapper {
 	);
 
 	@Mapping(source = "interviewQuestion.id", target = "questionId")
-	InterviewQuestionDto toInterviewQuestionDto(InterviewQuestion interviewQuestion);
+    @Mapping(source = "interviewQuestion.question_order", target = "questionOrder")
+    InterviewQuestionDto toInterviewQuestionDto(InterviewQuestion interviewQuestion);
 }
