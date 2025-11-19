@@ -33,39 +33,39 @@ public class InterviewService {
 
         for (Member member : allMembers) {
             // 멤버의 자서전 상태 조회
-            Optional<AutobiographyStatus> optionalStatus =
+            List<AutobiographyStatus> statusList =
                     autobiographyStatusRepository.findByMemberId(member.getId());
 
-            if (optionalStatus.isEmpty()) {
+            if (statusList.isEmpty()) {
                 log.warn("[InterviewScheduler] No AutobiographyStatus for member {}", member.getId());
                 continue; // 다음 member로 넘어감
             }
 
-            AutobiographyStatus status = optionalStatus.get();
+            for (AutobiographyStatus status : statusList) {
+                // creating / finish 상태 제외
+                AutobiographyStatusType type = status.getStatus();
 
-            // creating / finish 상태 제외
-            AutobiographyStatusType type = status.getStatus();
+                // creating, finish 제외
+                if (type == AutobiographyStatusType.CREATING ||
+                        type == AutobiographyStatusType.FINISH) {
+                    continue;
+                }
 
-            // creating, finish 제외
-            if (type == AutobiographyStatusType.CREATING ||
-                    type == AutobiographyStatusType.FINISH) {
-                continue;
+                if (status.getCurrentAutobiography() == null) {
+                    log.error("[InterviewScheduler] No autobiography found for member {}", member.getId());
+                    continue;
+                }
+
+                Interview interview = Interview.ofV2(
+                        LocalDateTime.now(),
+                        status.getCurrentAutobiography(),
+                        member,
+                        null         // summary
+                );
+
+                interviewRepository.save(interview);
+                log.info("[InterviewScheduler] Interview created for member {}", member.getId());
             }
-
-            if (status.getCurrentAutobiography() == null) {
-                log.error("[InterviewScheduler] No autobiography found for member {}", member.getId());
-                continue;
-            }
-
-            Interview interview = Interview.ofV2(
-                    LocalDateTime.now(),
-                    status.getCurrentAutobiography(),
-                    member,
-                    null         // summary
-            );
-
-            interviewRepository.save(interview);
-            log.info("[InterviewScheduler] Interview created for member {}", member.getId());
         }
     }
 }

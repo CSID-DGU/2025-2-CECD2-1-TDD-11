@@ -1,6 +1,7 @@
 package com.lifelibrarians.lifebookshelf.member.domain;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.community.book.domain.Book;
 import com.lifelibrarians.lifebookshelf.chapter.domain.Chapter;
 import com.lifelibrarians.lifebookshelf.chapter.domain.ChapterStatus;
@@ -113,6 +114,11 @@ public class Member {
 	@JoinColumn(name = "password_member_id", unique = true)
 	private PasswordMember passwordMember;
 	/* } 연관 정보 */
+    /* { V2 정보 */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member", unique = true)
+    private AutobiographyStatus memberAutobiographyStatus;
+    /* } V2 정보 */
 
 	/* 생성자 (V1) { */
 	@Deprecated
