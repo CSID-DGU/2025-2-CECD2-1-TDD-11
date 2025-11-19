@@ -61,7 +61,7 @@ nohup python -m uvicorn main:app \
   --env-file "$ENV_FILE" \
   --port "$PORT" \
   --reload \
-  --log-level info \
+  --log-level debug \
   > "$LOG_FILE" 2>&1 &
 
 AI_PID=$!
