@@ -1,5 +1,6 @@
 package com.lifelibrarians.lifebookshelf.member.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lifelibrarians.lifebookshelf.member.domain.GenderType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,5 @@ public class MemberBasicResponseDto {
 	private final String ageGroup;
 
 	@Schema(description = "온보딩 완료 여부", example = "true")
-	private final boolean isSuccessed;
+	private final boolean successed;
 }

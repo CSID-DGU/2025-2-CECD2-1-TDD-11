@@ -29,7 +29,7 @@ public class MemberQueryService {
 				.gender(memberMetadata.getGender())
 				.occupation(memberMetadata.getOccupation())
 				.ageGroup(memberMetadata.getAgeGroup())
-				.isSuccessed(isSuccessed)
+				.successed(isSuccessed)
 				.build();
 	}
 }
