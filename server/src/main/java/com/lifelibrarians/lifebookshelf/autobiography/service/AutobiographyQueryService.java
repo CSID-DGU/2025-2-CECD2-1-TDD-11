@@ -118,4 +118,20 @@ public class AutobiographyQueryService {
                 .isLast(page.isLast())
                 .build();
     }
+
+    public AutobiographyProgressResponseDto getAutobiographyProgress(Long memberId, Long autobiographyId) {
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+        if (!autobiography.getMember().getId().equals(memberId)) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
+        }
+
+        // 자서전 진행 상태 progress 반환
+        // TODO: 실제 진행 상태 계산 로직 구현 필요
+        float progress = 0.0f;
+
+        return AutobiographyProgressResponseDto.builder()
+                .progressPercentage(progress)
+                .build();
+    }
 }

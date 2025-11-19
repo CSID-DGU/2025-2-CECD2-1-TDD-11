@@ -36,6 +36,10 @@ public class AutobiographyFacadeService {
         return autobiographyQueryService.getCurrentAutobiography(memberId);
     }
 
+    public AutobiographyProgressResponseDto getAutobiographyProgress(Long memberId, Long autobiographyId) {
+        return autobiographyQueryService.getAutobiographyProgress(memberId, autobiographyId);
+    }
+
 	public void patchAutobiography(Long memberId, Long autobiographyId, AutobiographyUpdateRequestDto requestDto) {
 		autobiographyCommandService.patchAutobiography(memberId, autobiographyId, requestDto);
 	}

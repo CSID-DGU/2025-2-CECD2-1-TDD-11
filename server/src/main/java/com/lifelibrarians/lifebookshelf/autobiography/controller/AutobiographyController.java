@@ -90,6 +90,7 @@ public class AutobiographyController {
 	)
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/{autobiographyId}")
+    @ResponseStatus(HttpStatus.OK)
 	public AutobiographyDetailResponseDto getAutobiography(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
 			@PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
@@ -132,6 +133,7 @@ public class AutobiographyController {
     )
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/{autobiographyId}/reason", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK)
     public void updateReasonAutobiography(
             @LoginMemberInfo MemberSessionDto memberSessionDto,
             @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
@@ -151,6 +153,7 @@ public class AutobiographyController {
             }
     )
     @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/current")
     public AutobiographyCurrentResponseDto getCurrentAutobiography(
             @LoginMemberInfo MemberSessionDto memberSessionDto
@@ -176,5 +179,25 @@ public class AutobiographyController {
 	) {
 		autobiographyFacadeService.deleteAutobiography(memberSessionDto.getMemberId(), autobiographyId);
 	}
+
+    @Operation(summary = "현재 진행 중인 자서전 인터뷰 진행률 조회", description = "auto id를 서버에서 찾아서 진행률 퍼센트를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{autobiographyId}/progress")
+    public AutobiographyProgressResponseDto getAutobiographyProgress(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+    ) {
+        return autobiographyFacadeService.getAutobiographyProgress(memberSessionDto.getMemberId(), autobiographyId);
+    }
 }
 
