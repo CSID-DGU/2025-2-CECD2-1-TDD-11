@@ -32,7 +32,7 @@ public interface InterviewMapper {
 	);
 
 	@Mapping(source = "interviewQuestion.id", target = "questionId")
-    @Mapping(source = "interviewQuestion.question_order", target = "questionOrder")
+    @Mapping(source = "interviewQuestion.questionOrder", target = "questionOrder")
     InterviewQuestionDto toInterviewQuestionDto(InterviewQuestion interviewQuestion);
 
     @Mapping(source = "interview.id", target = "id")

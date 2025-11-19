@@ -22,20 +22,11 @@ public class InterviewFacadeService {
 	/*-----------------------------------------READ-----------------------------------------*/
 	public InterviewConversationResponseDto getConversations(Long memberId, Long interviewId,
 			Pageable pageable) {
-		Interview interview = interviewQueryService.getInterview(interviewId);
-		if (!interview.getMember().getId().equals(memberId)) {
-			throw InterviewExceptionStatus.INTERVIEW_NOT_OWNER.toServiceException();
-		}
-		return interviewQueryService.getConversations(interview, pageable);
+		return interviewQueryService.getConversations(memberId, interviewId, pageable);
 	}
 
 	public InterviewQuestionResponseDto getQuestions(Long memberId, Long interviewId) {
-		Interview interview = interviewQueryService.getInterview(interviewId);
-		if (!interview.getMember().getId().equals(memberId)) {
-			throw InterviewExceptionStatus.INTERVIEW_NOT_OWNER.toServiceException();
-		}
-		return interviewQueryService.getQuestions(interview.getQuestions(),
-				interview.getCurrentQuestion());
+		return interviewQueryService.getQuestions(memberId, interviewId);
 	}
 
     public InterviewSummaryOfMonthResponseDto getInterviewSummaries(Long memberId, Long autobiographyId, Integer year, Integer month) {

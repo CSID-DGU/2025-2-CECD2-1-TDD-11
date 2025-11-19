@@ -21,7 +21,7 @@ public class InterviewQuestion {
 	private Long id;
 
 	@Column(name = "question_order", nullable = false)
-	private Integer question_order;
+	private Integer questionOrder;
 
 	@Lob
 	@Column(nullable = false)
@@ -44,35 +44,35 @@ public class InterviewQuestion {
 
 	/* 생성자 (V1) { */
 	protected InterviewQuestion(
-			Integer question_order,
+			Integer questionOrder,
 			String questionText,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		this.question_order = question_order;
+		this.questionOrder = questionOrder;
 		this.questionText = questionText;
 		this.createdAt = createdAt;
 		this.interview = interview;
 	}
 	public static InterviewQuestion of(
-			Integer question_order,
+			Integer questionOrder,
 			String questionText,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		return new InterviewQuestion(question_order, questionText, createdAt, interview);
+		return new InterviewQuestion(questionOrder, questionText, createdAt, interview);
 	}
 	/* } 생성자 (V1) */
 
 	/* 생성자 (V2) { */
 	protected InterviewQuestion(
-			Integer question_order,
+			Integer questionOrder,
 			String questionText,
 			String materials,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		this.question_order = question_order;
+		this.questionOrder = questionOrder;
 		this.questionText = questionText;
 		this.materials = materials;
 		this.createdAt = createdAt;
@@ -80,13 +80,13 @@ public class InterviewQuestion {
 	}
 
 	public static InterviewQuestion ofV2(
-			Integer question_order,
+			Integer questionOrder,
 			String questionText,
 			String materials,
 			LocalDateTime createdAt,
 			Interview interview
 	) {
-		return new InterviewQuestion(question_order, questionText, materials, createdAt, interview);
+		return new InterviewQuestion(questionOrder, questionText, materials, createdAt, interview);
 	}
 	/* } 생성자 (V2) */
 
@@ -96,7 +96,7 @@ public class InterviewQuestion {
 		this.interview = interview;
 	}
 
-	/**
+    /**
 	 * V2: materials 갱신
 	 */
 	public void updateMaterialsV2(String materials) {
