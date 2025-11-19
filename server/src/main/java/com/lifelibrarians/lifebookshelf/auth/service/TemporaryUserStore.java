@@ -1,30 +1,39 @@
 package com.lifelibrarians.lifebookshelf.auth.service;
 
 import com.lifelibrarians.lifebookshelf.auth.domain.TemporaryUser;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+@Service
+@Log4j2
 public class TemporaryUserStore {
-	private final Map<String, TemporaryUser> store = new ConcurrentHashMap<>();
+    private final RedisTemplate<String, TemporaryUser> redisTemplate;
 
-	public void save(String email, TemporaryUser temporaryUser) {
-		store.put(email, temporaryUser);
-	}
+    public TemporaryUserStore(
+            @Qualifier("temporaryUserRedisTemplate")
+            RedisTemplate<String, TemporaryUser> redisTemplate
+    ) {
+        this.redisTemplate = redisTemplate;
+    }
 
-	public Optional<TemporaryUser> find(String email) {
-		TemporaryUser user = store.get(email);
-		if (user != null && user.isExpired()) {
-			store.remove(email);
-			return Optional.empty();
-		}
-		return Optional.ofNullable(user);
-	}
+    private final String PREFIX = "temp-user:";
 
-	public void remove(String email) {
-		store.remove(email);
-	}
+    public void save(String email, TemporaryUser user) {
+        redisTemplate.opsForValue().set(PREFIX + email, user, Duration.ofMinutes(5));
+    }
+
+    public Optional<TemporaryUser> find(String email) {
+        TemporaryUser user = redisTemplate.opsForValue().get(PREFIX + email);
+        return Optional.ofNullable(user);
+    }
+
+    public void remove(String email) {
+        redisTemplate.delete(PREFIX + email);
+    }
 }

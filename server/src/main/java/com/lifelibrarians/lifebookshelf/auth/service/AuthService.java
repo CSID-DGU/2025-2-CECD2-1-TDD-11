@@ -7,6 +7,7 @@ import com.lifelibrarians.lifebookshelf.auth.dto.JwtLoginTokenDto;
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.auth.jwt.JwtTokenProvider;
 import com.lifelibrarians.lifebookshelf.log.Logging;
+import lombok.extern.log4j.Log4j2;
 import com.lifelibrarians.lifebookshelf.member.domain.LoginType;
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import com.lifelibrarians.lifebookshelf.member.domain.MemberRole;
@@ -28,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Logging
+@Log4j2
 @Transactional
 public class AuthService {
 
@@ -51,6 +52,8 @@ public class AuthService {
 		}
 
 		String code = generateVerificationCode();
+        emailService.sendVerificationCode(requestDto.getEmail(), code);
+
 		TemporaryUser temporaryUser = TemporaryUser.builder()
 				.email(requestDto.getEmail())
 				.password(requestDto.getPassword())
@@ -58,18 +61,28 @@ public class AuthService {
 				.expiresAt(LocalDateTime.now().plusMinutes(5))
 				.build();
 		temporaryUserStore.save(requestDto.getEmail(), temporaryUser);
-		emailService.sendVerificationCode(requestDto.getEmail(), code);
 	}
 
 	public void verifyEmail(String email, String code) {
-		TemporaryUser temporaryUser = temporaryUserStore.find(email)
-				.orElseThrow(AuthExceptionStatus.INVALID_AUTH_CODE::toServiceException);
+        log.info("[VERIFY_EMAIL] 이메일 인증 시도 - email: {}, code: {}", email, code);
 
-		if (!temporaryUser.matchCode(code)) {
-			throw AuthExceptionStatus.INVALID_AUTH_CODE.toServiceException();
-		}
+        Optional<TemporaryUser> optionalUser = temporaryUserStore.find(email);
+        if (optionalUser.isEmpty()) {
+            log.warn("[VERIFY_EMAIL] 인증 실패 - 해당 이메일에 대한 임시 사용자 없음 (email: {})", email);
+            throw AuthExceptionStatus.NOT_FOUND_EMAIL.toServiceException();
+        }
 
-		LocalDateTime now = LocalDateTime.now();
+        TemporaryUser temporaryUser = optionalUser.get();
+        log.info("[VERIFY_EMAIL] 임시 사용자 로드 성공 - user: {}", temporaryUser);
+
+        if (!temporaryUser.matchCode(code)) {
+            log.warn("[VERIFY_EMAIL] 인증 코드 불일치 - 입력: {}, 기대값: {}", code, temporaryUser.getCode());
+            throw AuthExceptionStatus.INVALID_AUTH_CODE.toServiceException();
+        }
+
+        log.info("[VERIFY_EMAIL] 인증 코드 일치 - 임시 계정으로 회원 생성 진행");
+
+        LocalDateTime now = LocalDateTime.now();
 		PasswordMember passwordMember = PasswordMember.of(temporaryUser.getPassword());
 		passwordMemberRepository.save(passwordMember);
 		Member member = Member.of(
