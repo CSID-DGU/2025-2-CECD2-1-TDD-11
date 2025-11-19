@@ -72,6 +72,9 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly 'com.h2database:h2'
 
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // queue
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
