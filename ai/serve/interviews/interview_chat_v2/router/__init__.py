@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from ..dto import InterviewChatV2RequestDto, InterviewChatV2ResponseDto, SessionStartRequestDto, SessionStartResponseDto, SessionEndRequestDto, SessionEndResponseDto
-from queue import publish_persistence_message
+from stream import publish_persistence_message
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
@@ -10,7 +10,7 @@ from auth import AuthRequired
 import sys
 import os
 from pathlib import Path
-from ...queue.dto import Conversation, InterviewQuestion, InterviewPayload
+from stream.dto import Conversation, InterviewQuestion, InterviewPayload
 
 # flow 경로 추가
 current_dir = Path(__file__).parent.parent.parent.parent.parent
