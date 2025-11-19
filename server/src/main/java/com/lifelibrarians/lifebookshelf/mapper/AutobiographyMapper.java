@@ -39,7 +39,6 @@ public abstract class AutobiographyMapper {
 	// 오버로드된 메서드 - interviewId 없이 사용
 	@Mapping(source = "id", target = "autobiographyId")
 	@Mapping(source = "coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
-	@Mapping(target = "interviewId", expression = "java(autobiography.getAutobiographyInterviews() != null && !autobiography.getAutobiographyInterviews().isEmpty() ? autobiography.getAutobiographyInterviews().get(0).getId() : null)")
 	public abstract AutobiographyDetailResponseDto toAutobiographyDetailResponseDto(Autobiography autobiography);
 
 	@Named("truncate")

@@ -50,7 +50,6 @@ public class AutobiographyQueryService {
 		if (!autobiography.getMember().getId().equals(memberId)) {
 			throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
 		}
-		return autobiographyMapper.toAutobiographyDetailResponseDto(autobiography,
-				autobiography.getAutobiographyInterviews().get(0).getId());
+		return autobiographyMapper.toAutobiographyDetailResponseDto(autobiography);
 	}
 }

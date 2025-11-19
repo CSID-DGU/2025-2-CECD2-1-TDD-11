@@ -17,9 +17,6 @@ public class AutobiographyDetailResponseDto {
 	@Schema(description = "자서전 ID", example = "1")
 	private final Long autobiographyId;
 
-	@Schema(description = "인터뷰 ID", example = "1")
-	private final Long interviewId;
-
 	@Schema(description = "자서전 제목", example = "My Early Life")
 	private final String title;
 
