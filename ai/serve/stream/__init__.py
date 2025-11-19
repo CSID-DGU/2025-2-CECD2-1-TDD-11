@@ -31,11 +31,11 @@ def publish_persistence_message(payload: InterviewPayload):
     logger.info("Successfully connected to persistence queue.")
 
     # 순수 json은 불가능, pydantic 모델을 dict로 변환 후 json으로 직렬화
-    body = json.dumps(payload.model_dump())
+    body = payload.model_dump_json()
 
     channel.basic_publish(
         exchange='ai.request.exchange',
-        routing_key='persist',
+        routing_key='ai.persistence',
         body=body,
         properties=pika.BasicProperties(
             content_type="application/json",
@@ -66,11 +66,11 @@ def publish_categories_message(payload: CategoriesPayload):
     logger.info("Successfully connected to categories queue.")
 
     # 순수 json은 불가능, pydantic 모델을 dict로 변환 후 json으로 직렬화
-    body = json.dumps(payload.model_dump())
+    body = payload.model_dump_json()
     
     channel.basic_publish(
         exchange='ai.request.exchange',
-        routing_key='persist',
+        routing_key='ai.persistence',
         body=body,
         properties=pika.BasicProperties(
             content_type="application/json",

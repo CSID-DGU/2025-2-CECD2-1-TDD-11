@@ -13,6 +13,7 @@ class InterviewQuestion(BaseModel):
     questionText: str
     questionOrder: int
     timestamp: datetime
+    materials: Optional[str] = ""
 
 class InterviewPayload(BaseModel):
     autobiographyId: int

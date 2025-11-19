@@ -15,6 +15,13 @@ sys.path.insert(0, parent_dir)
 from engine.core import InterviewEngine
 from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories_state
 from engine.generators import generate_first_question, generate_question_llm
+import redis
+
+# 임시 함수 정의
+def publish_delta_change(**kwargs):
+    """임시 함수 - 실제 구현 필요"""
+    print(f"[DEBUG] publish_delta_change called with: {kwargs}")
+    pass
 
 
 # ------------------------ 간단 헬퍼 ------------------------
@@ -212,28 +219,65 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                 axes = axes_analysis_by_material.get(matched_materials[i], {})
                 axes_data = axes.get("axes", {}) if isinstance(axes, dict) else {}
 
-                # principle (6W)
+                # ========== PRINCIPLE 증가 부분 (6W 축) ==========
+                # principle (6W) - 각 축별로 0에서 1로 변경될 때 증가
                 if isinstance(axes_data.get("principle"), list) and len(axes_data["principle"]) == 6:
+                    principle_delta = [0,0,0,0,0,0]
                     for j, detected in enumerate(axes_data["principle"]):
-                        if detected == 1:
-                            material.principle[j] = 1
+                        if detected == 1 and material.principle[j] == 0:  # 0→1 변화만 감지
+                            material.principle[j] = 1  # ★ PRINCIPLE 증가 지점
+                            principle_delta[j] = 1
                 else:
-                    # 휴리스틱 보조
+                    # 휴리스틱 보조 - LLM이 축 정보를 제공하지 않을 때
+                    principle_delta = [0,0,0,0,0,0]
                     for j, detected in enumerate(axes_evidence.values()):
-                        if detected and j < 6:
-                            material.principle[j] = 1
+                        if detected and j < 6 and material.principle[j] == 0:  # 0→1 변화만 감지
+                            material.principle[j] = 1  # ★ PRINCIPLE 증가 지점 (휴리스틱)
+                            principle_delta[j] = 1
 
-                # example / similar_event
-                if axes_data.get("example") == 1 or ex_flag:
-                    material.example = 1
-                if axes_data.get("similar_event") == 1 or con_flag:
-                    material.similar_event = 1
+                # ========== EXAMPLE 증가 부분 ==========
+                example_delta = 0
+                if (axes_data.get("example") == 1 or ex_flag) and material.example == 0:  # 0→1 변화만 감지
+                    material.example = 1  # ★ EXAMPLE 증가 지점
+                    example_delta = 1
+                    
+                # ========== SIMILAR_EVENT 증가 부분 ==========
+                similar_event_delta = 0
+                if (axes_data.get("similar_event") == 1 or con_flag) and material.similar_event == 0:  # 0→1 변화만 감지
+                    material.similar_event = 1  # ★ SIMILAR_EVENT 증가 지점
+                    similar_event_delta = 1
 
-                # 카테고리 가중치, 상태 갱신
+                # material 변경사항 발행
+                if any(principle_delta) or example_delta or similar_event_delta:
+                    publish_delta_change(
+                        user_id=session_data.get("user_id"),
+                        autobiography_id=session_data.get("autobiography_id"), 
+                        cat_num=cat_num,
+                        chunk_num=chunk_num,
+                        material_order=material.order,
+                        change_type="material_update",
+                        principle_delta=principle_delta,
+                        example_delta=example_delta,
+                        similar_event_delta=similar_event_delta
+                    )
+
+                # ========== CHUNK WEIGHT 증가 부분 ==========
                 category = engine.categories[cat_num]
                 old_weight = category.chunk_weight.get(chunk_num, 0)
-                category.chunk_weight[chunk_num] = old_weight + 1
-                material.mark_filled_if_ready()
+                category.chunk_weight[chunk_num] = old_weight + 1  # ★ CHUNK WEIGHT 증가 지점 (+1씩 누적)
+                
+                # chunk weight 증가 발행
+                publish_delta_change(
+                    user_id=session_data.get("user_id"),
+                    autobiography_id=session_data.get("autobiography_id"),
+                    cat_num=cat_num,
+                    chunk_num=chunk_num,
+                    material_order=None,
+                    change_type="chunk_weight"
+                )
+                
+                # ========== MATERIAL COUNT 증가 부분 ==========
+                material.mark_filled_if_ready()  # ★ 이 함수 내부에서 MATERIAL COUNT가 0→1로 변경됨
 
         same_material = (current_material in matched_materials) if current_material else False
         print(f"\n🔍 [소재 매칭] {current_material} → {matched_materials} (동일:{same_material})")
@@ -331,6 +375,9 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                     })
             return result
 
+        # 이전 상태 저장
+        previous_categories = metrics.get("categories", [])
+        
         updated_metrics = {
             "session_id": sessionId,
             "categories": serialize_categories(engine.categories),
@@ -342,6 +389,65 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             "asked_total": metrics.get("asked_total", 0) + 1,
             "policy_version": "v2.0.0"
         }
+        
+        # Delta 계산 및 발행
+        try:
+            from datetime import datetime, timezone
+            serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
+            sys.path.insert(0, serve_dir)
+            from stream import publish_persistence_message
+            from stream.dto import ChunksPayload, MaterialsPayload, CategoriesPayload
+            
+            now = datetime.now(timezone.utc)
+            prev_cats = {c["category_num"]: c for c in previous_categories}
+            
+            for curr_cat in updated_metrics["categories"]:
+                cat_num = curr_cat["category_num"]
+                prev_cat = prev_cats.get(cat_num, {})
+                prev_chunks = {c["chunk_num"]: c for c in prev_cat.get("chunks", [])}
+                chunks_deltas = []
+                materials_deltas = []
+                
+                for curr_chunk in curr_cat["chunks"]:
+                    chunk_num = curr_chunk["chunk_num"]
+                    prev_chunk = prev_chunks.get(chunk_num, {})
+                    
+                    # chunk weight 변화
+                    prev_weight = prev_chunk.get("chunk_weight", {}).get(str(chunk_num), 0) if prev_chunk else 0
+                    curr_weight = curr_cat["chunk_weight"].get(str(chunk_num), 0)
+                    
+                    if curr_weight > prev_weight:
+                        chunks_deltas.append(ChunksPayload(
+                            categoryId=cat_num, chunkOrder=chunk_num,
+                            weight=curr_weight - prev_weight, timestamp=now
+                        ))
+                    
+                    # material 변화
+                    prev_materials = {m["order"]: m for m in prev_chunk.get("materials", [])}
+                    for curr_mat in curr_chunk["materials"]:
+                        mat_order = curr_mat["order"]
+                        prev_mat = prev_materials.get(mat_order, {})
+                        
+                        principle_delta = [curr_mat["principle"][i] - prev_mat.get("principle", [0,0,0,0,0,0])[i] for i in range(6)]
+                        example_delta = curr_mat["example"] - prev_mat.get("example", 0)
+                        similar_event_delta = curr_mat["similar_event"] - prev_mat.get("similar_event", 0)
+                        count_delta = curr_mat["count"] - prev_mat.get("count", 0)
+                        
+                        if any(principle_delta) or example_delta or similar_event_delta or count_delta:
+                            materials_deltas.append(MaterialsPayload(
+                                chunkId=chunk_num, materialOrder=mat_order,
+                                example=example_delta, similarEvent=similar_event_delta,
+                                count=count_delta, principle=principle_delta, timestamp=now
+                            ))
+                
+                if chunks_deltas or materials_deltas:
+                    publish_persistence_message(CategoriesPayload(
+                        autobiographyId=str(session_data.get("metrics", {}).get("autobiography_id")),
+                        userId=str(session_data.get("metrics", {}).get("user_id")),
+                        categoryId=cat_num, chunks=chunks_deltas, materials=materials_deltas
+                    ))
+        except Exception as e:
+            print(f"[WARN] Delta 발행 실패: {e}")
 
         session_update = {
             "metrics": updated_metrics,
