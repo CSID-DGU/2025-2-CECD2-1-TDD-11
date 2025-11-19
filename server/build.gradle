@@ -71,6 +71,9 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly 'com.h2database:h2'
+
+    // queue
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 test {

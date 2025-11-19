@@ -17,4 +17,6 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 	// 특정 멤버의 인터뷰 개수 조회
 	@Query("SELECT COUNT(i) FROM Interview i WHERE i.member.id = :memberId")
 	Long countByMemberId(@Param("memberId") Long memberId);
+
+    Optional<Interview> findTopByAutobiographyIdOrderByCreatedAtDesc(Long autobiographyId);
 }

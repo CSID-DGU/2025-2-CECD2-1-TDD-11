@@ -24,6 +24,11 @@ spring:
         format_sql: true
         show_sql: true
         dialect: org.hibernate.dialect.MariaDBDialect
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: talktobook
+    password: talktobook_password
 
 cloud:
   aws:
