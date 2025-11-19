@@ -1,13 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from ..dto import InterviewChatV2RequestDto, InterviewChatV2ResponseDto, SessionStartRequestDto, SessionStartResponseDto, SessionEndRequestDto, SessionEndResponseDto
+from publish_persistence_message import publish_persistence_message
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from session_manager import SessionManager
+from datetime import datetime, timezone
 from auth import AuthRequired
 import sys
 import os
 from pathlib import Path
+from ...queue.dto import Conversation, InterviewQuestion, InterviewPayload
 
 # flow 경로 추가
 current_dir = Path(__file__).parent.parent.parent.parent.parent
@@ -27,6 +30,8 @@ flow = load_flow(str(flow_path))
 async def start_session(http_request: Request, autobiography_id: int, request: SessionStartRequestDto):
     """세션 시작"""
     try:
+        now = datetime.now(timezone.utc)
+        
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
@@ -65,6 +70,29 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
                 last_question=first_question
             )
         
+        # queue publish 용 데이터 세팅
+        question = InterviewQuestion(
+            questionText=first_question,
+            questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
+            timestamp=now
+        )
+        
+        ai_conversation = Conversation(
+            content=first_question,
+            conversationType="BOT",
+            timestamp=now
+        )
+        
+        payload = InterviewPayload(
+            autobiographyId=autobiography_id,
+            userId=user_id,
+            conversation=[ai_conversation],
+            interviewQuestion=question
+        )
+        
+        # queue에 메시지 발행
+        publish_persistence_message(payload)
+        
         return SessionStartResponseDto(
             first_question=first_question
         )
@@ -76,6 +104,9 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
 async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
+        # 현재 시간 UTC로 설정
+        now = datetime.now(timezone.utc)
+        
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
@@ -88,16 +119,57 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         if not session_data:
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
+        # flow 실행 전 metrics 저장
+        previous_metrics = session_data.get("metrics", {})
+        
         # 다음 질문 생성
         result = flow(
             sessionId=session_key,
             answer_text=request.answer_text
         )
         
+        # flow 실행 후 metrics 로드
+        updated_session_data = session_manager.load_session(session_key)
+        current_metrics = updated_session_data.get("metrics", {})
+        
+        # 증가 폭 계산
+        deltas = calculate_metrics_delta(previous_metrics, current_metrics, user_id, autobiography_id)
+        
+        # 변경된 부분만 queue에 발행
+        for delta in deltas:
+            publish_persistence_message(delta)
+        
         next_question = result.get("next_question")
         last_answer_materials_id = result.get("last_answer_materials_id", [])
         
-        # Flow에서 Redis에 직접 업데이트하므로 별도 저장 불필요
+        # queue publish 용 데이터 세팅
+        question = InterviewQuestion(
+            questionText=next_question,
+            questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
+            timestamp=now
+        )
+        
+        human_conversation = Conversation(
+            content=request.answer_text,
+            conversationType="HUMAN",
+            timestamp=now
+        )
+        
+        ai_conversation = Conversation(
+            content=next_question,
+            conversationType="BOT",
+            timestamp=now
+        )
+        
+        payload = InterviewPayload(
+            autobiographyId=autobiography_id,
+            userId=user_id,
+            conversation=[human_conversation, ai_conversation],
+            interviewQuestion=question
+        )
+        
+        # queue에 메시지 발행
+        publish_persistence_message(payload)
         
         return InterviewChatV2ResponseDto(next_question=next_question, last_answer_materials_id=last_answer_materials_id)
         

@@ -15,10 +15,10 @@ class InterviewQuestion(BaseModel):
     timestamp: datetime
 
 class InterviewPayload(BaseModel):
-    interviewId: int
+    autobiographyId: int
     userId: int
-    conversation: Conversation
-    interviewQuestion: InterviewQuestion
+    conversation: Optional[list[Conversation]] = []
+    interviewQuestion: Optional[InterviewQuestion]
 
 # Categories와 하위 데이터들에 대한 payload 정의
 

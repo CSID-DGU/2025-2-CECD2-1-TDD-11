@@ -3,11 +3,12 @@ import json
 import pika
 import os
 from logs import get_logger
+from payload_models import (InterviewPayload,CategoriesPayload)
 
 logger = get_logger()
 
 
-def publish_persistence_message(payload: dict):
+def publish_persistence_message(payload: InterviewPayload):
     """
     interview에 대한 응답 메시지를 publish하는 함수.
     """
@@ -29,10 +30,13 @@ def publish_persistence_message(payload: dict):
     channel = connection.channel()
     logger.info("Successfully connected to persistence queue.")
 
+    # 순수 json은 불가능, pydantic 모델을 dict로 변환 후 json으로 직렬화
+    body = json.dumps(payload.model_dump())
+
     channel.basic_publish(
         exchange='ai.request.exchange',
         routing_key='persist',
-        body=json.dumps(payload),
+        body=body,
         properties=pika.BasicProperties(
             content_type="application/json",
             delivery_mode=2  # persistent
@@ -41,7 +45,7 @@ def publish_persistence_message(payload: dict):
 
     connection.close()
     
-def publish_categories_message(payload: dict):
+def publish_categories_message(payload: CategoriesPayload):
     """
     autobiography에 대한 categories, chunks, materials 변경 사항 메시지를 publish하는 함수.
     """
@@ -61,10 +65,13 @@ def publish_categories_message(payload: dict):
     channel = connection.channel()
     logger.info("Successfully connected to categories queue.")
 
+    # 순수 json은 불가능, pydantic 모델을 dict로 변환 후 json으로 직렬화
+    body = json.dumps(payload.model_dump())
+    
     channel.basic_publish(
         exchange='ai.request.exchange',
         routing_key='persist',
-        body=json.dumps(payload),
+        body=body,
         properties=pika.BasicProperties(
             content_type="application/json",
             delivery_mode=2  # persistent
