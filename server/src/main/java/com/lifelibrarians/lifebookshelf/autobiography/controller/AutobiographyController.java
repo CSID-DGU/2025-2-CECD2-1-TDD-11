@@ -102,6 +102,27 @@ public class AutobiographyController {
 		autobiographyFacadeService.patchAutobiography(memberSessionDto.getMemberId(), autobiographyId, requestDto);
 	}
 
+    @Operation(summary = "특정 자서전의 생성 이유 수정 요청", description = "자서전 id로 자서전의 reason를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_REASON_LENGTH_EXCEEDED
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping(value = "/{autobiographyId}/reason", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void updateReasonAutobiography(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+            @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
+    ) {
+        autobiographyFacadeService.patchReasonAutobiography(memberSessionDto.getMemberId(), autobiographyId, requestDto);
+    }
+
     @Operation(summary = "현재 진행중인 자서전 id 조회", description = "자서전 상태가 PROGRESSING인 자서전 중 updatedAt이 가장 최신인 자서전의 id를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "ok"),

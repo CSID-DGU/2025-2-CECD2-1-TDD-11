@@ -49,7 +49,7 @@ public class AutobiographyCommandService {
         LocalDateTime now = LocalDateTime.now();
 
         if (requestDto.getReason() != null && requestDto.getReason().length() > 500) {
-            throw AutobiographyExceptionStatus.REASON_LENGTH_EXCEEDED.toServiceException();
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_REASON_LENGTH_EXCEEDED.toServiceException();
         }
 
         Autobiography autobiography = Autobiography.ofV2(
@@ -107,7 +107,24 @@ public class AutobiographyCommandService {
 		autobiography.updateAutoBiography(requestDto.getTitle(), requestDto.getContent(), preSignedImageUrl, LocalDateTime.now());
 	}
 
-	public void deleteAutobiography(Long memberId, Long autobiographyId) {
+    public void patchReasonAutobiography(Long memberId, Long autobiographyId, AutobiographyInitRequestDto requestDto) {
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+        if (!autobiography.getMember().getId().equals(memberId)) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
+        }
+
+        if (requestDto.getReason() != null && requestDto.getReason().length() > 500) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_REASON_LENGTH_EXCEEDED.toServiceException();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        autobiography.updateAutoBiographyV2(autobiography.getTitle(), autobiography.getContent(), autobiography.getCoverImageUrl(), autobiography.getTheme(), requestDto.getReason(), now);
+    }
+
+
+    public void deleteAutobiography(Long memberId, Long autobiographyId) {
 		Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
 				.orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
 		if (!autobiography.getMember().getId().equals(memberId)) {
