@@ -42,6 +42,20 @@ copy-config:
 run-springboot:
 	@bash ./scripts/server/run-springboot.sh
 
+run-redis-server:
+	@bash ./scripts/server/run-redis.sh
+
+stop-redis-server:
+	@echo "[Makefile] Stopping Redis container..."
+	@docker stop redis-talktobook-server 2>/dev/null || echo "[Makefile] There is no running Redis container."
+	@echo "[Makefile] Redis container stopped."
+
+rm-redis-server:
+	@echo "[Makefile] Removing Redis container..."
+	@docker stop redis-talktobook-server 2>/dev/null || echo "[Makefile] There is no running Redis container."
+	@docker rm redis-talktobook-server 2>/dev/null || true
+	@echo "[Makefile] Redis container removed."
+
 # 3-1. Spring Boot 서버 디버그 모드 실행
 debug-springboot:
 	@bash ./scripts/server/debug-springboot-trace.sh
@@ -122,20 +136,20 @@ set-virtual-environment:
 	@bash ./scripts/ai/set-virtual-environment.sh
 
 # Redis 서버 실행
-run-redis:
+run-redis-ai:
 	@bash ./scripts/ai/run-redis.sh
 
 # Redis 서버 종료
-stop-redis:
+stop-redis-ai:
 	@echo "[Makefile] Stopping Redis container..."
-	@docker stop redis-talktobook 2>/dev/null || echo "[Makefile] There is no running Redis container."
+	@docker stop redis-talktobook-ai 2>/dev/null || echo "[Makefile] There is no running Redis container."
 	@echo "[Makefile] Redis container stopped."
 
 # Redis 서버 정리
-rm-redis:
+rm-redis-ai:
 	@echo "[Makefile] Removing Redis container..."
-	@docker stop redis-talktobook 2>/dev/null || echo "[Makefile] There is no running Redis container."
-	@docker rm redis-talktobook 2>/dev/null || true
+	@docker stop redis-talktobook-ai 2>/dev/null || echo "[Makefile] There is no running Redis container."
+	@docker rm redis-talktobook-ai 2>/dev/null || true
 	@echo "[Makefile] Redis container removed."
 
 ### Queue 관련 명령어 ###
