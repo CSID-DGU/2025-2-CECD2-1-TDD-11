@@ -31,7 +31,7 @@ public class Interview {
 	private LocalDateTime createdAt;
 
 	/** V2: 하루 인터뷰 요약문 */
-	@Column(length = 255)
+	@Column(length = 255, nullable = true)
 	private String summary;
 	/* } 고유 정보 */
 
