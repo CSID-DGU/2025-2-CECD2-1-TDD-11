@@ -43,7 +43,7 @@ public class Interview {
 	/** V2에서는 사용하지 않는 필드 (기존 호환용) */
 	@Deprecated
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "chapter_id", nullable = false)
+	@JoinColumn(name = "chapter_id", nullable = true)
 	private Chapter chapter;
 
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -26,12 +26,15 @@ public class Autobiography {
 	private Long id;
 
 	@Column
+    @JoinColumn(name = "title", nullable = true)
 	private String title;
 
 	@Lob
+    @JoinColumn(name = "content", nullable = true)
 	private String content;
 
 	@Column
+    @JoinColumn(name = "cover_image_url", nullable = true)
 	private String coverImageUrl;
 
 	/* V2 신규 필드 { */
@@ -42,6 +45,9 @@ public class Autobiography {
 	private String reason;
 	/* } V2 신규 필드 */
 
+    @OneToOne(mappedBy = "currentAutobiography")
+    private AutobiographyStatus autobiographyStatus;
+
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
@@ -51,7 +57,7 @@ public class Autobiography {
 
 	/* 연관 정보 { */
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "chapter_id", nullable = false)
+	@JoinColumn(name = "chapter_id", nullable = true)
 	private Chapter chapter;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -114,10 +120,9 @@ public class Autobiography {
 	 */
 	public static Autobiography ofV2(String title, String content, String coverImageUrl,
 									 String theme, String reason,
-									 LocalDateTime createdAt, LocalDateTime updatedAt,
-									 Chapter chapter, Member member) {
+									 LocalDateTime createdAt, LocalDateTime updatedAt,Member member) {
 		return new Autobiography(title, content, coverImageUrl, theme, reason,
-				createdAt, updatedAt, chapter, member);
+				createdAt, updatedAt, null, member);
 	}
 	/* } 생성자 (V2) */
 

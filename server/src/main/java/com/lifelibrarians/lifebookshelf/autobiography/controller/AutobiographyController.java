@@ -2,8 +2,10 @@ package com.lifelibrarians.lifebookshelf.autobiography.controller;
 
 import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyListResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.service.AutobiographyFacadeService;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
@@ -17,16 +19,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,15 +33,30 @@ public class AutobiographyController {
 
 	private final AutobiographyFacadeService autobiographyFacadeService;
 
+    @Operation(summary = "테마와 자서전 생성 이유 등록 요청", description = "온보딩과 자서전을 최초 생성하는 시점에서, 자서전에 대한 테마와 생성 이유를 등록합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "created"),
+    })
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/init")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AutobiographyInitResponseDto initAutobiography(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @Valid@ModelAttribute AutobiographyInitRequestDto requestDto
+    ) {
+        return autobiographyFacadeService.initAutobiography(memberSessionDto.getMemberId(), requestDto);
+    }
+
 	@Operation(summary = "자서전 목록 조회", description = "유저가 보유한 전체 자서전 목록을 pagination으로 조회합니다.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok"),
 	})
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping
+    @ResponseStatus(HttpStatus.OK)
 	public AutobiographyListResponseDto getAutobiographies(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
-			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "page", defaultValue = "1") int page,
 			@RequestParam(value = "size", defaultValue = "10") int size
 	) {
 		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), PageRequest.of(page, size));

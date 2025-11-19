@@ -1,7 +1,9 @@
 package com.lifelibrarians.lifebookshelf.autobiography.service;
 
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyListResponseDto;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,10 @@ public class AutobiographyFacadeService {
 
 	private final AutobiographyQueryService autobiographyQueryService;
 	private final AutobiographyCommandService autobiographyCommandService;
+
+    public AutobiographyInitResponseDto initAutobiography(Long memberId, AutobiographyInitRequestDto requestDto) {
+        return autobiographyCommandService.initAutobiography(memberId, requestDto);
+    }
 
 	public AutobiographyListResponseDto getAutobiographies(Long memberId, Pageable pageable) {
 		return autobiographyQueryService.getAutobiographies(memberId, pageable);

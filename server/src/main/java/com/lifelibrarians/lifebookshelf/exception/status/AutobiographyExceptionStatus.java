@@ -29,6 +29,8 @@ public enum AutobiographyExceptionStatus implements ExceptionStatus {
 	CHAPTER_DESCRIPTION_LENGTH_EXCEEDED(400, "BIO016", "챕터 설명은 비어있을 수 없으며, 최대 64자까지 입력할 수 있습니다."),
 	AUTOBIOGRAPHY_NOT_EXISTS(404, "BIO017", "자서전이 존재하지 않습니다. 자서전을 먼저 생성해주세요."),
 	CHAPTER_NOT_EXISTS(404, "BIO018", "챕터가 존재하지 않습니다. 챕터 목록을 먼저 생성해주세요."),
+
+    REASON_LENGTH_EXCEEDED(400, "BIO019", "자서전 생성 이유는 최대 500자까지 입력할 수 있습니다.")
 	;
 
 
