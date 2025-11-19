@@ -11,6 +11,9 @@ COPY requirements.txt requirements.txt
 # Promptflow 1.7.x는 marshmallow 3.19.0 필요
 RUN pip install --no-cache-dir --upgrade --no-deps marshmallow==3.19.0
 
+# keyring 대안 설치 (Docker 환경용)
+RUN pip install --no-cache-dir keyrings.alt
+
 # 모든 의존성 설치
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
