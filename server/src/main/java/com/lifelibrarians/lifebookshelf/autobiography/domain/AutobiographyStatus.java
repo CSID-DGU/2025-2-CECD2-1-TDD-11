@@ -36,34 +36,34 @@ public class AutobiographyStatus {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_autobiography_id", nullable = false)
-    private Autobiography autobiography;
+    private Autobiography currentAutobiography;
     /* } 연관 정보 */
 
     /* 생성자 { */
     protected AutobiographyStatus(AutobiographyStatusType status,
                                   Member member,
-                                  Autobiography autobiography,
+                                  Autobiography currentAutobiography,
                                   LocalDateTime updatedAt) {
         this.status = status;
         this.member = member;
-        this.autobiography = autobiography;
+        this.currentAutobiography = currentAutobiography;
         this.updatedAt = updatedAt;
     }
 
     public static AutobiographyStatus of(AutobiographyStatusType status,
                                          Member member,
-                                         Autobiography autobiography,
+                                         Autobiography currentAutobiography,
                                          LocalDateTime updatedAt) {
-        return new AutobiographyStatus(status, member, autobiography, updatedAt);
+        return new AutobiographyStatus(status, member, currentAutobiography, updatedAt);
     }
     /* } 생성자 */
 
     /* 비즈니스 메서드 { */
     public void updateStatus(AutobiographyStatusType status,
-                             Autobiography autobiography,
+                             Autobiography currentAutobiography,
                              LocalDateTime now) {
         this.status = status;
-        this.autobiography = autobiography;
+        this.currentAutobiography = currentAutobiography;
         this.updatedAt = now;
     }
     /* } 비즈니스 메서드 */

@@ -52,14 +52,14 @@ public class InterviewService {
                 continue;
             }
 
-            if (status.getAutobiography() == null) {
+            if (status.getCurrentAutobiography() == null) {
                 log.error("[InterviewScheduler] No autobiography found for member {}", member.getId());
                 continue;
             }
 
             Interview interview = Interview.ofV2(
                     LocalDateTime.now(),
-                    status.getAutobiography(),
+                    status.getCurrentAutobiography(),
                     member,
                     null         // summary
             );
