@@ -64,7 +64,7 @@ public class Autobiography {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
-	@OneToMany(mappedBy = "autobiography")
+	@OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<Interview> autobiographyInterviews;
 
 	@OneToMany(mappedBy = "chapter")
@@ -104,6 +104,7 @@ public class Autobiography {
 							String theme, String reason,
 							LocalDateTime createdAt, LocalDateTime updatedAt,
 							Chapter chapter, Member member) {
+        System.out.println("V2 생성자" + title + ", " + theme + ", " + reason);
 		this.title = title;
 		this.content = content;
 		this.coverImageUrl = coverImageUrl;
