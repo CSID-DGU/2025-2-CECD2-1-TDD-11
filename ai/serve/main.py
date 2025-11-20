@@ -11,6 +11,9 @@ from autobiographies.generate_autobiography.router import (
 from interviews.interview_chat_v2.router import (
     router as interviews_request_interview_chat_v2_router,
 )
+from interviews.interview_summary.router import (
+    router as interviews_summary_router,
+)
 
 from logs import get_logger
 
@@ -55,6 +58,7 @@ app = FastAPI(
 # 유지되는 API들
 app.include_router(autobiographies_generate_autobiography_router, prefix="/autobiographies")
 app.include_router(interviews_request_interview_chat_v2_router, prefix="/interviews")
+app.include_router(interviews_summary_router)
 
 
 if __name__ == "__main__":

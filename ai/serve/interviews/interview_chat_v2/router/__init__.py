@@ -23,7 +23,13 @@ session_manager = SessionManager()
 flow_path = flows_dir / "flow.dag.yaml"
 flow = load_flow(str(flow_path))
 
-@router.post("/api/v2/interviews/start/{autobiography_id}", response_model=SessionStartResponseDto, dependencies=[Depends(AuthRequired())])
+@router.post("/api/v2/interviews/start/{autobiography_id}", 
+             response_model=SessionStartResponseDto, 
+             summary ="인터뷰 시작",
+             dependencies=[Depends(AuthRequired())],
+             description="인터뷰 세션을 시작하고 첫 질문을 반환합니다.",
+             tags=["인터뷰 (Interview)"],
+             )
 async def start_session(http_request: Request, autobiography_id: int, request: SessionStartRequestDto):
     """세션 시작"""
     try:
@@ -72,7 +78,13 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"세션 시작 실패: {str(e)}")
 
-@router.post("/api/v2/interviews/chat/{autobiography_id}", response_model=InterviewChatV2ResponseDto, dependencies=[Depends(AuthRequired())])
+@router.post("/api/v2/interviews/chat/{autobiography_id}", 
+             response_model=InterviewChatV2ResponseDto, 
+             summary ="인터뷰 대화 진행",
+             dependencies=[Depends(AuthRequired())],
+             description="인터뷰 대화 진행 및 다음 질문 반환",
+             tags=["인터뷰 (Interview)"],
+             )
 async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
@@ -106,7 +118,12 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"질문 생성 실패: {str(e)}")
 
-@router.post("/api/v2/interviews/end/{autobiography_id}", response_model=SessionEndResponseDto, dependencies=[Depends(AuthRequired())])
+@router.post("/api/v2/interviews/end/{autobiography_id}", 
+            response_model=SessionEndResponseDto, 
+            dependencies=[Depends(AuthRequired())],
+            summary ="인터뷰 종료",
+            description="인터뷰 세션을 종료하고 최종 메트릭을 반환합니다.",
+            tags=["인터뷰 (Interview)"],)
 async def end_session(http_request: Request, autobiography_id: int, request: SessionEndRequestDto):
     """세션 종료 및 최종 메트릭 반환"""
     try:

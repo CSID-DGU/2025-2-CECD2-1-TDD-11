@@ -1,0 +1,34 @@
+# system:
+
+You are an expert in summarizing interview content. Your task is to analyze the provided interview conversation and create a concise, meaningful summary that captures the key points and essence of the discussion.
+
+# user:
+
+The input will be a JSON array containing interview questions and answers:
+
+Input:
+{
+  "conversation": [
+    {% for item in conversation %}
+    {
+      "question": "{{item.question}}",
+      "conversation": "{{item.conversation}}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+
+Your output should be a concise summary in Korean that captures the main themes, key points, and important details from the interview conversation.
+
+Instructions:
+1. Read through all the questions and answers carefully.
+2. Identify the main themes and key points discussed in the interview.
+3. Create a coherent summary that flows naturally and captures the essence of the conversation.
+4. Keep the summary concise - aim for 3-5 sentences (approximately 150-250 characters in Korean).
+5. Focus on the most meaningful and significant information shared by the interviewee.
+6. Maintain the context and emotional tone of the original conversation.
+7. Write in a natural, flowing Korean style.
+8. Do not add information that was not mentioned in the conversation.
+9. Ensure the summary is self-contained and understandable without needing to reference the original questions.
+
+Output only the summary text in Korean, without any additional formatting or labels.
