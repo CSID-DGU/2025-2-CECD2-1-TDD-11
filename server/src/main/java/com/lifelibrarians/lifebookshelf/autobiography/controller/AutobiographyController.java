@@ -55,7 +55,7 @@ public class AutobiographyController {
     @ResponseStatus(HttpStatus.OK)
 	public AutobiographyListResponseDto getAutobiographies(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
-			@RequestParam(value = "page", defaultValue = "1") int page,
+			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "10") int size
 	) {
 		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), PageRequest.of(page, size));
@@ -71,7 +71,7 @@ public class AutobiographyController {
     public AutobiographyMaterialsResponseDto getAutobiographyMaterials(
             @LoginMemberInfo MemberSessionDto memberSessionDto,
             @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
-            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, PageRequest.of(page, size));
