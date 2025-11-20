@@ -48,6 +48,14 @@ public class AutobiographyFacadeService {
         autobiographyCommandService.patchReasonAutobiography(memberId, autobiographyId, requestDto);
     }
 
+    public void requestAutobiographyGenerate(Long memberId, Long autobiographyId) {
+        autobiographyCommandService.requestAutobiographyGenerate(memberId, autobiographyId);
+    }
+
+    public void patchAutobiographyReady(Long memberId, Long autobiographyId) {
+        autobiographyCommandService.patchAutobiographyReady(memberId, autobiographyId);
+    }
+
 	public void deleteAutobiography(Long memberId, Long autobiographyId) {
 		autobiographyCommandService.deleteAutobiography(memberId, autobiographyId);
 	}

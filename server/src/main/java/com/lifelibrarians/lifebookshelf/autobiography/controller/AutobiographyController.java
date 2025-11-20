@@ -132,7 +132,7 @@ public class AutobiographyController {
             }
     )
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/{autobiographyId}/reason", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{autobiographyId}/reason", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void updateReasonAutobiography(
             @LoginMemberInfo MemberSessionDto memberSessionDto,
@@ -140,6 +140,46 @@ public class AutobiographyController {
             @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
     ) {
         autobiographyFacadeService.patchReasonAutobiography(memberSessionDto.getMemberId(), autobiographyId, requestDto);
+    }
+
+    @Operation(summary = "현재 진행중인 자서전 생성 요청", description = "status가 ENOUGH인 경우에만 가능합니다. 특정 자서전의 status를 CREATING으로 변경하고 자서전 생성을 실행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{autobiographyId}/generate")
+    @ResponseStatus(HttpStatus.OK)
+    public void requestAutobiographyGenerate(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+    ) {
+        autobiographyFacadeService.requestAutobiographyGenerate(memberSessionDto.getMemberId(), autobiographyId);
+    }
+
+    @Operation(summary = "현재 진행중인 자서전 ENOUGH 상태로 변경 요청", description = "특정 자서전의 상태를 ENOUGH로 강제로 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{autobiographyId}/status")
+    @ResponseStatus(HttpStatus.OK)
+    public void patchAutobiographyReady(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+    ) {
+        autobiographyFacadeService.patchAutobiographyReady(memberSessionDto.getMemberId(), autobiographyId);
     }
 
     @Operation(summary = "현재 진행중인 자서전 id 조회", description = "자서전 상태가 PROGRESSING인 자서전 중 updatedAt이 가장 최신인 자서전의 id를 조회합니다.")

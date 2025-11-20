@@ -123,6 +123,39 @@ public class AutobiographyCommandService {
         autobiography.updateAutoBiographyV2(autobiography.getTitle(), autobiography.getContent(), autobiography.getCoverImageUrl(), autobiography.getTheme(), requestDto.getReason(), now);
     }
 
+    public void requestAutobiographyGenerate(Long memberId, Long autobiographyId) {
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+        if (!autobiography.getMember().getId().equals(memberId)) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
+        }
+
+        if (autobiography.getAutobiographyStatus().getStatus() != AutobiographyStatusType.ENOUGH) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND.toServiceException();
+        }
+
+        autobiography.getAutobiographyStatus().updateStatusType(
+                AutobiographyStatusType.CREATING,
+                LocalDateTime.now()
+        );
+    }
+
+    public void patchAutobiographyReady(Long memberId, Long autobiographyId) {
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+        if (!autobiography.getMember().getId().equals(memberId)) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
+        }
+
+        if (autobiography.getAutobiographyStatus().getStatus() != AutobiographyStatusType.PROGRESSING) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND.toServiceException();
+        }
+
+        autobiography.getAutobiographyStatus().updateStatusType(
+                AutobiographyStatusType.ENOUGH,
+                LocalDateTime.now()
+        );
+    }
 
     public void deleteAutobiography(Long memberId, Long autobiographyId) {
 		Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
