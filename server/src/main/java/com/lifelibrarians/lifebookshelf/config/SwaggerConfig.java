@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,8 +33,7 @@ import org.springframework.web.method.HandlerMethod;
 
 @Configuration
 @OpenAPIDefinition(
-		servers = @io.swagger.v3.oas.annotations.servers.Server(url = "${swagger.base-url}"),
-		info = @Info(title = "Life Bookshelf API", version = "v1"),
+		info = @Info(title = "Talktobook API", version = "v1"),
 		security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
@@ -45,12 +45,17 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI getOpenAPI() {
-		return new OpenAPI()
-				.components(new Components()
-						.addHeaders("Authorization",
-								new Header().description("Auth header")
-										.schema(new StringSchema()))
-				);
+        Server local = new Server()
+                .url("http://localhost:8080")
+                .description("Local");
+
+        return new OpenAPI()
+                .servers(List.of(local))
+                .components(new Components()
+                        .addHeaders("Authorization",
+                                new Header().description("Auth header")
+                                        .schema(new StringSchema()))
+                );
 	}
 
 	/**

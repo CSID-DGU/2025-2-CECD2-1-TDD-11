@@ -33,8 +33,18 @@ public class SecurityConfig {
 	private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAuthenticationConverter jwtAuthenticationConverter;
 	private final JwtDecoder jwtDecoder;
-	@Value("${swagger.base-url}")
-	private String baseUrl;
+
+    @Value("${security.cors.domain}")
+    private String corsDomain;
+
+    @Value("${security.cors.ip}")
+    private String corsIp;
+
+    @Value("${security.cors.local}")
+    private String corsLocal;
+
+    @Value("${security.cors.web-local}")
+    private String corsWebLocal;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -71,7 +81,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of(baseUrl, "http://localhost:5173", "https://d20gwkzm359by4.cloudfront.net", "https://www.1half.co.kr", "https://1half.co.kr"));
+		configuration.setAllowedOrigins(List.of(corsDomain, corsIp, corsLocal, corsWebLocal));
 		configuration.addAllowedHeader("*");
 		configuration.addAllowedMethod("*");
 		configuration.setAllowCredentials(true);
