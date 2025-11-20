@@ -9,6 +9,7 @@ import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Multipart
 import de.jensklingenberg.ktorfit.http.POST
+import de.jensklingenberg.ktorfit.http.Part
 import de.jensklingenberg.ktorfit.http.Path
 import io.ktor.client.statement.HttpResponse
 
@@ -51,4 +52,11 @@ interface AutobiographyService {
     @Multipart
     @POST(EndPoints.Autobiography.CURRENT_PROGRESS_AUTOBIOGRAPHIES)
     suspend fun getCurrentProgressAutobiography(): HttpResponse
+
+    @Multipart
+    @POST(EndPoints.Autobiography.START_PROGRESS)
+    suspend fun postStartProgress(
+        @Part("theme") theme: String,
+        @Part("reason") reason: String
+    ): HttpResponse
 }

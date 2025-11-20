@@ -8,14 +8,17 @@ import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyChaptersMa
 import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.EditAutobiographyDetailMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentProgressMapper
+import com.tdd.talktobook.data.mapper.autobiograph.PostStartProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
+import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
 import com.tdd.talktobook.domain.repository.AutobiographyRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
@@ -73,4 +76,7 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun getCurrentProgressAutobiography(): Flow<Result<CurrentProgressAutobiographyModel>> =
         GetCurrentProgressMapper.responseToModel(apiCall = { autobiographyDataSource.getCurrentProgressAutobiography() })
+
+    override suspend fun postStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>> =
+        PostStartProgressMapper.responseToModel(apiCall = { autobiographyDataSource.postStartProgress(body.theme, body.reason) })
 }

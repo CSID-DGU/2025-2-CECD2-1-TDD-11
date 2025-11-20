@@ -3,10 +3,12 @@ package com.tdd.talktobook.domain.repository
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
+import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
 import kotlinx.coroutines.flow.Flow
 
 interface AutobiographyRepository {
@@ -27,4 +29,6 @@ interface AutobiographyRepository {
     suspend fun postUpdateCurrentChapter(): Flow<Result<Boolean>>
 
     suspend fun getCurrentProgressAutobiography(): Flow<Result<CurrentProgressAutobiographyModel>>
+
+    suspend fun postStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>>
 }

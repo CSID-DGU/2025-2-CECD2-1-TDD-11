@@ -8,5 +8,7 @@ data class StartProgressPageState (
     val pageType: StartProgressPageType = StartProgressPageType.FIRST_PAGE,
     val isBtnActivated: Boolean = false,
     val material: MaterialType = MaterialType.DEFAULT,
-    val reasonInput: String = ""
+    val reasonInput: String = "",
+    val interviewId: Int = 0,
+    val autobiographyId: Int = 0
 ): PageState

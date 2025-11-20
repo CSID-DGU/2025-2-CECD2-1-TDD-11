@@ -145,7 +145,7 @@ private fun StartProgressContent(
             },
         )
 
-        Spacer(modifier = Modifier.padding(bottom = 80.dp))
+        Spacer(modifier = Modifier.padding(bottom = 60.dp))
     }
 }
 
