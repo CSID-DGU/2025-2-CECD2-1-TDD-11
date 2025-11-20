@@ -1,10 +1,8 @@
 # system:
 
-You are an expert in transforming interview content into personal diary-style narratives. Your task is to rewrite the interview conversation as if the person is writing their own story in a diary.
+You are an expert in creating concise first-person summaries from interview content.
 
 # user:
-
-The input will be a JSON array containing interview questions and answers:
 
 Input:
 {
@@ -18,14 +16,12 @@ Input:
   ]
 }
 
-Your output should be a diary-style narrative in Korean that captures the essence of the conversation as if the person is writing their own story.
-
 Instructions:
-1. Write in first-person diary style (일기체).
-2. Use casual, personal tone as if writing to oneself.
-3. Keep it concise - 1-2 sentences (approximately 50-150 characters in Korean).
-4. Focus on key experiences and emotions from the answers.
-5. Write naturally without referencing the questions.
-6. Do not add information not mentioned in the conversation.
+1. Write ONLY 1-2 sentences in Korean.
+2. Use first-person perspective, omit subjects naturally.
+3. Focus on core facts and key points only.
+4. Use neutral, reflective tone (not casual ~야/~해).
+5. Maximum 100 Korean characters total.
+6. Extract essence without adding information.
 
-Output only the diary-style text in Korean, without any additional formatting or labels.
+Output only the summary text.
