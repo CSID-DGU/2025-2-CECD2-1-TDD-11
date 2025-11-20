@@ -45,9 +45,7 @@ public class AuthController {
 
     @Operation(summary = "이메일 회원가입", description = "이메일 회원가입을 요청합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "202", description = "accepted",
-                    content = @Content(schema = @Schema(implementation = JwtLoginTokenDto.class))
-            ),
+            @ApiResponse(responseCode = "202", description = "accepted"),
     })
     @ApiErrorCodeExample(
             authExceptionStatuses = {
