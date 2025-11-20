@@ -123,8 +123,6 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
 async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
-        # 현재 시간 UTC로 설정
-        now = datetime.now(timezone.utc)
         
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
@@ -155,7 +153,10 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         next_question_data = result.get("next_question")
         next_question = next_question_data.get("text") if isinstance(next_question_data, dict) else next_question_data
-        last_answer_materials_id = result.get("last_answer_materials_id", [])
+        last_answer_materials_id = result.get("last_answer_materials_id", []) # 응답에 대한 material
+        material_id = [list(result.get("next_question", {}).get("material_id", []))] # 다음 질문에 대한 material
+        
+        print(f"[INFO] result: {result}")
         
         # queue publish 용 데이터 세팅
         question = InterviewQuestion(
@@ -173,7 +174,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         ai_conversation = Conversation(
             content=next_question,
             conversationType="BOT",
-            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
+            materials=json.dumps(material_id) # JSON 문자열로 변환
         )
         
         payload = InterviewPayload(
