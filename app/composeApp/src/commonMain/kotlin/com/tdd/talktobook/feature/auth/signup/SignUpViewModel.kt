@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
-import com.tdd.talktobook.domain.entity.response.auth.AccessTokenModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
@@ -16,8 +15,8 @@ class SignUpViewModel(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val postEmailSignUpUseCase: PostEmailSignUpUseCase,
 ) : BaseViewModel<SignUpPageState>(
-        SignUpPageState(),
-    ) {
+    SignUpPageState(),
+) {
     fun onEmailValueChange(newValue: String) {
         updateState(
             uiState.value.copy(

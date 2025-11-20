@@ -13,4 +13,9 @@ interface AuthDataSource {
         email: String,
         password: String,
     ): HttpResponse
+
+    suspend fun postEmailVerification(
+        email: String,
+        code: String
+    ): HttpResponse
 }

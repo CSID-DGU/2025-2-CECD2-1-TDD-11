@@ -21,4 +21,7 @@ class AuthDataSourceImpl(
         password: String,
     ): HttpResponse =
         authService.postEmailSignUp(email, password)
+
+    override suspend fun postEmailVerification(email: String, code: String): HttpResponse =
+        authService.postEmailVerify(email, code)
 }

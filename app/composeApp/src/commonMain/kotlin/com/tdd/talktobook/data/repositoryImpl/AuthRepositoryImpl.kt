@@ -4,8 +4,10 @@ import com.tdd.talktobook.data.dataSource.AuthDataSource
 import com.tdd.talktobook.data.dataStore.LocalDataStore
 import com.tdd.talktobook.data.mapper.auth.EmailLogInMapper
 import com.tdd.talktobook.data.mapper.auth.EmailSignUpMapper
+import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
+import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
@@ -43,5 +45,10 @@ class AuthRepositoryImpl(
                 request.email,
                 request.password,
             )
+        })
+
+    override suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = {
+            authDataSource.postEmailVerification(request.email, request.code)
         })
 }

@@ -2,6 +2,7 @@ package com.tdd.talktobook.domain.repository
 
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
+import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import kotlinx.coroutines.flow.Flow
 
@@ -13,4 +14,6 @@ interface AuthRepository {
     suspend fun postEmailLogIn(request: EmailLogInRequestModel): Flow<Result<TokenModel>>
 
     suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<TokenModel>>
+
+    suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>>
 }

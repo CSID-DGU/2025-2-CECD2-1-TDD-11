@@ -5,6 +5,7 @@ object EndPoints {
         private const val AUTH = "api/v1/auth"
         const val EMAILLOGIN = "$AUTH/email-login"
         const val EMAILSIGNUP = "$AUTH/email-register"
+        const val EMAILVERIFY = "$AUTH/email-verify"
     }
 
     object Autobiography {
