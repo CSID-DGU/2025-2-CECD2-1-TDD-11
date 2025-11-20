@@ -132,6 +132,7 @@ public class AutobiographyQueryService {
 
         return AutobiographyProgressResponseDto.builder()
                 .progressPercentage(progress)
+                .status(autobiography.getAutobiographyStatus().getStatus().name())
                 .build();
     }
 }
