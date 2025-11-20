@@ -11,7 +11,7 @@ public interface AutobiographyStatusRepository extends JpaRepository<Autobiograp
     // member id로 상태 조회
     List<AutobiographyStatus> findByMemberId(Long memberId);
 
-    // 선택한 type 중 가장 최근 상태 조회
-    Optional<AutobiographyStatus> findTopByMemberIdAndStatusOrderByUpdatedAtDesc(Long memberId, AutobiographyStatusType status);
+    // type이 EMPTY이거나 PROGRESSING인 것 중 가장 최근에 업데이트된 상태 조회
+    Optional<AutobiographyStatus> findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(Long memberId, List<AutobiographyStatusType> statuses);
 
 }

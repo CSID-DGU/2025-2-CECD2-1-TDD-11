@@ -65,9 +65,9 @@ public class AutobiographyQueryService {
 
     public AutobiographyCurrentResponseDto getCurrentAutobiography(Long memberId) {
         AutobiographyStatus status = autobiographyStatusRepository
-                .findTopByMemberIdAndStatusOrderByUpdatedAtDesc(
+                .findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(
                         memberId,
-                        AutobiographyStatusType.PROGRESSING
+                        List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING)
                 )
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
 
