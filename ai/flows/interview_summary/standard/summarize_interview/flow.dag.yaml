@@ -2,11 +2,6 @@ $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
 environment:
   python_requirements_txt: requirements.txt
 inputs:
-  interview_id:
-    type: int
-    default: 1
-    description: 인터뷰 ID
-    is_chat_input: false
   conversation:
     type: list
     items:

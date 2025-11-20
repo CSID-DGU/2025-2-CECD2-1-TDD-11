@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/api/v2/interviews/summary/{interview_id}",
+    "/api/v2/interviews/summary",
     dependencies=[Depends(AuthRequired())],
     response_model=InterviewSummaryResponseDto,
     summary="인터뷰 요약",
@@ -21,7 +21,6 @@ router = APIRouter()
     tags=["인터뷰 (Interview)"],
 )
 async def summarize_interview(
-    interview_id: int,
     request: Request,
     requestDto: InterviewSummaryRequestDto,
 ):
@@ -32,7 +31,6 @@ async def summarize_interview(
         
         flow = Flow.load(flow_path)
         result = flow(
-            interview_id=interview_id,
             conversation=[conv.model_dump() for conv in requestDto.conversation]
         )
         
