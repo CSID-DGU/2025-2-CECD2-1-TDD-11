@@ -71,7 +71,15 @@ management:
         enabled: true
 
 swagger:
-  base-url: http://localhost:8080
+  servers:
+    - url: http://localhost:8080
+      description: Local
+
+security:
+  cors:
+    domain: http://localhost:8080
+    ip: http://8.8.8.8:8080
+    web: http://localhost:5173
 
 images:
   path:

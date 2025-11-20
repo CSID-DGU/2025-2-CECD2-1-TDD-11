@@ -40,11 +40,11 @@ public class SecurityConfig {
     @Value("${security.cors.ip}")
     private String corsIp;
 
-    @Value("${security.cors.local}")
-    private String corsLocal;
+    @Value("${security.cors.web}")
+    private String corsWeb;
 
-    @Value("${security.cors.web-local}")
-    private String corsWebLocal;
+    @Value("${security.cors.app}")
+    private String corsApp;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -81,7 +81,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of(corsDomain, corsIp, corsLocal, corsWebLocal));
+		configuration.setAllowedOrigins(List.of(corsDomain, corsIp, corsWeb, corsApp));
 		configuration.addAllowedHeader("*");
 		configuration.addAllowedMethod("*");
 		configuration.setAllowCredentials(true);
