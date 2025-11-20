@@ -54,6 +54,20 @@ class LogInViewModel(
         }
     }
 
+    // Apple용 (제거)
+    fun createMemberNoLogIn() {
+        viewModelScope.launch {
+            postEmailLogInUseCase(
+                EmailLogInRequestModel(
+                    email = "test105@gmail.com",
+                    password = "pw",
+                ),
+            ).collect {
+                resultResponse(it, ::onSuccessPostEmailLogIn)
+            }
+        }
+    }
+
     private fun onSuccessPostEmailLogIn(data: AccessTokenModel) {
         d("[ktor] email response -> $data")
         if (data.accessToken.isNotEmpty()) {

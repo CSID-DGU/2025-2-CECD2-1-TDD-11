@@ -13,10 +13,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tdd.talktobook.core.designsystem.BackGround1
+import com.tdd.talktobook.core.designsystem.Black1000
 import com.tdd.talktobook.core.designsystem.Blue500
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.EmailHintText
@@ -54,6 +56,7 @@ internal fun LogInScreen(
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickSignUp = { goToSignUp() },
+        onClickNoLogIn = { viewModel.createMemberNoLogIn() }
     )
 }
 
@@ -65,6 +68,7 @@ private fun LogInContent(
     passwordInput: String = "",
     onPasswordValueChange: (String) -> Unit = {},
     onClickSignUp: () -> Unit = {},
+    onClickNoLogIn: () -> Unit = {}
 ) {
     Column(
         modifier =
@@ -121,6 +125,24 @@ private fun LogInContent(
             btnContent = LogInBtn,
             isBtnActivated = emailInput.isNotEmpty() && passwordInput.isNotEmpty(),
             onClickAction = onClickLogInBtn,
+        )
+
+
+        Text(
+            text = "로그인 없이 시작하기",
+            style = BookShelfTypo.SemiBold.copy(
+                textDecoration = TextDecoration.Underline
+            ),
+            color = Black1000,
+            fontSize = 18.sp,
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 20.dp)
+                    .clickable(
+                        onClick = onClickNoLogIn,
+                    ),
+            textAlign = TextAlign.Center,
         )
     }
 }
