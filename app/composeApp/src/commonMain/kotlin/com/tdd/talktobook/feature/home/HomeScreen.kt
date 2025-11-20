@@ -46,6 +46,7 @@ import com.tdd.talktobook.core.designsystem.Fri
 import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.HomeProgressFinish
 import com.tdd.talktobook.core.designsystem.HomeProgressTitle
+import com.tdd.talktobook.core.designsystem.HomeStartProgress
 import com.tdd.talktobook.core.designsystem.HomeTitle
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.Mon
@@ -55,6 +56,7 @@ import com.tdd.talktobook.core.designsystem.Thu
 import com.tdd.talktobook.core.designsystem.Tue
 import com.tdd.talktobook.core.designsystem.Wed
 import com.tdd.talktobook.core.designsystem.White3
+import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
@@ -72,6 +74,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun HomeScreen(
     goToPastInterviewPage: (String) -> Unit,
+    goToProgressStartPage: () -> Unit = {}
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,6 +98,8 @@ internal fun HomeScreen(
         selectedDate = uiState.selectedDate,
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
         onClickSummary = { goToPastInterviewPage(uiState.selectedDate) },
+        isCurrentProgress = uiState.isCurrentProgress,
+        onClickStartProgress = { goToProgressStartPage() }
     )
 }
 
@@ -110,6 +115,8 @@ private fun HomeContent(
     selectedDate: String = "",
     onSelectDay: (Int) -> Unit = {},
     onClickSummary: () -> Unit = {},
+    isCurrentProgress: Boolean = false,
+    onClickStartProgress: () -> Unit = {}
 ) {
     Column(
         modifier =
@@ -130,6 +137,8 @@ private fun HomeContent(
 
         HomeMaterialList(
             createdMaterialList = createdMaterialList,
+            isCurrentProgress = isCurrentProgress,
+            onClickStartProgress = onClickStartProgress
         )
 
         BasicDivider()
@@ -190,22 +199,36 @@ private fun HomeTopBar() {
 @Composable
 private fun HomeMaterialList(
     createdMaterialList: List<CreatedMaterialIItemModel>,
+    isCurrentProgress: Boolean,
+    onClickStartProgress: () -> Unit
 ) {
-    LazyRow(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp, bottom = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 20.dp),
-    ) {
-        itemsIndexed(createdMaterialList) { index, item ->
-            SelectCircleListItem(
-                itemImg = Res.drawable.img_chapter_detail,
-                itemText = item.name,
-                isSelected = true,
-            )
+    if (isCurrentProgress ){
+        LazyRow(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+        ) {
+            itemsIndexed(createdMaterialList) { index, item ->
+                SelectCircleListItem(
+                    itemImg = Res.drawable.img_chapter_detail,
+                    itemText = item.name,
+                    isSelected = true,
+                )
+            }
         }
+    } else {
+        Spacer(modifier = Modifier.padding(top = 20.dp))
+
+        RectangleBtn(
+            btnContent = HomeStartProgress,
+            isBtnActivated = true,
+            onClickAction = onClickStartProgress
+        )
+
+        Spacer(modifier = Modifier.padding(top = 24.dp))
     }
 }
 

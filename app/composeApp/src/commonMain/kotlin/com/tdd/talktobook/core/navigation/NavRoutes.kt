@@ -42,6 +42,11 @@ sealed class NavRoutes(val route: String) {
         fun setRouteModel(interviewId: Int): String = "interview/$interviewId"
     }
 
+    // StartProgress Graph
+    data object StartProgressGraph: NavRoutes("start_progress_graph")
+
+    data object StartProgressScreen: NavRoutes("start_progress")
+
     // DetailChapter Graph
     data object DetailChapterGraph : NavRoutes("detail_chapter_graph")
 

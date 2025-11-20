@@ -11,6 +11,7 @@ import com.tdd.talktobook.feature.auth.signup.SignUpViewModel
 import com.tdd.talktobook.feature.home.interview.PastInterviewViewModel
 import com.tdd.talktobook.feature.onboarding.OnboardingViewModel
 import com.tdd.talktobook.feature.publication.PublicationViewModel
+import com.tdd.talktobook.feature.startprogress.StartProgressViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -21,6 +22,7 @@ val viewModelModule =
         viewModel { SignUpViewModel(get()) }
         viewModel { EmailCheckViewModel(get()) }
         viewModel { OnboardingViewModel(get()) }
+        viewModel { StartProgressViewModel() }
         viewModel { InterviewViewModel(get(), get()) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { PastInterviewViewModel() }

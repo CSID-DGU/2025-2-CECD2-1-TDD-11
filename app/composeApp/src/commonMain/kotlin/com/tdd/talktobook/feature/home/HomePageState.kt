@@ -15,6 +15,8 @@ data class HomePageState(
     val monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
     val selectedDay: Int = 1,
     val selectedDate: String = "",
+    val currentAutobiographyId: Int = 0,
+    val isCurrentProgress: Boolean = false,
     // Legacy
     val chapterList: List<ChapterItemModel> = emptyList(),
     val subChapterList: List<SubChapterItemModel> = emptyList(),

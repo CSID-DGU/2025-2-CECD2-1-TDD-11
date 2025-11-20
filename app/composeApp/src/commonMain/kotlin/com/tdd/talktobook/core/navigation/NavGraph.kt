@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
@@ -16,6 +17,7 @@ import com.tdd.talktobook.feature.onboarding.OnboardingScreen
 import com.tdd.talktobook.feature.publication.PublicationScreen
 import com.tdd.talktobook.feature.auth.signup.SignUpScreen
 import com.tdd.talktobook.feature.home.interview.PastInterviewScreen
+import com.tdd.talktobook.feature.startprogress.StartProgressScreen
 
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
@@ -95,8 +97,8 @@ fun NavGraphBuilder.homeNavGraph(
     ) {
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(
-//                goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
                 goToPastInterviewPage = { date -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date)) },
+                goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) }
             )
         }
     }
@@ -132,6 +134,22 @@ fun NavGraphBuilder.interviewNavGraph(
     ) {
         composable(route = NavRoutes.InterviewScreen.route) {
             InterviewScreen()
+        }
+    }
+}
+
+fun NavGraphBuilder.startProgressNavGraph(
+    navController: NavController
+) {
+    navigation(
+        startDestination = NavRoutes.StartProgressScreen.route,
+        route = NavRoutes.StartProgressGraph.route
+    ) {
+        composable(route = NavRoutes.StartProgressScreen.route) {
+            StartProgressScreen(
+                goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) { popUpTo(0) } },
+                goBackToHome = { navController.popBackStack() }
+            )
         }
     }
 }

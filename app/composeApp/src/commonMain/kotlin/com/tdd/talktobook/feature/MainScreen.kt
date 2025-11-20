@@ -33,6 +33,7 @@ import com.tdd.talktobook.core.navigation.onboardingNavGraph
 import com.tdd.talktobook.core.navigation.pastInterviewNavGraph
 import com.tdd.talktobook.core.navigation.publicationNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
+import com.tdd.talktobook.core.navigation.startProgressNavGraph
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -108,6 +109,9 @@ fun MainScreen() {
                 )
                 interviewNavGraph(
                     navController = navController,
+                )
+                startProgressNavGraph(
+                    navController = navController
                 )
                 detailChapterNavGraph(
                     navController = navController,
