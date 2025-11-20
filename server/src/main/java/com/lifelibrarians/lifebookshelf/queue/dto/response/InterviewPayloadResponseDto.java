@@ -1,4 +1,4 @@
-package com.lifelibrarians.lifebookshelf.queue.dto.request;
+package com.lifelibrarians.lifebookshelf.queue.dto.response;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class InterviewPayloadRequestDto {
+public class InterviewPayloadResponseDto {
     private Long autobiographyId;
     private Long userId;
     private Integer categoryId; // AI에서 보내는 categoryId 필드 추가
@@ -20,7 +20,7 @@ public class InterviewPayloadRequestDto {
     public static class Conversation {
         private String content;
         private String conversationType;
-        private LocalDateTime timestamp;
+        private String materials;
     }
 
     @Data
@@ -28,7 +28,6 @@ public class InterviewPayloadRequestDto {
     public static class InterviewQuestion {
         private String questionText;
         private int questionOrder;
-        private LocalDateTime timestamp;
         private String materials;
     }
 }

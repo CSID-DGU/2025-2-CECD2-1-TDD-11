@@ -90,14 +90,13 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         question = InterviewQuestion(
             questionText=first_question,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
-            timestamp=now.isoformat(),
             materials=json.dumps(material_id)  # JSON 문자열로 변환
         )
         
         ai_conversation = Conversation(
             content=first_question,
             conversationType="BOT",
-            timestamp=now.isoformat()
+            materials=json.dumps(material_id)  # JSON 문자열로 변환
         )
         
         payload = InterviewPayload(
@@ -162,20 +161,19 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         question = InterviewQuestion(
             questionText=next_question,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
-            timestamp=now.isoformat(),
-            materials=json.dumps(next_question_data.get("material_id", []) if isinstance(next_question_data, dict) else [])  # JSON 문자열로 변환
+            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
         
         human_conversation = Conversation(
             content=request.answer_text,
             conversationType="HUMAN",
-            timestamp=now.isoformat()
+            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
         
         ai_conversation = Conversation(
             content=next_question,
             conversationType="BOT",
-            timestamp=now.isoformat()
+            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
         
         payload = InterviewPayload(

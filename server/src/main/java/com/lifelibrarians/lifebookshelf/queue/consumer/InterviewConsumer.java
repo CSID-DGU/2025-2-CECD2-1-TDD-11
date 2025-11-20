@@ -1,6 +1,6 @@
 package com.lifelibrarians.lifebookshelf.queue.consumer;
 
-import com.lifelibrarians.lifebookshelf.queue.dto.request.InterviewPayloadRequestDto;
+import com.lifelibrarians.lifebookshelf.queue.dto.response.InterviewPayloadResponseDto;
 import com.lifelibrarians.lifebookshelf.queue.service.InterviewPersistenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -12,7 +12,7 @@ public class InterviewConsumer {
     private final InterviewPersistenceService interviewPersistenceService;
 
     @RabbitListener(queues = "ai.persistence.queue")
-    public void receive(InterviewPayloadRequestDto dto) {
+    public void receive(InterviewPayloadResponseDto dto) {
         interviewPersistenceService.receiveInterviewPayload(dto);
     }
 }

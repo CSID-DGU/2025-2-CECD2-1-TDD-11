@@ -14,7 +14,7 @@ import com.lifelibrarians.lifebookshelf.interview.repository.ConversationReposit
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewQuestionRepository;
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewRepository;
 import com.lifelibrarians.lifebookshelf.log.Logging;
-import com.lifelibrarians.lifebookshelf.queue.dto.request.InterviewPayloadRequestDto;
+import com.lifelibrarians.lifebookshelf.queue.dto.response.InterviewPayloadResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,7 @@ public class InterviewPersistenceService {
     private final AutobiographyRepository autobiographyRepository;
 
     @Transactional
-    public void receiveInterviewPayload(InterviewPayloadRequestDto payload) {
+    public void receiveInterviewPayload(InterviewPayloadResponseDto payload) {
 
         // 1. 가장 최근 interview 찾기
         Interview interview = interviewRepository.findTopByAutobiographyIdOrderByCreatedAtDesc(payload.getAutobiographyId())
@@ -67,9 +67,10 @@ public class InterviewPersistenceService {
         List<Conversation> conversations = payload.getConversation().stream()
                 .map(dto -> {
                     ConversationType type = ConversationType.valueOf(dto.getConversationType().toUpperCase());
-                    return Conversation.of(
+                    return Conversation.ofV2(
                             dto.getContent(),
                             type,
+                            dto.getMaterials(),
                             interview,
                             now
                     );

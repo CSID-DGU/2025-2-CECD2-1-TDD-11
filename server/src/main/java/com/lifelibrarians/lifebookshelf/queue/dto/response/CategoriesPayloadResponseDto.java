@@ -1,4 +1,4 @@
-package com.lifelibrarians.lifebookshelf.queue.dto.request;
+package com.lifelibrarians.lifebookshelf.queue.dto.response;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class CategoriesPayloadRequestDto {
+public class CategoriesPayloadResponseDto {
     private Long autobiographyId;
     private Long userId;
     private int themeId;     // 추가

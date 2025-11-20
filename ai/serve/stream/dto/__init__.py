@@ -7,12 +7,11 @@ from typing import List
 class Conversation(BaseModel):
     content: str
     conversationType: str
-    timestamp: datetime
+    materials: Optional[str] = ""
     
 class InterviewQuestion(BaseModel):
     questionText: str
     questionOrder: int
-    timestamp: datetime
     materials: Optional[str] = ""
 
 class InterviewPayload(BaseModel):
@@ -45,3 +44,33 @@ class CategoriesPayload(BaseModel):
     categoryId: int
     chunks: Optional[list[ChunksPayload]] = []
     materials: Optional[list[MaterialsPayload]] = []
+    
+    
+# 자서전 Generate를 위한 사용자 정보와 answers 정의
+class UserInfo(BaseModel):
+    gender: str
+    occupation: str
+    age_group: str
+
+class AutobiographyInfo(BaseModel):
+    theme: str
+    reason: str
+    category: str
+
+class InterviewAnswer(BaseModel):
+    content: str
+    conversationType: str
+
+class InterviewAnswersPayload(BaseModel):
+    autobiographyId: int
+    userId: int
+    userInfo: UserInfo
+    autobiographyInfo: AutobiographyInfo
+    answers: List[InterviewAnswer]
+    
+# generate 자서전에 대한 response payload 정의
+class GeneratedAutobiographyPayload(BaseModel):
+    autobiographyId: int
+    userId: int
+    title: str
+    content: str
