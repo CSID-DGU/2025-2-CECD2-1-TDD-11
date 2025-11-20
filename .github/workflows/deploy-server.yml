@@ -40,7 +40,9 @@ jobs:
 
       - name: Build server JAR
         working-directory: server
-        run: ./gradlew clean bootJar -x test
+        run: |
+          chmod +x gradlew
+          ./gradlew clean bootJar -x test
     
       - name: Normalize JAR name
         run: |
