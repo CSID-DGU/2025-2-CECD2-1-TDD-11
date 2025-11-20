@@ -34,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun LogInScreen(
     goToSignUp: () -> Unit,
     goToHome: () -> Unit,
+    goToOnboarding: () -> Unit
 ) {
     val viewModel: LogInViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,6 +46,10 @@ internal fun LogInScreen(
             when (event) {
                 is LogInEvent.GoToHomePage -> {
                     goToHome()
+                }
+
+                is LogInEvent.GoToOnboardingPage -> {
+                    goToOnboarding()
                 }
             }
         }

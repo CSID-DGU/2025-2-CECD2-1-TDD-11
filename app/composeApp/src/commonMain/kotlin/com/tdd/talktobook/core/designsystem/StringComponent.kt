@@ -5,6 +5,7 @@ const val BookShelf = "대화로책"
 const val Empty = ""
 const val Blank = " "
 const val Confirm = "확인"
+const val Next = "다음"
 
 // Day
 const val Mon = "월"
@@ -39,6 +40,26 @@ const val Home = "홈"
 const val Publication = "자서전"
 const val Interview = "인터뷰"
 
+// Meta Data
+const val Male = "MALE"
+const val Female = "FEMALE"
+const val MaleContent = "남자"
+const val FemaleContent = "여자"
+
+// Age
+const val Ten = "1020"
+const val Thirty = "30"
+const val Forty = "40"
+const val Fifty = "50"
+const val Sixty = "60"
+const val Seventy = "70"
+const val TenContent = "10대/20대"
+const val ThirtyContent = "30대"
+const val FortyContent = "40대"
+const val FiftyContent = "50대"
+const val SixtyContent = "60대"
+const val SeventyContent = "70대"
+
 // LogIn
 const val LogInText = "로그인"
 const val EmailHintText = "이메일을 입력해 주세요."
@@ -53,6 +74,12 @@ const val CodeHintText = "인증코드를 입력해 주세요."
 
 // Change Password
 const val ChangePasswordText = "비밀번호 재설정"
+
+// OnBoarding
+const val OnBoardingFirstPage = "연령대를 선택해 주세요."
+const val OnBoardingSecondPage = "성별을 선택해 주세요."
+const val OnBoardingThirdPage = "직업군을 작성해 주세요."
+const val OccupationWriteHint = "직업군을 작성해 주세요. ex) 개발자"
 
 // Home
 const val HomeTitle = "대화에서 발견한 소중한 기억들"
