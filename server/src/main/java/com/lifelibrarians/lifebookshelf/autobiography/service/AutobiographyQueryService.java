@@ -74,7 +74,7 @@ public class AutobiographyQueryService {
         return autobiographyMapper.toAutobiographyCurrentResponseDto(status.getCurrentAutobiography());
     }
 
-    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, Pageable pageable) {
+    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, String sort, Pageable pageable) {
         // 1. 자서전 유효성 검증
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);

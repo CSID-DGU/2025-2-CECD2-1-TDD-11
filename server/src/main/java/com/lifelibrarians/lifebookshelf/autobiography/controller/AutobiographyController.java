@@ -72,9 +72,10 @@ public class AutobiographyController {
             @LoginMemberInfo MemberSessionDto memberSessionDto,
             @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "asc") String sort
     ) {
-        return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, PageRequest.of(page, size));
+        return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, sort, PageRequest.of(page, size));
     }
 
 

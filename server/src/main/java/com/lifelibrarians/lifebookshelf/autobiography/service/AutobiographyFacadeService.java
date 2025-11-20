@@ -24,8 +24,8 @@ public class AutobiographyFacadeService {
 		return autobiographyQueryService.getAutobiographies(memberId, pageable);
 	}
 
-    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, Pageable pageable) {
-        return autobiographyQueryService.getAutobiographyMaterials(memberId, autobiographyId, pageable);
+    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, String sort, Pageable pageable) {
+        return autobiographyQueryService.getAutobiographyMaterials(memberId, autobiographyId, sort, pageable);
     }
 
 	public AutobiographyDetailResponseDto getAutobiography(Long memberId, Long autobiographyId) {
