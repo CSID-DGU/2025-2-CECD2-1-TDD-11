@@ -70,10 +70,10 @@ management:
       prometheus:
         enabled: true
 
-swagger:
-  servers:
-    - url: http://localhost:8080
-      description: Local
+springdoc:
+  swagger-ui:
+    try-it-out-enabled: true
+    use-root-path: true
 
 security:
   cors:

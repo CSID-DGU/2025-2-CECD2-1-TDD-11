@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,17 +44,12 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI getOpenAPI() {
-        Server local = new Server()
-                .url("http://localhost:8080")
-                .description("Local");
-
-        return new OpenAPI()
-                .servers(List.of(local))
-                .components(new Components()
-                        .addHeaders("Authorization",
-                                new Header().description("Auth header")
-                                        .schema(new StringSchema()))
-                );
+		return new OpenAPI()
+				.components(new Components()
+						.addHeaders("Authorization",
+								new Header().description("Auth header")
+										.schema(new StringSchema()))
+				);
 	}
 
 	/**
