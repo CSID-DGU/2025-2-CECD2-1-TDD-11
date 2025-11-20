@@ -32,7 +32,6 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun LogInScreen(
-    goToOnboardingPage: () -> Unit,
     goToSignUp: () -> Unit,
     goToHome: () -> Unit,
 ) {
@@ -44,10 +43,6 @@ internal fun LogInScreen(
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
             when (event) {
-                is LogInEvent.GoToOnBoardingPage -> {
-                    goToOnboardingPage()
-                }
-
                 is LogInEvent.GoToHomePage -> {
                     goToHome()
                 }

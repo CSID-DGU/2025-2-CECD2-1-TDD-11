@@ -6,7 +6,7 @@ import com.tdd.talktobook.data.mapper.auth.EmailLogInMapper
 import com.tdd.talktobook.data.mapper.auth.EmailSignUpMapper
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
-import com.tdd.talktobook.domain.entity.response.auth.AccessTokenModel
+import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -22,7 +22,13 @@ class AuthRepositoryImpl(
             localDataStore.saveAccessToken(request)
         }
 
-    override suspend fun postEmailLogIn(request: EmailLogInRequestModel): Flow<Result<AccessTokenModel>> =
+    override suspend fun saveTokenModel(request: TokenModel): Flow<Result<Unit>> = flow {
+        localDataStore.saveAccessToken(request.accessToken)
+        localDataStore.saveRefreshToken(request.refreshToken)
+        localDataStore.saveMetaData(request.metadataSuccess)
+    }
+
+    override suspend fun postEmailLogIn(request: EmailLogInRequestModel): Flow<Result<TokenModel>> =
         EmailLogInMapper.responseToModel(apiCall = {
             authDataSource.postEmailLogIn(
                 request.email,
@@ -31,7 +37,7 @@ class AuthRepositoryImpl(
             )
         })
 
-    override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<AccessTokenModel>> =
+    override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<TokenModel>> =
         EmailSignUpMapper.responseToModel(apiCall = {
             authDataSource.postEmailSignUp(
                 request.email,

@@ -3,7 +3,9 @@ package com.tdd.talktobook.feature.auth.login
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.AccessTokenModel
+import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
 import kotlinx.coroutines.launch
@@ -33,30 +35,30 @@ class LogInViewModel(
     }
 
     fun postEmailLogIn() {
-//        viewModelScope.launch {
-//            postEmailLogInUseCase(
-//                EmailLogInRequestModel(
-//                    email = uiState.value.emailInput,
-//                    password = uiState.value.passwordInput,
-//                ),
-//            ).collect {
-//                resultResponse(it, ::onSuccessPostEmailLogIn)
-//            }
-//        }
-        emitEventFlow(LogInEvent.GoToHomePage)
-    }
-
-    private fun onSuccessPostEmailLogIn(data: AccessTokenModel) {
-        d("[ktor] email response -> $data")
-        if (data.accessToken.isNotEmpty()) {
-            saveAccessToken(data.accessToken)
-            emitEventFlow(LogInEvent.GoToOnBoardingPage)
+        viewModelScope.launch {
+            postEmailLogInUseCase(
+                EmailLogInRequestModel(
+                    email = uiState.value.emailInput,
+                    password = uiState.value.passwordInput,
+                ),
+            ).collect {
+                resultResponse(it, ::onSuccessPostEmailLogIn)
+            }
         }
     }
 
-    private fun saveAccessToken(data: String) {
+    private fun onSuccessPostEmailLogIn(data: TokenModel) {
+        d("[ktor] email response -> $data")
+        if (data.accessToken.isNotEmpty()) {
+            saveAccessToken(data)
+        }
+    }
+
+    private fun saveAccessToken(data: TokenModel) {
         viewModelScope.launch {
             saveTokenUseCase(data).collect { }
         }
+
+        emitEventFlow(LogInEvent.GoToHomePage)
     }
 }

@@ -26,7 +26,6 @@ fun NavGraphBuilder.loginNavGraph(
     ) {
         composable(NavRoutes.LogInScreen.route) {
             LogInScreen(
-                goToOnboardingPage = { navController.navigate(NavRoutes.HomeScreen.route) },
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
                 goToHome = { navController.navigate(NavRoutes.HomeScreen.route) },
             )
