@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,15 +28,27 @@ import com.tdd.talktobook.feature.onboarding.type.OnboardingPageType
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun OnboardingScreen() {
+internal fun OnboardingScreen(
+    goToHome: () -> Unit,
+) {
 
     val viewModel: OnboardingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is OnboardingEvent.GoToHomePage -> {
+                    goToHome()
+                }
+            }
+        }
+    }
+
     OnboardingContent(
         pageType = uiState.pageType,
         onClickNext = { viewModel.setPageType(it) },
-        onClickEditMember = {},
+        onClickEditMember = { viewModel.putEditMemberInfo() },
         selectedGender = uiState.gender,
         onSelectGender = { viewModel.setSelectedGender(it) },
         selectedAgeGroup = uiState.ageGroup,
@@ -153,7 +166,7 @@ private fun OnboardingGender(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        GenderType.entries.dropLast(1) .forEach { gender ->
+        GenderType.entries.dropLast(1).forEach { gender ->
             SelectRectangleItem(
                 itemText = gender.content,
                 modifier = Modifier.weight(1f),

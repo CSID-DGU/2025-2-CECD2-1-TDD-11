@@ -21,13 +21,9 @@ class MemberRepositoryImpl(
     override suspend fun putEditMemberInfo(request: EditMemberInfoModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             memberDataSource.editMemberInfo(
-                request.name,
-                request.bornedAt,
                 request.gender,
-                request.hasChildren,
                 request.occupation,
-                request.educationLevel,
-                request.maritalStatus,
+                request.ageGroup
             )
         })
 

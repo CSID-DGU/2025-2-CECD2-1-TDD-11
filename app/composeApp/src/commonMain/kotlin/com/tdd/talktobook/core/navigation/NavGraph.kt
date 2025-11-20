@@ -27,7 +27,7 @@ fun NavGraphBuilder.loginNavGraph(
         composable(NavRoutes.LogInScreen.route) {
             LogInScreen(
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
-                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) },
+                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) { popUpTo(0) } },
                 goToOnboarding = { navController.navigate(NavRoutes.OnboardingScreen.route) }
             )
         }
@@ -79,7 +79,9 @@ fun NavGraphBuilder.onboardingNavGraph(
         route = NavRoutes.OnboardingGraph.route,
     ) {
         composable(NavRoutes.OnboardingScreen.route) {
-            OnboardingScreen()
+            OnboardingScreen(
+                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) { popUpTo(0) } },
+            )
         }
     }
 }
