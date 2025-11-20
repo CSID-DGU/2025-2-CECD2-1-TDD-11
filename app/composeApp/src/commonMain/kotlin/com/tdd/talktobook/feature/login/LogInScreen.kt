@@ -56,7 +56,7 @@ internal fun LogInScreen(
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickSignUp = { goToSignUp() },
-        onClickNoLogIn = { viewModel.createMemberNoLogIn() }
+        onClickNoLogIn = { viewModel.createMemberNoLogIn() },
     )
 }
 
@@ -68,7 +68,7 @@ private fun LogInContent(
     passwordInput: String = "",
     onPasswordValueChange: (String) -> Unit = {},
     onClickSignUp: () -> Unit = {},
-    onClickNoLogIn: () -> Unit = {}
+    onClickNoLogIn: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -127,12 +127,12 @@ private fun LogInContent(
             onClickAction = onClickLogInBtn,
         )
 
-
         Text(
             text = "로그인 없이 시작하기",
-            style = BookShelfTypo.SemiBold.copy(
-                textDecoration = TextDecoration.Underline
-            ),
+            style =
+                BookShelfTypo.SemiBold.copy(
+                    textDecoration = TextDecoration.Underline,
+                ),
             color = Black1000,
             fontSize = 18.sp,
             modifier =
