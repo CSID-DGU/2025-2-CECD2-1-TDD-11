@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		5DCA780A67A2B505F7C9B781 /* 대화로책.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "대화로책.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DCA780A67A2B505F7C9B781 /* TalkToBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TalkToBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,7 +59,7 @@
 		19FC0DFA3BBBB3EF9143378E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5DCA780A67A2B505F7C9B781 /* 대화로책.app */,
+				5DCA780A67A2B505F7C9B781 /* TalkToBook.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,7 +87,7 @@
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = 5DCA780A67A2B505F7C9B781 /* 대화로책.app */;
+			productReference = 5DCA780A67A2B505F7C9B781 /* TalkToBook.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

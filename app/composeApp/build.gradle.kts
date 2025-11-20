@@ -88,11 +88,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.tdd.bookshelf"
+    namespace = "com.tdd.talktobook"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.tdd.bookshelf"
+        applicationId = "com.tdd.talktobook"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
 
@@ -123,7 +123,7 @@ android {
 }
 
 buildkonfig {
-    packageName = "com.tdd.bookshelf"
+    packageName = "com.tdd.talktobook"
 
     defaultConfigs {
         val baseUrl = properties.getProperty("BASE_URL")

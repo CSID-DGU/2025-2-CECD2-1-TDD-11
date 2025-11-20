@@ -1,0 +1,183 @@
+package com.tdd.talktobook.core.navigation
+
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.navigation
+import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
+import com.tdd.talktobook.feature.detailchapter.DetailChapterScreen
+import com.tdd.talktobook.feature.home.HomeScreen
+import com.tdd.talktobook.feature.interview.InterviewScreen
+import com.tdd.talktobook.feature.auth.login.LogInScreen
+import com.tdd.talktobook.feature.my.MyScreen
+import com.tdd.talktobook.feature.onboarding.OnboardingScreen
+import com.tdd.talktobook.feature.publication.PublicationScreen
+import com.tdd.talktobook.feature.auth.signup.SignUpScreen
+import com.tdd.talktobook.feature.home.interview.PastInterviewScreen
+
+fun NavGraphBuilder.loginNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.LogInScreen.route,
+        route = NavRoutes.LogInGraph.route,
+    ) {
+        composable(NavRoutes.LogInScreen.route) {
+            LogInScreen(
+                goToOnboardingPage = { navController.navigate(NavRoutes.HomeScreen.route) },
+                goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
+                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) },
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.signupNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.SignUpScreen.route,
+        route = NavRoutes.SignUpGraph.route,
+    ) {
+        composable(NavRoutes.SignUpScreen.route) {
+            SignUpScreen(
+//                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
+                goToPasswordChangePage = {},
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.emailCheckNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.EmailCheckScreen.route,
+        route = NavRoutes.EmailCheckGraph.route,
+    ) {
+        composable(
+            NavRoutes.EmailCheckScreen.route,
+            arguments = listOf(navArgument("email") { type = NavType.StringType }),
+        ) {
+            val email = it.arguments?.getString("email") ?: ""
+
+            EmailCheckScreen(
+                email = email,
+                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.onboardingNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.OnboardingScreen.route,
+        route = NavRoutes.OnboardingGraph.route,
+    ) {
+        composable(NavRoutes.OnboardingScreen.route) {
+            OnboardingScreen()
+        }
+    }
+}
+
+fun NavGraphBuilder.homeNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.HomeScreen.route,
+        route = NavRoutes.HomeGraph.route,
+    ) {
+        composable(NavRoutes.HomeScreen.route) {
+            HomeScreen(
+//                goToInterviewPage = { interviewId -> navController.navigate(NavRoutes.InterviewScreen.setRouteModel(interviewId)) },
+                goToPastInterviewPage = { date -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date)) },
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.pastInterviewNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.PastInterviewScreen.route,
+        route = NavRoutes.PastInterviewGraph.route,
+    ) {
+        composable(
+            route = NavRoutes.PastInterviewScreen.route,
+            arguments = listOf(navArgument("date") { type = NavType.StringType }),
+        ) {
+            val date = it.arguments?.getString("date") ?: ""
+
+            PastInterviewScreen(
+                goBackToHome = { navController.popBackStack() },
+                selectedDate = date,
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.interviewNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.InterviewScreen.route,
+        route = NavRoutes.InterviewGraph.route,
+    ) {
+        composable(route = NavRoutes.InterviewScreen.route) {
+            InterviewScreen()
+        }
+    }
+}
+
+fun NavGraphBuilder.detailChapterNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.DetailChapterScreen.route,
+        route = NavRoutes.DetailChapterGraph.route,
+    ) {
+        composable(
+            route = NavRoutes.DetailChapterScreen.route,
+            arguments = listOf(navArgument("autobiographyId") { type = NavType.IntType }),
+        ) {
+            val autobiographyId = it.arguments?.getInt("autobiographyId") ?: 0
+
+            DetailChapterScreen(
+                autobiographyId = autobiographyId,
+                goBackPage = { navController.popBackStack() },
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.publicationNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.PublicationScreen.route,
+        route = NavRoutes.PublicationGraph.route,
+    ) {
+        composable(NavRoutes.PublicationScreen.route) {
+            PublicationScreen()
+        }
+    }
+}
+
+fun NavGraphBuilder.myNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.MyPageScreen.route,
+        route = NavRoutes.MyPageGraph.route,
+    ) {
+        composable(NavRoutes.MyPageScreen.route) {
+            MyScreen()
+        }
+    }
+}
