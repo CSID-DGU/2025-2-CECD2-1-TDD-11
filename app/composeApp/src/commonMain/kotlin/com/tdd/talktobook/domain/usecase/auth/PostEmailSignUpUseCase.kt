@@ -10,7 +10,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class PostEmailSignUpUseCase(
     private val repository: AuthRepository,
-) : UseCase<EmailSignUpRequestModel, Result<TokenModel>>() {
-    override suspend fun invoke(request: EmailSignUpRequestModel): Flow<Result<TokenModel>> =
+) : UseCase<EmailSignUpRequestModel, Result<Boolean>>() {
+    override suspend fun invoke(request: EmailSignUpRequestModel): Flow<Result<Boolean>> =
         repository.postEmailSignUp(request)
 }

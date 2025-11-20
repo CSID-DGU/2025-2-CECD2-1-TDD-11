@@ -5,6 +5,7 @@ import com.tdd.talktobook.data.dataStore.LocalDataStore
 import com.tdd.talktobook.data.mapper.auth.EmailLogInMapper
 import com.tdd.talktobook.data.mapper.auth.EmailSignUpMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
+import com.tdd.talktobook.data.mapper.base.DefaultBooleanNotJsonMapper
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
@@ -39,7 +40,7 @@ class AuthRepositoryImpl(
         })
 
     override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = {
+        DefaultBooleanNotJsonMapper.responseToModel(apiCall = {
             authDataSource.postEmailSignUp(
                 request.email,
                 request.password,
@@ -47,7 +48,7 @@ class AuthRepositoryImpl(
         })
 
     override suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = {
+        DefaultBooleanNotJsonMapper.responseToModel(apiCall = {
             authDataSource.postEmailVerification(request.email, request.code)
         })
 }

@@ -4,15 +4,12 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
-import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
-import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class SignUpViewModel(
-    private val saveTokenUseCase: SaveTokenUseCase,
     private val postEmailSignUpUseCase: PostEmailSignUpUseCase,
 ) : BaseViewModel<SignUpPageState>(
     SignUpPageState(),
@@ -41,23 +38,12 @@ class SignUpViewModel(
                     password = uiState.value.passwordInput,
                 ),
             ).collect {
-                resultResponse(it, ::onSuccessPostEmailSignUp)
+                resultResponse(it, { data ->
+                    d("[ktor] sign up response -> $data")
+                })
             }
-        }
-    }
 
-    private fun onSuccessPostEmailSignUp(data: TokenModel) {
-        d("[ktor] sign up response -> $data")
-        if (data.accessToken.isNotEmpty()) {
-            saveAccessToken(data)
+            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
         }
-    }
-
-    private fun saveAccessToken(data: TokenModel) {
-        viewModelScope.launch {
-            saveTokenUseCase(data).collect { }
-        }
-
-        emitEventFlow(SignUpEvent.GoToEmailCheckPage)
     }
 }
