@@ -3,7 +3,6 @@ package com.tdd.bookshelf.feature.auth.signup
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.bookshelf.core.ui.base.BaseViewModel
-import com.tdd.bookshelf.domain.entity.request.auth.EmailSignUpRequestModel
 import com.tdd.bookshelf.domain.entity.response.auth.AccessTokenModel
 import com.tdd.bookshelf.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.bookshelf.domain.usecase.auth.SaveTokenUseCase
@@ -15,7 +14,7 @@ class SignUpViewModel(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val postEmailSignUpUseCase: PostEmailSignUpUseCase,
 ) : BaseViewModel<SignUpPageState>(
-    SignUpPageState(),
+        SignUpPageState(),
     ) {
     fun onEmailValueChange(newValue: String) {
         updateState(

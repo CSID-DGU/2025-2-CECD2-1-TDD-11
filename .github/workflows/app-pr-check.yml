@@ -54,7 +54,7 @@ jobs:
             :composeApp:compileKotlinIosArm64
 
       - name: iOS Xcode build (iosApp)
-        working-directory: iosApp
+        working-directory: app/iosApp
         run: |
           xcodebuild \
             -project iosApp.xcodeproj \

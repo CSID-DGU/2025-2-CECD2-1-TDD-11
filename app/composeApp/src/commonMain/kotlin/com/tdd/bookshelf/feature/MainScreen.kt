@@ -30,6 +30,7 @@ import com.tdd.bookshelf.core.navigation.interviewNavGraph
 import com.tdd.bookshelf.core.navigation.loginNavGraph
 import com.tdd.bookshelf.core.navigation.myNavGraph
 import com.tdd.bookshelf.core.navigation.onboardingNavGraph
+import com.tdd.bookshelf.core.navigation.pastInterviewNavGraph
 import com.tdd.bookshelf.core.navigation.publicationNavGraph
 import com.tdd.bookshelf.core.navigation.signupNavGraph
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -94,12 +95,15 @@ fun MainScreen() {
                     navController = navController,
                 )
                 emailCheckNavGraph(
-                    navController = navController
+                    navController = navController,
                 )
                 onboardingNavGraph(
                     navController = navController,
                 )
                 homeNavGraph(
+                    navController = navController,
+                )
+                pastInterviewNavGraph(
                     navController = navController,
                 )
                 interviewNavGraph(

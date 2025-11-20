@@ -24,17 +24,19 @@ fun UnderLineTextBtn(
     Text(
         text = textContent,
         color = textColor,
-        style = BookShelfTypo.Body2.copy(
-            textDecoration = TextDecoration.Underline
-        ),
+        style =
+            BookShelfTypo.Body2.copy(
+                textDecoration = TextDecoration.Underline,
+            ),
         textAlign = TextAlign.End,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = paddingEnd.dp)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(end = paddingEnd.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ),
     )
 }

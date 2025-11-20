@@ -11,15 +11,15 @@ import com.tdd.bookshelf.core.designsystem.BookShelfTypo
 @Composable
 fun SemiTitleText(
     semiTitle: String,
-    paddingTop: Int
+    paddingTop: Int,
 ) {
-
     Text(
         text = semiTitle,
         color = Black1,
         style = BookShelfTypo.Body1,
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = paddingTop.dp)
+        modifier =
+            Modifier
+                .padding(horizontal = 20.dp)
+                .padding(top = paddingTop.dp),
     )
 }

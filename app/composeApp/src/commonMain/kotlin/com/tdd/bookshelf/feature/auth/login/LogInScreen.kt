@@ -116,7 +116,7 @@ private fun LogInContent(
             interactionSource = interactionSource,
             textColor = Main1,
             paddingEnd = 25,
-            onClick = onClickSignUp
+            onClick = onClickSignUp,
         )
 
         Spacer(modifier = Modifier.weight(1f))

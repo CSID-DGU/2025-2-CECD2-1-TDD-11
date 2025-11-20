@@ -29,8 +29,6 @@ val Black1 = Color(0xFF200E32)
 // Red
 val Red1 = Color(0xFFF76D6D)
 
-
-
 // Legacy
 val BackGround3 = Color(0xFFF7F7F7)
 val BackGround4 = Color(0xFFF3F3F3)

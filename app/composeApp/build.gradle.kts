@@ -73,6 +73,8 @@ kotlin {
             implementation(libs.coil.svg)
             implementation(libs.image.loader)
 
+            implementation(libs.kotlinx.datetime)
+
             api(libs.datastore.preferences)
             api(libs.datastore)
         }

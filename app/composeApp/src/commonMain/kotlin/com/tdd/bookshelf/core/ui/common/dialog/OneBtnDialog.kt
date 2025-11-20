@@ -47,7 +47,7 @@ fun OneBtnDialog(
         bottomText = bottomText,
         onClickBtn = onClickBtn,
         onClickBottomText = onClickBottomText,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     )
 }
 
@@ -65,22 +65,24 @@ fun OneBtnDialogContent(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier = Modifier
-                .wrapContentHeight()
-                .width(266.dp),
+            modifier =
+                Modifier
+                    .wrapContentHeight()
+                    .width(266.dp),
             shape = RoundedCornerShape(5.dp),
-            colors = CardDefaults.cardColors(contentColor = White3)
+            colors = CardDefaults.cardColors(contentColor = White3),
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = title,
                     color = Black1,
                     style = BookShelfTypo.Head3,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(top = 25.dp)
+                    modifier =
+                        Modifier
+                            .padding(top = 25.dp),
                 )
 
                 Text(
@@ -88,14 +90,15 @@ fun OneBtnDialogContent(
                     color = Gray5,
                     style = BookShelfTypo.Body4,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(top = 20.dp, bottom = 30.dp)
+                    modifier =
+                        Modifier
+                            .padding(top = 20.dp, bottom = 30.dp),
                 )
 
                 RectangleBtn(
                     btnContent = btnText,
                     isBtnActivated = true,
-                    onClickAction = onClickBtn
+                    onClickAction = onClickBtn,
                 )
 
                 Spacer(modifier = Modifier.padding(if (isBottomTextVisible) 10.dp else 20.dp))
@@ -104,17 +107,19 @@ fun OneBtnDialogContent(
                     Text(
                         text = bottomText,
                         color = Gray5,
-                        style = BookShelfTypo.Body2.copy(
-                            textDecoration = TextDecoration.Underline
-                        ),
+                        style =
+                            BookShelfTypo.Body2.copy(
+                                textDecoration = TextDecoration.Underline,
+                            ),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(bottom = 15.dp)
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null,
-                                onClick = onClickBottomText
-                            )
+                        modifier =
+                            Modifier
+                                .padding(bottom = 15.dp)
+                                .clickable(
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                    onClick = onClickBottomText,
+                                ),
                     )
                 }
             }

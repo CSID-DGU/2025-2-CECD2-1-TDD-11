@@ -1,1 +1,1 @@
-# life-bookshelf-client
+# life-bookshelf-client-v2

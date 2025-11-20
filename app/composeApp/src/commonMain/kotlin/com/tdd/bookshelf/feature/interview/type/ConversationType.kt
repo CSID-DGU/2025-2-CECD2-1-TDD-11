@@ -1,22 +1,20 @@
 package com.tdd.bookshelf.feature.interview.type
 
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.img_interview_before
-import bookshelf.composeapp.generated.resources.img_interview_ing
 import com.tdd.bookshelf.core.designsystem.BeforeStart
+import com.tdd.bookshelf.core.designsystem.InterviewFinishBtn
 import com.tdd.bookshelf.core.designsystem.InterviewIng
-import org.jetbrains.compose.resources.DrawableResource
+import com.tdd.bookshelf.core.designsystem.InterviewStartBtn
 
 enum class ConversationType(
     val type: String,
-    val btnImg: DrawableResource,
+    val btnText: String,
 ) {
-    BEFORE(BeforeStart, Res.drawable.img_interview_before),
-    ING(InterviewIng, Res.drawable.img_interview_ing),
+    BEFORE(BeforeStart, InterviewStartBtn),
+    ING(InterviewIng, InterviewFinishBtn),
     ;
 
     companion object {
-        fun getConversationBtnImg(type: ConversationType): DrawableResource =
-            ConversationType.entries.firstOrNull { it == type }?.btnImg ?: Res.drawable.img_interview_before
+        fun getConversationBtnImg(type: ConversationType): String =
+            ConversationType.entries.firstOrNull { it == type }?.btnText ?: ""
     }
 }

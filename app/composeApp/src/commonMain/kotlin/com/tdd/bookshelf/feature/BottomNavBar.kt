@@ -40,6 +40,14 @@ fun BottomNavBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BottomNavItem(
+            navIcon = BottomNavType.getBottomNavIcon(BottomNavType.PUBLICATION),
+            isSelected = (type == BottomNavType.PUBLICATION),
+            type = BottomNavType.PUBLICATION,
+            onClick = { onClick(BottomNavType.getDestination(BottomNavType.PUBLICATION)) },
+            interactionSource = interactionSource,
+        )
+
+        BottomNavItem(
             navIcon = BottomNavType.getBottomNavIcon(BottomNavType.HOME),
             isSelected = (type == BottomNavType.HOME),
             type = BottomNavType.HOME,
@@ -48,10 +56,10 @@ fun BottomNavBar(
         )
 
         BottomNavItem(
-            navIcon = BottomNavType.getBottomNavIcon(BottomNavType.MY),
-            isSelected = (type == BottomNavType.MY),
-            type = BottomNavType.MY,
-            onClick = { onClick(BottomNavType.getDestination(BottomNavType.MY)) },
+            navIcon = BottomNavType.getBottomNavIcon(BottomNavType.INTERVIEW),
+            isSelected = (type == BottomNavType.INTERVIEW),
+            type = BottomNavType.INTERVIEW,
+            onClick = { onClick(BottomNavType.getDestination(BottomNavType.INTERVIEW)) },
             interactionSource = interactionSource,
         )
     }

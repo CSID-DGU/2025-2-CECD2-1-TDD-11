@@ -6,6 +6,16 @@ const val Empty = ""
 const val Blank = " "
 const val Confirm = "확인"
 
+// Day
+const val Mon = "월"
+const val Tue = "화"
+const val Wed = "수"
+const val Thu = "목"
+const val Fri = "금"
+const val Sat = "토"
+const val Sun = "일"
+const val DateContent = "%d일"
+
 // Publish Status
 const val Requested = "REQUESTED"
 const val RequestConfirmed = "REQUEST_CONFIRMED"
@@ -26,8 +36,8 @@ const val Left = "LEFT"
 
 // Bottom
 const val Home = "홈"
-const val Publication = "출판페이지"
-const val MyPage = "마이페이지"
+const val Publication = "자서전"
+const val Interview = "인터뷰"
 
 // LogIn
 const val LogInText = "로그인"
@@ -45,13 +55,23 @@ const val CodeHintText = "인증코드를 입력해 주세요."
 const val ChangePasswordText = "비밀번호 재설정"
 
 // Home
-const val HomeTitle = "당신의 이야기가 궁금해요"
+const val HomeTitle = "대화에서 발견한 소중한 기억들"
+const val HomeProgressTitle = "대화 진행률"
+const val HomeProgressFinish = "자서전 완성까지 "
+
 const val HomeSemiTitle = "또 와주셔서 감사해요, 여행자님"
 const val HomeCurrentProgressTitle = "현재 진행하고 있는 페이지"
 const val HomeCurrentChapterEmpty = "진행하고 있는 챕터가 없습니다"
 
 // Interview
-const val InterviewScreenTitle = "Interview Chat"
+const val InterviewScreenTitle = "인터뷰"
+const val InterviewStartBtn = "답변 시작하기"
+const val InterviewFinishBtn = "답변 중단하기"
+
+// Publication
+const val PublicationTitle = "생성된 자서전"
+const val PublicationBookWholeContent = "전체 보기"
+const val PublicationBookDelete = "자서전 삭제하기"
 
 // Detail Chapter
 const val DetailChapterTitle = "Detail Chapter"

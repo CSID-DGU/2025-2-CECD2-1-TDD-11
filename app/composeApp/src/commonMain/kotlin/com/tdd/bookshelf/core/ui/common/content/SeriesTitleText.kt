@@ -11,15 +11,15 @@ import com.tdd.bookshelf.core.designsystem.BookShelfTypo
 @Composable
 fun SeriesTitleText(
     currentTitle: String,
-    paddingTop: Int
+    paddingTop: Int,
 ) {
-
     Text(
         text = currentTitle,
         color = Black1,
         style = BookShelfTypo.Head3,
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = paddingTop.dp)
+        modifier =
+            Modifier
+                .padding(horizontal = 20.dp)
+                .padding(top = paddingTop.dp),
     )
 }

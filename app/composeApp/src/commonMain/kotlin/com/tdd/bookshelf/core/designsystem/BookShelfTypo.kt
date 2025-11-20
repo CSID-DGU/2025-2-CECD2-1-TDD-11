@@ -28,7 +28,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp,
-                lineHeight = 56.sp
+                lineHeight = 56.sp,
             )
 
     val Head2: TextStyle
@@ -37,7 +37,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.Medium,
                 fontSize = 20.sp,
-                lineHeight = 56.sp
+                lineHeight = 56.sp,
             )
 
     val Head3: TextStyle
@@ -46,7 +46,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
-                lineHeight = 28.sp
+                lineHeight = 28.sp,
             )
 
     val Head4: TextStyle
@@ -55,7 +55,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp,
-                lineHeight = 28.sp
+                lineHeight = 28.sp,
             )
 
     val Head10: TextStyle
@@ -88,7 +88,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
-                lineHeight = 24.sp
+                lineHeight = 24.sp,
             )
 
     val Body2: TextStyle
@@ -97,7 +97,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
-                lineHeight = 24.sp
+                lineHeight = 24.sp,
             )
 
     val Body3: TextStyle
@@ -106,7 +106,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
-                lineHeight = 20.sp
+                lineHeight = 20.sp,
             )
 
     val Body4: TextStyle
@@ -115,7 +115,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
-                lineHeight = 20.sp
+                lineHeight = 20.sp,
             )
 
     val Body10: TextStyle
@@ -156,7 +156,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 12.sp,
-                lineHeight = 18.sp
+                lineHeight = 18.sp,
             )
 
     val Caption2: TextStyle
@@ -165,7 +165,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 10.sp,
-                lineHeight = 12.sp
+                lineHeight = 12.sp,
             )
 
     val Caption3: TextStyle
@@ -174,7 +174,7 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.Normal,
                 fontSize = 18.sp,
-                lineHeight = 28.sp
+                lineHeight = 28.sp,
             )
 
     val Caption4: TextStyle
@@ -183,9 +183,8 @@ object BookShelfTypo {
                 fontFamily = setFont(),
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
-                lineHeight = 20.sp
+                lineHeight = 20.sp,
             )
-
 
     // Legacy
     val Black: TextStyle

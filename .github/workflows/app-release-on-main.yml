@@ -55,8 +55,8 @@ jobs:
 
       # --------- iOS: XCode Release 빌드 (시뮬레이터용) ----------
       - name: iOS Xcode build (iosApp Release for Simulator)
+        working-directory: app/iosApp
         run: |
-          cd iosApp
           xcodebuild \
             -project iosApp.xcodeproj \
             -scheme iosApp \
@@ -68,8 +68,8 @@ jobs:
 
       # --------- iOS: 빌드된 ios를 아티팩트로 업로드 ----------
       - name: Package iOS .app as zip
+        working-directory: app/iosApp
         run: |
-          cd iosApp
           APP_PATH=$(find build/ios/Build/Products -maxdepth 4 -name "*.app" -print | head -n 1)
           echo "Found app: $APP_PATH"
           if [ -z "$APP_PATH" ]; then

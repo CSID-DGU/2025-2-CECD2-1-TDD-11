@@ -17,15 +17,16 @@ import com.tdd.bookshelf.core.designsystem.White2
 
 @Composable
 fun DisEnabledTextFieldBox(
-    textContent: String
+    textContent: String,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .border(1.dp, Black1, RoundedCornerShape(5.dp))
-            .background(White2),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .border(1.dp, Black1, RoundedCornerShape(5.dp))
+                .background(White2),
     ) {
         Text(
             text = textContent,
@@ -34,7 +35,7 @@ fun DisEnabledTextFieldBox(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 15.dp, vertical = 18.dp)
+                    .padding(horizontal = 15.dp, vertical = 18.dp),
         )
     }
 }
