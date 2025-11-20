@@ -27,7 +27,6 @@ class AuthRepositoryImpl(
     override suspend fun saveTokenModel(request: TokenModel): Flow<Result<Unit>> = flow {
         localDataStore.saveAccessToken(request.accessToken)
         localDataStore.saveRefreshToken(request.refreshToken)
-        localDataStore.saveMetaData(request.metadataSuccess)
     }
 
     override suspend fun postEmailLogIn(request: EmailLogInRequestModel): Flow<Result<TokenModel>> =
@@ -39,8 +38,8 @@ class AuthRepositoryImpl(
             )
         })
 
-    override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<TokenModel>> =
-        EmailSignUpMapper.responseToModel(apiCall = {
+    override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = {
             authDataSource.postEmailSignUp(
                 request.email,
                 request.password,
