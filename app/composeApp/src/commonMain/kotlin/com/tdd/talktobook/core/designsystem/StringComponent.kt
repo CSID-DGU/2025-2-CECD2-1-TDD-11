@@ -85,6 +85,7 @@ const val OccupationWriteHint = "직업군을 작성해 주세요. ex) 개발자
 const val HomeTitle = "대화에서 발견한 소중한 기억들"
 const val HomeProgressTitle = "대화 진행률"
 const val HomeProgressFinish = "자서전 완성까지 "
+const val HomeStartProgress = "자서전 생성 시작하기"
 
 const val HomeSemiTitle = "또 와주셔서 감사해요, 여행자님"
 const val HomeCurrentProgressTitle = "현재 진행하고 있는 페이지"

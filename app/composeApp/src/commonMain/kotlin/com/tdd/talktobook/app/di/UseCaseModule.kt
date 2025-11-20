@@ -8,6 +8,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.DeleteAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesDetailUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyChaptersUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostEditAutobiographyDetailUseCase
@@ -50,6 +51,7 @@ val useCaseModule =
         factory { GetAutobiographiesChapterListUseCase(get()) }
         factory { PostCreateAutobiographyChaptersUseCase(get()) }
         factory { PostUpdateCurrentChapterUseCase(get()) }
+        factory { GetCurrentProgressAutobiographyUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }

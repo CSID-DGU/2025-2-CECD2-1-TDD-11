@@ -7,6 +7,7 @@ import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiograph
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Multipart
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import io.ktor.client.statement.HttpResponse
@@ -46,4 +47,8 @@ interface AutobiographyService {
 
     @POST(EndPoints.Autobiography.UPDATECURRENTCHAPTER)
     suspend fun updateCurrentChapter(): HttpResponse
+
+    @Multipart
+    @POST(EndPoints.Autobiography.CURRENT_PROGRESS_AUTOBIOGRAPHIES)
+    suspend fun getCurrentProgressAutobiography(): HttpResponse
 }

@@ -38,7 +38,7 @@ fun RectangleBtn(
 }
 
 @Composable
-fun RectangleBtnContent(
+private fun RectangleBtnContent(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     btnTextContent: String,
     isBtnActivated: Boolean = false,

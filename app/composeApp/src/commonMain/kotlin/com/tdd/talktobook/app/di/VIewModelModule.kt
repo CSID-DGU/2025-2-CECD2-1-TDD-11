@@ -22,7 +22,7 @@ val viewModelModule =
         viewModel { EmailCheckViewModel(get()) }
         viewModel { OnboardingViewModel(get()) }
         viewModel { InterviewViewModel(get(), get()) }
-        viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
+        viewModel { HomeViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { PastInterviewViewModel() }
         viewModel { DetailChapterViewModel(get()) }
         viewModel { MyViewModel(get(), get(), get()) }

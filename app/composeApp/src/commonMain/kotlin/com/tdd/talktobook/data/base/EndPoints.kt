@@ -13,6 +13,7 @@ object EndPoints {
         const val AUTOBIOGRAPHIESDETAIL = "$AUTOBIOGRAPHIES/{autobiographyId}"
         const val AUTOBIOGRAPHIESCHAPTER = "$AUTOBIOGRAPHIES/chapters"
         const val UPDATECURRENTCHAPTER = "$AUTOBIOGRAPHIESCHAPTER/current-chapter"
+        const val CURRENT_PROGRESS_AUTOBIOGRAPHIES = "$AUTOBIOGRAPHIES/current"
     }
 
     object Member {

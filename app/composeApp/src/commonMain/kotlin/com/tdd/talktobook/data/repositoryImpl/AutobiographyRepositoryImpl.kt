@@ -7,6 +7,7 @@ import com.tdd.talktobook.data.mapper.autobiograph.AutobiographyChapterMapper
 import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyChaptersMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.EditAutobiographyDetailMapper.toDto
+import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
@@ -14,6 +15,7 @@ import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyD
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import com.tdd.talktobook.domain.repository.AutobiographyRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
@@ -68,4 +70,7 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun postUpdateCurrentChapter(): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.postUpdateCurrentChapter() })
+
+    override suspend fun getCurrentProgressAutobiography(): Flow<Result<CurrentProgressAutobiographyModel>> =
+        GetCurrentProgressMapper.responseToModel(apiCall = { autobiographyDataSource.getCurrentProgressAutobiography() })
 }

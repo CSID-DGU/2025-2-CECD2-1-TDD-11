@@ -38,4 +38,7 @@ class AutobiographyDataSourceImpl(
 
     override suspend fun postUpdateCurrentChapter(): HttpResponse =
         autobiographyService.updateCurrentChapter()
+
+    override suspend fun getCurrentProgressAutobiography(): HttpResponse =
+        autobiographyService.getCurrentProgressAutobiography()
 }

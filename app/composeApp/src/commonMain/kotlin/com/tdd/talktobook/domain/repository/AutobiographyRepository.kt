@@ -6,6 +6,7 @@ import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyD
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import kotlinx.coroutines.flow.Flow
 
 interface AutobiographyRepository {
@@ -24,4 +25,6 @@ interface AutobiographyRepository {
     suspend fun postCreateChapterList(body: CreateAutobiographyChaptersRequestModel): Flow<Result<Boolean>>
 
     suspend fun postUpdateCurrentChapter(): Flow<Result<Boolean>>
+
+    suspend fun getCurrentProgressAutobiography(): Flow<Result<CurrentProgressAutobiographyModel>>
 }
