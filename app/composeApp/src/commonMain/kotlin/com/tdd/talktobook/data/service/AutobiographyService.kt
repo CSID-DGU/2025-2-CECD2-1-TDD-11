@@ -49,7 +49,6 @@ interface AutobiographyService {
     @POST(EndPoints.Autobiography.UPDATECURRENTCHAPTER)
     suspend fun updateCurrentChapter(): HttpResponse
 
-//    @Multipart
     @GET(EndPoints.Autobiography.CURRENT_PROGRESS_AUTOBIOGRAPHIES)
     suspend fun getCurrentProgressAutobiography(): HttpResponse
 
@@ -58,5 +57,10 @@ interface AutobiographyService {
     suspend fun postStartProgress(
         @Part("theme") theme: String,
         @Part("reason") reason: String
+    ): HttpResponse
+
+    @GET(EndPoints.Autobiography.COUNT_MATERIALS)
+    suspend fun getCountMaterials(
+        @Path("autobiographyId") autobiographyId: Int
     ): HttpResponse
 }

@@ -202,7 +202,7 @@ private fun HomeMaterialList(
     isCurrentProgress: Boolean,
     onClickStartProgress: () -> Unit
 ) {
-    if (isCurrentProgress ){
+    if (isCurrentProgress) {
         LazyRow(
             modifier =
                 Modifier

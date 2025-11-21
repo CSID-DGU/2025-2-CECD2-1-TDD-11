@@ -64,7 +64,10 @@ class HomeViewModel(
         when (data.isProgress) {
             true -> {
                 updateState(
-                    uiState.value.copy(currentAutobiographyId = data.autobiographyId)
+                    uiState.value.copy(
+                        currentAutobiographyId = data.autobiographyId,
+                        isCurrentProgress = true
+                    )
                 )
             }
             false -> {
