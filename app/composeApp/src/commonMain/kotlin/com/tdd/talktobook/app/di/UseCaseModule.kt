@@ -23,6 +23,7 @@ import com.tdd.talktobook.domain.usecase.interview.PostInterviewConversationUseC
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewRenewalUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewChatUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewQuestionUseCase
+import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberProfileUseCase
 import com.tdd.talktobook.domain.usecase.member.PutEditMemberInfoUseCase
@@ -82,4 +83,5 @@ val useCaseModule =
         // Interview
         factory { PostCreateInterviewQuestionUseCase(get()) }
         factory { PostCreateInterviewChatUseCase(get()) }
+        factory { PostStartInterviewUseCase(get()) }
     }

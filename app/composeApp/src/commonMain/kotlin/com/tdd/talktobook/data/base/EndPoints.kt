@@ -29,6 +29,7 @@ object EndPoints {
         private const val INTERVIEWID = "$INTERVIEW/{interviewId}"
         const val INTERVIEWQUESTION = "$INTERVIEW/interview-questions"
         const val CREATEINTERVIEW = "$INTERVIEW/interview-chat"
+        const val START_INTERVIEW = "$INTERVIEW/start/{autobiography_id}"
 
         const val INTERVIEWCONVERSATION = "$INTERVIEWID/conversations"
         const val INTERVIEWRENEWAL = "$INTERVIEWID/questions/current-question"

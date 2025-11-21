@@ -5,9 +5,13 @@ import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewConversationMa
 import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewConversationMapper.toDto
 import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewQuestionMapper
 import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewQuestionMapper.toDto
+import com.tdd.talktobook.data.mapper.interview.ai.StartInterviewMapper
+import com.tdd.talktobook.data.mapper.interview.ai.StartInterviewMapper.toDto
 import com.tdd.talktobook.domain.entity.request.interview.ai.CreateInterviewChatRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.ai.InterviewQuestionsRequestModel
+import com.tdd.talktobook.domain.entity.request.interview.ai.StartInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.InterviewQuestionsAIResponseModel
+import com.tdd.talktobook.domain.entity.response.interview.ai.StartInterviewResponseModel
 import com.tdd.talktobook.domain.repository.InterviewAIRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
@@ -28,5 +32,10 @@ class InterviewAIRepositoryImpl(
             interviewAIDataSource.postCreateInterviewChat(
                 body.toDto(),
             )
+        })
+
+    override suspend fun postStartInterview(body: StartInterviewRequestModel): Flow<Result<StartInterviewResponseModel>> =
+        StartInterviewMapper.responseToModel(apiCall = {
+            interviewAIDataSource.postStartInterview(body.autobiographyId, body.toDto())
         })
 }
