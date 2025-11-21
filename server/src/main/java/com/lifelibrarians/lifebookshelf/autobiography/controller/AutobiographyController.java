@@ -23,6 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v2/autobiographies")
@@ -56,9 +58,10 @@ public class AutobiographyController {
 	public AutobiographyListResponseDto getAutobiographies(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
 			@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "10") int size
+			@RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "statuses", defaultValue = "EMPTY,PROGRESSING,ENOUGH,CREATING,FINISH", required = false) List<String> statuses // ex.: ["PROGRESSING", "ENOUGH", "COMPLETED"]
 	) {
-		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), PageRequest.of(page, size));
+		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), statuses, PageRequest.of(page, size));
 	}
 
     @Operation(summary = "특정 자서전에서 count된 소재를 오름차순으로 반환", description = "auto id에 맞는 자서전에서 count 된 모든 소재에서 가 해당 자서전에서 count 된 소재를 count(가중치) 기준 내림차순으로 반환한다.")
@@ -73,7 +76,7 @@ public class AutobiographyController {
             @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sort", defaultValue = "asc") String sort
+            @RequestParam(value = "sort", defaultValue = "asc", required = false) String sort
     ) {
         return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, sort, PageRequest.of(page, size));
     }

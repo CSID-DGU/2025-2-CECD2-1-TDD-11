@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Logging
@@ -20,8 +22,8 @@ public class AutobiographyFacadeService {
         return autobiographyCommandService.initAutobiography(memberId, requestDto);
     }
 
-	public AutobiographyListResponseDto getAutobiographies(Long memberId, Pageable pageable) {
-		return autobiographyQueryService.getAutobiographies(memberId, pageable);
+	public AutobiographyListResponseDto getAutobiographies(Long memberId, List<String> statuses, Pageable pageable) {
+		return autobiographyQueryService.getAutobiographies(memberId, statuses, pageable);
 	}
 
     public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, String sort, Pageable pageable) {

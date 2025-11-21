@@ -35,10 +35,14 @@ public class AutobiographyQueryService {
     private final MaterialRepository materialRepository;
 	private final AutobiographyMapper autobiographyMapper;
 
-    public AutobiographyListResponseDto getAutobiographies(Long memberId, Pageable pageable) {
+    public AutobiographyListResponseDto getAutobiographies(Long memberId, List<String> statuses, Pageable pageable) {
+
+        List<AutobiographyStatusType> statusTypes = statuses.stream()
+                .map(AutobiographyStatusType::valueOf)
+                .collect(Collectors.toList());
 
         Page<Autobiography> autobiographyPage =
-                autobiographyRepository.findWithAtLeastOneInterview(memberId, pageable);
+                autobiographyRepository.findByMemberIdAndStatusesPaged(memberId, statusTypes, pageable);
 
         List<AutobiographyPreviewDto> dtoList =
                 autobiographyPage.getContent().stream()
