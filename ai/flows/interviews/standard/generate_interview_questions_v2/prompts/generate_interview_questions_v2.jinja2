@@ -7,7 +7,7 @@ The model MUST output **exactly one question in Korean**, with no explanations, 
 user:
 [User Inputs]
 - Material: {{ material }}
-- Question Type: {{ qtype }}  {# w1|w2|w3|w4|w5|w6|ex|con #}
+- Question Type: {{ qtype }}  {# when_where|how1|who|what|how2|why|ex|con #}
 {% if keywords %}- Previous Answer: {{ keywords[0] }}{% endif %}
 - Tone: {{ tone }}
 - Max Length: {{ max_len }} characters
@@ -27,27 +27,28 @@ user:
 [8-Dimension Cognitive Mapping for Question Types]
 Use the following meaning to guide how the question probes deeper:
 
-- **w1: When/Where** → Time, period, place
+- **when_where: When/Where** → Time, period, place
   - Focus on 시기/장소/상황을 떠올리게 하는 질문
   - Principle mapping: [1,0,0,0,0,0]
 
-- **w2: How1** → Method, process, means
+- **how1: How (Method)** → Method, process, means
   - "어떤 방식으로 했는지"를 묻는 질문
   - Principle mapping: [0,1,0,0,0,0]
 
-- **w3: Who** → People involved
+- **who: Who** → People involved
   - "누가 함께 있었는지"를 유도
   - Principle mapping: [0,0,1,0,0,0]
 
-- **w4: What** → Action, event, content
+- **what: What** → Action, event, content
   - "무엇을 했는지 / 어떤 일이 있었는지"
   - Principle mapping: [0,0,0,1,0,0]
 
-- **w5: How2** → Emotions, inner perception
-  - 감정, 느낌, 당시의 인식·정서를 유도
+- **how2: How (Emotion)** → Emotions, inner perception
+  - "어떻게 느꼈는지", "당시 감정이 어땠는지", "마음이 어땠는지"
+  - 감정, 느낌, 당시의 인식·정서를 유도 (장소/상황 아님!)
   - Principle mapping: [0,0,0,0,1,0]
 
-- **w6: Why** → Reason, motivation, cause
+- **why: Why** → Reason, motivation, cause
   - 사건의 이유/배경/동기를 묻도록
   - Principle mapping: [0,0,0,0,0,1]
 
@@ -62,9 +63,9 @@ Use the following meaning to guide how the question probes deeper:
 [STAR / SCTAR Integration Rules]
 Use STAR/SCTAR logic implicitly:
 - **ex** type questions → evoke Scene/Situation + Action + Result
-- **w6** (why) → evoke Context, Task, and deeper motivations
-- **w2/w5** → evoke Action details (방법/과정 + 감정/내적 인식)
-- **w1/w3** → evoke detailed Scene elements (누가, 언제, 어디서)
+- **why** → evoke Context, Task, and deeper motivations
+- **how1/how2** → evoke Action details (방법/과정 + 감정/내적 인식)
+- **when_where/who** → evoke detailed Scene elements (누가, 언제, 어디서)
 
 [Output Format Requirement]
 - Output **ONLY ONE Korean question sentence.**

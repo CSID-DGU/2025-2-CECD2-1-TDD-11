@@ -249,11 +249,16 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         if not target:
             return {"next_question": None, "last_answer_materials_id": []}
 
-        # 프롬프트용 타입 변환
+        # 타입 매핑: 엔진 타입 → 프롬프트 타입
         type_mapping = {
-            "w1": "when", "w2": "how", "w3": "who",
-            "w4": "what", "w5": "where", "w6": "why",
-            "ex": "ex", "con": "con"
+            "w1": "when_where",
+            "w2": "how1",
+            "w3": "who",
+            "w4": "what",
+            "w5": "how2",
+            "w6": "why",
+            "ex": "ex",
+            "con": "con"
         }
         prompt_type = type_mapping.get(target, target)
 
