@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 
 from auth import get_current_user, AuthRequired
-from interviews.interview_summary.dto.request import InterviewSummaryRequestDto
-from interviews.interview_summary.dto.response import InterviewSummaryResponseDto
+from ..dto.request import InterviewSummaryRequestDto
+from ..dto.response import InterviewSummaryResponseDto
 from logs import get_logger
 
 # flow 경로 추가
@@ -25,7 +25,7 @@ flow = load_flow(str(flow_path))
 
 
 @router.post(
-    "/api/v2/interviews/{interview_id}/summary",
+    "/{interview_id}/summary",
     dependencies=[Depends(AuthRequired())],
     response_model=InterviewSummaryResponseDto,
     summary="인터뷰 요약",
