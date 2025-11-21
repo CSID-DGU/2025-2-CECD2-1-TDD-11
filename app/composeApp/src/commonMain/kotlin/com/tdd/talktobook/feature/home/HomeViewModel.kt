@@ -3,36 +3,29 @@ package com.tdd.talktobook.feature.home
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
-import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
-import com.tdd.talktobook.domain.entity.request.autobiography.InterviewQuestionModel
-import com.tdd.talktobook.domain.entity.request.interview.ai.InterviewQuestionsRequestModel
-import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
-import com.tdd.talktobook.domain.entity.response.autobiography.ChapterInfoModel
+import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterItemModel
-import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
-import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsResponseModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import com.tdd.talktobook.domain.entity.response.autobiography.SubChapterItemModel
-import com.tdd.talktobook.domain.entity.response.interview.MonthInterviewItemModel
-import com.tdd.talktobook.domain.entity.response.interview.ai.InterviewQuestionsAIResponseModel
-import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
+import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesListModel
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewQuestionUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
-import kotlin.time.ExperimentalTime
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.LocalDate
+import org.koin.android.annotation.KoinViewModel
+import kotlin.time.ExperimentalTime
 
 @KoinViewModel
 class HomeViewModel(
@@ -43,17 +36,18 @@ class HomeViewModel(
     private val postCreateAutobiographyUseCase: PostCreateAutobiographyUseCase,
     private val getCurrentProgressAutobiographyUseCase: GetCurrentProgressAutobiographyUseCase,
     private val getCurrentInterviewProgressUseCase: GetCurrentInterviewProgressUseCase,
-    private val getCountMaterialsUseCase: GetCountMaterialsUseCase
+    private val getCountMaterialsUseCase: GetCountMaterialsUseCase,
+    private val getInterviewSummariesUseCase: GetInterviewSummariesUseCase,
 ) : BaseViewModel<HomePageState>(
-        HomePageState(),
-    ) {
+    HomePageState(),
+) {
     init {
 //        initSetChapterList()
 //        initSetAllAutobiography(GetAutobiographyType.DEFAULT)
 //        initSetTodayDate()
 //        initSetCreatedMaterials()
 //        initSetAutobiographyProgress()
-        initSetMonthInterviewList()
+//        initSetMonthInterviewList()
 
 
         initSetTodayDate()
@@ -61,10 +55,7 @@ class HomeViewModel(
     }
 
     private fun initSetTodayDate() {
-        val today =
-            Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-                .date
+        val today = uiState.value.today
         val todayDate =
             buildString {
                 append(today.year.toString().padStart(4, '0'))
@@ -88,7 +79,7 @@ class HomeViewModel(
         }
     }
 
-    private fun onSuccessGetCurrent(data: CurrentProgressAutobiographyModel)  {
+    private fun onSuccessGetCurrent(data: CurrentProgressAutobiographyModel) {
         d("[ktor] homeViewmodel -> $data")
         when (data.isProgress) {
             true -> {
@@ -100,6 +91,7 @@ class HomeViewModel(
 //                )
                 setCurrentState(data)
             }
+
             false -> {
                 updateState(
                     uiState.value.copy(isCurrentProgress = false)
@@ -118,6 +110,7 @@ class HomeViewModel(
 
         initSetCreatedMaterials(data.autobiographyId)
         initSetInterviewProgress(data.autobiographyId)
+        initSetMonthInterviewList(data.autobiographyId)
     }
 
 
@@ -156,45 +149,19 @@ class HomeViewModel(
         )
     }
 
-    private fun initSetMonthInterviewList() {
-        val monthInterviews: List<MonthInterviewItemModel> =
-            listOf(
-                MonthInterviewItemModel(0, 0, "오늘은 이런대화", 1),
-                MonthInterviewItemModel(1, 0, "이러쿵 저러쿵", 5),
-                MonthInterviewItemModel(2, 0, "", 0),
-                MonthInterviewItemModel(3, 0, "", 0),
-                MonthInterviewItemModel(4, 0, "", 0),
-                MonthInterviewItemModel(5, 0, "", 0),
-                MonthInterviewItemModel(6, 0, "", 0),
-                MonthInterviewItemModel(7, 0, "", 0),
-                MonthInterviewItemModel(8, 0, "", 0),
-                MonthInterviewItemModel(9, 0, "인터뷰를 하자", 10),
-                MonthInterviewItemModel(10, 0, "", 0),
-                MonthInterviewItemModel(11, 0, "", 0),
-                MonthInterviewItemModel(12, 0, "", 0),
-                MonthInterviewItemModel(13, 0, "", 0),
-                MonthInterviewItemModel(14, 0, "", 0),
-                MonthInterviewItemModel(15, 0, "", 0),
-                MonthInterviewItemModel(16, 0, "아아아아", 6),
-                MonthInterviewItemModel(17, 0, "", 0),
-                MonthInterviewItemModel(18, 0, "", 0),
-                MonthInterviewItemModel(19, 0, "", 0),
-                MonthInterviewItemModel(20, 0, "", 0),
-                MonthInterviewItemModel(21, 0, "", 0),
-                MonthInterviewItemModel(22, 0, "", 0),
-                MonthInterviewItemModel(23, 0, "", 0),
-                MonthInterviewItemModel(24, 0, "", 0),
-                MonthInterviewItemModel(25, 0, "", 0),
-                MonthInterviewItemModel(26, 0, "", 0),
-                MonthInterviewItemModel(27, 0, "", 0),
-                MonthInterviewItemModel(28, 0, "", 0),
-                MonthInterviewItemModel(29, 0, "", 0),
-                MonthInterviewItemModel(30, 0, "", 0),
-            )
+    private fun initSetMonthInterviewList(autobiographyId: Int) {
+        val today = uiState.value.today
 
+        viewModelScope.launch {
+            getInterviewSummariesUseCase(InterviewSummariesRequestModel(autobiographyId, today.year, today.monthNumber)).collect { resultResponse(it, ::onSuccessGetMonthSummaries) }
+        }
+    }
+
+    private fun onSuccessGetMonthSummaries(interviews: InterviewSummariesListModel) {
+        d("[ktor] homeViewmodel -> ${interviews.interviews}")
         updateState(
             uiState.value.copy(
-                monthInterviewList = monthInterviews,
+                monthInterviewList = interviews.interviews,
             ),
         )
     }

@@ -16,8 +16,8 @@ class PastInterviewViewModel() : BaseViewModel<PastInterviewPageState>(
     private fun initSetInterviewList() {
         val interviews: List<InterviewChatItem> =
             listOf(
-                InterviewChatItem("나는 AI", ChatType.BOT),
-                InterviewChatItem("나는 인간", ChatType.HUMAN),
+//                InterviewChatItem(0, "나는 AI", ChatType.BOT),
+//                InterviewChatItem("나는 인간", ChatType.HUMAN),
             )
 
         updateState(

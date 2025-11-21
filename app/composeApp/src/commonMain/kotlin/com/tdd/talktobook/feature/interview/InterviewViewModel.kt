@@ -28,9 +28,9 @@ class InterviewViewModel(
     private fun initSetMockInterviewList() {
         val interviews: List<InterviewChatItem> =
             listOf(
-                InterviewChatItem("나는 AI", ChatType.BOT),
-                InterviewChatItem("나는 인간", ChatType.HUMAN),
-                InterviewChatItem("AIAI", ChatType.BOT),
+//                InterviewChatItem("나는 AI", ChatType.BOT),
+//                InterviewChatItem("나는 인간", ChatType.HUMAN),
+//                InterviewChatItem("AIAI", ChatType.BOT),
             )
 
         updateState(

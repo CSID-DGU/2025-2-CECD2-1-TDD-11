@@ -7,13 +7,18 @@ import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyL
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterItemModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.autobiography.SubChapterItemModel
-import com.tdd.talktobook.domain.entity.response.interview.MonthInterviewItemModel
+import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 data class HomePageState(
     val createdMaterialList: List<CountMaterialsItemModel> = emptyList(),
     val autobiographyProgress: Float = 0f,
-    val monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
+    val monthInterviewList: List<InterviewSummariesItemModel> = emptyList(),
+    val today: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
     val selectedDay: Int = 1,
     val selectedDate: String = "",
     val currentAutobiographyId: Int = 0,

@@ -44,6 +44,8 @@ import com.tdd.talktobook.core.designsystem.BookShelf
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Fri
 import com.tdd.talktobook.core.designsystem.Gray1
+import com.tdd.talktobook.core.designsystem.HomeNotExistInterview
+import com.tdd.talktobook.core.designsystem.HomeNotExistSummary
 import com.tdd.talktobook.core.designsystem.HomeProgressFinish
 import com.tdd.talktobook.core.designsystem.HomeProgressTitle
 import com.tdd.talktobook.core.designsystem.HomeStartProgress
@@ -62,7 +64,7 @@ import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
 import com.tdd.talktobook.core.ui.util.generateCalendarDays
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
-import com.tdd.talktobook.domain.entity.response.interview.MonthInterviewItemModel
+import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -109,7 +111,7 @@ private fun HomeContent(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     createdMaterialList: List<CountMaterialsItemModel> = emptyList(),
     interviewProgress: Float = 0f,
-    monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
+    monthInterviewList: List<InterviewSummariesItemModel> = emptyList(),
     days: List<LocalDate> = emptyList(),
     selectedDay: Int = 0,
     selectedDate: String = "",
@@ -159,7 +161,7 @@ private fun HomeContent(
 
         HomeInterviewSummary(
             selectedDate = selectedDate,
-            selectedDateSummary = monthInterviewList[selectedDay].summary,
+            selectedDateSummary = if (monthInterviewList.isNotEmpty()) monthInterviewList[selectedDay].summary else HomeNotExistSummary,
             interactionSource = interactionSource,
             onClick = onClickSummary,
         )
@@ -289,7 +291,7 @@ private fun HomeInterviewCalendar(
     modifier: Modifier,
     selectedDate: String,
     selectedDay: Int,
-    interviewList: List<MonthInterviewItemModel>,
+    interviewList: List<InterviewSummariesItemModel>,
     interactionSource: MutableInteractionSource,
     days: List<LocalDate>,
     onSelectDay: (Int) -> Unit,
@@ -317,7 +319,7 @@ private fun HomeInterviewCalendar(
                     )
 
                     Text(
-                        text = "${selectedDay}일 ${interviewList[selectedDay].totalAnswerCount}번의 대화 수행",
+                        text = if (interviewList.isEmpty()) HomeNotExistInterview else "${selectedDay}일 ${interviewList[selectedDay].totalAnswerCount}번의 대화 수행",
                         color = Main1,
                         style = BookShelfTypo.Caption4,
                         modifier =
@@ -371,7 +373,7 @@ private fun CalendarDayOfMonth(
     interactionSource: MutableInteractionSource,
     onSelectDay: (Int) -> Unit,
     selectedDay: Int,
-    interviewList: List<MonthInterviewItemModel>,
+    interviewList: List<InterviewSummariesItemModel>,
 ) {
     Column(
         modifier =
@@ -403,7 +405,7 @@ private fun CalendarDayOfMonth(
                             interactionSource = interactionSource,
                             onSelect = { onSelectDay(day.dayOfMonth) },
                             isSelectedDate = (day.dayOfMonth == selectedDay),
-                            isInterviewNumNotZero = (interviewList[day.dayOfMonth].totalAnswerCount != 0),
+                            isInterviewNumNotZero = if (interviewList.isNotEmpty()) (interviewList[day.dayOfMonth].totalMessageCount != 0) else false,
                         )
                     }
                 }
@@ -431,7 +433,6 @@ private fun CalendarDateItem(
         modifier =
             modifier
                 .clickable(
-                    enabled = isInterviewNumNotZero,
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onSelect,
