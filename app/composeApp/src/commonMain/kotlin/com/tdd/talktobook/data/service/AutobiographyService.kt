@@ -49,8 +49,8 @@ interface AutobiographyService {
     @POST(EndPoints.Autobiography.UPDATECURRENTCHAPTER)
     suspend fun updateCurrentChapter(): HttpResponse
 
-    @Multipart
-    @POST(EndPoints.Autobiography.CURRENT_PROGRESS_AUTOBIOGRAPHIES)
+//    @Multipart
+    @GET(EndPoints.Autobiography.CURRENT_PROGRESS_AUTOBIOGRAPHIES)
     suspend fun getCurrentProgressAutobiography(): HttpResponse
 
     @Multipart
