@@ -1,6 +1,7 @@
 package com.tdd.talktobook.data.service.ai
 
 import com.tdd.talktobook.data.base.EndPoints
+import com.tdd.talktobook.data.entity.request.interview.ai.ChatInterviewRequestDto
 import com.tdd.talktobook.data.entity.request.interview.ai.CreateInterviewChatRequestDto
 import com.tdd.talktobook.data.entity.request.interview.ai.InterviewQuestionsRequestDto
 import com.tdd.talktobook.data.entity.request.interview.ai.StartInterviewRequestDto
@@ -24,5 +25,11 @@ interface InterviewAIService {
     suspend fun postStartInterview(
         @Path("autobiography_id") autobiographyId: Int = 0,
         @Body body: StartInterviewRequestDto
+    ): HttpResponse
+
+    @POST(EndPoints.Interview.CHAT_INTERVIEW)
+    suspend fun postChatInterview(
+        @Path("autobiography_id") autobiographyId: Int = 0,
+        @Body body: ChatInterviewRequestDto
     ): HttpResponse
 }
