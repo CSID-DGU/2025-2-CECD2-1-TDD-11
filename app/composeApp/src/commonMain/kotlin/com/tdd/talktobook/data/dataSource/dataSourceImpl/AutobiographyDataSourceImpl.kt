@@ -47,4 +47,7 @@ class AutobiographyDataSourceImpl(
 
     override suspend fun getCountMaterials(autobiographyId: Int): HttpResponse =
         autobiographyService.getCountMaterials(autobiographyId)
+
+    override suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse =
+        autobiographyService.getCurrentInterviewProgress(autobiographyId)
 }

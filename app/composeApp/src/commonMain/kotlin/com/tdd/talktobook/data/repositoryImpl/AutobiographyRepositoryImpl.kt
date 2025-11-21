@@ -8,6 +8,7 @@ import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyChaptersMa
 import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.EditAutobiographyDetailMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.GetCountMaterialsMapper
+import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentInterviewProgressMapper
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentProgressMapper
 import com.tdd.talktobook.data.mapper.autobiograph.PostStartProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
@@ -19,6 +20,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyL
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsResponseModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
 import com.tdd.talktobook.domain.repository.AutobiographyRepository
@@ -84,4 +86,8 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>> =
         GetCountMaterialsMapper.responseToModel(apiCall = { autobiographyDataSource.getCountMaterials(autobiographyId) })
+
+    override suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>> =
+        GetCurrentInterviewProgressMapper.responseToModel(apiCall = { autobiographyDataSource.getCurrentInterviewProgress(autobiographyId) })
+
 }

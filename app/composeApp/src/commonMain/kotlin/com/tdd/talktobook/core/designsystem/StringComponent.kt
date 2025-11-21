@@ -25,6 +25,13 @@ const val Published = "PUBLISHED"
 const val Rejected = "REJECTED"
 const val NotPublished = "NOT_PUBLISHED"
 
+// Autobiography Status
+const val EmptyStatus = "EMPTY"
+const val ProgressingStatus = "PROGRESSING"
+const val EnoughStatus = "ENOUGH"
+const val CreatingStatus = "CREATING"
+const val FinishStatus = "FINISH"
+
 // Interview Conversation Status
 const val BeforeStart = "진행 전"
 const val InterviewIng = "진행 중"

@@ -63,4 +63,9 @@ interface AutobiographyService {
     suspend fun getCountMaterials(
         @Path("autobiographyId") autobiographyId: Int
     ): HttpResponse
+
+    @GET(EndPoints.Autobiography.CURRENT_INTERVIEW_PROGRESS)
+    suspend fun getCurrentInterviewProgress(
+        @Path("autobiographyId") autobiographyId: Int
+    ): HttpResponse
 }
