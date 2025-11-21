@@ -54,6 +54,7 @@ jobs:
               "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",
               "ECR_REPOSITORY_AI=${{ secrets.ECR_REPOSITORY_AI }}",
               "IMAGE_TAG=${{ github.sha }}",
+              "REDIS_HOST=${{ secrets.REDIS_HOST }}",
               "REDIS_PORT=${{ secrets.REDIS_PORT }}",
               "DEBUG=True",
               "LOG_LEVEL=DEBUG",
