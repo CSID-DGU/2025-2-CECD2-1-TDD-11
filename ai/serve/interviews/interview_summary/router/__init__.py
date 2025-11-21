@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/api/v2/interviews/summary",
+    "/api/v2/summary",
     dependencies=[Depends(AuthRequired())],
     response_model=InterviewSummaryResponseDto,
     summary="인터뷰 요약",
