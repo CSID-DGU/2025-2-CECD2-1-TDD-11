@@ -4,11 +4,14 @@ import com.tdd.talktobook.data.dataSource.InterviewDataSource
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.data.mapper.interview.GetInterviewConversationMapper
 import com.tdd.talktobook.data.mapper.interview.GetInterviewQuestionListMapper
+import com.tdd.talktobook.data.mapper.interview.GetInterviewSummariesMapper
 import com.tdd.talktobook.data.mapper.interview.PostInterviewConversationMapper
 import com.tdd.talktobook.data.mapper.interview.PostInterviewConversationMapper.toDto
 import com.tdd.talktobook.domain.entity.request.interview.InterviewConversationRequestModel
+import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionListModel
+import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesListModel
 import com.tdd.talktobook.domain.repository.InterviewRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
@@ -35,5 +38,10 @@ class InterviewRepositoryImpl(
     override suspend fun getInterviewQuestionList(interviewId: Int): Flow<Result<InterviewQuestionListModel>> =
         GetInterviewQuestionListMapper.responseToModel(apiCall = {
             interviewDataSource.getInterviewQuestion(interviewId)
+        })
+
+    override suspend fun getInterviewSummaries(request: InterviewSummariesRequestModel): Flow<Result<InterviewSummariesListModel>> =
+        GetInterviewSummariesMapper.responseToModel(apiCall = {
+            interviewDataSource.getInterviewSummaries(request.autobiographyId, request.year, request.month)
         })
 }

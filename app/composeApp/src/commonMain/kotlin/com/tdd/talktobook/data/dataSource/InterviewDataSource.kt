@@ -14,4 +14,6 @@ interface InterviewDataSource {
     ): HttpResponse
 
     suspend fun getInterviewQuestion(interviewId: Int): HttpResponse
+
+    suspend fun getInterviewSummaries(autobiographyId: Int, year: Int, month: Int): HttpResponse
 }

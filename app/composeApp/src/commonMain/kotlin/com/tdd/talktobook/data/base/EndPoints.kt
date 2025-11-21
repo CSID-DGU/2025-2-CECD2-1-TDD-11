@@ -9,7 +9,7 @@ object EndPoints {
     }
 
     object Autobiography {
-        const val AUTOBIOGRAPHIES = "api/v1/autobiographies"
+        const val AUTOBIOGRAPHIES = "api/v2/autobiographies"
         const val AUTOBIOGRAPHIESDETAIL = "$AUTOBIOGRAPHIES/{autobiographyId}"
         const val AUTOBIOGRAPHIESCHAPTER = "$AUTOBIOGRAPHIES/chapters"
         const val UPDATECURRENTCHAPTER = "$AUTOBIOGRAPHIESCHAPTER/current-chapter"
@@ -20,18 +20,20 @@ object EndPoints {
     }
 
     object Member {
-        const val MEMBER = "api/v1/members/me"
+        const val MEMBER = "api/v2/members/me"
         const val PROFILE = "$MEMBER/profile"
     }
 
     object Interview {
-        private const val INTERVIEW = "api/v1/interviews"
+        private const val INTERVIEW = "api/v2/interviews"
+        private const val INTERVIEWID = "$INTERVIEW/{interviewId}"
         const val INTERVIEWQUESTION = "$INTERVIEW/interview-questions"
         const val CREATEINTERVIEW = "$INTERVIEW/interview-chat"
 
-        const val INTERVIEWCONVERSATION = "$INTERVIEW/{interviewId}/conversations"
-        const val INTERVIEWRENEWAL = "$INTERVIEW/{interviewId}/questions/current-question"
-        const val INTERVIEWQUESTIONLIST = "$INTERVIEW/{interviewId}/questions"
+        const val INTERVIEWCONVERSATION = "$INTERVIEWID/conversations"
+        const val INTERVIEWRENEWAL = "$INTERVIEWID/questions/current-question"
+        const val INTERVIEWQUESTIONLIST = "$INTERVIEWID/questions"
+        const val INTERVIEW_SUMMARY = "$INTERVIEW/{autobiographyId}/interviews/summaries"
     }
 
     object Publication {

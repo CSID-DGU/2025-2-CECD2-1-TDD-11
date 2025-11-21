@@ -18,6 +18,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewRenewalUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewChatUseCase
@@ -75,6 +76,7 @@ val useCaseModule =
         factory { PostInterviewRenewalUseCase(get()) }
         factory { PostInterviewConversationUseCase(get()) }
         factory { GetInterviewQuestionListUseCase(get()) }
+        factory { GetInterviewSummariesUseCase(get()) }
 
         // AI
         // Interview

@@ -1,8 +1,10 @@
 package com.tdd.talktobook.domain.repository
 
 import com.tdd.talktobook.domain.entity.request.interview.InterviewConversationRequestModel
+import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionListModel
+import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesListModel
 import kotlinx.coroutines.flow.Flow
 
 interface InterviewRepository {
@@ -13,4 +15,6 @@ interface InterviewRepository {
     suspend fun postInterviewConversation(request: InterviewConversationRequestModel): Flow<Result<Boolean>>
 
     suspend fun getInterviewQuestionList(interviewId: Int): Flow<Result<InterviewQuestionListModel>>
+
+    suspend fun getInterviewSummaries(request: InterviewSummariesRequestModel): Flow<Result<InterviewSummariesListModel>>
 }
