@@ -3,6 +3,7 @@ promptflow-core==1.18.1
 promptflow-devkit==1.18.1
 promptflow-azure==1.18.1
 marshmallow==3.19.0
+promptflow-tools
 
 # 아래는 그대로 유지
 python-dotenv
