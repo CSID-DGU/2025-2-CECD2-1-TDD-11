@@ -68,23 +68,41 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: List[st
     try:
         from promptflow import load_flow
         flow = load_flow(flow_path)
+        print(f"[DEBUG] Calling map flow with answer_text length: {len(answer_text)}, current_material: {current_material}")
         res = flow(
             answer_text=answer_text,
             materials_list=materials_list,
             current_material=current_material
         )
+        print(f"[DEBUG] Map flow response: {res}")
         items = res.get("analysis_result", [])
+        print(f"[DEBUG] analysis_result type: {type(items)}, value: {items}")
         # 혹시 문자열이라면 한 번만 json.loads 시도
         if isinstance(items, str):
+            # 마크다운 코드 블록 제거
+            items = items.strip()
+            if items.startswith('```'):
+                # ```json 또는 ``` 제거
+                lines = items.split('\n')
+                if lines[0].startswith('```'):
+                    lines = lines[1:]
+                if lines and lines[-1].strip() == '```':
+                    lines = lines[:-1]
+                items = '\n'.join(lines)
             try:
                 items = json.loads(items)
-            except Exception:
+                print(f"[DEBUG] Parsed JSON: {items}")
+            except Exception as parse_err:
+                print(f"[ERROR] JSON parse failed: {parse_err}, raw: {items}")
                 return []
         if not isinstance(items, list):
+            print(f"[WARN] analysis_result is not a list: {type(items)}")
             return []
         return items
     except Exception as e:
         print(f"[ERROR] LLM 플로우 호출 실패: {e}")
+        import traceback
+        traceback.print_exc()
         return []  # 폴백: 빈 결과
 
 
@@ -170,6 +188,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         material_mapping, norm_index = _load_mapping(mapping_path)
 
         llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material)
+        print(f"[DEBUG] LLM raw items: {llm_items}")
 
         # 지정 포맷 그대로 가정: [{"material": "...", "axes": {...}}, ...]
         for item in llm_items:
@@ -182,6 +201,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             # 1) 정확 매칭 → 2) 공백 제거 후 매칭
             key = name if name in material_mapping else norm_index.get(_norm(name))
             if not key:
+                print(f"[WARN] 소재 매칭 실패: '{name}' (정규화: '{_norm(name)}')")
                 continue
 
             matched_materials.append(key)
