@@ -19,8 +19,10 @@ object GetInterviewConversationMapper : BaseMapper() {
                         results =
                             data.results.map { result ->
                                 InterviewChatItem(
+                                    conversationId = result.conversationId,
                                     content = result.content,
                                     chatType = ChatType.getType(result.conversationType),
+                                    createdAt = result.createdAt
                                 )
                             },
                         currentPage = data.currentPage,
