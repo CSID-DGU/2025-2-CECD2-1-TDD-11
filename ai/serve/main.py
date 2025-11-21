@@ -16,6 +16,7 @@ from interviews.interview_summary.router import (
 )
 
 from logs import get_logger
+import stream.consumers  # 컨슈머 자동 시작
 
 load_dotenv()
 

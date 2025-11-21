@@ -86,7 +86,7 @@ class InterviewSummaryConsumer:
                 conversation=[conv.model_dump() for conv in request_dto.conversations]
             )
             
-            logger.debug(f"Flow result: {result}")
+            logger.info(f"Flow result: {result}")
             
             summary = result.get("summary", "")
             
