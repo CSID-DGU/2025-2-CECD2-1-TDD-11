@@ -74,3 +74,9 @@ class GeneratedAutobiographyPayload(BaseModel):
     userId: int
     title: str
     content: str
+    
+# interview에 대한 요약 응답 payload 정의
+class InterviewSummaryResponsePayload(BaseModel):
+    interviewId: int
+    userId: int
+    summary: str

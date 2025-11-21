@@ -49,7 +49,6 @@ def create_connection():
 
 create_connection()
 
-
 app = FastAPI(
     description="Life Bookshelf AI API",
     version="0.0.1",

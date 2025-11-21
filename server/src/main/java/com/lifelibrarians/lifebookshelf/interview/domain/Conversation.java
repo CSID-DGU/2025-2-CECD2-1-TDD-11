@@ -103,6 +103,9 @@ public class Conversation {
 	/* } 생성자 (V2) */
 
 	/* 업데이트 메소드 (선택) { */
+    public void updateInterview(Interview interview) {
+        this.interview = interview;
+    }
 
 	/**
 	 * V2용 materials만 갱신

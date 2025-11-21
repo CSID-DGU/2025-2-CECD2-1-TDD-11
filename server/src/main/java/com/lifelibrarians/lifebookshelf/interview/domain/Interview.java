@@ -117,6 +117,9 @@ public class Interview {
 		return new Interview(createdAt, autobiography, member, summary);
 	}
 	/* } 생성자 (V2) */
+    public void updateSummary(String summary) {
+        this.summary = summary;
+    }
 
 	/* 연관 관계 편의 메서드 { */
 	@Deprecated
