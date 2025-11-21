@@ -15,7 +15,6 @@ object GetCountMaterialsMapper : BaseMapper() {
             responseToModel = { response ->
                 response?.let { data ->
                     CountMaterialsResponseModel(
-                        autobiographyId = data.autobiographyId,
                         popularMaterials = data.popularMaterials.map { material ->
                             CountMaterialsItemModel(
                                 id = material.id,

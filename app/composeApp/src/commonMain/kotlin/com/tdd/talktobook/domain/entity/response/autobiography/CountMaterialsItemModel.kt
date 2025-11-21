@@ -5,6 +5,6 @@ data class CountMaterialsItemModel (
     val order: Int = 0,
     val rank: Int = 0,
     val name: String = "",
-    val imageUrl: String = "",
+    val imageUrl: String? = null,
     val count: Int = 0,
 )

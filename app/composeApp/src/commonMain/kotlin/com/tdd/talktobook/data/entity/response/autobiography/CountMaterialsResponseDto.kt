@@ -5,8 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CountMaterialsResponseDto (
-    @SerialName("autobiographyId")
-    val autobiographyId: Int = 0,
     @SerialName("popularMaterials")
     val popularMaterials: List<PopularMaterial> = emptyList(),
     @SerialName("currentPage")
@@ -29,7 +27,7 @@ data class CountMaterialsResponseDto (
         @SerialName("name")
         val name: String = "",
         @SerialName("imageUrl")
-        val imageUrl: String = "",
+        val imageUrl: String? = null,
         @SerialName("count")
         val count: Int = 0
     )
