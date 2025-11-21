@@ -10,7 +10,9 @@ import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyL
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterInfoModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterItemModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterListModel
-import com.tdd.talktobook.domain.entity.response.autobiography.CreatedMaterialIItemModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsResponseModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import com.tdd.talktobook.domain.entity.response.autobiography.SubChapterItemModel
 import com.tdd.talktobook.domain.entity.response.interview.MonthInterviewItemModel
@@ -18,6 +20,8 @@ import com.tdd.talktobook.domain.entity.response.interview.ai.InterviewQuestions
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewQuestionUseCase
@@ -37,20 +41,45 @@ class HomeViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
     private val postCreateInterviewQuestionUseCase: PostCreateInterviewQuestionUseCase,
     private val postCreateAutobiographyUseCase: PostCreateAutobiographyUseCase,
-    private val getCurrentProgressAutobiographyUseCase: GetCurrentProgressAutobiographyUseCase
+    private val getCurrentProgressAutobiographyUseCase: GetCurrentProgressAutobiographyUseCase,
+    private val getCurrentInterviewProgressUseCase: GetCurrentInterviewProgressUseCase,
+    private val getCountMaterialsUseCase: GetCountMaterialsUseCase
 ) : BaseViewModel<HomePageState>(
         HomePageState(),
     ) {
     init {
 //        initSetChapterList()
 //        initSetAllAutobiography(GetAutobiographyType.DEFAULT)
-        initSetTodayDate()
-        initSetCreatedMaterials()
-        initSetAutobiographyProgress()
+//        initSetTodayDate()
+//        initSetCreatedMaterials()
+//        initSetAutobiographyProgress()
         initSetMonthInterviewList()
 
 
+        initSetTodayDate()
         initGetCurrentProgress()
+    }
+
+    private fun initSetTodayDate() {
+        val today =
+            Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+        val todayDate =
+            buildString {
+                append(today.year.toString().padStart(4, '0'))
+                append('.')
+                append(today.monthNumber.toString().padStart(2, '0'))
+                append('.')
+                append(today.dayOfMonth.toString().padStart(2, '0'))
+            }
+
+        updateState(
+            uiState.value.copy(
+                selectedDate = todayDate,
+                selectedDay = today.dayOfMonth,
+            ),
+        )
     }
 
     private fun initGetCurrentProgress() {
@@ -63,12 +92,13 @@ class HomeViewModel(
         d("[ktor] homeViewmodel -> $data")
         when (data.isProgress) {
             true -> {
-                updateState(
-                    uiState.value.copy(
-                        currentAutobiographyId = data.autobiographyId,
-                        isCurrentProgress = true
-                    )
-                )
+//                updateState(
+//                    uiState.value.copy(
+//                        currentAutobiographyId = data.autobiographyId,
+//                        isCurrentProgress = true
+//                    )
+//                )
+                setCurrentState(data)
             }
             false -> {
                 updateState(
@@ -78,28 +108,51 @@ class HomeViewModel(
         }
     }
 
-
-    private fun initSetCreatedMaterials() {
-        val createdMaterials: List<CreatedMaterialIItemModel> =
-            listOf(
-                CreatedMaterialIItemModel(0, 0, 1, "가족", ""),
-                CreatedMaterialIItemModel(1, 0, 2, "성격", ""),
-            )
-
+    private fun setCurrentState(data: CurrentProgressAutobiographyModel) {
         updateState(
             uiState.value.copy(
-                createdMaterialList = createdMaterials,
+                currentAutobiographyId = data.autobiographyId,
+                isCurrentProgress = true
+            )
+        )
+
+        initSetCreatedMaterials(data.autobiographyId)
+        initSetInterviewProgress(data.autobiographyId)
+    }
+
+
+    private fun initSetCreatedMaterials(autobiographyId: Int) {
+        viewModelScope.launch {
+            getCountMaterialsUseCase(autobiographyId).collect {
+                resultResponse(it, ::onSuccessCountMaterials)
+            }
+        }
+    }
+
+    private fun onSuccessCountMaterials(data: CountMaterialsResponseModel) {
+        d("[ktor] homeViewmodel -> $data")
+        updateState(
+            uiState.value.copy(
+                createdMaterialList = data.popularMaterials,
             ),
         )
     }
 
-    private fun initSetAutobiographyProgress() {
-        val progress = 25
+    private fun initSetInterviewProgress(autobiographyId: Int) {
+        viewModelScope.launch {
+            getCurrentInterviewProgressUseCase(autobiographyId).collect {
+                resultResponse(it, ::onSuccessInterviewProgress)
+            }
+        }
+    }
 
+    private fun onSuccessInterviewProgress(data: CurrentInterviewProgressModel) {
+        d("[ktor] homeViewmodel -> $data")
         updateState(
             uiState.value.copy(
-                autobiographyProgress = progress,
-            ),
+                autobiographyProgress = data.progressPercentage,
+                currentAutobiographyStatus = data.status
+            )
         )
     }
 
@@ -171,28 +224,6 @@ class HomeViewModel(
             uiState.value.copy(
                 selectedDay = day,
                 selectedDate = selectedDate,
-            ),
-        )
-    }
-
-    private fun initSetTodayDate() {
-        val today =
-            Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-                .date
-        val todayDate =
-            buildString {
-                append(today.year.toString().padStart(4, '0'))
-                append('.')
-                append(today.monthNumber.toString().padStart(2, '0'))
-                append('.')
-                append(today.dayOfMonth.toString().padStart(2, '0'))
-            }
-
-        updateState(
-            uiState.value.copy(
-                selectedDate = todayDate,
-                selectedDay = today.dayOfMonth,
             ),
         )
     }

@@ -61,7 +61,7 @@ import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
 import com.tdd.talktobook.core.ui.util.generateCalendarDays
-import com.tdd.talktobook.domain.entity.response.autobiography.CreatedMaterialIItemModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.interview.MonthInterviewItemModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -107,8 +107,8 @@ internal fun HomeScreen(
 @Composable
 private fun HomeContent(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
-    createdMaterialList: List<CreatedMaterialIItemModel> = emptyList(),
-    interviewProgress: Int = 0,
+    createdMaterialList: List<CountMaterialsItemModel> = emptyList(),
+    interviewProgress: Float = 0f,
     monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
     days: List<LocalDate> = emptyList(),
     selectedDay: Int = 0,
@@ -198,7 +198,7 @@ private fun HomeTopBar() {
 
 @Composable
 private fun HomeMaterialList(
-    createdMaterialList: List<CreatedMaterialIItemModel>,
+    createdMaterialList: List<CountMaterialsItemModel>,
     isCurrentProgress: Boolean,
     onClickStartProgress: () -> Unit
 ) {
@@ -234,7 +234,7 @@ private fun HomeMaterialList(
 
 @Composable
 private fun HomeProgress(
-    progress: Int,
+    progress: Float,
 ) {
     val progressBox = (progress / 100f).coerceIn(0f, 1f)
 

@@ -1,22 +1,25 @@
 package com.tdd.talktobook.feature.home
 
 import com.tdd.talktobook.core.ui.base.PageState
+import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyItemModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterItemModel
-import com.tdd.talktobook.domain.entity.response.autobiography.CreatedMaterialIItemModel
+import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.autobiography.SubChapterItemModel
 import com.tdd.talktobook.domain.entity.response.interview.MonthInterviewItemModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
 
 data class HomePageState(
-    val createdMaterialList: List<CreatedMaterialIItemModel> = emptyList(),
-    val autobiographyProgress: Int = 0,
+    val createdMaterialList: List<CountMaterialsItemModel> = emptyList(),
+    val autobiographyProgress: Float = 0f,
     val monthInterviewList: List<MonthInterviewItemModel> = emptyList(),
     val selectedDay: Int = 1,
     val selectedDate: String = "",
     val currentAutobiographyId: Int = 0,
     val isCurrentProgress: Boolean = false,
+    val currentAutobiographyStatus: AutobiographyStatusType = AutobiographyStatusType.EMPTY,
+
     // Legacy
     val chapterList: List<ChapterItemModel> = emptyList(),
     val subChapterList: List<SubChapterItemModel> = emptyList(),

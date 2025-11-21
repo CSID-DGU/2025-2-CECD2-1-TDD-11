@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CurrentInterviewProgressResponseDto (
     @SerialName("progressPercentage")
-    val progressPercentage: Double = 0.0,
+    val progressPercentage: Float = 0f,
     @SerialName("status")
     val status: String = ""
 )
