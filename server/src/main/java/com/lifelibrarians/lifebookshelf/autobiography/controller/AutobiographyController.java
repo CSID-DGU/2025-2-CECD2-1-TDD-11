@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/autobiographies")
+@RequestMapping("api/v2/autobiographies")
 @Tag(name = "자서전 (Autobiography)", description = "자서전 관련 API")
 @Logging
 public class AutobiographyController {

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/interviews")
+@RequestMapping("api/v2/interviews")
 @Tag(name = "인터뷰 (Interview)", description = "인터뷰 관련 API")
 @Logging
 public class InterviewController {
