@@ -73,6 +73,18 @@ public class InterviewService {
 
                 if (optInterview.isEmpty()) {
                     log.warn("[InterviewScheduler] No Interview found for member {}", member.getId());
+
+                    // 이전 인터뷰가 비어있더라도 새로운 인터뷰 생성
+                    Interview interview = Interview.ofV2(
+                            now,
+                            status.getCurrentAutobiography(),
+                            member,
+                            null         // summary
+                    );
+
+                    interviewRepository.save(interview);
+                    log.info("[InterviewScheduler] Interview created for member {}", member.getId());
+
                     continue;
                 }
 
