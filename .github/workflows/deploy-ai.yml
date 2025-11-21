@@ -62,6 +62,8 @@ jobs:
               "LIFE_BOOKSHELF_AI_JWT_SECRET_KEY=${{ secrets.LIFE_BOOKSHELF_AI_JWT_SECRET_KEY }}",
               "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}",
               "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}",
+              "RABBITMQ_USER=${{ secrets.RABBITMQ_DEFAULT_USER }}",
+              "RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_DEFAULT_PASS }}",
               "EOF",
               "docker-compose -f docker-compose.ai.prod.yml pull",
               "docker-compose -f docker-compose.ai.prod.yml down",
