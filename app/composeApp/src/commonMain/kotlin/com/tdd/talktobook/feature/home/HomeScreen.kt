@@ -164,6 +164,7 @@ private fun HomeContent(
             selectedDateSummary = if (monthInterviewList.isNotEmpty()) monthInterviewList[selectedDay].summary else HomeNotExistSummary,
             interactionSource = interactionSource,
             onClick = onClickSummary,
+            isSummaryEmpty = monthInterviewList.isEmpty()
         )
     }
 }
@@ -476,11 +477,13 @@ private fun HomeInterviewSummary(
     selectedDateSummary: String,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
+    isSummaryEmpty: Boolean
 ) {
     ItemContentBox(
         modifier =
             Modifier
                 .clickable(
+                    enabled = !isSummaryEmpty,
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
@@ -515,15 +518,17 @@ private fun HomeInterviewSummary(
                                 .weight(1f),
                     )
 
-                    AsyncImage(
-                        model = Res.getUri("files/ic_right.svg"),
-                        contentDescription = "move",
-                        modifier =
-                            Modifier
-                                .padding(end = 4.dp)
-                                .align(Alignment.Bottom)
-                                .size(24.dp),
-                    )
+                    if (!isSummaryEmpty) {
+                        AsyncImage(
+                            model = Res.getUri("files/ic_right.svg"),
+                            contentDescription = "move",
+                            modifier =
+                                Modifier
+                                    .padding(end = 4.dp)
+                                    .align(Alignment.Bottom)
+                                    .size(24.dp),
+                        )
+                    }
                 }
             }
         },
