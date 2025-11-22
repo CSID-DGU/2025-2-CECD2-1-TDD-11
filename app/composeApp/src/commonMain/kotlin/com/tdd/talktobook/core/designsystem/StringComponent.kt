@@ -42,12 +42,12 @@ const val Middle = "MID"
 const val Bottom = "BOTTOM"
 const val Left = "LEFT"
 
-// Bottom
+// Bottom Navigation
 const val Home = "홈"
 const val Publication = "자서전"
 const val Interview = "인터뷰"
 
-// Meta Data
+// Gender
 const val Male = "MALE"
 const val Female = "FEMALE"
 const val MaleContent = "남자"
@@ -124,10 +124,6 @@ const val HomeStartProgress = "자서전 생성 시작하기"
 const val HomeNotExistInterview = "대화 내역 없음"
 const val HomeNotExistSummary = "대화 내역이 없습니다"
 
-const val HomeSemiTitle = "또 와주셔서 감사해요, 여행자님"
-const val HomeCurrentProgressTitle = "현재 진행하고 있는 페이지"
-const val HomeCurrentChapterEmpty = "진행하고 있는 챕터가 없습니다"
-
 // Start Progress
 const val StartProgressTitle = "자서전 생성 시작"
 const val StartProgressFirstPage = "가장 처음 대화하고 싶은 주제를\n선택해 주세요."
@@ -147,19 +143,17 @@ const val PublicationBookWholeContent = "전체 보기"
 const val PublicationBookDelete = "자서전 삭제하기"
 const val PublicationNotCreatedAutobiography = "아직 생성된 자서전이 없어요!"
 
-// My
-const val MyTitle = "MyPage"
-const val PublishStatusTitle = "출판 진행상황"
-const val SubmitStatusTitle = "출판 신청 완료"
-const val SubmitStatusSubTitle = "자서전을 검토하고 있어요."
-const val ProgressStatusTitle = "출판 진행"
-const val ProgressStatusSubTitle = "제출한 자서전을 출판하고 있어요."
-const val CompleteStatusTitle = "출판 완료"
-const val CompleteStatusSubTitle = "출판이 완료되었어요."
-const val PublicationBookTitle = "내가 출판한 책"
-const val PublicationBookSubTitle = "책의 오른쪽 버튼을 터치하면 다시 비공개, 혹은 공개로 만들 수 있어요."
-const val SettingTitle = "More"
-const val SettingAlarmTitle = "리마인드 푸시알림 설정"
-const val SettingAlarmContent = "설정하시면 저녁 8시에 알림이 가요"
-const val ProfileDeleteTitle = "회원탈퇴"
-const val ProfileDeleteContent = "여행자님의 데이터는 30일 뒤에 삭제되어요."
+// Setting
+const val SettingTitle = "프로필"
+const val SettingProfileEdit = "수정"
+const val SettingEmail = "이메일: %s"
+const val SettingAge = "연령대: %s"
+const val SettingGender = "성별: %s"
+const val SettingOccupation = "직업군: %s"
+const val SettingAlarm = "알림"
+const val SettingPolicy = "개인정보 처리방침"
+const val SettingService = "서비스 이용 약관"
+const val SettingUserFeedback = "사용자 피드백"
+const val SettingCurrentVersion = "현재 버전 %s"
+const val SettingLogOut = "로그아웃"
+const val SettingDelete = "회원 탈퇴"

@@ -12,9 +12,9 @@ import com.tdd.talktobook.feature.auth.signup.SignUpScreen
 import com.tdd.talktobook.feature.home.HomeScreen
 import com.tdd.talktobook.feature.home.interview.PastInterviewScreen
 import com.tdd.talktobook.feature.interview.InterviewScreen
-import com.tdd.talktobook.feature.my.MyScreen
 import com.tdd.talktobook.feature.onboarding.OnboardingScreen
 import com.tdd.talktobook.feature.publication.PublicationScreen
+import com.tdd.talktobook.feature.setting.SettingScreen
 import com.tdd.talktobook.feature.startprogress.StartProgressScreen
 
 fun NavGraphBuilder.loginNavGraph(
@@ -165,15 +165,17 @@ fun NavGraphBuilder.publicationNavGraph(
     }
 }
 
-fun NavGraphBuilder.myNavGraph(
+fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
 ) {
     navigation(
-        startDestination = NavRoutes.MyPageScreen.route,
-        route = NavRoutes.MyPageGraph.route,
+        startDestination = NavRoutes.SettingPageScreen.route,
+        route = NavRoutes.SettingPageGraph.route,
     ) {
-        composable(NavRoutes.MyPageScreen.route) {
-            MyScreen()
+        composable(NavRoutes.SettingPageScreen.route) {
+            SettingScreen(
+                goBackPage = { navController.popBackStack() }
+            )
         }
     }
 }

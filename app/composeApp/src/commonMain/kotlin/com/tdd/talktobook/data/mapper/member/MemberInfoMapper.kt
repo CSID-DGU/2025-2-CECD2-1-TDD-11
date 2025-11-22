@@ -14,13 +14,9 @@ object MemberInfoMapper : BaseMapper() {
             responseToModel = { response ->
                 response?.let { data ->
                     MemberInfoModel(
-                        name = data.name,
-                        bornedAt = data.bornedAt,
                         gender = data.gender,
-                        hasChildren = data.hasChildren,
-                        occupation = data.occupation,
-                        educationLevel = data.educationLevel,
-                        maritalStatus = data.maritalStatus,
+                        occupation = data.occupation ?: "",
+                        ageGroup = data.ageGroup ?: ""
                     )
                 } ?: MemberInfoModel()
             },

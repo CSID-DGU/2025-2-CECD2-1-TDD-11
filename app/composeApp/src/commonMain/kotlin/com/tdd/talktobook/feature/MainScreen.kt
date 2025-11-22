@@ -27,10 +27,10 @@ import com.tdd.talktobook.core.navigation.emailCheckNavGraph
 import com.tdd.talktobook.core.navigation.homeNavGraph
 import com.tdd.talktobook.core.navigation.interviewNavGraph
 import com.tdd.talktobook.core.navigation.loginNavGraph
-import com.tdd.talktobook.core.navigation.myNavGraph
 import com.tdd.talktobook.core.navigation.onboardingNavGraph
 import com.tdd.talktobook.core.navigation.pastInterviewNavGraph
 import com.tdd.talktobook.core.navigation.publicationNavGraph
+import com.tdd.talktobook.core.navigation.settingNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -115,7 +115,7 @@ fun MainScreen() {
                 publicationNavGraph(
                     navController = navController,
                 )
-                myNavGraph(
+                settingNavGraph(
                     navController = navController,
                 )
             }

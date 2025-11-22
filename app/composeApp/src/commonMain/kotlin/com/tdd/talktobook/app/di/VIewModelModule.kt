@@ -5,7 +5,7 @@ import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckViewModel
 import com.tdd.talktobook.feature.home.HomeViewModel
 import com.tdd.talktobook.feature.interview.InterviewViewModel
 import com.tdd.talktobook.feature.auth.login.LogInViewModel
-import com.tdd.talktobook.feature.my.MyViewModel
+import com.tdd.talktobook.feature.setting.SettingViewModel
 import com.tdd.talktobook.feature.auth.signup.SignUpViewModel
 import com.tdd.talktobook.feature.home.interview.PastInterviewViewModel
 import com.tdd.talktobook.feature.onboarding.OnboardingViewModel
@@ -25,6 +25,6 @@ val viewModelModule =
         viewModel { InterviewViewModel(get(), get()) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
         viewModel { PastInterviewViewModel() }
-        viewModel { MyViewModel(get(), get(), get()) }
+        viewModel { SettingViewModel(get()) }
         viewModel { PublicationViewModel(get()) }
     }

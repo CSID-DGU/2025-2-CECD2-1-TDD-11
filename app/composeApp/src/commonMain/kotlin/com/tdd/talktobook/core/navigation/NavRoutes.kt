@@ -55,9 +55,9 @@ sealed class NavRoutes(val route: String) {
     }
 
     // MyPage Graph
-    data object MyPageGraph : NavRoutes("my_page_graph")
+    data object SettingPageGraph : NavRoutes("setting_page_graph")
 
-    data object MyPageScreen : NavRoutes("my_page")
+    data object SettingPageScreen : NavRoutes("setting_page")
 
     // Publication
     data object PublicationGraph : NavRoutes("publication_graph")

@@ -3,18 +3,11 @@ package com.tdd.talktobook.data.repositoryImpl.ai
 import com.tdd.talktobook.data.dataSource.ai.InterviewAIDataSource
 import com.tdd.talktobook.data.entity.request.interview.ai.ChatInterviewRequestDto
 import com.tdd.talktobook.data.mapper.interview.ai.ChatInterviewMapper
-import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewConversationMapper
-import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewConversationMapper.toDto
-import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewQuestionMapper
-import com.tdd.talktobook.data.mapper.interview.ai.CreateInterviewQuestionMapper.toDto
 import com.tdd.talktobook.data.mapper.interview.ai.StartInterviewMapper
 import com.tdd.talktobook.data.mapper.interview.ai.StartInterviewMapper.toDto
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
-import com.tdd.talktobook.domain.entity.request.interview.ai.CreateInterviewChatRequestModel
-import com.tdd.talktobook.domain.entity.request.interview.ai.InterviewQuestionsRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.ai.StartInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.ChatInterviewResponseModel
-import com.tdd.talktobook.domain.entity.response.interview.ai.InterviewQuestionsAIResponseModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.StartInterviewResponseModel
 import com.tdd.talktobook.domain.repository.InterviewAIRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,20 +17,6 @@ import org.koin.core.annotation.Single
 class InterviewAIRepositoryImpl(
     private val interviewAIDataSource: InterviewAIDataSource,
 ) : InterviewAIRepository {
-    override suspend fun postInterviewQuestions(body: InterviewQuestionsRequestModel): Flow<Result<InterviewQuestionsAIResponseModel>> =
-        CreateInterviewQuestionMapper.responseToModel(apiCall = {
-            interviewAIDataSource.postInterviewQuestions(
-                body.toDto(),
-            )
-        })
-
-    override suspend fun postCreateInterviewChat(body: CreateInterviewChatRequestModel): Flow<Result<String>> =
-        CreateInterviewConversationMapper.responseToModel(apiCall = {
-            interviewAIDataSource.postCreateInterviewChat(
-                body.toDto(),
-            )
-        })
-
     override suspend fun postStartInterview(body: StartInterviewRequestModel): Flow<Result<StartInterviewResponseModel>> =
         StartInterviewMapper.responseToModel(apiCall = {
             interviewAIDataSource.postStartInterview(body.autobiographyId, body.toDto())

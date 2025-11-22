@@ -28,8 +28,6 @@ object EndPoints {
     object Interview {
         private const val INTERVIEW = "api/v2/interviews"
         private const val INTERVIEWID = "$INTERVIEW/{interviewId}"
-        const val INTERVIEWQUESTION = "$INTERVIEW/interview-questions"
-        const val CREATEINTERVIEW = "$INTERVIEW/interview-chat"
         const val START_INTERVIEW = "$INTERVIEW/start/{autobiography_id}"
         const val CHAT_INTERVIEW = "$INTERVIEW/chat/{autobiography_id}"
 

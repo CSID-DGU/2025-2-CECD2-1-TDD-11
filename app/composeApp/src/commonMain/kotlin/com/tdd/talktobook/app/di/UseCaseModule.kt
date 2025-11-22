@@ -24,11 +24,8 @@ import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewRenewalUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
-import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewChatUseCase
-import com.tdd.talktobook.domain.usecase.interview.ai.PostCreateInterviewQuestionUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
-import com.tdd.talktobook.domain.usecase.member.GetMemberProfileUseCase
 import com.tdd.talktobook.domain.usecase.member.PutEditMemberInfoUseCase
 import com.tdd.talktobook.domain.usecase.publication.DeletePublicationBookUseCase
 import com.tdd.talktobook.domain.usecase.publication.GetMyPublicationUseCase
@@ -69,7 +66,6 @@ val useCaseModule =
         // Member
         factory { GetMemberInfoUseCase(get()) }
         factory { PutEditMemberInfoUseCase(get()) }
-        factory { GetMemberProfileUseCase(get()) }
 
         // Publication
         factory { PostPublicationUseCase(get()) }
@@ -86,8 +82,6 @@ val useCaseModule =
 
         // AI
         // Interview
-        factory { PostCreateInterviewQuestionUseCase(get()) }
-        factory { PostCreateInterviewChatUseCase(get()) }
         factory { PostStartInterviewUseCase(get()) }
         factory { PostChatInterviewUseCase(get()) }
     }
