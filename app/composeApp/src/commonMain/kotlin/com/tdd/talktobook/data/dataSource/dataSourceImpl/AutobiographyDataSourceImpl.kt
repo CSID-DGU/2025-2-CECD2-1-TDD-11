@@ -50,4 +50,7 @@ class AutobiographyDataSourceImpl(
 
     override suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse =
         autobiographyService.getCurrentInterviewProgress(autobiographyId)
+
+    override suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse =
+        autobiographyService.patchCreateAutobiography(autobiographyId)
 }

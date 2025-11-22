@@ -96,4 +96,7 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>> =
         flow { localDataStore.saveCurrentAutobiographyStatus(currentStatue.type) }
+
+    override suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.patchCreateAutobiography(autobiographyId) })
 }

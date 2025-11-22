@@ -32,4 +32,6 @@ interface AutobiographyDataSource {
     suspend fun getCountMaterials(autobiographyId: Int): HttpResponse
 
     suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse
+
+    suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse
 }

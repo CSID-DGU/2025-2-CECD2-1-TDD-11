@@ -8,6 +8,7 @@ import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Multipart
+import de.jensklingenberg.ktorfit.http.PATCH
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Part
 import de.jensklingenberg.ktorfit.http.Path
@@ -66,6 +67,11 @@ interface AutobiographyService {
 
     @GET(EndPoints.Autobiography.CURRENT_INTERVIEW_PROGRESS)
     suspend fun getCurrentInterviewProgress(
+        @Path("autobiographyId") autobiographyId: Int
+    ): HttpResponse
+
+    @PATCH(EndPoints.Autobiography.CREATE_AUTOBIOGRAPHY)
+    suspend fun patchCreateAutobiography(
         @Path("autobiographyId") autobiographyId: Int
     ): HttpResponse
 }

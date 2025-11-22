@@ -41,7 +41,7 @@ import kotlin.collections.dropLast
 @Composable
 internal fun StartProgressScreen(
     goToInterviewPage: () -> Unit,
-    goBackToHome: () -> Unit
+    goBackToHome: () -> Unit,
 ) {
     val viewModel: StartProgressViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -83,7 +83,7 @@ private fun StartProgressContent(
     onReasonValueChange: (String) -> Unit,
     isBtnActivated: Boolean = false,
     interactionSource: MutableInteractionSource,
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
 ) {
     Column(
         modifier =
@@ -120,6 +120,7 @@ private fun StartProgressContent(
                         onSelectMaterial = onSelectMaterial
                     )
                 }
+
                 StartProgressPageType.SECOND_PAGE -> {
                     Spacer(modifier = Modifier.padding(top = 50.dp))
 
@@ -159,7 +160,7 @@ private fun SelectMaterial(
     MaterialType.entries
         .dropLast(1)
         .chunked(3)
-        .forEachIndexed {  index, rowItems ->
+        .forEachIndexed { index, rowItems ->
             Row(
                 modifier = Modifier
                     .padding(horizontal = 35.dp)
