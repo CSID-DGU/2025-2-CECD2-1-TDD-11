@@ -3,6 +3,7 @@ package com.tdd.talktobook.feature.publication
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import kotlinx.coroutines.launch
@@ -30,7 +31,7 @@ class PublicationViewModel(
         d("[ktor] publicationViewmodel -> $data")
         updateState(
             uiState.value.copy(
-                autobiographyList = data.results,
+                autobiographyList = data.results.filter { it.status == AutobiographyStatusType.FINISH.type },
                 selectedAutobiographyId = data.results[0].autobiographyId,
             ),
         )
