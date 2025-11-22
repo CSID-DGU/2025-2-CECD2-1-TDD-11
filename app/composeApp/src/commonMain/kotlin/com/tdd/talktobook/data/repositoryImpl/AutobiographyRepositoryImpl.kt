@@ -1,6 +1,7 @@
 package com.tdd.talktobook.data.repositoryImpl
 
 import com.tdd.talktobook.data.dataSource.AutobiographyDataSource
+import com.tdd.talktobook.data.dataStore.LocalDataStore
 import com.tdd.talktobook.data.mapper.autobiograph.AllAutobiographyMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographiesDetailMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographyChapterMapper
@@ -12,6 +13,7 @@ import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentInterviewProgressMa
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentProgressMapper
 import com.tdd.talktobook.data.mapper.autobiograph.PostStartProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
+import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
@@ -25,11 +27,13 @@ import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAu
 import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
 import com.tdd.talktobook.domain.repository.AutobiographyRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
 
 @Single(binds = [AutobiographyRepository::class])
 class AutobiographyRepositoryImpl(
     private val autobiographyDataSource: AutobiographyDataSource,
+    private val localDataStore: LocalDataStore
 ) : AutobiographyRepository {
     override suspend fun getAllAutobiographies(): Flow<Result<AllAutobiographyListModel>> =
         AllAutobiographyMapper.responseToModel(apiCall = { autobiographyDataSource.getAllAutobiographies() })
@@ -90,4 +94,6 @@ class AutobiographyRepositoryImpl(
     override suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>> =
         GetCurrentInterviewProgressMapper.responseToModel(apiCall = { autobiographyDataSource.getCurrentInterviewProgress(autobiographyId) })
 
+    override suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>> =
+        flow { localDataStore.saveCurrentAutobiographyStatus(currentStatue.type) }
 }

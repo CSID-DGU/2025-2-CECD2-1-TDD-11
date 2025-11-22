@@ -16,6 +16,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyUse
 import com.tdd.talktobook.domain.usecase.autobiograph.PostEditAutobiographyDetailUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
@@ -61,6 +62,7 @@ val useCaseModule =
         factory { PostStartProgressUseCase(get()) }
         factory { GetCountMaterialsUseCase(get()) }
         factory { GetCurrentInterviewProgressUseCase(get()) }
+        factory { SaveCurrentAutobiographyStatusUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }

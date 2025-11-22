@@ -21,6 +21,11 @@ class LocalDataStore(
             preferences[REFRESH_TOKEN_KEY]
         }
 
+    val currentAutobiographyStatus: Flow<String?> =
+        dataStore.data.map { preferences ->
+            preferences[CURRENT_AUTOBIOGRAPHY_STATUS]
+        }
+
     suspend fun saveAccessToken(token: String) {
         dataStore.edit { preferences ->
             preferences[ACCESS_TOKEN_KEY] = token
@@ -35,8 +40,16 @@ class LocalDataStore(
         }
     }
 
+    suspend fun saveCurrentAutobiographyStatus(currentStatus: String) {
+        dataStore.edit { preferences ->
+            preferences[CURRENT_AUTOBIOGRAPHY_STATUS] = currentStatus
+            d("[dataStore] current status: $currentStatus")
+        }
+    }
+
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        val CURRENT_AUTOBIOGRAPHY_STATUS = stringPreferencesKey("current_autobiography_status")
     }
 }
