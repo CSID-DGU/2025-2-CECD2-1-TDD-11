@@ -1,6 +1,5 @@
 package com.tdd.talktobook.feature
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,13 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import bookshelf.composeapp.generated.resources.Res
+import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.Blue500
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Gray400
 import com.tdd.talktobook.core.designsystem.White0
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @Composable
 fun BottomNavBar(
@@ -65,9 +66,10 @@ fun BottomNavBar(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomNavItem(
-    navIcon: DrawableResource,
+    navIcon: String,
     isSelected: Boolean = false,
     type: BottomNavType = BottomNavType.DEFAULT,
     onClick: () -> Unit = {},
@@ -84,9 +86,10 @@ private fun BottomNavItem(
                 ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(navIcon),
+        AsyncImage(
+            model = Res.getUri(navIcon),
             contentDescription = "nav icon",
+            colorFilter =  if (isSelected) ColorFilter.tint(Blue500) else ColorFilter.tint(Gray400),
             modifier =
                 Modifier
                     .size(25.dp),
