@@ -76,7 +76,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun HomeScreen(
     goToPastInterviewPage: (String) -> Unit,
-    goToProgressStartPage: () -> Unit = {}
+    goToProgressStartPage: () -> Unit = {},
+    goToSettingPage: () -> Unit
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -101,7 +102,8 @@ internal fun HomeScreen(
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
         onClickSummary = { goToPastInterviewPage(uiState.selectedDate) },
         isCurrentProgress = uiState.isCurrentProgress,
-        onClickStartProgress = { goToProgressStartPage() }
+        onClickStartProgress = { goToProgressStartPage() },
+        onClickSetting = { goToSettingPage() }
     )
 }
 
@@ -118,7 +120,8 @@ private fun HomeContent(
     onSelectDay: (Int) -> Unit = {},
     onClickSummary: () -> Unit = {},
     isCurrentProgress: Boolean = false,
-    onClickStartProgress: () -> Unit = {}
+    onClickStartProgress: () -> Unit = {},
+    onClickSetting: () -> Unit = {}
 ) {
     Column(
         modifier =
@@ -126,7 +129,10 @@ private fun HomeContent(
                 .fillMaxSize()
                 .background(BackGround2),
     ) {
-        HomeTopBar()
+        HomeTopBar(
+            onClickSetting = onClickSetting,
+            interactionSource = interactionSource
+        )
 
         Text(
             text = HomeTitle,
@@ -171,7 +177,10 @@ private fun HomeContent(
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun HomeTopBar() {
+private fun HomeTopBar(
+    onClickSetting: () -> Unit,
+    interactionSource: MutableInteractionSource
+) {
     Box(
         modifier =
             Modifier
@@ -194,7 +203,12 @@ private fun HomeTopBar() {
                 Modifier
                     .align(Alignment.CenterEnd)
                     .padding(top = 20.dp, end = 15.dp)
-                    .size(24.dp),
+                    .size(24.dp)
+                    .clickable(
+                        onClick = onClickSetting,
+                        interactionSource = interactionSource,
+                        indication = null
+                    ),
         )
     }
 }

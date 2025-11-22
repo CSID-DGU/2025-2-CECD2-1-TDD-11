@@ -2,7 +2,7 @@ package com.tdd.talktobook.feature.onboarding
 
 import androidx.lifecycle.viewModelScope
 import com.tdd.talktobook.core.ui.base.BaseViewModel
-import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
+import com.tdd.talktobook.domain.entity.request.member.MemberInfoModel
 import com.tdd.talktobook.domain.usecase.member.PutEditMemberInfoUseCase
 import com.tdd.talktobook.feature.onboarding.type.AgeGroupType
 import com.tdd.talktobook.feature.onboarding.type.GenderType

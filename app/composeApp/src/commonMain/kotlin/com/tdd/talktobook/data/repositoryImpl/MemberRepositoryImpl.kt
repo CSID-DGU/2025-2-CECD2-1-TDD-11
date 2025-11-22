@@ -3,7 +3,8 @@ package com.tdd.talktobook.data.repositoryImpl
 import com.tdd.talktobook.data.dataSource.MemberDataSource
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.data.mapper.member.MemberInfoMapper
-import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
+import com.tdd.talktobook.domain.entity.request.member.MemberInfoModel
+import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import com.tdd.talktobook.domain.repository.MemberRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
@@ -12,7 +13,7 @@ import org.koin.core.annotation.Single
 class MemberRepositoryImpl(
     private val memberDataSource: MemberDataSource,
 ) : MemberRepository {
-    override suspend fun getMemberInfo(): Flow<Result<MemberInfoModel>> =
+    override suspend fun getMemberInfo(): Flow<Result<MemberInfoResponseModel>> =
         MemberInfoMapper.responseToModel(apiCall = { memberDataSource.getMemberInfo() })
 
     override suspend fun putEditMemberInfo(request: MemberInfoModel): Flow<Result<Boolean>> =

@@ -1,4 +1,4 @@
-package com.tdd.talktobook.domain.entity.response.member
+package com.tdd.talktobook.domain.entity.request.member
 
 data class MemberInfoModel(
     val gender: String = "",

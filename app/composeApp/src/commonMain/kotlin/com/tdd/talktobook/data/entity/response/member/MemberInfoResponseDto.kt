@@ -11,4 +11,6 @@ data class MemberInfoResponseDto(
     val occupation: String? = null,
     @SerialName("ageGroup")
     val ageGroup: String? = null,
+    @SerialName("succeessed")
+    val success: Boolean = false
 )

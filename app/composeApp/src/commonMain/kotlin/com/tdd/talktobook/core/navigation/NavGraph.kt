@@ -96,7 +96,8 @@ fun NavGraphBuilder.homeNavGraph(
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(
                 goToPastInterviewPage = { date -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date)) },
-                goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) }
+                goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) },
+                goToSettingPage = { navController.navigate(NavRoutes.SettingPageScreen.route) }
             )
         }
     }
