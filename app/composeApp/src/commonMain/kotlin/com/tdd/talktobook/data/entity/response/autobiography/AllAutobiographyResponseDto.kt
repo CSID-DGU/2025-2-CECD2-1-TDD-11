@@ -20,12 +20,10 @@ data class AllAutobiographyResponseDto(
     data class AutobiographyItem(
         @SerialName("autobiographyId")
         val autobiographyId: Int,
-        @SerialName("interviewId")
-        val interviewId: Int,
-        @SerialName("chapterId")
-        val chapterId: Int,
         @SerialName("title")
         val title: String,
+        @SerialName("status")
+        val status: String,
         @SerialName("contentPreview")
         val contentPreview: String,
         @SerialName("coverImageUrl")

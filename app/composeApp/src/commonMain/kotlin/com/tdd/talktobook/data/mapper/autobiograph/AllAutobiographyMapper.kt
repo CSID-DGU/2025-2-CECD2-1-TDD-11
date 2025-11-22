@@ -23,9 +23,8 @@ object AllAutobiographyMapper : BaseMapper() {
                             data.results.map { item ->
                                 AllAutobiographyItemModel(
                                     autobiographyId = item.autobiographyId,
-                                    interviewId = item.interviewId,
-                                    chapterId = item.chapterId,
                                     title = item.title,
+                                    status = item.status,
                                     contentPreview = item.contentPreview,
                                     coverImageUrl = item.coverImageUrl,
                                     createdAt = item.createdAt,
