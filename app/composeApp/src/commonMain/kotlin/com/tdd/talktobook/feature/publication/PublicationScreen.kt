@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
@@ -23,6 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -33,13 +37,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bookshelf.composeapp.generated.resources.Res
 import bookshelf.composeapp.generated.resources.img_chapter_detail
+import bookshelf.composeapp.generated.resources.img_empty_box
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Empty
+import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.PublicationBookDelete
 import com.tdd.talktobook.core.designsystem.PublicationBookWholeContent
+import com.tdd.talktobook.core.designsystem.PublicationNotCreatedAutobiography
 import com.tdd.talktobook.core.designsystem.PublicationTitle
 import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
@@ -86,19 +93,62 @@ private fun PublicationContent(
             iconVisible = false,
         )
 
-        PublicationAutobiographies(
-            autobiographyList = autobiographyList,
-            selectedId = selectedAutobiographyId,
-            onSelect = onSelectAutobiographyId,
-        )
+        if (autobiographyList.isNotEmpty()) {
+            SetAutobiographies(
+                interactionSource = interactionSource,
+                autobiographyList = autobiographyList,
+                selectedAutobiographyId = selectedAutobiographyId,
+                onSelectAutobiographyId = onSelectAutobiographyId
+            )
+        } else {
+            Column (
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
 
-        BasicDivider()
+                Image(
+                    painter = painterResource(Res.drawable.img_empty_box),
+                    contentDescription = "empty list",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(bottom = 17.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
 
-        PublicationBookPreview(
-            autobiography = autobiographyList.firstOrNull { it.autobiographyId == selectedAutobiographyId } ?: AllAutobiographyItemModel(),
-            interactionSource = interactionSource,
-        )
+                Text(
+                    text = PublicationNotCreatedAutobiography,
+                    color = Gray5,
+                    style = BookShelfTypo.Caption3,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
     }
+}
+
+@Composable
+private fun SetAutobiographies(
+    interactionSource: MutableInteractionSource,
+    autobiographyList: List<AllAutobiographyItemModel>,
+    selectedAutobiographyId: Int,
+    onSelectAutobiographyId: (Int) -> Unit,
+) {
+    PublicationAutobiographies(
+        autobiographyList = autobiographyList,
+        selectedId = selectedAutobiographyId,
+        onSelect = onSelectAutobiographyId,
+    )
+
+    BasicDivider()
+
+    PublicationBookPreview(
+        autobiography = autobiographyList.firstOrNull { it.autobiographyId == selectedAutobiographyId } ?: AllAutobiographyItemModel(),
+        interactionSource = interactionSource,
+    )
 }
 
 @Composable
@@ -131,15 +181,30 @@ private fun PublicationBookPreview(
     autobiography: AllAutobiographyItemModel,
     interactionSource: MutableInteractionSource,
 ) {
+    var totalPages by remember { mutableStateOf(1) }
+    var currentPage by remember { mutableStateOf(1) }
+
     Column {
-        Text(
-            text = autobiography.title,
-            color = Black1,
-            style = BookShelfTypo.Head3,
-            modifier =
-                Modifier
-                    .padding(top = 40.dp, start = 20.dp),
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp, top = 40.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = autobiography.title,
+                color = Black1,
+                style = BookShelfTypo.Head3,
+                modifier = Modifier
+                    .weight(1f),
+            )
+
+            Text(
+                text = "$currentPage/$totalPages",
+                color = Black1,
+                style = BookShelfTypo.Caption4,
+            )
+        }
 
         UnderLineTextBtn(
             interactionSource = interactionSource,
@@ -157,6 +222,8 @@ private fun PublicationBookPreview(
             content = autobiography.contentPreview,
             bookImg = autobiography.coverImageUrl,
             modifier = Modifier.weight(1f),
+            onSetTotalPages = { totalPages = it },
+            onSetCurrentPage = { currentPage = it }
         )
 
         Spacer(modifier = Modifier.padding(top = 40.dp))
@@ -180,6 +247,8 @@ private fun PublicationBookPreviewContent(
     content: String,
     bookImg: String? = "",
     modifier: Modifier,
+    onSetTotalPages: (Int) -> Unit,
+    onSetCurrentPage: (Int) -> Unit,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val autobiographyTextStyle = BookShelfTypo.Body2
@@ -224,6 +293,14 @@ private fun PublicationBookPreviewContent(
 
             LaunchedEffect(autobiographyId, pages.size) {
                 pagerState.scrollToPage(0)
+                onSetTotalPages(pages.size + 1)
+            }
+
+            LaunchedEffect(pagerState) {
+                snapshotFlow { pagerState.currentPage }
+                    .collect { pageIndex ->
+                        onSetCurrentPage(pageIndex + 1)
+                    }
             }
 
             HorizontalPager(

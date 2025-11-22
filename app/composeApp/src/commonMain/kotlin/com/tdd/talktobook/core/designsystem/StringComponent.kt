@@ -145,6 +145,7 @@ const val InterviewFinishBtn = "답변 중단하기"
 const val PublicationTitle = "생성된 자서전"
 const val PublicationBookWholeContent = "전체 보기"
 const val PublicationBookDelete = "자서전 삭제하기"
+const val PublicationNotCreatedAutobiography = "아직 생성된 자서전이 없어요!"
 
 // My
 const val MyTitle = "MyPage"
