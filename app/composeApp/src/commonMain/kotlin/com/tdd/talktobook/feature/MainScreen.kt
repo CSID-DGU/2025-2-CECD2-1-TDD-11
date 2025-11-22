@@ -23,7 +23,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.tdd.talktobook.core.designsystem.White0
 import com.tdd.talktobook.core.navigation.NavRoutes
-import com.tdd.talktobook.core.navigation.detailChapterNavGraph
 import com.tdd.talktobook.core.navigation.emailCheckNavGraph
 import com.tdd.talktobook.core.navigation.homeNavGraph
 import com.tdd.talktobook.core.navigation.interviewNavGraph
@@ -112,9 +111,6 @@ fun MainScreen() {
                 )
                 startProgressNavGraph(
                     navController = navController
-                )
-                detailChapterNavGraph(
-                    navController = navController,
                 )
                 publicationNavGraph(
                     navController = navController,

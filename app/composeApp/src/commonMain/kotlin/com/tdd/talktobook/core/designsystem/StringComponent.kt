@@ -146,10 +146,6 @@ const val PublicationTitle = "생성된 자서전"
 const val PublicationBookWholeContent = "전체 보기"
 const val PublicationBookDelete = "자서전 삭제하기"
 
-// Detail Chapter
-const val DetailChapterTitle = "Detail Chapter"
-const val ChatAgainBtn = "다시 채팅하기"
-
 // My
 const val MyTitle = "MyPage"
 const val PublishStatusTitle = "출판 진행상황"

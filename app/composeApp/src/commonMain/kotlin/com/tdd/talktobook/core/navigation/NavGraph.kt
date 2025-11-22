@@ -4,19 +4,17 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
-import com.tdd.talktobook.feature.detailchapter.DetailChapterScreen
-import com.tdd.talktobook.feature.home.HomeScreen
-import com.tdd.talktobook.feature.interview.InterviewScreen
 import com.tdd.talktobook.feature.auth.login.LogInScreen
+import com.tdd.talktobook.feature.auth.signup.SignUpScreen
+import com.tdd.talktobook.feature.home.HomeScreen
+import com.tdd.talktobook.feature.home.interview.PastInterviewScreen
+import com.tdd.talktobook.feature.interview.InterviewScreen
 import com.tdd.talktobook.feature.my.MyScreen
 import com.tdd.talktobook.feature.onboarding.OnboardingScreen
 import com.tdd.talktobook.feature.publication.PublicationScreen
-import com.tdd.talktobook.feature.auth.signup.SignUpScreen
-import com.tdd.talktobook.feature.home.interview.PastInterviewScreen
 import com.tdd.talktobook.feature.startprogress.StartProgressScreen
 
 fun NavGraphBuilder.loginNavGraph(
@@ -139,7 +137,7 @@ fun NavGraphBuilder.interviewNavGraph(
 }
 
 fun NavGraphBuilder.startProgressNavGraph(
-    navController: NavController
+    navController: NavController,
 ) {
     navigation(
         startDestination = NavRoutes.StartProgressScreen.route,
@@ -149,27 +147,6 @@ fun NavGraphBuilder.startProgressNavGraph(
             StartProgressScreen(
                 goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) { popUpTo(0) } },
                 goBackToHome = { navController.popBackStack() }
-            )
-        }
-    }
-}
-
-fun NavGraphBuilder.detailChapterNavGraph(
-    navController: NavController,
-) {
-    navigation(
-        startDestination = NavRoutes.DetailChapterScreen.route,
-        route = NavRoutes.DetailChapterGraph.route,
-    ) {
-        composable(
-            route = NavRoutes.DetailChapterScreen.route,
-            arguments = listOf(navArgument("autobiographyId") { type = NavType.IntType }),
-        ) {
-            val autobiographyId = it.arguments?.getInt("autobiographyId") ?: 0
-
-            DetailChapterScreen(
-                autobiographyId = autobiographyId,
-                goBackPage = { navController.popBackStack() },
             )
         }
     }
