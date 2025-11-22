@@ -15,7 +15,6 @@ object AutobiographiesDetailMapper : BaseMapper() {
                 response?.let { data ->
                     AutobiographiesDetailModel(
                         autobiographyId = data.autobiographyId,
-                        interviewId = data.interviewId,
                         title = data.title,
                         content = data.content,
                         coverImageUrl = data.coverImageUrl,

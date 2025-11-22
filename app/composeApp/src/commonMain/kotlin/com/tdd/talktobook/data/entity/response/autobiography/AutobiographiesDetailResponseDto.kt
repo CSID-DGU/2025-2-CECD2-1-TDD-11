@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 data class AutobiographiesDetailResponseDto(
     @SerialName("autobiographyId")
     val autobiographyId: Int = 0,
-    @SerialName("interviewId")
-    val interviewId: Int = 0,
     @SerialName("title")
     val title: String = "",
     @SerialName("content")
