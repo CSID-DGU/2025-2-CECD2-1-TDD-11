@@ -68,7 +68,7 @@ class LocalDataStore(
     suspend fun saveLastQuestion(chat: String) {
         dataStore.edit { preferences ->
             preferences[LAST_QUESTION] = chat
-            d("[dataStore] last question: $chat")
+            d("[dataStore] interview last question: $chat")
         }
     }
 
