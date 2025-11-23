@@ -52,6 +52,7 @@ public abstract class AutobiographyMapper {
     @Mapping(source="id", target="autobiographyId")
     public abstract AutobiographyCurrentResponseDto toAutobiographyCurrentResponseDto(Autobiography autobiography);
 
+    @Mapping(target = "categories", ignore = true)
     public abstract AutobiographyThemeResponseDto toAutobiographyThemeResponseDto(Autobiography autobiography);
 
 	@Named("truncate")
