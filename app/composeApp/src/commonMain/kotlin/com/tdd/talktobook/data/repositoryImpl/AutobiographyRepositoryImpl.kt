@@ -35,7 +35,7 @@ import org.koin.core.annotation.Single
 @Single(binds = [AutobiographyRepository::class])
 class AutobiographyRepositoryImpl(
     private val autobiographyDataSource: AutobiographyDataSource,
-    private val localDataStore: LocalDataStore
+    private val localDataStore: LocalDataStore,
 ) : AutobiographyRepository {
     override suspend fun getAllAutobiographies(): Flow<Result<AllAutobiographyListModel>> =
         AllAutobiographyMapper.responseToModel(apiCall = { autobiographyDataSource.getAllAutobiographies() })
@@ -88,32 +88,80 @@ class AutobiographyRepositoryImpl(
         GetCurrentProgressMapper.responseToModel(apiCall = { autobiographyDataSource.getCurrentProgressAutobiography() })
 
     override suspend fun postStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>> =
-        PostStartProgressMapper.responseToModel(apiCall = { autobiographyDataSource.postStartProgress(body.theme, body.reason) })
+        PostStartProgressMapper.responseToModel(apiCall = {
+            autobiographyDataSource.postStartProgress(
+                body.theme,
+                body.reason
+            )
+        })
 
     override suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>> =
-        GetCountMaterialsMapper.responseToModel(apiCall = { autobiographyDataSource.getCountMaterials(autobiographyId) })
+        GetCountMaterialsMapper.responseToModel(apiCall = {
+            autobiographyDataSource.getCountMaterials(
+                autobiographyId
+            )
+        })
 
     override suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>> =
-        GetCurrentInterviewProgressMapper.responseToModel(apiCall = { autobiographyDataSource.getCurrentInterviewProgress(autobiographyId) })
+        GetCurrentInterviewProgressMapper.responseToModel(apiCall = {
+            autobiographyDataSource.getCurrentInterviewProgress(
+                autobiographyId
+            )
+        })
 
     override suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>> =
         flow { localDataStore.saveCurrentAutobiographyStatus(currentStatue.type) }
 
     override suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.patchCreateAutobiography(autobiographyId) })
+        DefaultBooleanMapper.responseToModel(apiCall = {
+            autobiographyDataSource.patchCreateAutobiography(
+                autobiographyId
+            )
+        })
 
     override suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>> =
-        GetSelectedThemeMapper.responseToModel(apiCall = { autobiographyDataSource.getSelectedTheme(autobiographyId) })
+        GetSelectedThemeMapper.responseToModel(apiCall = {
+            autobiographyDataSource.getSelectedTheme(
+                autobiographyId
+            )
+        })
 
     override suspend fun saveAutobiographyId(autobiographyId: Int): Flow<Result<Unit>> =
         flow { localDataStore.saveCurrentAutobiographyId(autobiographyId) }
 
     override suspend fun getAutobiographyId(): Flow<Result<Int>> =
-        flow { localDataStore.currentAutobiographyId.collect { id ->
-            if (id != null) {
-                emit(Result.success(id))
-            } else {
-                emit(Result.failure(Exception("[dataStore] autobiographyId is null")))
+        flow {
+            localDataStore.currentAutobiographyId.collect { id ->
+                if (id != null) {
+                    emit(Result.success(id))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] autobiographyId is null")))
+                }
             }
-        } }
+        }
+
+    override suspend fun getAutobiographyStatus(): Flow<Result<AutobiographyStatusType>> =
+        flow {
+            localDataStore.currentAutobiographyStatus.collect { status ->
+                if (status != null) {
+                    emit(Result.success(AutobiographyStatusType.getType(status)))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] autobiography status is null")))
+                }
+            }
+        }
+
+    override suspend fun saveLastQuestion(chat: String): Flow<Result<Unit>> =
+        flow { localDataStore.saveLastQuestion(chat) }
+
+    override suspend fun getLastQuestion(): Flow<Result<String>> =
+        flow {
+            localDataStore.lastQuestion.collect { chat ->
+                if (chat != null) {
+                    emit(Result.success(chat))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] last question is null")))
+                }
+            }
+        }
 }

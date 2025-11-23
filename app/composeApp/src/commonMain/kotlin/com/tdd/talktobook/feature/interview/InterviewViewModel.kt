@@ -9,6 +9,7 @@ import com.tdd.talktobook.domain.entity.request.interview.ai.StartInterviewReque
 import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
@@ -23,6 +24,7 @@ class InterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewQuestionListUseCase: GetInterviewQuestionListUseCase,
 
+    private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase,
     private val getAutobiographyIdUseCase: GetAutobiographyIdUseCase,
     private val getSelectedThemeUseCase: GetSelectedThemeUseCase,
     private val postStartInterviewUseCase: PostStartInterviewUseCase,
@@ -82,6 +84,10 @@ class InterviewViewModel(
                 interviewChatList = updatedChatList,
             ),
         )
+    }
+
+    private fun saveLastQuestion(chat: String) {
+        //
     }
 
 

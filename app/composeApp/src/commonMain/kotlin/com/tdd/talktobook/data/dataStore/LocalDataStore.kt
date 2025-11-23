@@ -32,6 +32,11 @@ class LocalDataStore(
             preferences[CURRENT_AUTOBIOGRAPHY_ID]
         }
 
+    val lastQuestion: Flow<String?> =
+        dataStore.data.map { preferences ->
+            preferences[LAST_QUESTION]
+        }
+
     suspend fun saveAccessToken(token: String) {
         dataStore.edit { preferences ->
             preferences[ACCESS_TOKEN_KEY] = token
@@ -60,10 +65,18 @@ class LocalDataStore(
         }
     }
 
+    suspend fun saveLastQuestion(chat: String) {
+        dataStore.edit { preferences ->
+            preferences[LAST_QUESTION] = chat
+            d("[dataStore] last question: $chat")
+        }
+    }
+
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
         val CURRENT_AUTOBIOGRAPHY_STATUS = stringPreferencesKey("current_autobiography_status")
         val CURRENT_AUTOBIOGRAPHY_ID = intPreferencesKey("current_autobiography_id")
+        val LAST_QUESTION = stringPreferencesKey("last_question")
     }
 }

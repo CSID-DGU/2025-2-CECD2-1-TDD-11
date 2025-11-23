@@ -9,9 +9,11 @@ import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesDetailUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PatchCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyChaptersUseCase
@@ -21,6 +23,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
@@ -68,6 +71,9 @@ val useCaseModule =
         factory { GetSelectedThemeUseCase(get()) }
         factory { SaveAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyIdUseCase(get()) }
+        factory { GetAutobiographyStatusUseCase(get()) }
+        factory { SaveLastQuestionUseCase(get()) }
+        factory { GetLastQuestionUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }

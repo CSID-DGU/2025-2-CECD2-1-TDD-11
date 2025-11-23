@@ -49,4 +49,10 @@ interface AutobiographyRepository {
     suspend fun saveAutobiographyId(autobiographyId: Int): Flow<Result<Unit>>
 
     suspend fun getAutobiographyId(): Flow<Result<Int>>
+
+    suspend fun getAutobiographyStatus(): Flow<Result<AutobiographyStatusType>>
+
+    suspend fun saveLastQuestion(chat: String): Flow<Result<Unit>>
+
+    suspend fun getLastQuestion(): Flow<Result<String>>
 }
