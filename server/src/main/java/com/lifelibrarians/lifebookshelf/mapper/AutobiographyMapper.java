@@ -3,12 +3,15 @@ package com.lifelibrarians.lifebookshelf.mapper;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
+import com.lifelibrarians.lifebookshelf.classification.domain.Category;
 import com.lifelibrarians.lifebookshelf.classification.domain.Material;
 import com.lifelibrarians.lifebookshelf.image.service.ImageService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class AutobiographyMapper {
@@ -51,8 +54,20 @@ public abstract class AutobiographyMapper {
 
     @Mapping(source="id", target="autobiographyId")
     public abstract AutobiographyCurrentResponseDto toAutobiographyCurrentResponseDto(Autobiography autobiography);
-    
+
+    @Mapping(source = "theme", target = "name")
+    @Mapping(source = "categories", target = "categories", qualifiedByName = "mapCategoriesToOrders")
     public abstract AutobiographyThemeResponseDto toAutobiographyThemeResponseDto(Autobiography autobiography);
+
+    @Named("mapCategoriesToOrders")
+    protected List<Integer> mapCategoriesToOrders(List<Category> categories) {
+        if (categories == null) {
+            return null;
+        }
+        return categories.stream()
+                .map(Category::getOrder)
+                .collect(java.util.stream.Collectors.toList());
+    }
 
 	@Named("truncate")
 	String truncateContent(String content) {
