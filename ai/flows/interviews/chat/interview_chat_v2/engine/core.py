@@ -22,7 +22,8 @@ class Material:
         return self.sum_principle() + self.example + self.similar_event
 
     def mark_filled_if_ready(self) -> None:
-        if self.sum_principle() >= 3 and self.example == 1 and self.similar_event == 1:
+        w1, w2, w3, w4, w5, w6 = self.principle
+        if self.sum_principle() >= 3 and self.example == 1 and self.similar_event == 1 and (w5 == 1):
             self.count = 1
     
     def is_fully_completed(self) -> bool:
@@ -146,10 +147,10 @@ class InterviewEngine:
 
         w1, w2, w3, w4, w5, w6 = material.principle
         needs: List[str] = []
-        if w2 == 0: needs.append("w2")
+        if w5 == 0: needs.append("w5")
         if material.example == 0: needs.append("ex")
         if material.similar_event == 0: needs.append("con")
-        for label, val in [("w1", w1), ("w3", w3), ("w4", w4), ("w5", w5), ("w6", w6)]:
+        for label, val in [("w1", w1), ("w3", w3), ("w4", w4), ("w2", w2), ("w6", w6)]:
             if val == 0:
                 needs.append(label)
 
@@ -168,7 +169,6 @@ class InterviewEngine:
             mat.principle = [min(v + 1, 1) for v in mat.principle]
             mat.example, mat.similar_event = 1, 1
             mat.mark_filled_if_ready()
-
             cat = self.categories[cnum]
             cat.chunk_weight[chnum] = cat.chunk_weight.get(chnum, 0) + 1
 
@@ -235,8 +235,8 @@ class InterviewEngine:
     def generate_question(self, material: Material, target: str) -> str:
         """LLM 연동 지점 - 질문 생성"""
         six = {
-            "w1": "언제", "w2": "어떻게", "w3": "누가", 
-            "w4": "무엇을", "w5": "어떻게(절차/수단2)", "w6": "왜",
+            "w1": "언제/어디서", "w2": "어떻게(방법)", "w3": "누가", 
+            "w4": "무엇을", "w5": "어떻게(감정)", "w6": "왜",
         }
         if target in six:
             return f"{material.name}에 대해 '{six[target]}' 측면에서 더 구체적으로 들려주세요."

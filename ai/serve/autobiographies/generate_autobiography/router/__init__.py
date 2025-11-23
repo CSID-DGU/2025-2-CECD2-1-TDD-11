@@ -1,4 +1,5 @@
 import json
+import os
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
@@ -37,7 +38,6 @@ async def generate_autobiography(
     try:
         current_user = get_current_user(request)
         # Flow 로드 및 실행
-        import os
         # 프로젝트 루트 기준 상대 경로 사용
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.join(current_dir, "..", "..", "..", "..")
@@ -47,7 +47,7 @@ async def generate_autobiography(
         if not os.path.exists(flow_path):
             raise HTTPException(status_code=500, detail=f"Flow file not found at: {flow_path}")
         
-        flow = Flow.load(flow_path)
+        flow = Flow.load(str(flow_path))
         result = flow(
             user_info=requestDto.user_info.dict(),
             autobiography_info=requestDto.autobiography_info.dict(),

@@ -8,7 +8,7 @@ import time
 from uuid import uuid4
 
 # engine 모듈 import 경로 추가
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
@@ -121,36 +121,30 @@ def _load_mapping(mapping_path: str) -> Tuple[dict, dict]:
 
 
 def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: List[str], current_material: str) -> List[dict]:
-    """
-    LLM 플로우 호출 → 지정된 단 하나의 포맷만 가정:
-    [
-      {"material":"카테고리 청크 소재명",
-       "axes":{"principle":[0,1,1,0,1,0],"example":1,"similar_event":1}}
-    ]
-    실패/비정상 시 단일 폴백: 빈 리스트 반환
-    """
+    """LLM 플로우 호출"""
     if not os.path.exists(flow_path):
-        print(f"[WARN] flow 파일 없음: {flow_path}")
         return []
 
     try:
         from promptflow import load_flow
         flow = load_flow(flow_path)
-        res = flow(
-            answer_text=answer_text,
-            materials_list=materials_list,
-            current_material=current_material
-        )
+        res = flow(answer_text=answer_text, materials_list=materials_list, current_material=current_material)
         items = res.get("analysis_result", [])
-        # 혹시 문자열이라면 한 번만 json.loads 시도
+        
+        print(f"[DEBUG] LLM raw response: {items}")
+        
+        # 문자열이면 JSON 파싱
         if isinstance(items, str):
-            try:
-                items = json.loads(items)
-            except Exception:
-                return []
-        if not isinstance(items, list):
-            return []
-        return items
+            items = items.strip()
+            # 마크다운 코드 블록 제거
+            if items.startswith('```'):
+                lines = items.split('\n')
+                if lines[0].startswith('```'): lines = lines[1:]
+                if lines and lines[-1].strip() == '```': lines = lines[:-1]
+                items = '\n'.join(lines)
+            items = json.loads(items)
+        
+        return items if isinstance(items, list) else []
     except Exception as e:
         print(f"[ERROR] LLM 플로우 호출 실패: {e}")
         return []  # 폴백: 빈 결과
@@ -252,7 +246,20 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
     # 답변 분석
     current_material = question.get("material", "") if question else ""
+    current_material_id = question.get("material_id") if question else None
     is_first_question = not answer_text or not current_material
+    
+    # 현재 질문 소재의 전체 경로 찾기 (LLM에 전달용)
+    current_material_full = current_material
+    if current_material_id and isinstance(current_material_id, list) and len(current_material_id) == 3:
+        cat_num, chunk_num, mat_num = current_material_id
+        temp_cat = engine.categories.get(cat_num)
+        if temp_cat:
+            temp_chunk = temp_cat.chunks.get(chunk_num)
+            if temp_chunk:
+                temp_mat = temp_chunk.materials.get(mat_num)
+                if temp_mat:
+                    current_material_full = f"{temp_cat.category_name} {temp_chunk.chunk_name} {temp_mat.name}"
 
     matched_materials: List[str] = []
     axes_analysis_by_material: Dict[str, dict] = {}
@@ -276,25 +283,22 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         mapping_path = os.path.join(os.path.dirname(__file__), "data", "material_id_mapping.json")
         material_mapping, norm_index = _load_mapping(mapping_path)
 
-        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material)
+        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full)
 
-        # 지정 포맷 그대로 가정: [{"material": "...", "axes": {...}}, ...]
+        # 소재 매칭
         for item in llm_items:
-            if not isinstance(item, dict):
+            if not isinstance(item, dict) or not item.get("material"):
                 continue
-            name = item.get("material")
-            if not name:
-                continue
-
-            # 1) 정확 매칭 → 2) 공백 제거 후 매칭
+            
+            name = item["material"]
             key = name if name in material_mapping else norm_index.get(_norm(name))
             if not key:
                 continue
 
             matched_materials.append(key)
             axes_analysis_by_material[key] = item.get("axes", {})
-
-        # print(f"[INFO] LLM 분석 완료: {len(matched_materials)}개 소재 매칭")
+            # 소재 ID 매핑
+            mid = material_mapping.get(key)
 
         # 소재 ID 매핑
         for material_name in matched_materials:
@@ -302,17 +306,23 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             if isinstance(mid, list) and len(mid) == 3:
                 mapped_ids.append(mid)
 
-        # LLM에 축 정보가 없을 때 휴리스틱 반영
-        if mapped_ids:
-            for i, material_id in enumerate(mapped_ids):
-                cat_num, chunk_num, mat_num = material_id
-                material = engine._get_material(cat_num, chunk_num, mat_num)
-                if not material:
-                    continue
+        # LLM 분석 결과 반영
+        for i, material_id in enumerate(mapped_ids):
+            cat_num, chunk_num, mat_num = material_id
+            material = engine._get_material(cat_num, chunk_num, mat_num)
+            if not material:
+                continue
 
-                axes = axes_analysis_by_material.get(matched_materials[i], {})
-                axes_data = axes.get("axes", {}) if isinstance(axes, dict) else {}
+            axes_data = axes_analysis_by_material.get(matched_materials[i], {})
+            is_pass = axes_data.get("pass", 0) == 1
 
+            if is_pass:
+                # 회피/반감 응답: 소재 완료 처리
+                material.principle = [1, 1, 1, 1, 1, 1]
+                material.example, material.similar_event = 1, 1
+                material.count = 1
+                print(f"[INFO] 회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
+            else:
                 # ========== PRINCIPLE 증가 부분 (6W 축) ==========
                 # principle (6W) - 각 축별로 0에서 1로 변경될 때 증가
                 if isinstance(axes_data.get("principle"), list) and len(axes_data["principle"]) == 6:
@@ -370,8 +380,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
                 # ========== CHUNK WEIGHT 증가 부분 ==========
                 category = engine.categories[cat_num]
-                old_weight = category.chunk_weight.get(chunk_num, 0)
-                category.chunk_weight[chunk_num] = old_weight + 1  # ★ CHUNK WEIGHT 증가 지점 (+1씩 누적)
+                category.chunk_weight[chunk_num] = category.chunk_weight.get(chunk_num, 0) + 1  # ★ CHUNK WEIGHT 증가 지점 (+1씩 누적)
                 
                 # chunk weight 증가 발행
                 # chunk weight 변화량 데이터 구성
@@ -414,11 +423,16 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         if not target:
             return {"next_question": None, "last_answer_materials_id": []}
 
-        # 프롬프트용 타입 변환
+        # 타입 매핑: 엔진 타입 → 프롬프트 타입
         type_mapping = {
-            "w1": "when", "w2": "how", "w3": "who",
-            "w4": "what", "w5": "where", "w6": "why",
-            "ex": "ex", "con": "con"
+            "w1": "when_where",
+            "w2": "how1",
+            "w3": "who",
+            "w4": "what",
+            "w5": "how2",
+            "w6": "why",
+            "ex": "ex",
+            "con": "con"
         }
         prompt_type = type_mapping.get(target, target)
 
@@ -450,43 +464,30 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "material_id": material_id
         }
 
-        # Redis에 업데이트된 상태 저장 (배열 구조 직렬화)
         def serialize_categories(categories):
             result = []
-            for k, v in categories.items():
-                # 활성 chunk만 포함 (chunk_weight > 0)
-                active_chunks = {ck: cv for ck, cv in v.chunks.items() if v.chunk_weight.get(ck, 0) > 0}
+            for cat in categories.values():
+                active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
                 if not active_chunks:
                     continue
 
                 chunks = []
-                for ck, cv in active_chunks.items():
-                    # 활성 소재만 포함
-                    materials = []
-                    for mk, mv in cv.materials.items():
-                        if any(mv.principle) or mv.example or mv.similar_event or mv.count > 0:
-                            materials.append({
-                                "order": mv.order,
-                                "name": mv.name,
-                                "principle": mv.principle,
-                                "example": mv.example,
-                                "similar_event": mv.similar_event,
-                                "count": mv.count
-                            })
+                for chunk in active_chunks.values():
+                    materials = [
+                        {"order": m.order, "name": m.name, "principle": m.principle,
+                         "example": m.example, "similar_event": m.similar_event, "count": m.count}
+                        for m in chunk.materials.values()
+                        if any(m.principle) or m.example or m.similar_event or m.count > 0
+                    ]
                     if materials:
-                        chunks.append({
-                            "chunk_num": cv.chunk_num,
-                            "chunk_name": cv.chunk_name,
-                            "materials": materials
-                        })
+                        chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
 
                 if chunks:
-                    active_weights = {str(ck): w for ck, w in v.chunk_weight.items() if w > 0}
                     result.append({
-                        "category_num": v.category_num,
-                        "category_name": v.category_name,
+                        "category_num": cat.category_num,
+                        "category_name": cat.category_name,
                         "chunks": chunks,
-                        "chunk_weight": active_weights
+                        "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
                     })
             return result
 

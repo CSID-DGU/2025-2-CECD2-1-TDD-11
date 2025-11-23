@@ -4,6 +4,8 @@ from stream import publish_persistence_message
 import sys
 import json
 from pathlib import Path
+
+# serve 폴더를 sys.path에 추가 (session_manager, auth import용)
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from session_manager import SessionManager
 from datetime import datetime, timezone
@@ -12,13 +14,12 @@ import sys
 import os
 from pathlib import Path
 from stream.dto import Conversation, InterviewQuestion, InterviewPayload
+from promptflow import load_flow
 
 # flow 경로 추가
 current_dir = Path(__file__).parent.parent.parent.parent.parent
 flows_dir = current_dir / "flows" / "interviews" / "chat" / "interview_chat_v2"
 sys.path.insert(0, str(flows_dir))
-
-from promptflow import load_flow
 
 router = APIRouter()
 session_manager = SessionManager()
