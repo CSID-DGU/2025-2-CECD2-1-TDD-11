@@ -1,7 +1,13 @@
 package com.tdd.talktobook.domain.entity.enums
 
+import com.tdd.talktobook.core.designsystem.Career
+import com.tdd.talktobook.core.designsystem.CareerContent
 import com.tdd.talktobook.core.designsystem.Caring
 import com.tdd.talktobook.core.designsystem.CaringContent
+import com.tdd.talktobook.core.designsystem.Community
+import com.tdd.talktobook.core.designsystem.CommunityContent
+import com.tdd.talktobook.core.designsystem.Crisis
+import com.tdd.talktobook.core.designsystem.CrisisContent
 import com.tdd.talktobook.core.designsystem.Empty
 import com.tdd.talktobook.core.designsystem.Family
 import com.tdd.talktobook.core.designsystem.FamilyContent
@@ -15,8 +21,6 @@ import com.tdd.talktobook.core.designsystem.Local
 import com.tdd.talktobook.core.designsystem.LocalContent
 import com.tdd.talktobook.core.designsystem.Love
 import com.tdd.talktobook.core.designsystem.LoveContent
-import com.tdd.talktobook.core.designsystem.MaterialEvent
-import com.tdd.talktobook.core.designsystem.MaterialEventContent
 import com.tdd.talktobook.core.designsystem.Money
 import com.tdd.talktobook.core.designsystem.MoneyContent
 import com.tdd.talktobook.core.designsystem.Parent
@@ -30,7 +34,7 @@ import com.tdd.talktobook.core.designsystem.TraitContent
 
 enum class MaterialType(
     val type: String,
-    val content: String
+    val content: String,
 ) {
     FAMILY(Family, FamilyContent),
     LOVE(Love, LoveContent),
@@ -38,12 +42,14 @@ enum class MaterialType(
     LOCAL(Local, LocalContent),
     TRAIT(Trait, TraitContent),
     FRIEND(Friend, FriendContent),
+    CAREER(Career, CareerContent),
     GROWING(Growing, GrowingContent),
-    EVENT(MaterialEvent, MaterialEventContent),
+    CRISIS(Crisis, CrisisContent),
     MONEY(Money, MoneyContent),
     HOBBY(Hobby, HobbyContent),
     PET(Pet, PetContent),
     PHILOSOPHY(Philosophy, PhilosophyContent),
+    COMMUNITY(Community, CommunityContent),
     PARENT(Parent, ParentContent),
     DEFAULT(Empty, Empty);
 }
