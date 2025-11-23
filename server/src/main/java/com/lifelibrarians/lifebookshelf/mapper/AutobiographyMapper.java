@@ -52,6 +52,8 @@ public abstract class AutobiographyMapper {
     @Mapping(source="id", target="autobiographyId")
     public abstract AutobiographyCurrentResponseDto toAutobiographyCurrentResponseDto(Autobiography autobiography);
 
+    public abstract AutobiographyThemeResponseDto toAutobiographyThemeResponseDto(Autobiography autobiography);
+
 	@Named("truncate")
 	String truncateContent(String content) {
 		return content != null && content.length() > 16 ? content.substring(0, 16).concat("...")

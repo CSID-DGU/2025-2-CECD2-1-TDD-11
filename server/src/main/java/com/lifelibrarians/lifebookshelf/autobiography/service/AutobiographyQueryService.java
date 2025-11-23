@@ -139,4 +139,15 @@ public class AutobiographyQueryService {
                 .status(autobiography.getAutobiographyStatus().getStatus().name())
                 .build();
     }
+
+    // 자서전 id에 대한 사용자의 theme 조회
+    public AutobiographyThemeResponseDto getAutobiographyTheme(Long memberId, Long autobiographyId) {
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+        if (!autobiography.getMember().getId().equals(memberId)) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
+        }
+
+        return autobiographyMapper.toAutobiographyThemeResponseDto(autobiography);
+    }
 }

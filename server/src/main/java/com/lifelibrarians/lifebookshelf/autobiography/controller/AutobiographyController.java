@@ -243,5 +243,25 @@ public class AutobiographyController {
     ) {
         return autobiographyFacadeService.getAutobiographyProgress(memberSessionDto.getMemberId(), autobiographyId);
     }
+
+    @Operation(summary = "선택한 자서전에 대한 테마 조회", description = "사용자가 선택한 auto id에 대한 theme 정보를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{autobiographyId}/theme")
+    public AutobiographyThemeResponseDto getAutobiographyTheme(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+    ) {
+        return autobiographyFacadeService.getAutobiographyTheme(memberSessionDto.getMemberId(), autobiographyId);
+    }
 }
 

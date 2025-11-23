@@ -1,6 +1,7 @@
 package com.lifelibrarians.lifebookshelf.autobiography.domain;
 
 import com.lifelibrarians.lifebookshelf.chapter.domain.Chapter;
+import com.lifelibrarians.lifebookshelf.classification.domain.Category;
 import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import java.util.List;
@@ -15,7 +16,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "autobiographies")
 @Getter
-@ToString(callSuper = true, exclude = {"chapter"})
+@ToString(callSuper = true, exclude = {"chapter", "member", "autobiographyInterviews", "chapterInterviews", "memberInterviews", "autobiographyStatus", "categories", "autobiographyChapters"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Autobiography {
 
@@ -45,9 +46,6 @@ public class Autobiography {
 	private String reason;
 	/* } V2 신규 필드 */
 
-    @OneToOne(mappedBy = "currentAutobiography")
-    private AutobiographyStatus autobiographyStatus;
-
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
@@ -72,6 +70,15 @@ public class Autobiography {
 
 	@OneToMany(mappedBy = "member")
 	private Set<Interview> memberInterviews;
+
+    @OneToOne(mappedBy = "currentAutobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private AutobiographyStatus autobiographyStatus;
+
+    @OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Category> categories;
+
+    @OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<AutobiographyChapter> autobiographyChapters;
 	/* } 연관 정보 */
 
 	/* 생성자 (V1) { */
