@@ -6,6 +6,7 @@ import com.tdd.talktobook.domain.entity.enums.MaterialType
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -13,6 +14,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class StartProgressViewModel(
     private val postStartProgressUseCase: PostStartProgressUseCase,
+    private val saveAutobiographyIdUseCase: SaveAutobiographyIdUseCase
 ) : BaseViewModel<StartProgressPageState>(
     StartProgressPageState()
 ) {
@@ -59,6 +61,13 @@ class StartProgressViewModel(
             )
         )
 
+        saveCurrentAutobiographyId(data.autobiographyId)
         emitEventFlow(StartProgressEvent.GoToInterviewPage)
+    }
+
+    private fun saveCurrentAutobiographyId(id: Int) {
+        viewModelScope.launch {
+            saveAutobiographyIdUseCase(id).collect { resultResponse(it, {}) }
+        }
     }
 }

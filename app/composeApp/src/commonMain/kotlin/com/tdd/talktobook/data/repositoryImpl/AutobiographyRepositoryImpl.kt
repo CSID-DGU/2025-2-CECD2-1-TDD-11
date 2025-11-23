@@ -104,4 +104,16 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>> =
         GetSelectedThemeMapper.responseToModel(apiCall = { autobiographyDataSource.getSelectedTheme(autobiographyId) })
+
+    override suspend fun saveAutobiographyId(autobiographyId: Int): Flow<Result<Unit>> =
+        flow { localDataStore.saveCurrentAutobiographyId(autobiographyId) }
+
+    override suspend fun getAutobiographyId(): Flow<Result<Int>> =
+        flow { localDataStore.currentAutobiographyId.collect { id ->
+            if (id != null) {
+                emit(Result.success(id))
+            } else {
+                emit(Result.failure(Exception("[dataStore] autobiographyId is null")))
+            }
+        } }
 }

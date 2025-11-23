@@ -8,6 +8,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.DeleteAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesDetailUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
@@ -18,6 +19,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyUse
 import com.tdd.talktobook.domain.usecase.autobiograph.PostEditAutobiographyDetailUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
@@ -64,6 +66,8 @@ val useCaseModule =
         factory { SaveCurrentAutobiographyStatusUseCase(get()) }
         factory { PatchCreateAutobiographyUseCase(get()) }
         factory { GetSelectedThemeUseCase(get()) }
+        factory { SaveAutobiographyIdUseCase(get()) }
+        factory { GetAutobiographyIdUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }

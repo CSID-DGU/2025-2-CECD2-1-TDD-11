@@ -132,6 +132,7 @@ fun NavGraphBuilder.interviewNavGraph(
         route = NavRoutes.InterviewGraph.route,
     ) {
         composable(route = NavRoutes.InterviewScreen.route) {
+
             InterviewScreen()
         }
     }

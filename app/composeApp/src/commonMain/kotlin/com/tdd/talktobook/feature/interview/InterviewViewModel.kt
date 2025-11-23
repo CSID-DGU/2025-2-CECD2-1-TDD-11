@@ -4,12 +4,16 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.enums.ChatType
+import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
+import com.tdd.talktobook.domain.entity.request.interview.ai.StartInterviewRequestModel
+import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
-import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
-import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionItemModel
-import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionListModel
+import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
+import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
+import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -18,89 +22,60 @@ import org.koin.android.annotation.KoinViewModel
 class InterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewQuestionListUseCase: GetInterviewQuestionListUseCase,
+
+    private val getAutobiographyIdUseCase: GetAutobiographyIdUseCase,
+    private val getSelectedThemeUseCase: GetSelectedThemeUseCase,
+    private val postStartInterviewUseCase: PostStartInterviewUseCase,
+    private val postChatInterviewUseCase: PostChatInterviewUseCase,
 ) : BaseViewModel<InterviewPageState>(
-        InterviewPageState(),
-    ) {
+    InterviewPageState(),
+) {
     init {
-        initSetMockInterviewList()
+        initSetAutobiographyId()
     }
 
-    private fun initSetMockInterviewList() {
-        val interviews: List<InterviewChatItem> =
-            listOf(
-//                InterviewChatItem("나는 AI", ChatType.BOT),
-//                InterviewChatItem("나는 인간", ChatType.HUMAN),
-//                InterviewChatItem("AIAI", ChatType.BOT),
+    private fun initSetAutobiographyId() {
+        viewModelScope.launch {
+            getAutobiographyIdUseCase(Unit).collect { resultResponse(it, ::onSuccessSetAutobiographyId) }
+        }
+    }
+
+    private fun onSuccessSetAutobiographyId(id: Int) {
+        updateState(
+            uiState.value.copy(
+                autobiographyId = id
             )
-
-        updateState(
-            uiState.value.copy(
-                interviewChatList = interviews,
-            ),
         )
+
+        initGetSelectedTheme(id)
     }
 
-//    fun setInterview(interviewId: Int) {
-//        d("[test] interviewViewModel -> $interviewId")
-//        updateState(
-//            uiState.value.copy(
-//                interviewId = interviewId,
-//            ),
-//        )
-//
-//        initSetInterviewList(interviewId)
-//    }
-
-    private fun initSetInterviewList(interviewId: Int) {
+    private fun initGetSelectedTheme(autobiographyId: Int) {
         viewModelScope.launch {
-            getInterviewConversationUseCase(interviewId).collect {
-                resultResponse(it, { data -> onSuccessSetInterviewConversationList(data, interviewId) })
+            getSelectedThemeUseCase(autobiographyId).collect {
+                resultResponse(it, { selectedThemes -> initStartInterview(autobiographyId, selectedThemes) })
             }
         }
     }
 
-    private fun onSuccessSetInterviewConversationList(
-        data: InterviewConversationListModel,
-        interviewId: Int,
-    ) {
-        d("[test] interview chats: -> ${data.results}")
-        updateState(
-            uiState.value.copy(
-                interviewConversationModel = data,
-                interviewChatList = data.results,
-            ),
-        )
+    private fun initStartInterview(autobiographyId: Int, selectedThemes: SelectedThemeModel) {
+        d("[ktor] interview -> autoId: $autobiographyId, categories -> ${selectedThemes.categories}")
 
-        initSetInterviewQuestion(interviewId)
-    }
-
-    private fun initSetInterviewQuestion(interviewId: Int) {
         viewModelScope.launch {
-            getInterviewQuestionListUseCase(interviewId).collect {
-                resultResponse(it, ::onSuccessSetInterviewQuestion)
-            }
+            postStartInterviewUseCase(
+                StartInterviewRequestModel(autobiographyId, selectedThemes.categories)
+            ).collect { resultResponse(it, { data -> addInterviewConversation(data.text, ChatType.BOT) }) }
         }
-    }
-
-    private fun onSuccessSetInterviewQuestion(data: InterviewQuestionListModel) {
-        d("[test] interview -> questions: ${data.results}, currentId: ${data.currentQuestionId}")
-        updateState(
-            uiState.value.copy(
-                interviewCurrentQuestionId = data.currentQuestionId,
-                interviewQuestionList = data.results,
-            ),
-        )
-
-        addInterviewConversation(data.results, data.currentQuestionId)
     }
 
     private fun addInterviewConversation(
-        questions: List<InterviewQuestionItemModel>,
-        currentQuestionId: Int,
+        chatContent: String,
+        chatType: ChatType,
     ) {
-        val currentQuestion: InterviewQuestionItemModel = questions.firstOrNull { it.questionId == currentQuestionId } ?: InterviewQuestionItemModel()
-        val currentConversationModel = InterviewChatItem(content = currentQuestion.questionText, chatType = ChatType.BOT)
-        val updatedChatList = uiState.value.interviewChatList + currentConversationModel
+        d("[ktor] interview -> $chatContent")
+
+        val currentConversation = InterviewChatItem(content = chatContent, chatType = chatType)
+        val updatedChatList = uiState.value.interviewChatList + currentConversation
 
         updateState(
             uiState.value.copy(
@@ -108,6 +83,7 @@ class InterviewViewModel(
             ),
         )
     }
+
 
     fun beginInterview() {
         updateState(
@@ -118,14 +94,21 @@ class InterviewViewModel(
     }
 
     fun setInterviewAnswer(chat: String) {
-        val originalInterviews = uiState.value.interviewChatList
-        val newAnswer = InterviewChatItem(content = chat, chatType = ChatType.HUMAN)
+        addInterviewConversation(chat, ChatType.HUMAN)
 
         updateState(
             uiState.value.copy(
-                interviewChatList = originalInterviews + newAnswer,
                 interviewProgressType = ConversationType.BEFORE,
             ),
         )
+
+        postInterviewAnswer(chat)
+    }
+
+    private fun postInterviewAnswer(chat: String) {
+        viewModelScope.launch {
+            postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
+                .collect { resultResponse(it, { data -> addInterviewConversation(chat, ChatType.BOT) }) }
+        }
     }
 }

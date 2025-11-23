@@ -38,8 +38,8 @@ sealed class NavRoutes(val route: String) {
     // Interview Graph
     data object InterviewGraph : NavRoutes("interview_graph")
 
-    data object InterviewScreen : NavRoutes("interview/{interviewId}") {
-        fun setRouteModel(interviewId: Int): String = "interview/$interviewId"
+    data object InterviewScreen : NavRoutes("interview/{autobiographyId}") {
+        fun setRouteModel(autobiographyId: Int): String = "interview/$autobiographyId"
     }
 
     // StartProgress Graph

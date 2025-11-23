@@ -12,6 +12,7 @@ import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesLis
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
 import kotlinx.coroutines.launch
@@ -28,7 +29,8 @@ class HomeViewModel(
     private val getCurrentInterviewProgressUseCase: GetCurrentInterviewProgressUseCase,
     private val getCountMaterialsUseCase: GetCountMaterialsUseCase,
     private val getInterviewSummariesUseCase: GetInterviewSummariesUseCase,
-    private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase
+    private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
+    private val saveAutobiographyIdUseCase: SaveAutobiographyIdUseCase
 ) : BaseViewModel<HomePageState>(
     HomePageState(),
 ) {
@@ -85,9 +87,16 @@ class HomeViewModel(
             )
         )
 
+        saveCurrentAutobiographyId(data.autobiographyId)
         initSetCreatedMaterials(data.autobiographyId)
         initSetInterviewProgress(data.autobiographyId)
         initSetMonthInterviewList(data.autobiographyId)
+    }
+
+    private fun saveCurrentAutobiographyId(id: Int) {
+        viewModelScope.launch {
+            saveAutobiographyIdUseCase(id).collect { resultResponse(it, {}) }
+        }
     }
 
 

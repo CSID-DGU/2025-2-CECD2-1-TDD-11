@@ -45,4 +45,8 @@ interface AutobiographyRepository {
     suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>>
 
     suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>>
+
+    suspend fun saveAutobiographyId(autobiographyId: Int): Flow<Result<Unit>>
+
+    suspend fun getAutobiographyId(): Flow<Result<Int>>
 }
