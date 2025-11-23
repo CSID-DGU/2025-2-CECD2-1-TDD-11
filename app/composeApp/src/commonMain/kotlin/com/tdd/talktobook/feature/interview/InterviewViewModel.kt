@@ -3,9 +3,11 @@ package com.tdd.talktobook.feature.interview
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
+import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
@@ -18,11 +20,28 @@ class InterviewViewModel(
     private val getLastQuestionUseCase: GetLastQuestionUseCase,
     private val saveLastQuestionUseCase: SaveLastQuestionUseCase,
     private val postChatInterviewUseCase: PostChatInterviewUseCase,
+    private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
     init {
-        initGetLastQuestion()
+        initGetAutobiographyStatus()
+    }
+
+    private fun initGetAutobiographyStatus() {
+        viewModelScope.launch {
+            getAutobiographyStatusUseCase(Unit).collect { resultResponse(it, ::onSuccessGetStatus) }
+        }
+    }
+
+    private fun onSuccessGetStatus(data: AutobiographyStatusType) {
+        d("[ktor] interview -> ${data.type}")
+
+        if (data == AutobiographyStatusType.EMPTY) {
+            emitEventFlow(InterviewEvent.ShowStartAutobiographyDialog)
+        } else {
+            initGetLastQuestion()
+        }
     }
 
     private fun initGetLastQuestion() {

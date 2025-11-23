@@ -3,6 +3,7 @@ package com.tdd.talktobook.feature.startprogress
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.MaterialType
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.ai.StartInterviewRequestModel
@@ -11,6 +12,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeMode
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
@@ -24,6 +26,7 @@ class StartProgressViewModel(
     private val saveLastQuestionUseCase: SaveLastQuestionUseCase,
     private val getSelectedThemeUseCase: GetSelectedThemeUseCase,
     private val postStartInterviewUseCase: PostStartInterviewUseCase,
+    private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase
 ) : BaseViewModel<StartProgressPageState>(
     StartProgressPageState()
 ) {
@@ -70,8 +73,15 @@ class StartProgressViewModel(
             )
         )
 
-        initGetSelectedTheme(data.autobiographyId)
+        changeAutobiographyStatus()
         saveCurrentAutobiographyId(data.autobiographyId)
+        initGetSelectedTheme(data.autobiographyId)
+    }
+
+    private fun changeAutobiographyStatus() {
+        viewModelScope.launch {
+            saveCurrentAutobiographyStatusUseCase(AutobiographyStatusType.PROGRESS).collect { resultResponse(it, {}) }
+        }
     }
 
     private fun saveCurrentAutobiographyId(id: Int) {

@@ -32,7 +32,7 @@ class PublicationViewModel(
         updateState(
             uiState.value.copy(
                 autobiographyList = data.results.filter { it.status == AutobiographyStatusType.FINISH.type },
-                selectedAutobiographyId = data.results[0].autobiographyId,
+                selectedAutobiographyId = if (data.results.isNotEmpty()) data.results[0].autobiographyId else 0,
             ),
         )
     }

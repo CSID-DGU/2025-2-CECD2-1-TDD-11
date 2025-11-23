@@ -18,12 +18,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.BackGround2
+import com.tdd.talktobook.core.designsystem.Empty
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
+import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogBtn
+import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogContent
+import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogTitle
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
+import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.util.rememberSpeechToText
 import com.tdd.talktobook.domain.entity.enums.ChatType
+import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import kotlinx.coroutines.launch
@@ -32,7 +39,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun InterviewScreen() {
+internal fun InterviewScreen(
+    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit
+) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -54,6 +63,24 @@ internal fun InterviewScreen() {
                 uiState.interviewChatList
             }
         }
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is InterviewEvent.ShowStartAutobiographyDialog -> {
+                    showStartAutobiographyDialog(
+                        OneBtnDialogModel(
+                            title = StartAutobiographyDialogTitle,
+                            semiTitle = StartAutobiographyDialogContent,
+                            btnText = StartAutobiographyDialogBtn,
+                            isBottomTextVisible = true,
+                            bottomText = NextTime
+                        )
+                    )
+                }
+            }
+        }
+    }
 
     InterviewContent(
         interviewChatList = mergedChat,

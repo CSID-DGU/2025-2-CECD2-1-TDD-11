@@ -6,6 +6,7 @@ const val Empty = ""
 const val Blank = " "
 const val Confirm = "확인"
 const val Next = "다음"
+const val NextTime = "나중에"
 
 // Day
 const val Mon = "월"
@@ -140,6 +141,11 @@ const val ReasonWriteTextMax = "%d/300"
 const val InterviewScreenTitle = "인터뷰"
 const val InterviewStartBtn = "답변 시작하기"
 const val InterviewFinishBtn = "답변 중단하기"
+
+// Dialog
+const val StartAutobiographyDialogTitle = "자서전 생성 시작하기"
+const val StartAutobiographyDialogContent = "지금 바로 대화 인터뷰를 통해\n나만의 자서전을 생성해 보세요!"
+const val StartAutobiographyDialogBtn = "자서전 생성 시작하기"
 
 // Publication
 const val PublicationTitle = "생성된 자서전"

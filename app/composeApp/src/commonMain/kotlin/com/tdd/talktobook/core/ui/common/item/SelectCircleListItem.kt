@@ -24,13 +24,14 @@ import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.Gray4
 import com.tdd.talktobook.core.designsystem.Main1
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import talktobook.composeapp.generated.resources.Res
-import talktobook.composeapp.generated.resources.img_chapter_detail
+import talktobook.composeapp.generated.resources.img_material_ex
 
 @Composable
 fun SelectCircleListItem(
-    itemImg: DrawableResource = Res.drawable.img_chapter_detail,
+    itemImg: DrawableResource = Res.drawable.img_material_ex,
     itemText: String,
     isSelected: Boolean = false,
     onSelect: () -> Unit = {},
@@ -46,6 +47,7 @@ fun SelectCircleListItem(
     )
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun SelectCircleListItemContent(
     interactionSource: MutableInteractionSource,

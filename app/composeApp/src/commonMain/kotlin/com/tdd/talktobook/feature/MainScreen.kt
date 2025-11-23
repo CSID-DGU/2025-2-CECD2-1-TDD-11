@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
@@ -33,6 +34,8 @@ import com.tdd.talktobook.core.navigation.publicationNavGraph
 import com.tdd.talktobook.core.navigation.settingNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
+import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
+import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -43,12 +46,38 @@ fun MainScreen() {
     val navController = rememberNavController()
     val interactionSource = remember { MutableInteractionSource() }
 
+    val isShowDialog = remember { mutableStateOf(false) }
+
+    val showOneBtnDialog: (OneBtnDialogModel) -> Unit = {
+        viewModel.onSetOneBtnDialog(it)
+        isShowDialog.value = true
+    }
+
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow
             .distinctUntilChanged()
             .collect { backStackEntry ->
                 viewModel.setBottomNavType(backStackEntry.destination.route)
             }
+    }
+
+    if (isShowDialog.value) {
+        OneBtnDialog(
+            title = uiState.oneBtnDialogModel.title,
+            semiTitle = uiState.oneBtnDialogModel.semiTitle,
+            btnText = uiState.oneBtnDialogModel.btnText,
+            isBottomTextVisible = uiState.oneBtnDialogModel.isBottomTextVisible,
+            bottomText = uiState.oneBtnDialogModel.bottomText,
+            onClickBtn = {
+                isShowDialog.value = false
+                navController.navigate(NavRoutes.StartProgressScreen.route)
+            },
+            onClickBottomText = {
+                isShowDialog.value = false
+                navController.navigate(NavRoutes.HomeScreen.route)
+            },
+            onDismiss = { isShowDialog.value = false }
+        )
     }
 
     Scaffold(
@@ -108,6 +137,7 @@ fun MainScreen() {
                 )
                 interviewNavGraph(
                     navController = navController,
+                    showStartAutobiographyDialog = showOneBtnDialog
                 )
                 startProgressNavGraph(
                     navController = navController

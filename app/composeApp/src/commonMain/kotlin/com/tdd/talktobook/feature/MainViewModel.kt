@@ -2,6 +2,7 @@ package com.tdd.talktobook.feature
 
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -36,6 +37,14 @@ class MainViewModel : BaseViewModel<MainPageState>(
             uiState.value.copy(
                 bottomNavType = type,
             ),
+        )
+    }
+
+    fun onSetOneBtnDialog(data: OneBtnDialogModel) {
+        updateState(
+            uiState.value.copy(
+                oneBtnDialogModel = data
+            )
         )
     }
 }
