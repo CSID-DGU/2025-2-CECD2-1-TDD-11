@@ -76,9 +76,6 @@ public class Autobiography {
 
     @OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Category> categories;
-
-    @OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private Set<AutobiographyChapter> autobiographyChapters;
 	/* } 연관 정보 */
 
 	/* 생성자 (V1) { */
