@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -31,58 +33,66 @@ public class ClassificationInitService {
             JsonNode themeData = mapper.readTree(new ClassPathResource("data/theme.json").getInputStream());
             JsonNode materialData = mapper.readTree(new ClassPathResource("data/material.json").getInputStream());
 
-            // Theme & Category 생성
+            // 1. 모든 Category 먼저 생성 (중복 제거)
+            Map<String, Category> categoryMap = new HashMap<>();
+            JsonNode materialCategories = materialData.get("category");
+            for (JsonNode categoryNode : materialCategories) {
+                String categoryName = categoryNode.get("name").asText();
+                int categoryOrder = categoryNode.get("order").asInt();
+                
+                Category category = Category.of(categoryOrder, categoryName, autobiography);
+                categoryRepository.save(category);
+                categoryMap.put(categoryName, category);
+                
+                // Chunk & Material 생성
+                createChunksAndMaterials(categoryNode, category);
+            }
+
+            // 2. Theme 생성 및 Category 연결
             JsonNode themes = themeData.get("theme");
-            for (int i = 0; i < themes.size(); i++) {
-                JsonNode themeNode = themes.get(i);
+            for (JsonNode themeNode : themes) {
                 String themeName = themeNode.get("name").asText();
+                int themeOrder = themeNode.get("order").asInt();
 
-                Theme theme = Theme.of(i + 1, ThemeNameType.fromKoreanName(themeName));
-                themeRepository.save(theme);
-
+                Theme theme = Theme.of(themeOrder, ThemeNameType.fromKoreanName(themeName));
+                
+                // Theme에 Category들 연결
                 JsonNode categories = themeNode.get("category");
-                for (int j = 0; j < categories.size(); j++) {
-                    String categoryName = categories.get(j).asText();
-
-                    Category category = Category.of(j + 1, categoryName, theme, autobiography);
-                    categoryRepository.save(category);
-
-                    // 해당 카테고리의 Chunk & Material 더미 생성
-                    createChunksAndMaterials(materialData, category, categoryName);
+                for (JsonNode categoryRef : categories) {
+                    String categoryName = categoryRef.get("name").asText();
+                    Category category = categoryMap.get(categoryName);
+                    if (category != null) {
+                        theme.addCategory(category);
+                    }
                 }
+                
+                themeRepository.save(theme);
             }
         } catch (Exception e) {
             throw new RuntimeException("AI 데이터 초기화 실패", e);
         }
     }
 
-    private void createChunksAndMaterials(JsonNode materialData, Category category, String categoryName) {
-        JsonNode categories = materialData.get("category");
+    private void createChunksAndMaterials(JsonNode categoryNode, Category category) {
+        JsonNode chunks = categoryNode.get("chunk");
+        
+        for (JsonNode chunkNode : chunks) {
+            String chunkName = chunkNode.get("name").asText();
+            int chunkOrder = chunkNode.get("order").asInt();
 
-        for (JsonNode categoryNode : categories) {
-            if (categoryNode.get("name").asText().equals(categoryName)) {
-                JsonNode chunks = categoryNode.get("chunk");
+            Chunk chunk = Chunk.of(chunkOrder, chunkName, 0, category);
+            chunkRepository.save(chunk);
 
-                for (int i = 0; i < chunks.size(); i++) {
-                    JsonNode chunkNode = chunks.get(i);
-                    String chunkName = chunkNode.get("name").asText();
+            JsonNode materials = chunkNode.get("material");
+            for (JsonNode materialNode : materials) {
+                String materialName = materialNode.get("name").asText();
+                int materialOrder = materialNode.get("order").asInt();
 
-                    Chunk chunk = Chunk.of(i + 1, chunkName, 0, category); // weight 초기값 0
-                    chunkRepository.save(chunk);
-
-                    // Material 생성
-                    JsonNode materials = chunkNode.get("material");
-                    for (int j = 0; j < materials.size(); j++) {
-                        String materialName = materials.get(j).asText();
-
-                        Material material = Material.of(
-                                j + 1, materialName, 0, 0, 0,
-                                Arrays.toString(new int[]{0,0,0,0,0,0}), chunk, null
-                        );
-                        materialRepository.save(material);
-                    }
-                }
-                break;
+                Material material = Material.of(
+                        materialOrder, materialName, 0, 0, 0,
+                        Arrays.toString(new int[]{0,0,0,0,0,0}), chunk, null
+                );
+                materialRepository.save(material);
             }
         }
     }

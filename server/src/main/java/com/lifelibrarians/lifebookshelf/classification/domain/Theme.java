@@ -1,5 +1,6 @@
 package com.lifelibrarians.lifebookshelf.classification.domain;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 
@@ -31,7 +32,12 @@ public class Theme {
     /* } 고유 정보 */
 
     /* 연관 정보 { */
-    @OneToMany(mappedBy = "theme")
+    @ManyToMany
+    @JoinTable(
+            name = "theme_category",
+            joinColumns = @JoinColumn(name = "theme_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     private Set<Category> categories;
     /* } 연관 정보 */
 
@@ -43,6 +49,14 @@ public class Theme {
 
     public static Theme of(Integer order, ThemeNameType name) {
         return new Theme(order, name);
+    }
+
+    public void addCategory(Category category) {
+        if (this.categories == null) this.categories = new HashSet<>();
+        if (category.getThemes() == null) category.setThemes(new HashSet<>());
+
+        this.categories.add(category);
+        category.getThemes().add(this);
     }
     /* } 생성자 */
 }

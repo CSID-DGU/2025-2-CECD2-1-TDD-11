@@ -9,6 +9,12 @@ import java.util.Optional;
 
 public interface ChunkRepository extends JpaRepository<Chunk, Long> {
     
-    @Query("SELECT c FROM Chunk c WHERE c.category.autobiography.id = :autobiographyId AND c.category.theme.id = :themeId AND c.category.order = :categoryOrder AND c.order = :chunkOrder")
+    @Query("SELECT c FROM Chunk c " +
+           "JOIN c.category cat " +
+           "JOIN cat.themes t " +
+           "WHERE cat.autobiography.id = :autobiographyId " +
+           "AND t.id = :themeId " +
+           "AND cat.order = :categoryOrder " +
+           "AND c.order = :chunkOrder")
     Optional<Chunk> findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(@Param("autobiographyId") Long autobiographyId, @Param("themeId") Long themeId, @Param("categoryOrder") Integer categoryOrder, @Param("chunkOrder") Integer chunkOrder);
 }

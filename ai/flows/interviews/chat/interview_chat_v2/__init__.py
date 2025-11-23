@@ -98,7 +98,9 @@ def _build_materials_list(material_data: dict) -> List[str]:
         for chunk in category.get("chunk", []):
             ch = chunk.get("name", "")
             for material in chunk.get("material", []):
-                out.append(f"{c} {ch} {material}")
+                # material이 이제 {"order": 1, "name": "소재명"} 형태
+                material_name = material.get("name", "") if isinstance(material, dict) else material
+                out.append(f"{c} {ch} {material_name}")
     return out
 
 
@@ -157,39 +159,35 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: List[st
 # AI cat_num을 DB의 theme_id, category_order로 변환하는 함수
 def convert_cat_num_to_db_mapping(cat_num):
     """AI의 cat_num(0-based)을 DB의 (theme_id, category_order)로 변환"""
-    # material.json의 category 순서와 DB의 theme-category 매핑
-    # AI material.json: 0=부모, 1=조부모, 2=형제, 3=자녀/육아, 4=친척, 5=가족사건, 6=연인, 7=결혼, 8=배우자, 9=자녀/육아, 10=친구, 11=직장, 12=진로, 13=문제해결, 14=생애주기, 15=성격, 16=취미, 17=반려동물, 18=철학, 19=주거지, 20=생활, 21=금전
+    # material.json의 category order와 DB의 theme-category 매핑
+    # material.json: order=1(부모), order=2(조부모), order=3(형제), order=4(자녀/육아), order=5(친척), order=6(가족사건), order=7(주거지), order=8(성격), order=9(결혼), order=10(배우자), order=11(친구), order=12(연인), order=13(반려동물), order=14(생애주기), order=15(직장), order=16(진로), order=17(문제해결), order=18(취미), order=19(금전), order=20(철학), order=21(생활)
     
-    # DB 매핑 (theme_id, category_order)
-    mapping = [
-        (1, 1),  # 0: 부모
-        (1, 2),  # 1: 조부모  
-        (1, 3),  # 2: 형제
-        (1, 4),  # 3: 자녀/육아
-        (1, 5),  # 4: 친척
-        (1, 6),  # 5: 가족 사건
-        (2, 1),  # 6: 연인
-        (2, 2),  # 7: 결혼
-        (2, 3),  # 8: 배우자
-        (3, 1),  # 9: 자녀/육아 (다른 theme)
-        (6, 1),  # 10: 친구
-        (7, 1),  # 11: 직장
-        (7, 2),  # 12: 진로
-        (7, 3),  # 13: 문제해결(과정)
-        (8, 1),  # 14: 생애주기
-        (5, 1),  # 15: 성격
-        (11, 1), # 16: 취미
-        (12, 1), # 17: 반려동물
-        (9, 2),  # 18: 철학
-        (4, 1),  # 19: 주거지
-        (3, 3),  # 20: 생활
-        (10, 1), # 21: 금전
-    ]
+    # DB 매핑 (theme_id, category_order) - material.json의 order 기준
+    mapping = {
+        1: (1, 1),   # 부모
+        2: (1, 2),   # 조부모  
+        3: (1, 3),   # 형제
+        4: (1, 4),   # 자녀/육아
+        5: (1, 5),   # 친척
+        6: (1, 6),   # 가족 사건
+        7: (4, 1),   # 주거지
+        8: (5, 1),   # 성격
+        9: (2, 2),   # 결혼
+        10: (2, 3),  # 배우자
+        11: (6, 1),  # 친구
+        12: (2, 1),  # 연인
+        13: (12, 1), # 반려동물
+        14: (8, 1),  # 생애주기
+        15: (7, 1),  # 직장
+        16: (7, 2),  # 진로
+        17: (7, 3),  # 문제해결(과정)
+        18: (11, 1), # 취미
+        19: (10, 1), # 금전
+        20: (13, 1), # 철학
+        21: (14, 1), # 생활
+    }
     
-    if 0 <= cat_num < len(mapping):
-        return mapping[cat_num]
-    else:
-        return (1, 1)  # 기본값
+    return mapping.get(cat_num, (1, 1))  # 기본값
 
 @tool
 def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiography_id: int) -> Dict:

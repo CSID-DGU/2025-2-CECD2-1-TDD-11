@@ -1,6 +1,8 @@
 package com.lifelibrarians.lifebookshelf.classification.domain;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import lombok.AccessLevel;
@@ -29,9 +31,10 @@ public class Category {
     /* } 고유 정보 */
 
     /* 연관 정보 { */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "theme_id", nullable = false)
-    private Theme theme;
+    /* 연관 정보 { */
+    @ManyToMany(mappedBy = "categories")
+    private Set<Theme> themes;
+    /* } 연관 정보 */
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autobiography_id", nullable = false)
@@ -42,15 +45,18 @@ public class Category {
     /* } 연관 정보 */
 
     /* 생성자 { */
-    protected Category(Integer order, String name, Theme theme, Autobiography autobiography) {
+    protected Category(Integer order, String name, Autobiography autobiography) {
         this.order = order;
         this.name = name;
-        this.theme = theme;
         this.autobiography = autobiography;
     }
 
-    public static Category of(Integer order, String name, Theme theme, Autobiography autobiography) {
-        return new Category(order, name, theme, autobiography);
+    public static Category of(Integer order, String name, Autobiography autobiography) {
+        return new Category(order, name, autobiography);
+    }
+
+    public void setThemes(HashSet<Theme> themes) {
+        this.themes = themes;
     }
     /* } 생성자 */
 }

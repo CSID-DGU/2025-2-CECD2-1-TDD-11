@@ -17,11 +17,18 @@ def generate_material_id_mapping():
             chunk_name = chunk['name']
             
             for mat_idx, material in enumerate(chunk['material']):
-                # 소재명 형식: "카테고리 청크 소재명"
-                full_material_name = f"{cat_name} {chunk_name} {material}"
+                # material이 이제 {"order": 1, "name": "소재명"} 형태
+                material_name = material.get('name', '') if isinstance(material, dict) else material
                 
-                # ID는 [카테고리번호+1, 청크번호+1, 소재번호+1] (1부터 시작)
-                material_id = [cat_idx + 1, chunk_idx + 1, mat_idx + 1]
+                # 소재명 형식: "카테고리 청크 소재명"
+                full_material_name = f"{cat_name} {chunk_name} {material_name}"
+                
+                # ID는 [카테고리order, 청크order, 소재order] (실제 order 값 사용)
+                cat_order = category.get('order', cat_idx + 1)
+                chunk_order = chunk.get('order', chunk_idx + 1)
+                mat_order = material.get('order', mat_idx + 1) if isinstance(material, dict) else mat_idx + 1
+                
+                material_id = [cat_order, chunk_order, mat_order]
                 
                 mapping[full_material_name] = material_id
     
