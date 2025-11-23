@@ -8,7 +8,7 @@ import time
 from uuid import uuid4
 
 # engine 모듈 import 경로 추가
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
@@ -152,8 +152,8 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         if not con_flag and len(answer_text or "") >= 80:
             con_flag = 1
 
-        flows_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-        map_flow_path = os.path.join(flows_dir, "interviews", "standard", "map_answer_to_materials", "flow.dag.yaml")
+        # 상대경로로 map flow 찾기
+        map_flow_path = os.path.normpath(os.path.join(current_dir, "..", "..", "standard", "map_answer_to_materials", "flow.dag.yaml"))
         materials_list = _build_materials_list(material_data)
 
         # 매핑 파일 로드

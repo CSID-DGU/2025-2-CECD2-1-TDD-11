@@ -55,8 +55,7 @@ def generate_question_llm(material: str, target: str, context_answer: Optional[s
     """LLM으로 질문 생성"""
     try:
         current_dir = Path(__file__).parent.parent
-        flows_dir = current_dir.parent.parent.parent
-        flow_path = flows_dir / "interviews" / "standard" / "generate_interview_questions_v2" / "flow.dag.yaml"
+        flow_path = current_dir.parent.parent / "standard" / "generate_interview_questions_v2" / "flow.dag.yaml"
         
         if not flow_path.exists():
             print(f"[WARNING] Flow not found: {flow_path}")

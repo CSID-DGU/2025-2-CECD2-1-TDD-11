@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from promptflow.core import Flow
 from starlette.requests import Request
+from pathlib import Path
 
 from auth import get_current_user, AuthRequired
 from interviews.interview_summary.dto.request import InterviewSummaryRequestDto
@@ -27,9 +28,11 @@ async def summarize_interview(
     try:
         current_user = get_current_user(request)
         
-        flow_path = "d:/lifeLibrarians/2025-2-CECD2-1-TDD-11/ai/flows/interview_summary/standard/summarize_interview/flow.dag.yaml"
+        # 상대경로로 flow 찾기
+        current_dir = Path(__file__).parent.parent.parent.parent.parent
+        flow_path = current_dir / "flows" / "interview_summary" / "standard" / "summarize_interview" / "flow.dag.yaml"
         
-        flow = Flow.load(flow_path)
+        flow = Flow.load(str(flow_path))
         result = flow(
             conversation=[conv.model_dump() for conv in requestDto.conversation]
         )
