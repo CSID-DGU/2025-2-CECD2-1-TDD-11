@@ -12,6 +12,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsRes
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
+import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
 import kotlinx.coroutines.flow.Flow
 
 interface AutobiographyRepository {
@@ -42,4 +43,6 @@ interface AutobiographyRepository {
     suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>>
 
     suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>>
+
+    suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>>
 }

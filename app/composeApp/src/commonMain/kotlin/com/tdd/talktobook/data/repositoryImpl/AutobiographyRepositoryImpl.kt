@@ -11,6 +11,7 @@ import com.tdd.talktobook.data.mapper.autobiograph.EditAutobiographyDetailMapper
 import com.tdd.talktobook.data.mapper.autobiograph.GetCountMaterialsMapper
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentInterviewProgressMapper
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentProgressMapper
+import com.tdd.talktobook.data.mapper.autobiograph.GetSelectedThemeMapper
 import com.tdd.talktobook.data.mapper.autobiograph.PostStartProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
@@ -25,6 +26,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsRes
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
 import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
+import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
 import com.tdd.talktobook.domain.repository.AutobiographyRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -99,4 +101,7 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.patchCreateAutobiography(autobiographyId) })
+
+    override suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>> =
+        GetSelectedThemeMapper.responseToModel(apiCall = { autobiographyDataSource.getSelectedTheme(autobiographyId) })
 }
