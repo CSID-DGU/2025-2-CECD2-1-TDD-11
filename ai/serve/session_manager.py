@@ -23,7 +23,7 @@ class SessionManager:
 
     def __init__(self, redis_host: str = 'localhost', redis_port: int = 6379, redis_db: int = 0):
         self.redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
-        self.session_ttl = 3600  # 1시간
+        self.session_ttl = None  # TTL 없음 (영구 저장)
     
     def save_session(self, session_key: str, metrics: Dict[str, Any], last_question: Optional[Dict[str, Any]] = None):
         """세션 상태 저장"""
@@ -32,7 +32,10 @@ class SessionManager:
             "last_question": last_question,
             "updated_at": time.time()
         }
-        self.redis_client.setex(f"session:{session_key}", self.session_ttl, json.dumps(session_data))
+        if self.session_ttl:
+            self.redis_client.setex(f"session:{session_key}", self.session_ttl, json.dumps(session_data))
+        else:
+            self.redis_client.set(f"session:{session_key}", json.dumps(session_data))
     
     def load_session(self, session_key: str) -> Optional[Dict[str, Any]]:
         """세션 상태 로드"""
@@ -70,7 +73,3 @@ class SessionManager:
     def delete_session(self, session_key: str):
         """세션 삭제"""
         self.redis_client.delete(f"session:{session_key}")
-    
-    def extend_session(self, session_key: str):
-        """세션 TTL 연장"""
-        self.redis_client.expire(f"session:{session_key}", self.session_ttl)
