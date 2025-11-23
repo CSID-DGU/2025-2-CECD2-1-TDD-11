@@ -35,7 +35,9 @@ public enum AutobiographyExceptionStatus implements ExceptionStatus {
     AUTOBIOGRAPHY_STATUS_NOT_FOUND(404, "BIO020", "연결된 자서전이 없습니다."),
 
     AUTOBIOGRAPHY_PROGRESSING_STATUS_NOT_FOUND(404, "BIO021", "PROGRESSING 상태의 자서이 아닙니다."),
-    AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND(404, "BIO022", "ENOUGH 상태의 자서전이 아닙니다.")
+    AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND(404, "BIO022", "ENOUGH 상태의 자서전이 아닙니다."),
+
+    THEME_NOT_FOUND(404, "BIO023", "해당 자서전 테마를 찾을 수 없습니다.")
 	;
 
 

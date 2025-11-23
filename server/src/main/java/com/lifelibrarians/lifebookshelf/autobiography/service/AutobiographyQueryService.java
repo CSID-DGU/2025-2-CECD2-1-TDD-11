@@ -6,8 +6,12 @@ import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
+import com.lifelibrarians.lifebookshelf.classification.domain.Category;
 import com.lifelibrarians.lifebookshelf.classification.domain.Material;
+import com.lifelibrarians.lifebookshelf.classification.domain.Theme;
+import com.lifelibrarians.lifebookshelf.classification.domain.ThemeNameType;
 import com.lifelibrarians.lifebookshelf.classification.repository.MaterialRepository;
+import com.lifelibrarians.lifebookshelf.classification.repository.ThemeRepository;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import com.lifelibrarians.lifebookshelf.mapper.AutobiographyMapper;
@@ -33,6 +37,7 @@ public class AutobiographyQueryService {
 	private final AutobiographyRepository autobiographyRepository;
     private final AutobiographyStatusRepository autobiographyStatusRepository;
     private final MaterialRepository materialRepository;
+    private final ThemeRepository themeRepository;
 	private final AutobiographyMapper autobiographyMapper;
 
     public AutobiographyListResponseDto getAutobiographies(Long memberId, List<String> statuses, Pageable pageable) {
@@ -148,6 +153,24 @@ public class AutobiographyQueryService {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
 
-        return autobiographyMapper.toAutobiographyThemeResponseDto(autobiography);
+        // theme name으로 실제 Theme 엔티티 조회
+        ThemeNameType themeNameType = ThemeNameType.valueOf(autobiography.getTheme().toLowerCase());
+        Theme theme = themeRepository.findByNameWithCategories(themeNameType)
+                .orElseThrow(
+                        AutobiographyExceptionStatus.THEME_NOT_FOUND::toServiceException
+                );
+
+        if (theme != null) {
+            List<Integer> categoryOrders = theme.getCategories().stream()
+                    .map(Category::getOrder)
+                    .collect(Collectors.toList());
+
+            return AutobiographyThemeResponseDto.builder()
+                    .name(autobiography.getTheme())
+                    .categories(categoryOrders)
+                    .build();
+        } else {
+            throw AutobiographyExceptionStatus.THEME_NOT_FOUND.toServiceException();
+        }
     }
 }

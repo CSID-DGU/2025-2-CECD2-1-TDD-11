@@ -13,7 +13,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "categories")
 @Getter
-@ToString(callSuper = true, exclude = {"theme", "autobiography", "chunks"})
+@ToString(callSuper = true, exclude = {"themes", "autobiography", "chunks"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
 
