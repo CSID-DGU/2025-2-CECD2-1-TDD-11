@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,25 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tdd.talktobook.core.designsystem.BackGround2
-import com.tdd.talktobook.core.designsystem.Next
 import com.tdd.talktobook.core.designsystem.ReasonWriteHint
 import com.tdd.talktobook.core.designsystem.StartProgressTitle
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
-import com.tdd.talktobook.core.ui.common.content.SemiTitleText
 import com.tdd.talktobook.core.ui.common.content.SeriesNumText
 import com.tdd.talktobook.core.ui.common.content.SeriesTitleText
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
-import com.tdd.talktobook.core.ui.common.item.SelectRectangleItem
 import com.tdd.talktobook.core.ui.common.textfield.ExplainTextFieldBox
-import com.tdd.talktobook.data.service.ai.InterviewAIService
 import com.tdd.talktobook.domain.entity.enums.MaterialType
-import com.tdd.talktobook.feature.onboarding.OnboardingEvent
-import com.tdd.talktobook.feature.onboarding.type.OnboardingPageType
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.collections.chunked
-import kotlin.collections.dropLast
 
 @Composable
 internal fun StartProgressScreen(

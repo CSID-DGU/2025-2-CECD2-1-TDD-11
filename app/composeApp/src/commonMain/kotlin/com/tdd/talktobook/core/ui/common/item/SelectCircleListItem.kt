@@ -18,8 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.img_chapter_detail
 import com.tdd.talktobook.core.designsystem.BackGround1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Gray1
@@ -27,6 +25,8 @@ import com.tdd.talktobook.core.designsystem.Gray4
 import com.tdd.talktobook.core.designsystem.Main1
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import talktobook.composeapp.generated.resources.Res
+import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 fun SelectCircleListItem(

@@ -34,8 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.img_chapter_detail
+import talktobook.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.BackGround1
 import com.tdd.talktobook.core.designsystem.BackGround2
@@ -72,6 +71,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun HomeScreen(

@@ -35,9 +35,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.img_chapter_detail
-import bookshelf.composeapp.generated.resources.img_empty_box
+import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
@@ -58,6 +56,8 @@ import com.tdd.talktobook.core.ui.util.paginateText
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyItemModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.img_chapter_detail
+import talktobook.composeapp.generated.resources.img_empty_box
 
 @Composable
 internal fun PublicationScreen() {

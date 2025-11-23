@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import bookshelf.composeapp.generated.resources.Res
+import talktobook.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo

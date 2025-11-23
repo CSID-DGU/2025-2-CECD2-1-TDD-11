@@ -5,12 +5,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.omyu_pretty
-import bookshelf.composeapp.generated.resources.pretendard_medium
-import bookshelf.composeapp.generated.resources.pretendard_semibold
+import talktobook.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.Font
+import talktobook.composeapp.generated.resources.omyu_pretty
+import talktobook.composeapp.generated.resources.pretendard_medium
+import talktobook.composeapp.generated.resources.pretendard_semibold
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
