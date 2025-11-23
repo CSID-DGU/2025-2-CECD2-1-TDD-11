@@ -166,19 +166,11 @@ class InterviewEngine:
             if not mat:
                 continue
 
-            # 반감 감지: principle이 모두 2이면 chunk 가중치를 0으로
-            if all(v == 2 for v in mat.principle) and mat.example == 2 and mat.similar_event == 2:
-                cat = self.categories[cnum]
-                cat.chunk_weight[chnum] = 0
-                mat.principle = [1, 1, 1, 1, 1, 1]
-                mat.example, mat.similar_event = 1, 1
-                mat.count = 1
-            else:
-                mat.principle = [min(v + 1, 1) for v in mat.principle]
-                mat.example, mat.similar_event = 1, 1
-                mat.mark_filled_if_ready()
-                cat = self.categories[cnum]
-                cat.chunk_weight[chnum] = cat.chunk_weight.get(chnum, 0) + 1
+            mat.principle = [min(v + 1, 1) for v in mat.principle]
+            mat.example, mat.similar_event = 1, 1
+            mat.mark_filled_if_ready()
+            cat = self.categories[cnum]
+            cat.chunk_weight[chnum] = cat.chunk_weight.get(chnum, 0) + 1
 
         if self.state.last_material_id == current_id:
             self.state.last_material_streak += 1 
