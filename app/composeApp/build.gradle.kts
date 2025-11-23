@@ -149,3 +149,9 @@ tasks.named("runKtlintCheckOverCommonMainSourceSet") {
 tasks.named("runKtlintFormatOverCommonMainSourceSet") {
     dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
 }
+
+tasks.configureEach {
+    if (name == "syncComposeResourcesForIos") {
+        enabled = false
+    }
+}

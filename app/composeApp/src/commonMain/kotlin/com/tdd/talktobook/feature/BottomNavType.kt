@@ -1,14 +1,14 @@
 package com.tdd.talktobook.feature
 
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.ic_transparent
-import bookshelf.composeapp.generated.resources.img_home
-import bookshelf.composeapp.generated.resources.img_profile
+import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.Empty
 import com.tdd.talktobook.core.designsystem.Home
 import com.tdd.talktobook.core.designsystem.MyPage
 import com.tdd.talktobook.core.navigation.NavRoutes
 import org.jetbrains.compose.resources.DrawableResource
+import talktobook.composeapp.generated.resources.ic_transparent
+import talktobook.composeapp.generated.resources.img_home
+import talktobook.composeapp.generated.resources.img_profile
 
 enum class BottomNavType(
     val navName: String,

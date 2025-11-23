@@ -30,10 +30,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.ic_send
-import bookshelf.composeapp.generated.resources.img_chapter_default
-import bookshelf.composeapp.generated.resources.img_current_chapter_default
+import talktobook.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.BackGround3
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
@@ -51,6 +48,9 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.ic_send
+import talktobook.composeapp.generated.resources.img_chapter_default
+import talktobook.composeapp.generated.resources.img_current_chapter_default
 
 @Composable
 internal fun HomeScreen(

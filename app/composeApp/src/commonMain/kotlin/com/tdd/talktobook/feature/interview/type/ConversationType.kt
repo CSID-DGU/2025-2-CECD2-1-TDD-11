@@ -1,11 +1,11 @@
 package com.tdd.talktobook.feature.interview.type
 
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.img_interview_before
-import bookshelf.composeapp.generated.resources.img_interview_ing
+import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BeforeStart
 import com.tdd.talktobook.core.designsystem.InterviewIng
 import org.jetbrains.compose.resources.DrawableResource
+import talktobook.composeapp.generated.resources.img_interview_before
+import talktobook.composeapp.generated.resources.img_interview_ing
 
 enum class ConversationType(
     val type: String,
