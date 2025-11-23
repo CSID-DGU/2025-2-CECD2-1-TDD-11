@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface ThemeRepository extends JpaRepository<Theme, Long> {
     
-    @Query("SELECT t FROM Theme t JOIN FETCH t.categories WHERE t.name = :name")
-    Optional<Theme> findByNameWithCategories(@Param("name") ThemeNameType name);
+    @Query(value = "SELECT DISTINCT t.* FROM theme t INNER JOIN theme_category tc ON t.id = tc.theme_id WHERE t.name = :name LIMIT 1", nativeQuery = true)
+    Optional<Theme> findOneByName(@Param("name") String name);
 }

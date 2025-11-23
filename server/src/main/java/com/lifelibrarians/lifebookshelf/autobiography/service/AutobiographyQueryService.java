@@ -154,23 +154,29 @@ public class AutobiographyQueryService {
         }
 
         // theme name으로 실제 Theme 엔티티 조회
-        ThemeNameType themeNameType = ThemeNameType.valueOf(autobiography.getTheme().toLowerCase());
-        Theme theme = themeRepository.findByNameWithCategories(themeNameType)
-                .orElseThrow(
-                        AutobiographyExceptionStatus.THEME_NOT_FOUND::toServiceException
-                );
+        if (autobiography.getTheme() != null) {
+            try {
+                Theme theme = themeRepository.findOneByName(autobiography.getTheme().toLowerCase())
+                        .orElse(null);
 
-        if (theme != null) {
-            List<Integer> categoryOrders = theme.getCategories().stream()
-                    .map(Category::getOrder)
-                    .collect(Collectors.toList());
+                if (theme != null) {
+                    List<Integer> categoryOrders = theme.getCategories().stream()
+                            .map(Category::getOrder)
+                            .collect(Collectors.toList());
 
-            return AutobiographyThemeResponseDto.builder()
-                    .name(autobiography.getTheme())
-                    .categories(categoryOrders)
-                    .build();
-        } else {
-            throw AutobiographyExceptionStatus.THEME_NOT_FOUND.toServiceException();
+                    return AutobiographyThemeResponseDto.builder()
+                            .name(autobiography.getTheme())
+                            .categories(categoryOrders)
+                            .build();
+                }
+            } catch (IllegalArgumentException e) {
+                throw AutobiographyExceptionStatus.THEME_NOT_FOUND.toServiceException();
+            }
         }
+        // theme이 없거나 찾을 수 없는 경우
+        return AutobiographyThemeResponseDto.builder()
+                .name(autobiography.getTheme())
+                .categories(Collections.emptyList())
+                .build();
     }
 }
