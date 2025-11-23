@@ -21,7 +21,7 @@ session_manager = SessionManager()
 flow_path = flows_dir / "flow.dag.yaml"
 flow = load_flow(str(flow_path))
 
-@router.post("/api/v2/start/{autobiography_id}", 
+@router.post("/api/v2/interviews/start/{autobiography_id}", 
              response_model=SessionStartResponseDto, 
              summary ="인터뷰 시작",
              dependencies=[Depends(AuthRequired())],
@@ -76,7 +76,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"세션 시작 실패: {str(e)}")
 
-@router.post("/api/v2/chat/{autobiography_id}", 
+@router.post("/api/v2/interviews/chat/{autobiography_id}", 
              response_model=InterviewChatV2ResponseDto, 
              summary ="인터뷰 대화 진행",
              dependencies=[Depends(AuthRequired())],
@@ -116,7 +116,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"질문 생성 실패: {str(e)}")
 
-@router.post("/api/v2/end/{autobiography_id}", 
+@router.post("/api/v2/interviews/end/{autobiography_id}", 
             response_model=SessionEndResponseDto, 
             dependencies=[Depends(AuthRequired())],
             summary ="인터뷰 종료",

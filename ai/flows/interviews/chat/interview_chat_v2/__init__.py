@@ -63,6 +63,8 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: List[st
         res = flow(answer_text=answer_text, materials_list=materials_list, current_material=current_material)
         items = res.get("analysis_result", [])
         
+        print(f"[DEBUG] LLM raw response: {items}")
+        
         # 문자열이면 JSON 파싱
         if isinstance(items, str):
             items = items.strip()
@@ -138,7 +140,20 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
 
     # 답변 분석
     current_material = question.get("material", "") if question else ""
+    current_material_id = question.get("material_id") if question else None
     is_first_question = not answer_text or not current_material
+    
+    # 현재 질문 소재의 전체 경로 찾기 (LLM에 전달용)
+    current_material_full = current_material
+    if current_material_id and isinstance(current_material_id, list) and len(current_material_id) == 3:
+        cat_num, chunk_num, mat_num = current_material_id
+        temp_cat = engine.categories.get(cat_num)
+        if temp_cat:
+            temp_chunk = temp_cat.chunks.get(chunk_num)
+            if temp_chunk:
+                temp_mat = temp_chunk.materials.get(mat_num)
+                if temp_mat:
+                    current_material_full = f"{temp_cat.category_name} {temp_chunk.chunk_name} {temp_mat.name}"
 
     matched_materials: List[str] = []
     axes_analysis_by_material: Dict[str, dict] = {}
@@ -160,7 +175,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         mapping_path = os.path.join(os.path.dirname(__file__), "data", "material_id_mapping.json")
         material_mapping, norm_index = _load_mapping(mapping_path)
 
-        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material)
+        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full)
 
         # 소재 매칭
         for item in llm_items:
@@ -180,42 +195,41 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             if isinstance(mid, list) and len(mid) == 3:
                 mapped_ids.append(mid)
 
-        # LLM에 축 정보가 없을 때 휴리스틱 반영
-        if mapped_ids:
-            for i, material_id in enumerate(mapped_ids):
-                cat_num, chunk_num, mat_num = material_id
-                material = engine._get_material(cat_num, chunk_num, mat_num)
-                if not material:
-                    continue
+        # LLM 분석 결과 반영
+        for i, material_id in enumerate(mapped_ids):
+            cat_num, chunk_num, mat_num = material_id
+            material = engine._get_material(cat_num, chunk_num, mat_num)
+            if not material:
+                continue
 
-                axes_data = axes_analysis_by_material.get(matched_materials[i], {})
-                is_pass = axes_data.get("pass", 0) == 1
+            axes_data = axes_analysis_by_material.get(matched_materials[i], {})
+            is_pass = axes_data.get("pass", 0) == 1
 
-                if is_pass:
-                    # 회피/반감 응답: 소재 완료 처리
-                    material.principle = [1, 1, 1, 1, 1, 1]
-                    material.example, material.similar_event = 1, 1
-                    material.count = 1
-                    print(f"[INFO] 회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
+            if is_pass:
+                # 회피/반감 응답: 소재 완료 처리
+                material.principle = [1, 1, 1, 1, 1, 1]
+                material.example, material.similar_event = 1, 1
+                material.count = 1
+                print(f"[INFO] 회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
+            else:
+                # 정상 응답 - principle (6W)
+                principle = axes_data.get("principle", [])
+                if isinstance(principle, list) and len(principle) == 6:
+                    for j, val in enumerate(principle):
+                        if val == 1: material.principle[j] = 1
                 else:
-                    # 정상 응답 - principle (6W)
-                    principle = axes_data.get("principle", [])
-                    if isinstance(principle, list) and len(principle) == 6:
-                        for j, val in enumerate(principle):
-                            if val == 1: material.principle[j] = 1
-                    else:
-                        # 휴리스틱 보조
-                        for j, val in enumerate(axes_evidence.values()):
-                            if val and j < 6: material.principle[j] = 1
+                    # 휴리스틱 보조
+                    for j, val in enumerate(axes_evidence.values()):
+                        if val and j < 6: material.principle[j] = 1
 
-                    # example / similar_event
-                    if axes_data.get("example") == 1 or ex_flag: material.example = 1
-                    if axes_data.get("similar_event") == 1 or con_flag: material.similar_event = 1
+                # example / similar_event
+                if axes_data.get("example") == 1 or ex_flag: material.example = 1
+                if axes_data.get("similar_event") == 1 or con_flag: material.similar_event = 1
 
-                    # 카테고리 가중치 갱신
-                    category = engine.categories[cat_num]
-                    category.chunk_weight[chunk_num] = category.chunk_weight.get(chunk_num, 0) + 1
-                    material.mark_filled_if_ready()
+            # 카테고리 가중치 갱신
+            category = engine.categories[cat_num]
+            category.chunk_weight[chunk_num] = category.chunk_weight.get(chunk_num, 0) + 1
+            material.mark_filled_if_ready()
 
         print(f"\n🔍 [소재 매칭] {current_material} → {matched_materials}")
     # ------------------ 다음 질문 생성 ------------------

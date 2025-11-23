@@ -56,8 +56,8 @@ app = FastAPI(
 )
 
 # 유지되는 API들
-app.include_router(autobiographies_generate_autobiography_router, prefix="/autobiographies")
-app.include_router(interviews_request_interview_chat_v2_router, prefix="/interviews")
+app.include_router(autobiographies_generate_autobiography_router)
+app.include_router(interviews_request_interview_chat_v2_router)
 app.include_router(interviews_summary_router)
 
 

@@ -22,7 +22,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/generate/{autobiography_id}",
+    "/api/v2/autobiographies/generate/{autobiography_id}",
     dependencies=[Depends(AuthRequired())],
     response_model=AutobiographyGenerateResponseDto,
     summary="자서전 생성",
