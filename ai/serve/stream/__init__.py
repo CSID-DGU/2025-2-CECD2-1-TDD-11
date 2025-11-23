@@ -3,7 +3,7 @@ import json
 import pika
 import os
 from logs import get_logger
-from .dto import InterviewPayload, CategoriesPayload
+from .dto import InterviewPayload, CategoriesPayload, InterviewSummaryResponsePayload
 
 logger = get_logger()
 
@@ -78,4 +78,38 @@ def publish_categories_message(payload: CategoriesPayload):
         )
     )
 
+    connection.close()
+
+def publish_interview_summary_result(payload: InterviewSummaryResponsePayload):
+    """
+    인터뷰 요약 결과를 publish하는 함수.
+    """
+    rabbitmq_host = os.environ.get("RABBITMQ_HOST")
+    rabbitmq_port = int(os.environ.get("RABBITMQ_PORT", 5672))
+    rabbitmq_user = os.environ.get("RABBITMQ_USER")
+    rabbitmq_password = os.environ.get("RABBITMQ_PASSWORD")
+    
+    credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=rabbitmq_host,
+            port=rabbitmq_port,
+            credentials=credentials
+        )
+    )
+    channel = connection.channel()
+    
+    body = payload.model_dump_json()
+    
+    channel.basic_publish(
+        exchange='interview.summary.exchange',
+        routing_key='interview.summary.result',
+        body=body,
+        properties=pika.BasicProperties(
+            content_type="application/json",
+            delivery_mode=2
+        )
+    )
+    
+    logger.info(f"Published interview summary result for ID: {payload.interviewId}")
     connection.close()
