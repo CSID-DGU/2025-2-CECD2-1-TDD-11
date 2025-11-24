@@ -83,6 +83,23 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
              description="인터뷰 대화 진행 및 다음 질문 반환",
              tags=["인터뷰 (Interview)"],
              )
+def sanitize_text(text: str) -> str:
+    """텍스트 입력 정리 - UTF-8 인코딩 문제 해결"""
+    if not text:
+        return ""
+    
+    try:
+        # UTF-8 인코딩/디코딩으로 잘못된 문자 제거
+        sanitized = text.encode("utf-8", "ignore").decode("utf-8", "ignore")
+        
+        # 기본 정리
+        sanitized = sanitized.replace("\n", " ").replace("\r", " ").strip()
+        
+        return sanitized
+    except Exception:
+        # 예외 발생 시 빈 문자열 반환
+        return ""
+
 async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
@@ -98,10 +115,13 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         if not session_data:
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
+        # 입력 텍스트 정리
+        sanitized_answer = sanitize_text(request.answer_text)
+        
         # 다음 질문 생성
         result = flow(
             sessionId=session_key,
-            answer_text=request.answer_text
+            answer_text=sanitized_answer
         )
         
         next_question = result.get("next_question")

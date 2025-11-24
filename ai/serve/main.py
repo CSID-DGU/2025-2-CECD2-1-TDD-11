@@ -14,6 +14,7 @@ from interviews.interview_chat_v2.router import (
 from interviews.interview_summary.router import (
     router as interviews_summary_router,
 )
+from images import router as images_router
 
 from logs import get_logger
 
@@ -59,6 +60,7 @@ app = FastAPI(
 app.include_router(autobiographies_generate_autobiography_router)
 app.include_router(interviews_request_interview_chat_v2_router)
 app.include_router(interviews_summary_router)
+app.include_router(images_router)
 
 
 if __name__ == "__main__":

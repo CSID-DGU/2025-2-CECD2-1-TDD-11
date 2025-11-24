@@ -25,7 +25,7 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
             
             if category_names:
                 categories_text = ", ".join(category_names)
-                question_text = f"{categories_text}에 대해서 이약하게 될 거에요. 어떤 이야기를 하고 싶으신가요?"
+                question_text = f"{categories_text}에 대해서 이야기하게 될 거에요. 어떤 이야기를 하고 싶으신가요?"
                 selected_cat_num = preferred_categories[0]
             else:
                 return {"next_question": None, "last_answer_materials_id": []}

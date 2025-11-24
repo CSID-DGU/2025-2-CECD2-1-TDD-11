@@ -50,7 +50,7 @@ class Category:
 class EngineState:
     last_material_id: Optional[MaterialId] = None
     last_material_streak: int = 0
-    epsilon: float = 0.10
+    epsilon: float = 0.01
 
 #기존 알고리즘 - 메인 엔진
 class InterviewEngine:
