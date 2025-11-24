@@ -50,7 +50,7 @@ class CategoriesPayload(BaseModel):
 class UserInfo(BaseModel):
     gender: str
     occupation: str
-    age_group: str
+    ageGroup: str
 
 class AutobiographyInfo(BaseModel):
     theme: str

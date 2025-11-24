@@ -76,6 +76,9 @@ public class Autobiography {
 
     @OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Category> categories;
+
+    @OneToMany(mappedBy = "autobiography", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<AutobiographyChapter> autobiographyChapters;
 	/* } 연관 정보 */
 
 	/* 생성자 (V1) { */
@@ -108,7 +111,6 @@ public class Autobiography {
 							String theme, String reason,
 							LocalDateTime createdAt, LocalDateTime updatedAt,
 							Chapter chapter, Member member) {
-        System.out.println("V2 생성자" + title + ", " + theme + ", " + reason);
 		this.title = title;
 		this.content = content;
 		this.coverImageUrl = coverImageUrl;

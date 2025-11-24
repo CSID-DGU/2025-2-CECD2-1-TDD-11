@@ -78,8 +78,6 @@ async def generate_autobiography(
             except:
                 text = str(flow_output) if flow_output else text
 
-
-        
         return AutobiographyGenerateResponseDto(
             title=str(title),
             autobiographical_text=str(text)

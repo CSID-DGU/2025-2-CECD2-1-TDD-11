@@ -16,6 +16,15 @@ def start_all_consumers():
         except Exception as e:
             logger.error(f"Interview summary consumer error: {e}")
 
+    def start_autobiography_consumer():
+        try:
+            from .autobiography_consumer import AutobiographyConsumer
+            consumer = AutobiographyConsumer()
+            logger.info("Starting autobiography consumer...")
+            consumer.start_consuming()
+        except Exception as e:
+            logger.error(f"Autobiography consumer error: {e}")
+
     # 환경변수 체크
     if not all([
         os.environ.get("RABBITMQ_HOST"),
@@ -34,7 +43,13 @@ def start_all_consumers():
         daemon=True
     )
     
-    threads.extend([interview_summary_thread])
+    autobiography_thread = threading.Thread(
+        target=start_autobiography_consumer,
+        name="AutobiographyConsumer",
+        daemon=True
+    )
+    
+    threads.extend([interview_summary_thread, autobiography_thread])
     
     for thread in threads:
         thread.start()

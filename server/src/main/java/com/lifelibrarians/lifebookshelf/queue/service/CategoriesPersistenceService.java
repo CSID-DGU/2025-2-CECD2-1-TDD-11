@@ -1,45 +1,53 @@
 package com.lifelibrarians.lifebookshelf.queue.service;
 
+import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
+import com.lifelibrarians.lifebookshelf.autobiography.service.AutobiographyCompletionService;
+import com.lifelibrarians.lifebookshelf.classification.domain.Chunk;
 import com.lifelibrarians.lifebookshelf.classification.repository.ChunkRepository;
 import com.lifelibrarians.lifebookshelf.classification.repository.MaterialRepository;
-import com.lifelibrarians.lifebookshelf.log.Logging;
 import com.lifelibrarians.lifebookshelf.queue.dto.response.CategoriesPayloadResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
-@Logging
+@Slf4j
 public class CategoriesPersistenceService {
     private final AutobiographyRepository autobiographyRepository;
     private final ChunkRepository chunkRepository;
     private final MaterialRepository materialRepository;
 
+    private final AutobiographyCompletionService autobiographyCompletionService;
+
     @Transactional
     public void receiveCategoriesPayload(CategoriesPayloadResponseDto payload) {
         // 사용자 권한 검증
-        var autobiography = autobiographyRepository.findById(Long.valueOf(payload.getAutobiographyId()))
+        Autobiography autobiography = autobiographyRepository.findById(payload.getAutobiographyId())
             .orElseThrow(() -> new RuntimeException("자서전을 찾을 수 없습니다."));
         
-        if (!autobiography.getMember().getId().equals(Long.valueOf(payload.getUserId()))) {
+        if (!autobiography.getMember().getId().equals(payload.getUserId())) {
             throw new RuntimeException("해당 자서전에 대한 권한이 없습니다.");
         }
 
         // Chunk 변화량 처리
         if (payload.getChunks() != null) {
             payload.getChunks().forEach(chunkPayload -> {
-                var chunkOpt = chunkRepository.findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(autobiography.getId(), Long.valueOf(payload.getThemeId()), payload.getCategoryId(), chunkPayload.getChunkOrder());
+                var chunkOpt = chunkRepository.findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(autobiography.getId(), (long) payload.getThemeId(), payload.getCategoryId(), chunkPayload.getChunkOrder());
                 if (chunkOpt.isPresent()) {
-                    var chunk = chunkOpt.get();
+                    Chunk chunk = chunkOpt.get();
                     int oldWeight = chunk.getWeight();
                     chunk.updateWeight(oldWeight + chunkPayload.getWeight());
                     chunkRepository.save(chunk);
                 } else {
-                    System.out.println("[SPRING_CHUNK_NOT_FOUND] No chunk found with given parameters");
+                    log.info("[SPRING_CHUNK_NOT_FOUND] No chunk found with parameters");
                 }
             });
         }
@@ -65,9 +73,18 @@ public class CategoriesPersistenceService {
                         
                         materialRepository.save(material);
                     }, () -> {
-                        System.out.println("[SPRING_MATERIAL_NOT_FOUND] No material found with given parameters");
+                        log.info("[SPRING_MATERIAL_NOT_FOUND] No material found with parameters");
                     });
             });
+        }
+
+        // 자서전 완료 여부 체크 및 상태 업데이트
+        boolean isEnough = autobiographyCompletionService.checkCompletionAndTriggerPublication(autobiography);
+        if (isEnough) {
+            LocalDateTime now = LocalDateTime.now();
+            AutobiographyStatus status = autobiography.getAutobiographyStatus();
+            status.updateStatusType(AutobiographyStatusType.ENOUGH, now); // 상태 업데이트
+            log.info("[SPRING_AUTOBIOGRAPHY_ENOUGH] Autobiography {} marked as ENOUGH", autobiography.getId());
         }
     }
 

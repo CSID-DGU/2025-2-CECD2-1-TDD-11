@@ -38,6 +38,7 @@ public class AutobiographyCommandService {
 	private final ImageService imageService;
 
     private final ClassificationInitService classificationInitService;
+    private final AutobiographyCompletionService autobiographyCompletionService;
 
 	@Value("${images.path.bio-cover}")
 	public String BIO_COVER_IMAGE_DIR;
@@ -134,25 +135,21 @@ public class AutobiographyCommandService {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND.toServiceException();
         }
 
-        autobiography.getAutobiographyStatus().updateStatusType(
-                AutobiographyStatusType.CREATING,
-                LocalDateTime.now()
-        );
+        // 자서전 생성 요청
+        autobiographyCompletionService.triggerPublicationRequest(autobiography);
     }
 
-    public void patchAutobiographyReady(Long memberId, Long autobiographyId) {
+    public void patchAutobiographyStatus(Long memberId, Long autobiographyId, String status) {
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
         if (!autobiography.getMember().getId().equals(memberId)) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
 
-        if (autobiography.getAutobiographyStatus().getStatus() != AutobiographyStatusType.PROGRESSING) {
-            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND.toServiceException();
-        }
+        AutobiographyStatusType newStatus = AutobiographyStatusType.valueOf(status);
 
         autobiography.getAutobiographyStatus().updateStatusType(
-                AutobiographyStatusType.ENOUGH,
+                newStatus,
                 LocalDateTime.now()
         );
     }
