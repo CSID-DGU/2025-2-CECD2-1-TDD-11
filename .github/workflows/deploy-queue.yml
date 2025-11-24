@@ -6,6 +6,7 @@ on:
     paths:
       - 'deploy/docker-compose.stream.prod.yml'
       - '.github/workflows/deploy-queue.yml'
+      - 'aggregator/**'
   workflow_dispatch:
 
 env:
