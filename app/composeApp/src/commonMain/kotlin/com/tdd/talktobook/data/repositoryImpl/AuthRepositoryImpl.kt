@@ -3,7 +3,7 @@ package com.tdd.talktobook.data.repositoryImpl
 import com.tdd.talktobook.data.dataSource.AuthDataSource
 import com.tdd.talktobook.data.dataStore.LocalDataStore
 import com.tdd.talktobook.data.mapper.auth.EmailLogInMapper
-import com.tdd.talktobook.data.mapper.auth.EmailSignUpMapper
+import com.tdd.talktobook.data.mapper.auth.ReissueMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanNotJsonMapper
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
@@ -59,4 +59,8 @@ class AuthRepositoryImpl(
 
     override suspend fun logOut(): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = { authDataSource.logOut() })
+
+    override suspend fun reissue(refresh: String): Flow<Result<TokenModel>> =
+        ReissueMapper.responseToModel(apiCall = { authDataSource.reissue(refresh) })
+
 }

@@ -35,4 +35,10 @@ interface AuthService {
 
     @POST(EndPoints.Auth.LOGOUT)
     suspend fun logOut(): HttpResponse
+
+    @Multipart
+    @POST(EndPoints.Auth.REISSUE)
+    suspend fun reissue(
+        @Part("refreshToken") refreshToken: String
+    ): HttpResponse
 }

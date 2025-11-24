@@ -5,6 +5,7 @@ import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
+import com.tdd.talktobook.domain.usecase.auth.ReissueTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.DeleteAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
@@ -56,6 +57,7 @@ val useCaseModule =
         factory { PostEmailVerifyUseCase(get()) }
         factory { DeleteUserUseCase(get()) }
         factory { LogOutUseCase(get()) }
+        factory { ReissueTokenUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }

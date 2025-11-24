@@ -20,4 +20,6 @@ interface AuthRepository {
     suspend fun deleteUser(): Flow<Result<Boolean>>
 
     suspend fun logOut(): Flow<Result<Boolean>>
+
+    suspend fun reissue(refresh: String): Flow<Result<TokenModel>>
 }

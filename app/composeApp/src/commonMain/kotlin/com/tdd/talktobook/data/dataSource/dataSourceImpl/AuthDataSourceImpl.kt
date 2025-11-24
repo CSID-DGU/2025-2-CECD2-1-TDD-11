@@ -30,4 +30,7 @@ class AuthDataSourceImpl(
 
     override suspend fun logOut(): HttpResponse =
         authService.logOut()
+
+    override suspend fun reissue(refreshToken: String): HttpResponse =
+        authService.reissue(refreshToken)
 }
