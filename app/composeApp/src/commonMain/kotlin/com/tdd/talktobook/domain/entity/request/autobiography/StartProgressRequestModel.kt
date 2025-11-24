@@ -1,6 +1,6 @@
 package com.tdd.talktobook.domain.entity.request.autobiography
 
-data class StartProgressRequestModel (
+data class StartProgressRequestModel(
     val theme: String = "",
-    val reason: String = ""
+    val reason: String = "",
 )

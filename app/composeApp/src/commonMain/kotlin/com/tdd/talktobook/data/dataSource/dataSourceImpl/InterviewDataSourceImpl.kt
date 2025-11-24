@@ -25,6 +25,10 @@ class InterviewDataSourceImpl(
     override suspend fun getInterviewQuestion(interviewId: Int): HttpResponse =
         interviewService.getInterviewQuestionList(interviewId)
 
-    override suspend fun getInterviewSummaries(autobiographyId: Int, year: Int, month: Int): HttpResponse =
+    override suspend fun getInterviewSummaries(
+        autobiographyId: Int,
+        year: Int,
+        month: Int,
+    ): HttpResponse =
         interviewService.getInterviewSummaries(autobiographyId, year, month)
 }

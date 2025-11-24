@@ -9,8 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class ReissueTokenUseCase(
     private val repository: AuthRepository,
-): UseCase<String, Result<TokenModel>>() {
-
+) : UseCase<String, Result<TokenModel>>() {
     override suspend fun invoke(request: String): Flow<Result<TokenModel>> =
         repository.reissue(request)
 }

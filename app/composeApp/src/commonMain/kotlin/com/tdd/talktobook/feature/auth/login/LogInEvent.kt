@@ -4,5 +4,6 @@ import com.tdd.talktobook.core.ui.base.Event
 
 sealed class LogInEvent : Event {
     data object GoToHomePage : LogInEvent()
-    data object GoToOnboardingPage: LogInEvent()
+
+    data object GoToOnboardingPage : LogInEvent()
 }

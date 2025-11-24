@@ -8,8 +8,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class LogOutUseCase(
     private val repository: AuthRepository,
-): UseCase<Unit, Result<Boolean>>() {
-
+) : UseCase<Unit, Result<Boolean>>() {
     override suspend fun invoke(request: Unit): Flow<Result<Boolean>> =
         repository.logOut()
 }

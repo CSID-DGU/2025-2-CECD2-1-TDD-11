@@ -6,19 +6,19 @@ import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiog
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
-object PostStartProgressMapper: BaseMapper() {
+object PostStartProgressMapper : BaseMapper() {
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<InterviewAutobiographyModel>> {
-        return  baseMapper(
+        return baseMapper(
             apiCall = { apiCall() },
             successDeserializer = StartProgressResponseDto.serializer(),
             responseToModel = { response ->
                 response?.let { data ->
                     InterviewAutobiographyModel(
                         interviewId = data.interviewId,
-                        autobiographyId = data.autobiographyId
+                        autobiographyId = data.autobiographyId,
                     )
                 } ?: InterviewAutobiographyModel()
-            }
+            },
         )
     }
 }

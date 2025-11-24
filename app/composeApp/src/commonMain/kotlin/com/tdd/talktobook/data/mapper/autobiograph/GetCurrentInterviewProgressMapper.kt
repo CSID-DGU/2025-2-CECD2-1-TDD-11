@@ -7,7 +7,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewP
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
-object GetCurrentInterviewProgressMapper: BaseMapper() {
+object GetCurrentInterviewProgressMapper : BaseMapper() {
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<CurrentInterviewProgressModel>> {
         return baseMapper(
             apiCall = { apiCall() },
@@ -16,10 +16,10 @@ object GetCurrentInterviewProgressMapper: BaseMapper() {
                 response?.let { data ->
                     CurrentInterviewProgressModel(
                         progressPercentage = data.progressPercentage,
-                        status = AutobiographyStatusType.getType(data.status)
+                        status = AutobiographyStatusType.getType(data.status),
                     )
-                }?: CurrentInterviewProgressModel()
-            }
+                } ?: CurrentInterviewProgressModel()
+            },
         )
     }
 }

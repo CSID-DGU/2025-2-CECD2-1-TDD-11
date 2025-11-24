@@ -11,14 +11,16 @@ import org.koin.android.annotation.KoinViewModel
 class PastInterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
 ) : BaseViewModel<PastInterviewPageState>(
-    PastInterviewPageState(),
-) {
-
-    fun setSelectedData(date: String, interviewId: Int) {
+        PastInterviewPageState(),
+    ) {
+    fun setSelectedData(
+        date: String,
+        interviewId: Int,
+    ) {
         updateState(
             uiState.value.copy(
                 selectedDate = date,
-                interviewId = interviewId
+                interviewId = interviewId,
             ),
         )
 
@@ -36,8 +38,8 @@ class PastInterviewViewModel(
     private fun onSuccessGetInterview(data: InterviewConversationListModel) {
         updateState(
             uiState.value.copy(
-                interviewList = data.results
-            )
+                interviewList = data.results,
+            ),
         )
     }
 }

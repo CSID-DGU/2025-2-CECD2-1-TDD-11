@@ -76,7 +76,7 @@ fun MainScreen() {
                 isShowDialog.value = false
                 navController.navigate(NavRoutes.HomeScreen.route)
             },
-            onDismiss = { isShowDialog.value = false }
+            onDismiss = { isShowDialog.value = false },
         )
     }
 
@@ -137,10 +137,10 @@ fun MainScreen() {
                 )
                 interviewNavGraph(
                     navController = navController,
-                    showStartAutobiographyDialog = showOneBtnDialog
+                    showStartAutobiographyDialog = showOneBtnDialog,
                 )
                 startProgressNavGraph(
-                    navController = navController
+                    navController = navController,
                 )
                 publicationNavGraph(
                     navController = navController,

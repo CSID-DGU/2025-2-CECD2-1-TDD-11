@@ -1,6 +1,6 @@
 package com.tdd.talktobook.domain.entity.response.autobiography
 
-data class CountMaterialsItemModel (
+data class CountMaterialsItemModel(
     val id: Int = 0,
     val order: Int = 0,
     val rank: Int = 0,

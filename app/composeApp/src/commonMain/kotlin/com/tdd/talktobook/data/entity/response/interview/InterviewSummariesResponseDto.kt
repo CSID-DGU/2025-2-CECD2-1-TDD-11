@@ -4,9 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InterviewSummariesResponseDto (
+data class InterviewSummariesResponseDto(
     @SerialName("interviews")
-    val interviews: List<Interview> = emptyList()
+    val interviews: List<Interview> = emptyList(),
 ) {
     @Serializable
     data class Interview(
@@ -19,6 +19,6 @@ data class InterviewSummariesResponseDto (
         @SerialName("totalAnswerCount")
         val totalAnswerCount: Int = 0,
         @SerialName("date")
-        val date: String = ""
+        val date: String = "",
     )
 }

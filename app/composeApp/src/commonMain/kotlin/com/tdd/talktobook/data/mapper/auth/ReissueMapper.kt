@@ -6,8 +6,7 @@ import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
-object ReissueMapper: BaseMapper() {
-
+object ReissueMapper : BaseMapper() {
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<TokenModel>> {
         return baseMapper(
             apiCall = { apiCall() },
@@ -17,10 +16,10 @@ object ReissueMapper: BaseMapper() {
                     TokenModel(
                         accessToken = data.accessToken,
                         refreshToken = data.refreshToken,
-                        metadataSuccess = true
+                        metadataSuccess = true,
                     )
                 } ?: TokenModel()
-            }
+            },
         )
     }
 }

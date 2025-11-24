@@ -9,8 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class PostEmailVerifyUseCase(
     private val repository: AuthRepository,
-): UseCase<EmailVerifyRequestModel, Result<Boolean>>() {
-
+) : UseCase<EmailVerifyRequestModel, Result<Boolean>>() {
     override suspend fun invoke(request: EmailVerifyRequestModel): Flow<Result<Boolean>> =
         repository.postEmailVerify(request)
 }

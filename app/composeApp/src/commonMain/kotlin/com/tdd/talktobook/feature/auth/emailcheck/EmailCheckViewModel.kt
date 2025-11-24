@@ -10,10 +10,10 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class EmailCheckViewModel(
-    private val postEmailVerifyUseCase: PostEmailVerifyUseCase
+    private val postEmailVerifyUseCase: PostEmailVerifyUseCase,
 ) : BaseViewModel<EmailCheckPageState>(
-    EmailCheckPageState(),
-) {
+        EmailCheckPageState(),
+    ) {
     fun setEmail(email: String) {
         updateState(
             uiState.value.copy(
@@ -35,11 +35,13 @@ class EmailCheckViewModel(
             postEmailVerifyUseCase(
                 EmailVerifyRequestModel(
                     email = uiState.value.email,
-                    code = uiState.value.codeInput
-                )
-            ).collect { resultResponse(it, { data ->
-                d("[ktor] email verify response -> $data")
-            }) }
+                    code = uiState.value.codeInput,
+                ),
+            ).collect {
+                resultResponse(it, { data ->
+                    d("[ktor] email verify response -> $data")
+                })
+            }
         }
 
         emitEventFlow(EmailCheckEvent.GoToLogInPage)

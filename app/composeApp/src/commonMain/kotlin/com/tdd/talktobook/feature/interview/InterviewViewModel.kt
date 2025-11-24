@@ -25,9 +25,8 @@ class InterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
 ) : BaseViewModel<InterviewPageState>(
-    InterviewPageState(),
-) {
-
+        InterviewPageState(),
+    ) {
     fun getFirstQuestion(question: String) {
         if (question.isNotEmpty()) {
             addInterviewConversation(question, ChatType.BOT)
@@ -66,8 +65,8 @@ class InterviewViewModel(
     private fun onSuccessGetAutobiographyId(id: Int) {
         updateState(
             uiState.value.copy(
-                autobiographyId = id
-            )
+                autobiographyId = id,
+            ),
         )
     }
 
@@ -80,8 +79,8 @@ class InterviewViewModel(
     private fun onSuccessGetInterviewId(id: Int) {
         updateState(
             uiState.value.copy(
-                interviewId = id
-            )
+                interviewId = id,
+            ),
         )
 
         initGetInterviewConversation(id)
@@ -98,8 +97,8 @@ class InterviewViewModel(
 
         updateState(
             uiState.value.copy(
-                interviewChatList = data.results
-            )
+                interviewChatList = data.results,
+            ),
         )
     }
 

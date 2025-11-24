@@ -8,9 +8,8 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class GetCountMaterialsUseCase(
-    private val repository: AutobiographyRepository
-): UseCase<Int, Result<CountMaterialsResponseModel>>() {
-
+    private val repository: AutobiographyRepository,
+) : UseCase<Int, Result<CountMaterialsResponseModel>>() {
     override suspend fun invoke(request: Int): Flow<Result<CountMaterialsResponseModel>> =
         repository.getCountMaterials(request)
 }

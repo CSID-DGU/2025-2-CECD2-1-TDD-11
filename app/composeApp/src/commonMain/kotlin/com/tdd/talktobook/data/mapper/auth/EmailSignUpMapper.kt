@@ -16,7 +16,7 @@ object EmailSignUpMapper : BaseMapper() {
                     TokenModel(
                         accessToken = data.accessToken,
                         refreshToken = data.refreshToken,
-                        metadataSuccess = data.metaDataSuccess
+                        metadataSuccess = data.metaDataSuccess,
                     )
                 } ?: TokenModel()
             },

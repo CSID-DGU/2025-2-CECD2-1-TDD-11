@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChatInterviewRequestDto (
+data class ChatInterviewRequestDto(
     @SerialName("answer_text")
-    val answerText: String = ""
+    val answerText: String = "",
 )

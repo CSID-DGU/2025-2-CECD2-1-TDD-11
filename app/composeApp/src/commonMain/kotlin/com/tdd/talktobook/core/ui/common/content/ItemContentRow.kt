@@ -25,18 +25,18 @@ fun ItemContentRow(
     isNextVisible: Boolean = true,
     onClickNext: () -> Unit = {},
 ) {
-
     val interactionSource = remember { MutableInteractionSource() }
 
     Row(
-        modifier = Modifier
-            .padding(vertical = 14.dp, horizontal = 20.dp)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClickNext,
-            ),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .padding(vertical = 14.dp, horizontal = 20.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClickNext,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             model = Res.getUri(iconImgUrl),
@@ -50,9 +50,10 @@ fun ItemContentRow(
             text = content,
             color = Black1,
             style = BookShelfTypo.Body1,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .weight(1f)
+            modifier =
+                Modifier
+                    .padding(start = 8.dp)
+                    .weight(1f),
         )
 
         if (isNextVisible) {

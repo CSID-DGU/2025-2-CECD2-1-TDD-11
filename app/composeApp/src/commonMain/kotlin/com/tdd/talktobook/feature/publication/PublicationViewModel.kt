@@ -13,8 +13,8 @@ import org.koin.android.annotation.KoinViewModel
 class PublicationViewModel(
     private val getAllAutobiographyUseCase: GetAllAutobiographyUseCase,
 ) : BaseViewModel<PublicationPageState>(
-    PublicationPageState(),
-) {
+        PublicationPageState(),
+    ) {
     init {
         initSetAutobiographyList()
     }

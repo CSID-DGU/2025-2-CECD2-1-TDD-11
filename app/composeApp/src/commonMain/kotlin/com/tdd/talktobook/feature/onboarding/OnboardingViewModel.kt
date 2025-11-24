@@ -12,16 +12,16 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class OnboardingViewModel(
-    private val putEditMemberInfoUseCase: PutEditMemberInfoUseCase
+    private val putEditMemberInfoUseCase: PutEditMemberInfoUseCase,
 ) : BaseViewModel<OnboardingPageState>(
-    OnboardingPageState()
-) {
+        OnboardingPageState(),
+    ) {
     fun setPageType(type: OnboardingPageType) {
         updateState(
             uiState.value.copy(
                 pageType = type,
-                isBtnActivated = false
-            )
+                isBtnActivated = false,
+            ),
         )
     }
 
@@ -29,8 +29,8 @@ class OnboardingViewModel(
         updateState(
             uiState.value.copy(
                 gender = gender,
-                isBtnActivated = true
-            )
+                isBtnActivated = true,
+            ),
         )
     }
 
@@ -38,8 +38,8 @@ class OnboardingViewModel(
         updateState(
             uiState.value.copy(
                 ageGroup = age,
-                isBtnActivated = true
-            )
+                isBtnActivated = true,
+            ),
         )
     }
 
@@ -47,15 +47,15 @@ class OnboardingViewModel(
         updateState(
             uiState.value.copy(
                 occupationInput = newValue,
-                isBtnActivated = newValue.isNotEmpty()
-            )
+                isBtnActivated = newValue.isNotEmpty(),
+            ),
         )
     }
 
     fun putEditMemberInfo() {
         viewModelScope.launch {
             putEditMemberInfoUseCase(
-                MemberInfoModel(gender = uiState.value.gender.type, occupation = uiState.value.occupationInput, ageGroup = uiState.value.ageGroup.type)
+                MemberInfoModel(gender = uiState.value.gender.type, occupation = uiState.value.occupationInput, ageGroup = uiState.value.ageGroup.type),
             ).collect { resultResponse(it, {}) }
 
             emitEventFlow(OnboardingEvent.GoToHomePage)

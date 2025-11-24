@@ -31,7 +31,6 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun OnboardingScreen(
     goToHome: () -> Unit,
 ) {
-
     val viewModel: OnboardingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -55,7 +54,7 @@ internal fun OnboardingScreen(
         onSelectAgeGroup = { viewModel.setSelectedAgeGroup(it) },
         occupationInput = uiState.occupationInput,
         onOccupationValueChange = { viewModel.onOccupationValueChange(it) },
-        isBtnActivated = uiState.isBtnActivated
+        isBtnActivated = uiState.isBtnActivated,
     )
 }
 
@@ -82,18 +81,18 @@ private fun OnboardingContent(
 
         SeriesNumText(
             totalNum = 3,
-            currentNum = pageType.page
+            currentNum = pageType.page,
         )
 
         SeriesTitleText(
             currentTitle = pageType.title,
-            paddingTop = 10
+            paddingTop = 10,
         )
 
         Spacer(modifier = Modifier.padding(top = 100.dp))
 
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
             when (pageType) {
                 OnboardingPageType.FIRST_PAGE -> {
@@ -136,17 +135,18 @@ private fun OnboardingAgeGroup(
         .chunked(2)
         .forEachIndexed { index, rowItems ->
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 25.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier =
+                    Modifier
+                        .padding(horizontal = 25.dp)
+                        .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 rowItems.forEach { age ->
                     SelectRectangleItem(
                         itemText = age.content,
                         modifier = Modifier.weight(1f),
                         onSelectItem = { onSelectAgeGroup(age) },
-                        isItemSelected = (age == selectedAgeGroup)
+                        isItemSelected = (age == selectedAgeGroup),
                     )
                 }
             }
@@ -161,17 +161,18 @@ private fun OnboardingGender(
     onSelectGender: (GenderType) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .padding(horizontal = 25.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            Modifier
+                .padding(horizontal = 25.dp)
+                .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         GenderType.entries.dropLast(1).forEach { gender ->
             SelectRectangleItem(
                 itemText = gender.content,
                 modifier = Modifier.weight(1f),
                 onSelectItem = { onSelectGender(gender) },
-                isItemSelected = (gender == selectedGender)
+                isItemSelected = (gender == selectedGender),
             )
         }
     }

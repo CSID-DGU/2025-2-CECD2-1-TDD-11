@@ -12,12 +12,12 @@ interface InterviewAIService {
     @POST(EndPoints.Interview.START_INTERVIEW)
     suspend fun postStartInterview(
         @Path("autobiography_id") autobiographyId: Int = 0,
-        @Body body: StartInterviewRequestDto
+        @Body body: StartInterviewRequestDto,
     ): HttpResponse
 
     @POST(EndPoints.Interview.CHAT_INTERVIEW)
     suspend fun postChatInterview(
         @Path("autobiography_id") autobiographyId: Int = 0,
-        @Body body: ChatInterviewRequestDto
+        @Body body: ChatInterviewRequestDto,
     ): HttpResponse
 }

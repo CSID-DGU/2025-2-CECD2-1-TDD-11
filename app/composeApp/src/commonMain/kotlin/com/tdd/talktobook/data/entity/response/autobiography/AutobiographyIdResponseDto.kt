@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AutobiographyIdResponseDto(
     @SerialName("autobiographyId")
-    val autobiographyId: Int = 0
+    val autobiographyId: Int = 0,
 )

@@ -8,8 +8,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class GetAccessTokenUseCase(
     private val repository: AuthRepository,
-): UseCase<Unit, Result<String>>() {
-
+) : UseCase<Unit, Result<String>>() {
     override suspend fun invoke(request: Unit): Flow<Result<String>> =
         repository.getStoredAccessToken()
 }

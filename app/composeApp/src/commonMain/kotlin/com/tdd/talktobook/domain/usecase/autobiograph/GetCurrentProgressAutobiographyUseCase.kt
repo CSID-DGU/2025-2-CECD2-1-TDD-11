@@ -9,8 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class GetCurrentProgressAutobiographyUseCase(
     private val repository: AutobiographyRepository,
-): UseCase<Unit, Result<CurrentProgressAutobiographyModel>>() {
-
+) : UseCase<Unit, Result<CurrentProgressAutobiographyModel>>() {
     override suspend fun invoke(request: Unit): Flow<Result<CurrentProgressAutobiographyModel>> =
         repository.getCurrentProgressAutobiography()
 }

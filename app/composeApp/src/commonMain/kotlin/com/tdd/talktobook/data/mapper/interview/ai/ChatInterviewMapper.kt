@@ -19,10 +19,10 @@ object ChatInterviewMapper : BaseMapper() {
                         material = data.nextQuestion.material,
                         materialId = data.nextQuestion.materialId,
                         text = data.nextQuestion.text,
-                        type = data.nextQuestion.type
+                        type = data.nextQuestion.type,
                     )
                 } ?: ChatInterviewResponseModel()
-            }
+            },
         )
     }
 }

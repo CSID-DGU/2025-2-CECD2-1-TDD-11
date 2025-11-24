@@ -12,5 +12,5 @@ data class InterviewConversationDto(
     @SerialName("conversationType")
     val conversationType: String = "",
     @SerialName("createdAt")
-    val createdAt: String = ""
+    val createdAt: String = "",
 )

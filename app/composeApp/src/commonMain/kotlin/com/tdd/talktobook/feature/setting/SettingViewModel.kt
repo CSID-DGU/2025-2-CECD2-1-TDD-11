@@ -14,10 +14,10 @@ import org.koin.android.annotation.KoinViewModel
 class SettingViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
-    private val logOutUseCase: LogOutUseCase
+    private val logOutUseCase: LogOutUseCase,
 ) : BaseViewModel<SettingPageState>(
-    SettingPageState(),
-) {
+        SettingPageState(),
+    ) {
     init {
         initSetMemberInfo()
     }

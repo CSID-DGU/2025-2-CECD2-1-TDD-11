@@ -35,6 +35,6 @@ interface InterviewService {
     suspend fun getInterviewSummaries(
         @Path("autobiographyId") autobiographyId: Int,
         @Query("year") year: Int,
-        @Query("month") month: Int
+        @Query("month") month: Int,
     ): HttpResponse
 }

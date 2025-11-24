@@ -21,7 +21,7 @@ class MemberRepositoryImpl(
             memberDataSource.editMemberInfo(
                 request.gender,
                 request.occupation,
-                request.ageGroup
+                request.ageGroup,
             )
         })
 }

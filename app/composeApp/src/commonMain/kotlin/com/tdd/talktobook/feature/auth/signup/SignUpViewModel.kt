@@ -12,8 +12,8 @@ import org.koin.android.annotation.KoinViewModel
 class SignUpViewModel(
     private val postEmailSignUpUseCase: PostEmailSignUpUseCase,
 ) : BaseViewModel<SignUpPageState>(
-    SignUpPageState(),
-) {
+        SignUpPageState(),
+    ) {
     fun onEmailValueChange(newValue: String) {
         updateState(
             uiState.value.copy(

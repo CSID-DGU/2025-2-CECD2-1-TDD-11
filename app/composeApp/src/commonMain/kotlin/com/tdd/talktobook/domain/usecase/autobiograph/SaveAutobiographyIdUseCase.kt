@@ -8,8 +8,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class SaveAutobiographyIdUseCase(
     private val repository: AutobiographyRepository,
-): UseCase<Int, Result<Unit>>() {
-
+) : UseCase<Int, Result<Unit>>() {
     override suspend fun invoke(request: Int): Flow<Result<Unit>> =
         repository.saveAutobiographyId(request)
 }

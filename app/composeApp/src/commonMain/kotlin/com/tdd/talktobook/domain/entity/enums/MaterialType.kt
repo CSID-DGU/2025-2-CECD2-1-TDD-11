@@ -51,5 +51,5 @@ enum class MaterialType(
     PHILOSOPHY(Philosophy, PhilosophyContent),
     COMMUNITY(Community, CommunityContent),
     PARENT(Parent, ParentContent),
-    DEFAULT(Empty, Empty);
+    DEFAULT(Empty, Empty),
 }

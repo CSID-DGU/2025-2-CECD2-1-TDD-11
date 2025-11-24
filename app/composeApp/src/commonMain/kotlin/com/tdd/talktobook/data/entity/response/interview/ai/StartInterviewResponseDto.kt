@@ -4,9 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StartInterviewResponseDto (
+data class StartInterviewResponseDto(
     @SerialName("first_question")
-    val firstQuestion: FirstQuestion = FirstQuestion()
+    val firstQuestion: FirstQuestion = FirstQuestion(),
 ) {
     @Serializable
     data class FirstQuestion(
@@ -19,6 +19,6 @@ data class StartInterviewResponseDto (
         @SerialName("text")
         val text: String = "",
         @SerialName("type")
-        val type: String = ""
+        val type: String = "",
     )
 }

@@ -27,7 +27,7 @@ interface AuthService {
     @POST(EndPoints.Auth.EMAILVERIFY)
     suspend fun postEmailVerify(
         @Part("email") email: String,
-        @Part("verificationCode") code: String
+        @Part("verificationCode") code: String,
     ): HttpResponse
 
     @DELETE(EndPoints.Auth.UNREGISTER)
@@ -39,6 +39,6 @@ interface AuthService {
     @Multipart
     @POST(EndPoints.Auth.REISSUE)
     suspend fun reissue(
-        @Part("refreshToken") refreshToken: String
+        @Part("refreshToken") refreshToken: String,
     ): HttpResponse
 }

@@ -4,9 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StartProgressResponseDto (
+data class StartProgressResponseDto(
     @SerialName("autobiographyId")
     val autobiographyId: Int = 0,
     @SerialName("interviewId")
-    val interviewId: Int = 0
+    val interviewId: Int = 0,
 )

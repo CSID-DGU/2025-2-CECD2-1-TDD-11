@@ -16,7 +16,7 @@ interface AuthDataSource {
 
     suspend fun postEmailVerification(
         email: String,
-        code: String
+        code: String,
     ): HttpResponse
 
     suspend fun deleteUser(): HttpResponse
@@ -24,6 +24,6 @@ interface AuthDataSource {
     suspend fun logOut(): HttpResponse
 
     suspend fun reissue(
-        refreshToken: String
+        refreshToken: String,
     ): HttpResponse
 }

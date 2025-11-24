@@ -16,7 +16,7 @@ import com.tdd.talktobook.core.designsystem.ThirtyContent
 
 enum class AgeGroupType(
     val type: String,
-    val content: String
+    val content: String,
 ) {
     TEN(Ten, TenContent),
     THIRTY(Thirty, ThirtyContent),
@@ -24,5 +24,5 @@ enum class AgeGroupType(
     FIFTY(Fifty, FiftyContent),
     SIXTY(Sixty, SixtyContent),
     SEVENTY(Seventy, SeventyContent),
-    DEFAULT(Empty, Empty);
+    DEFAULT(Empty, Empty),
 }

@@ -18,7 +18,9 @@ class MemberDataSourceImpl(
         ageGroup: String,
     ): HttpResponse =
         memberService.editMemberInfo(
-            gender, occupation, ageGroup
+            gender,
+            occupation,
+            ageGroup,
         )
 
     override suspend fun getMemberProfile(): HttpResponse =

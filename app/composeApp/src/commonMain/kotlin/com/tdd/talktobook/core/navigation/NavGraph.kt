@@ -29,7 +29,7 @@ fun NavGraphBuilder.loginNavGraph(
             LogInScreen(
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
                 goToHome = { navController.navigate(NavRoutes.HomeScreen.route) { popUpTo(0) } },
-                goToOnboarding = { navController.navigate(NavRoutes.OnboardingScreen.route) }
+                goToOnboarding = { navController.navigate(NavRoutes.OnboardingScreen.route) },
             )
         }
     }
@@ -98,7 +98,7 @@ fun NavGraphBuilder.homeNavGraph(
             HomeScreen(
                 goToPastInterviewPage = { date, id -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date, id)) },
                 goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) },
-                goToSettingPage = { navController.navigate(NavRoutes.SettingPageScreen.route) }
+                goToSettingPage = { navController.navigate(NavRoutes.SettingPageScreen.route) },
             )
         }
     }
@@ -113,10 +113,11 @@ fun NavGraphBuilder.pastInterviewNavGraph(
     ) {
         composable(
             route = NavRoutes.PastInterviewScreen.route,
-            arguments = listOf(
-                navArgument("date") { type = NavType.StringType },
-                navArgument("interviewId") { type = NavType.IntType }
-            ),
+            arguments =
+                listOf(
+                    navArgument("date") { type = NavType.StringType },
+                    navArgument("interviewId") { type = NavType.IntType },
+                ),
         ) {
             val date = it.arguments?.getString("date") ?: ""
             val interviewId = it.arguments?.getInt("interviewId") ?: 0
@@ -124,7 +125,7 @@ fun NavGraphBuilder.pastInterviewNavGraph(
             PastInterviewScreen(
                 goBackToHome = { navController.popBackStack() },
                 selectedDate = date,
-                interviewId = interviewId
+                interviewId = interviewId,
             )
         }
     }
@@ -140,19 +141,20 @@ fun NavGraphBuilder.interviewNavGraph(
     ) {
         composable(
             route = NavRoutes.InterviewScreen.route,
-            arguments = listOf(
-                navArgument("question") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = ""
-                }
-            )
+            arguments =
+                listOf(
+                    navArgument("question") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = ""
+                    },
+                ),
         ) {
             val question = it.arguments?.getString("question") ?: ""
 
             InterviewScreen(
                 showStartAutobiographyDialog = showStartAutobiographyDialog,
-                startQuestion = question
+                startQuestion = question,
             )
         }
     }
@@ -163,12 +165,12 @@ fun NavGraphBuilder.startProgressNavGraph(
 ) {
     navigation(
         startDestination = NavRoutes.StartProgressScreen.route,
-        route = NavRoutes.StartProgressGraph.route
+        route = NavRoutes.StartProgressGraph.route,
     ) {
         composable(route = NavRoutes.StartProgressScreen.route) {
             StartProgressScreen(
                 goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
-                goBackToHome = { navController.popBackStack() }
+                goBackToHome = { navController.popBackStack() },
             )
         }
     }
@@ -196,7 +198,7 @@ fun NavGraphBuilder.settingNavGraph(
     ) {
         composable(NavRoutes.SettingPageScreen.route) {
             SettingScreen(
-                goBackPage = { navController.popBackStack() }
+                goBackPage = { navController.popBackStack() },
             )
         }
     }

@@ -1,7 +1,5 @@
 package com.tdd.talktobook.core.navigation
 
-import co.touchlab.kermit.Logger.Companion.d
-
 sealed class NavRoutes(val route: String) {
     // LogIn Graph
     data object LogInGraph : NavRoutes("login_graph")
@@ -34,7 +32,10 @@ sealed class NavRoutes(val route: String) {
     data object PastInterviewGraph : NavRoutes("past_interview_graph")
 
     data object PastInterviewScreen : NavRoutes("past_interview/{date}/{interviewId}") {
-        fun setRouteModel(date: String, interviewId: Int): String = "past_interview/$date/$interviewId"
+        fun setRouteModel(
+            date: String,
+            interviewId: Int,
+        ): String = "past_interview/$date/$interviewId"
     }
 
     // Interview Graph
@@ -42,14 +43,17 @@ sealed class NavRoutes(val route: String) {
 
     data object InterviewScreen : NavRoutes("interview?question={question}") {
         fun setRouteModel(question: String): String =
-            if (question.isBlank())  "interview"
-            else "interview?question=$question"
+            if (question.isBlank()) {
+                "interview"
+            } else {
+                "interview?question=$question"
+            }
     }
 
     // StartProgress Graph
-    data object StartProgressGraph: NavRoutes("start_progress_graph")
+    data object StartProgressGraph : NavRoutes("start_progress_graph")
 
-    data object StartProgressScreen: NavRoutes("start_progress")
+    data object StartProgressScreen : NavRoutes("start_progress")
 
     // DetailChapter Graph
     data object DetailChapterGraph : NavRoutes("detail_chapter_graph")

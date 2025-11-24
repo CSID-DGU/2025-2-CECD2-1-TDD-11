@@ -11,9 +11,15 @@ import org.koin.core.annotation.Single
 class InterviewAIDataSourceImpl(
     private val interviewAIService: InterviewAIService,
 ) : InterviewAIDataSource {
-    override suspend fun postStartInterview(autobiographyId: Int, body: StartInterviewRequestDto): HttpResponse =
+    override suspend fun postStartInterview(
+        autobiographyId: Int,
+        body: StartInterviewRequestDto,
+    ): HttpResponse =
         interviewAIService.postStartInterview(autobiographyId, body)
 
-    override suspend fun postChatInterview(autobiographyId: Int, body: ChatInterviewRequestDto): HttpResponse =
+    override suspend fun postChatInterview(
+        autobiographyId: Int,
+        body: ChatInterviewRequestDto,
+    ): HttpResponse =
         interviewAIService.postChatInterview(autobiographyId, body)
 }

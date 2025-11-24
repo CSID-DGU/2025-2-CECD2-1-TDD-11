@@ -32,10 +32,10 @@ class HomeViewModel(
     private val getInterviewSummariesUseCase: GetInterviewSummariesUseCase,
     private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
     private val saveAutobiographyIdUseCase: SaveAutobiographyIdUseCase,
-    private val saveInterviewIdUseCase: SaveInterviewIdUseCase
+    private val saveInterviewIdUseCase: SaveInterviewIdUseCase,
 ) : BaseViewModel<HomePageState>(
-    HomePageState(),
-) {
+        HomePageState(),
+    ) {
     init {
         initSetTodayDate()
         initGetCurrentProgress()
@@ -75,7 +75,7 @@ class HomeViewModel(
 
             false -> {
                 updateState(
-                    uiState.value.copy(isCurrentProgress = false)
+                    uiState.value.copy(isCurrentProgress = false),
                 )
             }
         }
@@ -85,8 +85,8 @@ class HomeViewModel(
         updateState(
             uiState.value.copy(
                 currentAutobiographyId = data.autobiographyId,
-                isCurrentProgress = true
-            )
+                isCurrentProgress = true,
+            ),
         )
 
         saveCurrentAutobiographyId(data.autobiographyId)
@@ -100,7 +100,6 @@ class HomeViewModel(
             saveAutobiographyIdUseCase(id).collect { resultResponse(it, {}) }
         }
     }
-
 
     private fun initSetCreatedMaterials(autobiographyId: Int) {
         viewModelScope.launch {
@@ -132,8 +131,8 @@ class HomeViewModel(
         updateState(
             uiState.value.copy(
                 autobiographyProgress = data.progressPercentage,
-                currentAutobiographyStatus = data.status
-            )
+                currentAutobiographyStatus = data.status,
+            ),
         )
 
         saveCurrentProgress(data.status)

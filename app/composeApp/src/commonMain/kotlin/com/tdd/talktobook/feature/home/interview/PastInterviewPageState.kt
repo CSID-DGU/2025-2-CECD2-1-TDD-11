@@ -6,5 +6,5 @@ import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 data class PastInterviewPageState(
     val interviewList: List<InterviewChatItem> = emptyList(),
     val selectedDate: String = "",
-    val interviewId: Int = 0
+    val interviewId: Int = 0,
 ) : PageState

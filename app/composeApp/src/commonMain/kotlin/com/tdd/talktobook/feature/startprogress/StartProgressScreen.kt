@@ -62,7 +62,7 @@ internal fun StartProgressScreen(
         onReasonValueChange = { viewModel.onReasonValueChange(it) },
         isBtnActivated = uiState.isBtnActivated,
         interactionSource = interactionSource,
-        onClickBack = { goBackToHome() }
+        onClickBack = { goBackToHome() },
     )
 }
 
@@ -89,29 +89,29 @@ private fun StartProgressContent(
             content = StartProgressTitle,
             onClickIcon = onClickBack,
             iconVisible = true,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))
 
         SeriesNumText(
             totalNum = 2,
-            currentNum = pageType.page
+            currentNum = pageType.page,
         )
 
         SeriesTitleText(
             currentTitle = pageType.title,
-            paddingTop = 10
+            paddingTop = 10,
         )
 
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
             when (pageType) {
                 StartProgressPageType.FIRST_PAGE -> {
                     SelectMaterial(
                         selectedMaterial = selectedMaterial,
-                        onSelectMaterial = onSelectMaterial
+                        onSelectMaterial = onSelectMaterial,
                     )
                 }
 
@@ -123,7 +123,7 @@ private fun StartProgressContent(
                         onValueChange = onReasonValueChange,
                         hintText = ReasonWriteHint,
                         maxTextNum = 300,
-                        isTextNumVisible = true
+                        isTextNumVisible = true,
                     )
                 }
             }
@@ -152,29 +152,32 @@ private fun SelectMaterial(
     Spacer(modifier = Modifier.padding(top = 48.dp))
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
     ) {
         MaterialType.entries
             .dropLast(1)
             .chunked(3)
             .forEachIndexed { index, rowItems ->
                 Row(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 30.dp)
+                            .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     rowItems.forEach { material ->
                         Box(
-                            modifier = Modifier
-                                .weight(1f)
+                            modifier =
+                                Modifier
+                                    .weight(1f),
                         ) {
                             SelectCircleListItem(
                                 itemText = material.content,
                                 isSelected = (material == selectedMaterial),
-                                onSelect = { onSelectMaterial(material) }
+                                onSelect = { onSelectMaterial(material) },
                             )
                         }
                     }

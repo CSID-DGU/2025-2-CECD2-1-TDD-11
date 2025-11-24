@@ -102,7 +102,7 @@ internal fun HomeScreen(
         onClickSummary = { goToPastInterviewPage(uiState.selectedDate, uiState.monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == uiState.selectedDay }?.id ?: 0) },
         isCurrentProgress = uiState.isCurrentProgress,
         onClickStartProgress = { goToProgressStartPage() },
-        onClickSetting = { goToSettingPage() }
+        onClickSetting = { goToSettingPage() },
     )
 }
 
@@ -130,7 +130,7 @@ private fun HomeContent(
     ) {
         HomeTopBar(
             onClickSetting = onClickSetting,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
 
         Text(
@@ -145,7 +145,7 @@ private fun HomeContent(
         HomeMaterialList(
             createdMaterialList = createdMaterialList,
             isCurrentProgress = isCurrentProgress,
-            onClickStartProgress = onClickStartProgress
+            onClickStartProgress = onClickStartProgress,
         )
 
         BasicDivider()
@@ -166,11 +166,12 @@ private fun HomeContent(
 
         HomeInterviewSummary(
             selectedDate = selectedDate,
-            selectedDateSummary = monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.summary?.takeIf { it.isNotBlank() }
-                ?: HomeNotExistSummary,
+            selectedDateSummary =
+                monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.summary?.takeIf { it.isNotBlank() }
+                    ?: HomeNotExistSummary,
             interactionSource = interactionSource,
             onClick = onClickSummary,
-            isExistMessageCount = (monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay}?.totalMessageCount ?: 0) != 0
+            isExistMessageCount = (monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.totalMessageCount ?: 0) != 0,
         )
     }
 }
@@ -207,7 +208,7 @@ private fun HomeTopBar(
                     .clickable(
                         onClick = onClickSetting,
                         interactionSource = interactionSource,
-                        indication = null
+                        indication = null,
                     ),
         )
     }
@@ -242,7 +243,7 @@ private fun HomeMaterialList(
         RectangleBtn(
             btnContent = HomeStartProgress,
             isBtnActivated = true,
-            onClickAction = onClickStartProgress
+            onClickAction = onClickStartProgress,
         )
 
         Spacer(modifier = Modifier.padding(top = 24.dp))
@@ -311,7 +312,6 @@ private fun HomeInterviewCalendar(
     days: List<LocalDate>,
     onSelectDay: (Int) -> Unit,
 ) {
-
     ItemContentBox(
         modifier = modifier,
         paddingTop = 20,
@@ -390,7 +390,6 @@ private fun CalendarDayOfMonth(
     selectedDay: Int,
     interviewList: List<InterviewSummariesItemModel>,
 ) {
-
     Column(
         modifier =
             Modifier
@@ -421,7 +420,7 @@ private fun CalendarDayOfMonth(
                             interactionSource = interactionSource,
                             onSelect = { onSelectDay(day.dayOfMonth) },
                             isSelectedDate = (day.dayOfMonth == selectedDay),
-                            isInterviewNumNotZero = (interviewList.firstOrNull { it.date.split("-")[2].toInt() == day.dayOfMonth }?.totalMessageCount ?: 0) != 0
+                            isInterviewNumNotZero = (interviewList.firstOrNull { it.date.split("-")[2].toInt() == day.dayOfMonth }?.totalMessageCount ?: 0) != 0,
                         )
                     }
                 }
@@ -493,7 +492,7 @@ private fun HomeInterviewSummary(
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
 //    isSummaryEmpty: Boolean,
-    isExistMessageCount: Boolean
+    isExistMessageCount: Boolean,
 ) {
     ItemContentBox(
         modifier =
@@ -510,13 +509,13 @@ private fun HomeInterviewSummary(
         paddingEnd = 20,
         content = {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
                     modifier =
                         Modifier
                             .padding(top = 15.dp, bottom = 15.dp, start = 20.dp, end = 10.dp)
-                            .weight(1f)
+                            .weight(1f),
                 ) {
                     Text(
                         text = selectedDate,
@@ -528,8 +527,9 @@ private fun HomeInterviewSummary(
                         text = selectedDateSummary,
                         color = Black1,
                         style = BookShelfTypo.Caption4,
-                        modifier = Modifier
-                            .padding(top = 10.dp)
+                        modifier =
+                            Modifier
+                                .padding(top = 10.dp),
                     )
                 }
 

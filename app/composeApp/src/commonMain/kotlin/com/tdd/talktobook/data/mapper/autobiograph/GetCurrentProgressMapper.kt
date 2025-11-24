@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 
-object GetCurrentProgressMapper: BaseMapper() {
+object GetCurrentProgressMapper : BaseMapper() {
     private val json = Json { ignoreUnknownKeys = true }
 
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<CurrentProgressAutobiographyModel>> =

@@ -10,7 +10,6 @@ import org.koin.core.annotation.Factory
 class SaveCurrentAutobiographyStatusUseCase(
     private val repository: AutobiographyRepository,
 ) : UseCase<AutobiographyStatusType, Result<Unit>>() {
-
     override suspend fun invoke(request: AutobiographyStatusType): Flow<Result<Unit>> =
         repository.saveCurrentAutobiographyStatus(request)
 }

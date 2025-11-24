@@ -54,10 +54,10 @@ internal fun InterviewScreen(
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
                 d("[stt] 대화 -> $partial")
                 uiState.interviewChatList +
-                        InterviewChatItem(
-                            content = partial,
-                            chatType = ChatType.HUMAN,
-                        )
+                    InterviewChatItem(
+                        content = partial,
+                        chatType = ChatType.HUMAN,
+                    )
             } else {
                 uiState.interviewChatList
             }
@@ -77,8 +77,8 @@ internal fun InterviewScreen(
                             semiTitle = StartAutobiographyDialogContent,
                             btnText = StartAutobiographyDialogBtn,
                             isBottomTextVisible = true,
-                            bottomText = NextTime
-                        )
+                            bottomText = NextTime,
+                        ),
                     )
                 }
             }

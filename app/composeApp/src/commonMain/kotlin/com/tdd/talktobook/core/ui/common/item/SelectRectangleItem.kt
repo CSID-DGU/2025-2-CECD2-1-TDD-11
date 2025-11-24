@@ -25,7 +25,7 @@ fun SelectRectangleItem(
     modifier: Modifier,
     itemText: String,
     isItemSelected: Boolean = false,
-    onSelectItem: () -> Unit
+    onSelectItem: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -34,10 +34,9 @@ fun SelectRectangleItem(
         modifier = modifier,
         itemText = itemText,
         isItemSelected = isItemSelected,
-        onSelectItem = onSelectItem
+        onSelectItem = onSelectItem,
     )
 }
-
 
 @Composable
 private fun SelectRectangleItemContent(
@@ -45,27 +44,29 @@ private fun SelectRectangleItemContent(
     modifier: Modifier,
     itemText: String,
     isItemSelected: Boolean,
-    onSelectItem: () -> Unit
+    onSelectItem: () -> Unit,
 ) {
     Box(
-        modifier = modifier.run {
-            fillMaxWidth()
-                .clip(RoundedCornerShape(5.dp))
-                .background(color = if (isItemSelected) Main1 else Gray1, RoundedCornerShape(5.dp))
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = onSelectItem
-                )
-        }
+        modifier =
+            modifier.run {
+                fillMaxWidth()
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(color = if (isItemSelected) Main1 else Gray1, RoundedCornerShape(5.dp))
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onSelectItem,
+                    )
+            },
     ) {
         Text(
             text = itemText,
             color = if (isItemSelected) White3 else Gray4,
             style = BookShelfTypo.Body3,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(vertical = 13.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .padding(vertical = 13.dp),
         )
     }
 }

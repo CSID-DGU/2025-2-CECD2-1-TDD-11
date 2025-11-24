@@ -91,21 +91,21 @@ class AutobiographyRepositoryImpl(
         PostStartProgressMapper.responseToModel(apiCall = {
             autobiographyDataSource.postStartProgress(
                 body.theme,
-                body.reason
+                body.reason,
             )
         })
 
     override suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>> =
         GetCountMaterialsMapper.responseToModel(apiCall = {
             autobiographyDataSource.getCountMaterials(
-                autobiographyId
+                autobiographyId,
             )
         })
 
     override suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>> =
         GetCurrentInterviewProgressMapper.responseToModel(apiCall = {
             autobiographyDataSource.getCurrentInterviewProgress(
-                autobiographyId
+                autobiographyId,
             )
         })
 
@@ -115,14 +115,14 @@ class AutobiographyRepositoryImpl(
     override suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             autobiographyDataSource.patchCreateAutobiography(
-                autobiographyId
+                autobiographyId,
             )
         })
 
     override suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>> =
         GetSelectedThemeMapper.responseToModel(apiCall = {
             autobiographyDataSource.getSelectedTheme(
-                autobiographyId
+                autobiographyId,
             )
         })
 

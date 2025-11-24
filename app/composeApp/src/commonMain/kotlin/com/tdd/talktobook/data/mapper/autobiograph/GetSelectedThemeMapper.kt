@@ -6,8 +6,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeMode
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
-
-object GetSelectedThemeMapper: BaseMapper() {
+object GetSelectedThemeMapper : BaseMapper() {
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<SelectedThemeModel>> {
         return baseMapper(
             apiCall = { apiCall() },
@@ -16,10 +15,10 @@ object GetSelectedThemeMapper: BaseMapper() {
                 response?.let { data ->
                     SelectedThemeModel(
                         name = data.name,
-                        categories = data.categories
+                        categories = data.categories,
                     )
                 } ?: SelectedThemeModel()
-            }
+            },
         )
     }
 }

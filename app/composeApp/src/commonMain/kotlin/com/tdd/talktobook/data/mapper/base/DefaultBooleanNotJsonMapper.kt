@@ -18,8 +18,8 @@ object DefaultBooleanNotJsonMapper {
                     val errorBody = runCatching { response.bodyAsText() }.getOrNull()
                     emit(
                         Result.failure(
-                            Throwable("[ktor] ${response.status} ${errorBody ?: ""}")
-                        )
+                            Throwable("[ktor] ${response.status} ${errorBody ?: ""}"),
+                        ),
                     )
                 }
             } catch (e: Exception) {

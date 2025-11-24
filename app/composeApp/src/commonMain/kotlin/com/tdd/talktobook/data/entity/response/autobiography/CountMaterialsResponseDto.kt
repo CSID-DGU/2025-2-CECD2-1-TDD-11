@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CountMaterialsResponseDto (
+data class CountMaterialsResponseDto(
     @SerialName("popularMaterials")
     val popularMaterials: List<PopularMaterial> = emptyList(),
     @SerialName("currentPage")
@@ -14,8 +14,8 @@ data class CountMaterialsResponseDto (
     @SerialName("totalElements")
     val totalElements: Int = 0,
     @SerialName("isLast")
-    val isLast: Boolean = false
-){
+    val isLast: Boolean = false,
+) {
     @Serializable
     data class PopularMaterial(
         @SerialName("id")
@@ -29,6 +29,6 @@ data class CountMaterialsResponseDto (
         @SerialName("imageUrl")
         val imageUrl: String? = null,
         @SerialName("count")
-        val count: Int = 0
+        val count: Int = 0,
     )
 }

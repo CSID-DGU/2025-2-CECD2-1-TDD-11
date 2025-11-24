@@ -89,7 +89,7 @@ private fun BottomNavItem(
         AsyncImage(
             model = Res.getUri(navIcon),
             contentDescription = "nav icon",
-            colorFilter =  if (isSelected) ColorFilter.tint(Blue500) else ColorFilter.tint(Gray400),
+            colorFilter = if (isSelected) ColorFilter.tint(Blue500) else ColorFilter.tint(Gray400),
             modifier =
                 Modifier
                     .size(25.dp),

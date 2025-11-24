@@ -27,14 +27,14 @@ class StartProgressViewModel(
     private val postStartInterviewUseCase: PostStartInterviewUseCase,
     private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
 ) : BaseViewModel<StartProgressPageState>(
-    StartProgressPageState()
-) {
+        StartProgressPageState(),
+    ) {
     fun setPageType(type: StartProgressPageType) {
         updateState(
             uiState.value.copy(
                 pageType = type,
-                isBtnActivated = false
-            )
+                isBtnActivated = false,
+            ),
         )
     }
 
@@ -42,8 +42,8 @@ class StartProgressViewModel(
         updateState(
             uiState.value.copy(
                 material = type,
-                isBtnActivated = true
-            )
+                isBtnActivated = true,
+            ),
         )
     }
 
@@ -51,15 +51,15 @@ class StartProgressViewModel(
         updateState(
             uiState.value.copy(
                 reasonInput = newValue,
-                isBtnActivated = newValue.isNotEmpty()
-            )
+                isBtnActivated = newValue.isNotEmpty(),
+            ),
         )
     }
 
     fun postStartProgress() {
         viewModelScope.launch {
             postStartProgressUseCase(
-                StartProgressRequestModel(uiState.value.material.type, uiState.value.reasonInput)
+                StartProgressRequestModel(uiState.value.material.type, uiState.value.reasonInput),
             ).collect { resultResponse(it, ::onSuccessStartProgress) }
         }
     }
@@ -68,8 +68,8 @@ class StartProgressViewModel(
         updateState(
             uiState.value.copy(
                 interviewId = data.interviewId,
-                autobiographyId = data.autobiographyId
-            )
+                autobiographyId = data.autobiographyId,
+            ),
         )
 
         changeAutobiographyStatus()
@@ -94,17 +94,21 @@ class StartProgressViewModel(
             getSelectedThemeUseCase(autobiographyId).collect {
                 resultResponse(
                     it,
-                    { selectedThemes -> initStartInterview(autobiographyId, selectedThemes) })
+                    { selectedThemes -> initStartInterview(autobiographyId, selectedThemes) },
+                )
             }
         }
     }
 
-    private fun initStartInterview(autobiographyId: Int, selectedThemes: SelectedThemeModel) {
+    private fun initStartInterview(
+        autobiographyId: Int,
+        selectedThemes: SelectedThemeModel,
+    ) {
         d("[ktor] startProgress -> autoId: $autobiographyId, categories -> ${selectedThemes.categories}")
 
         viewModelScope.launch {
             postStartInterviewUseCase(
-                StartInterviewRequestModel(autobiographyId, selectedThemes.categories)
+                StartInterviewRequestModel(autobiographyId, selectedThemes.categories),
             ).collect { resultResponse(it, ::onSuccessGetInterviewQuestion) }
         }
     }
@@ -112,8 +116,8 @@ class StartProgressViewModel(
     private fun onSuccessGetInterviewQuestion(data: StartInterviewResponseModel) {
         updateState(
             uiState.value.copy(
-                firstQuestion = data.text
-            )
+                firstQuestion = data.text,
+            ),
         )
 
         emitEventFlow(StartProgressEvent.GoToInterviewPage)

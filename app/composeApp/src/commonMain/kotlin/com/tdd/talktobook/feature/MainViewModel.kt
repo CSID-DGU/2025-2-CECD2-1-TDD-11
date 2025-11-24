@@ -43,8 +43,8 @@ class MainViewModel : BaseViewModel<MainPageState>(
     fun onSetOneBtnDialog(data: OneBtnDialogModel) {
         updateState(
             uiState.value.copy(
-                oneBtnDialogModel = data
-            )
+                oneBtnDialogModel = data,
+            ),
         )
     }
 }

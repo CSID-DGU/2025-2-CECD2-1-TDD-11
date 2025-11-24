@@ -8,9 +8,9 @@ import com.tdd.talktobook.core.designsystem.MaleContent
 
 enum class GenderType(
     val type: String,
-    val content: String
+    val content: String,
 ) {
     MALE_TYPE(Male, MaleContent),
     FEMALE_TYPE(Female, FemaleContent),
-    DEFAULT(Empty, Empty);
+    DEFAULT(Empty, Empty),
 }

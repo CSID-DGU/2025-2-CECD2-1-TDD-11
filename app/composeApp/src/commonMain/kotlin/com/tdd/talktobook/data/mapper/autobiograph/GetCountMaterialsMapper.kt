@@ -15,23 +15,24 @@ object GetCountMaterialsMapper : BaseMapper() {
             responseToModel = { response ->
                 response?.let { data ->
                     CountMaterialsResponseModel(
-                        popularMaterials = data.popularMaterials.map { material ->
-                            CountMaterialsItemModel(
-                                id = material.id,
-                                order = material.order,
-                                rank = material.rank,
-                                name = material.name,
-                                imageUrl = material.imageUrl,
-                                count = material.count
-                            )
-                        },
+                        popularMaterials =
+                            data.popularMaterials.map { material ->
+                                CountMaterialsItemModel(
+                                    id = material.id,
+                                    order = material.order,
+                                    rank = material.rank,
+                                    name = material.name,
+                                    imageUrl = material.imageUrl,
+                                    count = material.count,
+                                )
+                            },
                         currentPage = data.currentPage,
                         totalPages = data.totalPages,
                         totalElements = data.totalElements,
-                        isLast = data.isLast
+                        isLast = data.isLast,
                     )
                 } ?: CountMaterialsResponseModel()
-            }
+            },
         )
     }
 }

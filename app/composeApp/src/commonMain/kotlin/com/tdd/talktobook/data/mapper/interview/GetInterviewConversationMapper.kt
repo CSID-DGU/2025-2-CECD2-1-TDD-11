@@ -22,7 +22,7 @@ object GetInterviewConversationMapper : BaseMapper() {
                                     conversationId = result.conversationId,
                                     content = result.content,
                                     chatType = ChatType.getType(result.conversationType),
-                                    createdAt = result.createdAt
+                                    createdAt = result.createdAt,
                                 )
                             },
                         currentPage = data.currentPage,

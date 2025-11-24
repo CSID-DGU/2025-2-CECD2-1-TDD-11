@@ -9,8 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class GetSelectedThemeUseCase(
     private val repository: AutobiographyRepository,
-): UseCase<Int, Result<SelectedThemeModel>>() {
-
+) : UseCase<Int, Result<SelectedThemeModel>>() {
     override suspend fun invoke(request: Int): Flow<Result<SelectedThemeModel>> =
         repository.getSelectedTheme(request)
 }

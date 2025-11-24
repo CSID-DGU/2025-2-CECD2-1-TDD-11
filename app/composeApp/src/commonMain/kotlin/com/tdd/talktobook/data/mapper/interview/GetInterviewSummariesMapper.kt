@@ -15,18 +15,19 @@ object GetInterviewSummariesMapper : BaseMapper() {
             responseToModel = { response ->
                 response?.let { data ->
                     InterviewSummariesListModel(
-                        interviews = data.interviews.map { interview ->
-                            InterviewSummariesItemModel(
-                                id = interview.id,
-                                totalMessageCount = interview.totalMessageCount,
-                                summary = interview.summary ?: "",
-                                totalAnswerCount = interview.totalAnswerCount,
-                                date = interview.date
-                            )
-                        }
+                        interviews =
+                            data.interviews.map { interview ->
+                                InterviewSummariesItemModel(
+                                    id = interview.id,
+                                    totalMessageCount = interview.totalMessageCount,
+                                    summary = interview.summary ?: "",
+                                    totalAnswerCount = interview.totalAnswerCount,
+                                    date = interview.date,
+                                )
+                            },
                     )
                 } ?: InterviewSummariesListModel()
-            }
+            },
         )
     }
 }

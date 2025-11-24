@@ -48,25 +48,29 @@ class InterviewRepositoryImpl(
             interviewDataSource.getInterviewSummaries(request.autobiographyId, request.year, request.month)
         })
 
-    override suspend fun saveInterviewId(request: Int): Flow<Result<Boolean>> = flow {
-        localDataStore.saveCurrentInterviewId(request)
-    }
+    override suspend fun saveInterviewId(request: Int): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.saveCurrentInterviewId(request)
+        }
 
-    override suspend fun getInterviewId(): Flow<Result<Int>> = flow {
-        localDataStore.currentInterviewId.collect { id ->
-            if (id != null) {
-                emit(Result.success(id))
-            } else {
-                emit(Result.failure(Exception("[dataStore] interviewId is null")))
+    override suspend fun getInterviewId(): Flow<Result<Int>> =
+        flow {
+            localDataStore.currentInterviewId.collect { id ->
+                if (id != null) {
+                    emit(Result.success(id))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] interviewId is null")))
+                }
             }
         }
-    }
 
-    override suspend fun clearToken(): Flow<Result<Boolean>> = flow {
-        localDataStore.clearTokens()
-    }
+    override suspend fun clearToken(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearTokens()
+        }
 
-    override suspend fun clearAllData(): Flow<Result<Boolean>> = flow {
-        localDataStore.clearAll()
-    }
+    override suspend fun clearAllData(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearAll()
+        }
 }

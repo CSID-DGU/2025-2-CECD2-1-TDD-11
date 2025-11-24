@@ -64,7 +64,7 @@ internal fun SettingScreen(
         onClickDelete = { viewModel.deleteUser() },
         onClickPolicy = { openUrl(policyUrl) },
         onClickLogOut = { viewModel.logOut() },
-        appVersion = appVersion
+        appVersion = appVersion,
     )
 }
 
@@ -76,7 +76,7 @@ private fun SettingContent(
     onClickPolicy: () -> Unit,
     onClickLogOut: () -> Unit,
     onClickDelete: () -> Unit,
-    appVersion: String
+    appVersion: String,
 ) {
     Column(
         modifier =
@@ -88,13 +88,13 @@ private fun SettingContent(
             content = SettingTitle,
             interactionSource = interactionSource,
             iconVisible = true,
-            onClickIcon = onClickBack
+            onClickIcon = onClickBack,
         )
 
         SettingProfileBox(
             ageGroup = memberInfo.ageGroup,
             gender = memberInfo.gender,
-            occupation = memberInfo.occupation
+            occupation = memberInfo.occupation,
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -102,41 +102,44 @@ private fun SettingContent(
         ItemContentRow(
             iconImgUrl = "files/ic_policy.svg",
             content = SettingPolicy,
-            onClickNext = onClickPolicy
+            onClickNext = onClickPolicy,
         )
 
         ItemContentRow(
             iconImgUrl = "files/ic_version.svg",
             content = SettingCurrentVersion + appVersion,
-            isNextVisible = false
+            isNextVisible = false,
         )
 
         Text(
             text = SettingLogOut,
             color = Gray5,
             style = BookShelfTypo.Body2,
-            modifier = Modifier
-                .padding(vertical = 16.dp, horizontal = 20.dp)
-                .clickable(
-                    onClick = onClickLogOut,
-                    interactionSource = interactionSource,
-                    indication = null
-                )
+            modifier =
+                Modifier
+                    .padding(vertical = 16.dp, horizontal = 20.dp)
+                    .clickable(
+                        onClick = onClickLogOut,
+                        interactionSource = interactionSource,
+                        indication = null,
+                    ),
         )
 
         Text(
             text = SettingDelete,
             color = Gray5,
-            style = BookShelfTypo.Body2.copy(
-                textDecoration = TextDecoration.Underline
-            ),
-            modifier = Modifier
-                .padding(vertical = 16.dp, horizontal = 20.dp)
-                .clickable(
-                    onClick = onClickDelete,
-                    interactionSource = interactionSource,
-                    indication = null
-                )
+            style =
+                BookShelfTypo.Body2.copy(
+                    textDecoration = TextDecoration.Underline,
+                ),
+            modifier =
+                Modifier
+                    .padding(vertical = 16.dp, horizontal = 20.dp)
+                    .clickable(
+                        onClick = onClickDelete,
+                        interactionSource = interactionSource,
+                        indication = null,
+                    ),
         )
     }
 }
@@ -157,76 +160,88 @@ private fun SettingProfileBox(
                 .background(BackGround1)
                 .border(1.dp, Main1, RoundedCornerShape(5.dp)),
     ) {
-
         Row(
-            modifier = Modifier
-                .padding(top = 15.dp, start = 15.dp, bottom = 15.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .padding(top = 15.dp, start = 15.dp, bottom = 15.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = buildAnnotatedString {
-                    withStyle(
-                        style = BookShelfTypo.Caption1.toSpanStyle().copy(
-                            color = Black1
-                        )
-                    ) {
-                        append(SettingAge)
-                    }
+                text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                BookShelfTypo.Caption1.toSpanStyle().copy(
+                                    color = Black1,
+                                ),
+                        ) {
+                            append(SettingAge)
+                        }
 
-                    withStyle(
-                        style = BookShelfTypo.Caption4.toSpanStyle().copy(
-                            color = Black1
-                        )
-                    ) {
-                        append(ageGroup)
-                    }
-                },
-                modifier = Modifier
-                    .padding(end = 12.dp)
+                        withStyle(
+                            style =
+                                BookShelfTypo.Caption4.toSpanStyle().copy(
+                                    color = Black1,
+                                ),
+                        ) {
+                            append(ageGroup)
+                        }
+                    },
+                modifier =
+                    Modifier
+                        .padding(end = 12.dp),
             )
 
             Text(
-                text = buildAnnotatedString {
-                    withStyle(
-                        style = BookShelfTypo.Caption1.toSpanStyle().copy(
-                            color = Black1
-                        )
-                    ) {
-                        append(SettingGender)
-                    }
+                text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                BookShelfTypo.Caption1.toSpanStyle().copy(
+                                    color = Black1,
+                                ),
+                        ) {
+                            append(SettingGender)
+                        }
 
-                    withStyle(
-                        style = BookShelfTypo.Caption4.toSpanStyle().copy(
-                            color = Black1
-                        )
-                    ) {
-                        append(gender)
-                    }
-                },
-                modifier = Modifier
-                    .padding(end = 12.dp)
+                        withStyle(
+                            style =
+                                BookShelfTypo.Caption4.toSpanStyle().copy(
+                                    color = Black1,
+                                ),
+                        ) {
+                            append(gender)
+                        }
+                    },
+                modifier =
+                    Modifier
+                        .padding(end = 12.dp),
             )
 
             Text(
-                text = buildAnnotatedString {
-                    withStyle(
-                        style = BookShelfTypo.Caption1.toSpanStyle().copy(
-                            color = Black1
-                        )
-                    ) {
-                        append(SettingOccupation)
-                    }
+                text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                BookShelfTypo.Caption1.toSpanStyle().copy(
+                                    color = Black1,
+                                ),
+                        ) {
+                            append(SettingOccupation)
+                        }
 
-                    withStyle(
-                        style = BookShelfTypo.Caption4.toSpanStyle().copy(
-                            color = Black1
-                        )
-                    ) {
-                        append(occupation)
-                    }
-                },
-                modifier = Modifier
-                    .padding(end = 12.dp)
+                        withStyle(
+                            style =
+                                BookShelfTypo.Caption4.toSpanStyle().copy(
+                                    color = Black1,
+                                ),
+                        ) {
+                            append(occupation)
+                        }
+                    },
+                modifier =
+                    Modifier
+                        .padding(end = 12.dp),
             )
         }
     }

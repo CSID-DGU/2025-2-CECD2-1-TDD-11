@@ -9,9 +9,8 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class PostStartProgressUseCase(
-    private val repository: AutobiographyRepository
-): UseCase<StartProgressRequestModel, Result<InterviewAutobiographyModel>>() {
-
+    private val repository: AutobiographyRepository,
+) : UseCase<StartProgressRequestModel, Result<InterviewAutobiographyModel>>() {
     override suspend fun invoke(request: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>> =
         repository.postStartProgress(request)
 }

@@ -89,7 +89,6 @@ val useCaseModule =
         factory { DeleteLocalAllDataUseCase(get()) }
         factory { DeleteLocalTokenUseCase(get()) }
 
-
         // Member
         factory { GetMemberInfoUseCase(get()) }
         factory { PutEditMemberInfoUseCase(get()) }

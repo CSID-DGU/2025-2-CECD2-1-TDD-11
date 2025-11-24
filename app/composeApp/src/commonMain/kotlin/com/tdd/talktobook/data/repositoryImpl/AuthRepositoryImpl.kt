@@ -25,10 +25,11 @@ class AuthRepositoryImpl(
             localDataStore.saveAccessToken(request)
         }
 
-    override suspend fun saveTokenModel(request: TokenModel): Flow<Result<Unit>> = flow {
-        localDataStore.saveAccessToken(request.accessToken)
-        localDataStore.saveRefreshToken(request.refreshToken)
-    }
+    override suspend fun saveTokenModel(request: TokenModel): Flow<Result<Unit>> =
+        flow {
+            localDataStore.saveAccessToken(request.accessToken)
+            localDataStore.saveRefreshToken(request.refreshToken)
+        }
 
     override suspend fun postEmailLogIn(request: EmailLogInRequestModel): Flow<Result<TokenModel>> =
         EmailLogInMapper.responseToModel(apiCall = {
@@ -63,23 +64,25 @@ class AuthRepositoryImpl(
     override suspend fun reissue(refresh: String): Flow<Result<TokenModel>> =
         ReissueMapper.responseToModel(apiCall = { authDataSource.reissue(refresh) })
 
-    override suspend fun getStoredAccessToken(): Flow<Result<String>> = flow {
-        localDataStore.accessToken.collect { token ->
-            if (token != null) {
-                emit(Result.success(token))
-            } else {
-                emit(Result.failure(Exception("[dataStore] access token is null")))
+    override suspend fun getStoredAccessToken(): Flow<Result<String>> =
+        flow {
+            localDataStore.accessToken.collect { token ->
+                if (token != null) {
+                    emit(Result.success(token))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] access token is null")))
+                }
             }
         }
-    }
 
-    override suspend fun getStoredRefreshToken(): Flow<Result<String>> = flow {
-        localDataStore.refreshToken.collect { token ->
-            if (token != null) {
-                emit(Result.success(token))
-            } else {
-                emit(Result.failure(Exception("[dataStore] refresh token is null")))
+    override suspend fun getStoredRefreshToken(): Flow<Result<String>> =
+        flow {
+            localDataStore.refreshToken.collect { token ->
+                if (token != null) {
+                    emit(Result.success(token))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] refresh token is null")))
+                }
             }
         }
-    }
 }

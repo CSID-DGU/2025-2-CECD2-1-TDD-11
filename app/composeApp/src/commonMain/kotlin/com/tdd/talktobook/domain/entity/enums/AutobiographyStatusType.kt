@@ -13,7 +13,8 @@ enum class AutobiographyStatusType(
     PROGRESS(ProgressingStatus),
     ENOUGH(EnoughStatus),
     CREATING(CreatingStatus),
-    FINISH(FinishStatus);
+    FINISH(FinishStatus),
+    ;
 
     companion object {
         fun getType(type: String): AutobiographyStatusType =

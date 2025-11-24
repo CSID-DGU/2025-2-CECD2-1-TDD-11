@@ -57,26 +57,26 @@ interface AutobiographyService {
     @POST(EndPoints.Autobiography.START_PROGRESS)
     suspend fun postStartProgress(
         @Part("theme") theme: String,
-        @Part("reason") reason: String
+        @Part("reason") reason: String,
     ): HttpResponse
 
     @GET(EndPoints.Autobiography.COUNT_MATERIALS)
     suspend fun getCountMaterials(
-        @Path("autobiographyId") autobiographyId: Int
+        @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 
     @GET(EndPoints.Autobiography.CURRENT_INTERVIEW_PROGRESS)
     suspend fun getCurrentInterviewProgress(
-        @Path("autobiographyId") autobiographyId: Int
+        @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 
     @PATCH(EndPoints.Autobiography.CREATE_AUTOBIOGRAPHY)
     suspend fun patchCreateAutobiography(
-        @Path("autobiographyId") autobiographyId: Int
+        @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 
     @GET(EndPoints.Autobiography.SELECTED_THEME)
     suspend fun getSelectedTheme(
-        @Path("autobiographyId") autobiographyId: Int
+        @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 }

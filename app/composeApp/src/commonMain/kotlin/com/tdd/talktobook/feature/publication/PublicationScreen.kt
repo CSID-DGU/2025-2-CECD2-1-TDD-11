@@ -98,30 +98,33 @@ private fun PublicationContent(
                 interactionSource = interactionSource,
                 autobiographyList = autobiographyList,
                 selectedAutobiographyId = selectedAutobiographyId,
-                onSelectAutobiographyId = onSelectAutobiographyId
+                onSelectAutobiographyId = onSelectAutobiographyId,
             )
         } else {
-            Column (
-                modifier = Modifier
-                    .fillMaxSize()
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
             ) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Image(
                     painter = painterResource(Res.drawable.img_empty_box),
                     contentDescription = "empty list",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(bottom = 17.dp)
-                        .align(Alignment.CenterHorizontally)
+                    modifier =
+                        Modifier
+                            .size(100.dp)
+                            .padding(bottom = 17.dp)
+                            .align(Alignment.CenterHorizontally),
                 )
 
                 Text(
                     text = PublicationNotCreatedAutobiography,
                     color = Gray5,
                     style = BookShelfTypo.Caption3,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterHorizontally),
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -186,17 +189,19 @@ private fun PublicationBookPreview(
 
     Column {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, top = 40.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, top = 40.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = autobiography.title,
                 color = Black1,
                 style = BookShelfTypo.Head3,
-                modifier = Modifier
-                    .weight(1f),
+                modifier =
+                    Modifier
+                        .weight(1f),
             )
 
             Text(
@@ -223,7 +228,7 @@ private fun PublicationBookPreview(
             bookImg = autobiography.coverImageUrl,
             modifier = Modifier.weight(1f),
             onSetTotalPages = { totalPages = it },
-            onSetCurrentPage = { currentPage = it }
+            onSetCurrentPage = { currentPage = it },
         )
 
         Spacer(modifier = Modifier.padding(top = 40.dp))

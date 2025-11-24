@@ -8,27 +8,27 @@ import com.tdd.talktobook.domain.entity.response.interview.ai.StartInterviewResp
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
-object StartInterviewMapper: BaseMapper() {
+object StartInterviewMapper : BaseMapper() {
     fun StartInterviewRequestModel.toDto() =
         StartInterviewRequestDto(
-            preferredCategories = preferredCategories
+            preferredCategories = preferredCategories,
         )
 
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<StartInterviewResponseModel>> {
         return baseMapper(
             apiCall = { apiCall() },
             successDeserializer = StartInterviewResponseDto.serializer(),
-            responseToModel =  { response ->
+            responseToModel = { response ->
                 response?.let { data ->
                     StartInterviewResponseModel(
                         id = data.firstQuestion.id,
                         material = data.firstQuestion.material,
                         materialId = data.firstQuestion.materialId,
                         text = data.firstQuestion.text,
-                        type = data.firstQuestion.type
+                        type = data.firstQuestion.type,
                     )
                 } ?: StartInterviewResponseModel()
-            }
+            },
         )
     }
 }

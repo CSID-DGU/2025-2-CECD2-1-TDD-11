@@ -17,7 +17,7 @@ object MemberInfoMapper : BaseMapper() {
                         gender = data.gender,
                         occupation = data.occupation ?: "",
                         ageGroup = data.ageGroup ?: "",
-                        successed = data.success
+                        successed = data.success,
                     )
                 } ?: MemberInfoResponseModel()
             },

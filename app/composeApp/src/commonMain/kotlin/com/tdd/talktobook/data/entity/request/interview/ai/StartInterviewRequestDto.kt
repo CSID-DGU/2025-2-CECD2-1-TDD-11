@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StartInterviewRequestDto(
     @SerialName("preferred_categories")
-    val preferredCategories: List<Int> = emptyList()
+    val preferredCategories: List<Int> = emptyList(),
 )

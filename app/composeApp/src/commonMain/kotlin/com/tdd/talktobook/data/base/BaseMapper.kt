@@ -44,16 +44,17 @@ abstract class BaseMapper {
                         }
                     emit(Result.success(model))
                 } else {
-                    val error = if (responseBody.isNotBlank()) {
-                        runCatching {
-                            json.decodeFromString(
-                                ApiStatusResponse.serializer(),
-                                responseBody,
-                            )
-                        }.getOrNull()
-                    } else {
-                        null
-                    }
+                    val error =
+                        if (responseBody.isNotBlank()) {
+                            runCatching {
+                                json.decodeFromString(
+                                    ApiStatusResponse.serializer(),
+                                    responseBody,
+                                )
+                            }.getOrNull()
+                        } else {
+                            null
+                        }
                     val msg = error?.message ?: "[ktor] http error ${httpStatus?.value ?: "Unknown"}"
                     val code = error?.statusCode ?: httpStatus?.value ?: 0
                     emit(Result.failure(ApiException(code, "[ktor] $code: $msg")))
