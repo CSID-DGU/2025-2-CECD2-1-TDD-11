@@ -16,7 +16,7 @@ public class AutobiographyDetailResponseDto {
 	@Schema(description = "자서전 ID", example = "1")
 	private final Long autobiographyId;
 
-	@Schema(description = "자서전 챕터 모음", example = "chapters")
+	@Schema(description = "자서전 챕터 모음")
 	private final List<ChapterContent> chapters;
 
 	@Schema(description = "생성일시", example = "2023-01-01T00:00:00Z")
