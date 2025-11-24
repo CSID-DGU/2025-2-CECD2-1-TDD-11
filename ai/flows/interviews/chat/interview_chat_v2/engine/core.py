@@ -114,8 +114,8 @@ class InterviewEngine:
             # 모든 소재가 완료된 경우 - 무작위 선택
             return self._random_material_id()
 
-        # 정렬: chunk_weight DESC, sumw ASC
-        candidates.sort(key=lambda x: (-x["cw"], x["sumwc"]))
+        # 정렬: chunk_weight DESC, sumw ASC, category_num ASC
+        candidates.sort(key=lambda x: (-x["cw"], x["sumwc"], x["id"][0]))
 
         # 동률 처리
         best_group = [candidates[0]]

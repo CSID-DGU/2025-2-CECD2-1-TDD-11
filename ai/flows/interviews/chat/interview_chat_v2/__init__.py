@@ -104,6 +104,11 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
 
         categories = InterviewEngine.build_categories_from_category_json(material_data)
         engine = InterviewEngine(categories)
+        
+        # 테마 부스팅 적용
+        if preferred_categories:
+            engine.boost_theme(preferred_categories, initial_weight=10)
+            print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
 
         metrics = {"preferred_categories": preferred_categories}
         result = generate_first_question(engine, metrics)
@@ -334,6 +339,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         redis_client.setex(session_key, 3600, json.dumps(session_update))
 
         print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
+        print(f"[DEBUG] 선택된 소재 ID: {material_id}, chunk_weight: {category.chunk_weight.get(chunk_num, 0)}, progress_score: {material.progress_score()}")
         print("=" * 50)
 
         last_answer_materials_id = mapped_ids if mapped_ids else []
