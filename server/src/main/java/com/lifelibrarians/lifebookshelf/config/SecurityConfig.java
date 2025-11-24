@@ -1,6 +1,7 @@
 package com.lifelibrarians.lifebookshelf.config;
 
 import com.lifelibrarians.lifebookshelf.auth.jwt.JwtAuthenticationConverter;
+import com.lifelibrarians.lifebookshelf.auth.jwt.JwtRedisValidator;
 import com.lifelibrarians.lifebookshelf.auth.jwt.MemberSessionAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class SecurityConfig {
 	private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAuthenticationConverter jwtAuthenticationConverter;
 	private final JwtDecoder jwtDecoder;
+	private final JwtRedisValidator jwtRedisValidator;
 
     @Value("${security.cors.domain}")
     private String corsDomain;
@@ -69,7 +71,7 @@ public class SecurityConfig {
 				.and()
 				.formLogin().disable()
 					.addFilterAfter(
-							new MemberSessionAuthenticationFilter(), BearerTokenAuthenticationFilter.class
+							new MemberSessionAuthenticationFilter(jwtRedisValidator), BearerTokenAuthenticationFilter.class
 					)
 				.build();
 //      @formatter:on

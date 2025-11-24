@@ -1,11 +1,6 @@
 package com.lifelibrarians.lifebookshelf.auth.controller;
 
-import com.lifelibrarians.lifebookshelf.auth.dto.EmailLoginRequestDto;
-import com.lifelibrarians.lifebookshelf.auth.dto.JwtLoginTokenDto;
-import com.lifelibrarians.lifebookshelf.auth.dto.EmailRegisterRequestDto;
-import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
-import com.lifelibrarians.lifebookshelf.auth.dto.PasswordResetRequestDto;
-import com.lifelibrarians.lifebookshelf.auth.dto.VerifyEmailRequestDto;
+import com.lifelibrarians.lifebookshelf.auth.dto.*;
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.auth.password.annotation.OneWayEncryption;
@@ -14,8 +9,6 @@ import com.lifelibrarians.lifebookshelf.auth.service.AuthService;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -128,6 +121,42 @@ public class AuthController {
             @Valid @ModelAttribute PasswordResetRequestDto requestDto
     ) {
         authService.resetPassword(requestDto.getEmail());
+    }
+
+    @Operation(summary = "access token 재발급", description = "refresh 토큰으로 access token, refresh token을 재발급합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok")
+    })
+    @ApiErrorCodeExample(
+            authExceptionStatuses = {
+                    AuthExceptionStatus.INVALID_REFRESH_TOKEN,
+                    AuthExceptionStatus.REFRESH_TOKEN_EXPIRED,
+                    AuthExceptionStatus.MEMBER_NOT_FOUND,
+                    AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN
+            }
+    )
+    @PostMapping(value = "/reissue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public JwtLoginTokenDto reissueToken(
+            @Valid @ModelAttribute ReIssueTokenRequestDto requestDto
+    ) {
+        return authService.reissueToken(requestDto);
+    }
+
+    @Operation(summary = "로그아웃", description = "로그아웃으로 token 인증을 차단 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "no contents")
+    })
+    @ApiErrorCodeExample(
+            authExceptionStatuses = {
+                    AuthExceptionStatus.MEMBER_NOT_FOUND,
+                    AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN
+            }
+    )
+    @PostMapping(value = "/logout")
+    public void logout(
+            @LoginMemberInfo MemberSessionDto memberSessionDto
+    ) {
+        authService.logout(memberSessionDto.getMemberId());
     }
 
     @Operation(summary = "회원탈퇴 요청", description = "회원탈퇴를 요청합니다.")

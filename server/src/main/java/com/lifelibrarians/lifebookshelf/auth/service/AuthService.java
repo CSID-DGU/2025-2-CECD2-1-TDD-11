@@ -4,9 +4,9 @@ import com.lifelibrarians.lifebookshelf.auth.domain.TemporaryUser;
 import com.lifelibrarians.lifebookshelf.auth.dto.EmailLoginRequestDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.EmailRegisterRequestDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.JwtLoginTokenDto;
+import com.lifelibrarians.lifebookshelf.auth.dto.ReIssueTokenRequestDto;
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.auth.jwt.JwtTokenProvider;
-import com.lifelibrarians.lifebookshelf.log.Logging;
 import lombok.extern.log4j.Log4j2;
 import com.lifelibrarians.lifebookshelf.member.domain.LoginType;
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
@@ -17,12 +17,15 @@ import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
 import com.lifelibrarians.lifebookshelf.member.repository.PasswordMemberRepository;
 
 import com.lifelibrarians.lifebookshelf.notification.service.NotificationCommandService;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +43,9 @@ public class AuthService {
 	private final NotificationCommandService notificationService;
 	private final EmailService emailService;
 	private final TemporaryUserStore temporaryUserStore;
+	
+	@Qualifier("refreshTokenRedisTemplate")
+	private final RedisTemplate<String, String> refreshTokenRedisTemplate;
 
 	public void registerEmail(EmailRegisterRequestDto requestDto) {
 		Optional<Member> optionalMember = memberRepository.findByEmail(requestDto.getEmail());
@@ -123,6 +129,11 @@ public class AuthService {
 		Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.get().getId());
 		Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.get().getId());
 
+		// Redis에 Access Token과 Refresh Token 저장
+		String memberId = member.get().getId().toString();
+		refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(7));
+		refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofMinutes(30));
+
 		if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
 			notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
 					LocalDateTime.now());
@@ -141,6 +152,48 @@ public class AuthService {
 				.build();
 	}
 
+    // 토큰 재발급
+    public JwtLoginTokenDto reissueToken(ReIssueTokenRequestDto requestDto) {
+        // JWT 파싱 + 서명 검증
+        Jwt refreshToken = jwtTokenProvider.parseToken(requestDto.getRefreshToken());
+
+        // 만료 확인
+        jwtTokenProvider.validateRefreshToken(refreshToken);
+
+        // 토큰에서 memberId 추출
+        Long memberId = jwtTokenProvider.extractMemberIdFromRefreshToken(refreshToken);
+
+        // Redis에서 저장된 Refresh Token 확인
+        String refreshKey = "refresh:" + memberId;
+        String storedRefreshToken = refreshTokenRedisTemplate.opsForValue().get(refreshKey);
+        
+        if (storedRefreshToken == null || !storedRefreshToken.equals(requestDto.getRefreshToken())) {
+            throw AuthExceptionStatus.INVALID_REFRESH_TOKEN.toServiceException();
+        }
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
+
+        if (member.getDeletedAt() != null) {
+            throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
+        }
+
+        // 새 토큰 발급 (Rotation)
+        Jwt newAccess  = jwtTokenProvider.createMemberAccessToken(memberId);
+        Jwt newRefresh = jwtTokenProvider.createMemberRefreshToken(memberId);
+
+        // Redis에 새 토큰들 저장 (기존 토큰 무효화)
+        String memberIdStr = memberId.toString();
+        refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberIdStr, newRefresh.getTokenValue(), Duration.ofDays(7));
+        refreshTokenRedisTemplate.opsForValue().set("access:" + memberIdStr, newAccess.getTokenValue(), Duration.ofMinutes(30));
+
+        return JwtLoginTokenDto.builder()
+                .accessToken(newAccess.getTokenValue())
+                .refreshToken(newRefresh.getTokenValue())
+                .build();
+    }
+
 	public void resetPassword(String email) {
 		Member member = memberRepository.findByEmail(email)
 				.orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
@@ -154,6 +207,19 @@ public class AuthService {
 		passwordMemberRepository.save(member.getPasswordMember());
 		emailService.sendTemporaryPassword(email, tempPassword);
 	}
+
+    public void logout(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
+        if (member.getDeletedAt() != null) {
+            throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
+        }
+        
+        // Redis에서 Access Token과 Refresh Token 모두 삭제
+        String memberIdStr = memberId.toString();
+        refreshTokenRedisTemplate.delete("access:" + memberIdStr);
+        refreshTokenRedisTemplate.delete("refresh:" + memberIdStr);
+    }
 
 	public void unregister(Long memberId) {
 		Member member = memberRepository.findById(memberId)

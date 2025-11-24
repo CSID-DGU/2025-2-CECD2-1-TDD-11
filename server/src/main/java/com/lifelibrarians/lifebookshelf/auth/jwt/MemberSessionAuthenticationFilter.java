@@ -10,18 +10,20 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.Transient;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Transient
 @Log4j2
+@RequiredArgsConstructor
 public class MemberSessionAuthenticationFilter extends OncePerRequestFilter {
+
+	private final JwtRedisValidator jwtRedisValidator;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
@@ -52,6 +54,12 @@ public class MemberSessionAuthenticationFilter extends OncePerRequestFilter {
 		Object target = token.getPrincipal();
 		if (target instanceof Jwt) {
 			Jwt jwt = (Jwt) target;
+			
+			// Redis 세션 검증 추가
+			if (!jwtRedisValidator.isValidSession(jwt)) {
+				throw new JwtAuthenticationTokenException("세션이 만료되었거나 로그아웃된 사용자입니다.");
+			}
+			
 			MemberSessionDto principal = convertPrincipal(jwt);
 			MemberSessionAuthenticationToken ret = new MemberSessionAuthenticationToken(principal,
 					token.getAuthorities());

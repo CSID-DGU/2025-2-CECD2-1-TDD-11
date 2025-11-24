@@ -20,7 +20,11 @@ public enum AuthExceptionStatus implements ExceptionStatus {
 	MEMBER_NOT_FOUND(404, "AUTH008", "존재하지 않는 회원입니다."),
 	MEMBER_ALREADY_EXISTS(409, "AUTH004", "이미 존재하는 회원입니다."),
 	MEMBER_ALREADY_WITHDRAWN(409, "AUTH009", "이미 탈퇴한 회원입니다."),
-	MEMBER_IS_NOT_ADMIN(403, "AUTH010", "관리자 권한이 없는 회원입니다.");
+	MEMBER_IS_NOT_ADMIN(403, "AUTH010", "관리자 권한이 없는 회원입니다."),
+
+    REFRESH_TOKEN_EXPIRED(401, "AUTH012", "리프레시 토큰이 만료되었습니다."),
+    INVALID_REFRESH_TOKEN(401, "AUTH013", "리프레시 토큰이 유효하지 않습니다.")
+    ;
 
 	private final int statusCode;
 	private final String code;
