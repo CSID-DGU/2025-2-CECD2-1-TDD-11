@@ -72,6 +72,21 @@ class LocalDataStore(
         }
     }
 
+    suspend fun clearTokens() {
+        dataStore.edit { preferences ->
+            preferences.remove(ACCESS_TOKEN_KEY)
+            preferences.remove(REFRESH_TOKEN_KEY)
+            d("[dataStore] clear token")
+        }
+    }
+
+    suspend fun clearAll() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+            d("[dataStore] clear all data")
+        }
+    }
+
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")

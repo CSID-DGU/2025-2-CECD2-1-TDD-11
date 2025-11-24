@@ -10,5 +10,6 @@ data class OnboardingPageState (
     val isBtnActivated: Boolean = false,
     val gender: GenderType = GenderType.DEFAULT,
     val occupationInput: String = "",
-    val ageGroup: AgeGroupType = AgeGroupType.DEFAULT
+    val ageGroup: AgeGroupType = AgeGroupType.DEFAULT,
+    val
 ): PageState
