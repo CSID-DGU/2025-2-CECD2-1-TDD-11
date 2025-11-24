@@ -48,6 +48,12 @@ class AutobiographyConsumer:
             # 메시지 파싱
             payload_data = json.loads(body)
             
+            # merge 메시지인지 확인 (AI Consumer에서 처리할 메시지가 아님)
+            if payload_data.get("action") == "merge":
+                logger.warning("Merge message received in AI consumer, rejecting")
+                channel.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+                return
+            
             # cycleId와 step 추출
             cycle_id = payload_data.get("cycleId")
             step = payload_data.get("step", 1)

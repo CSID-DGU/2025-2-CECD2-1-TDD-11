@@ -142,6 +142,7 @@ def publish_result_to_aggregator(cycle_id: str, step: int, autobiography_id: int
         "status": "completed"
     }
     
+    # TODO: result queue 이름 변경
     channel.basic_publish(
         exchange='autobiography.trigger.exchange',
         routing_key='autobiography.trigger.cycle.result',
