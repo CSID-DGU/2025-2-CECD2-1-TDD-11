@@ -66,6 +66,10 @@ jobs:
               "docker-compose -f docker-compose.stream.prod.yml pull",
               "docker-compose -f docker-compose.stream.prod.yml down",
               "docker-compose -f docker-compose.stream.prod.yml up -d",
+              "sleep 10",
+              "docker exec talktobook-stream rabbitmqctl add_user ${{ secrets.RABBITMQ_DEFAULT_USER }} ${{ secrets.RABBITMQ_DEFAULT_PASS }} || true",
+              "docker exec talktobook-stream rabbitmqctl set_user_tags ${{ secrets.RABBITMQ_DEFAULT_USER }} administrator",
+              "docker exec talktobook-stream rabbitmqctl set_permissions -p / ${{ secrets.RABBITMQ_DEFAULT_USER }} \".*\" \".*\" \".*\"",
               "docker image prune -f"
             ]' \
             --instance-ids ${{ secrets.STREAM_INSTANCE_ID }} \
