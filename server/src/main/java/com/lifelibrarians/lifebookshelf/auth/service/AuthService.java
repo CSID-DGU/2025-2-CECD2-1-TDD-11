@@ -131,8 +131,8 @@ public class AuthService {
 
 		// Redis에 Access Token과 Refresh Token 저장
 		String memberId = member.get().getId().toString();
-		refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(7));
-		refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofMinutes(30));
+		refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
+		refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
 
 		if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
 			notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
@@ -185,8 +185,8 @@ public class AuthService {
 
         // Redis에 새 토큰들 저장 (기존 토큰 무효화)
         String memberIdStr = memberId.toString();
-        refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberIdStr, newRefresh.getTokenValue(), Duration.ofDays(7));
-        refreshTokenRedisTemplate.opsForValue().set("access:" + memberIdStr, newAccess.getTokenValue(), Duration.ofMinutes(30));
+        refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberIdStr, newRefresh.getTokenValue(), Duration.ofDays(30));
+        refreshTokenRedisTemplate.opsForValue().set("access:" + memberIdStr, newAccess.getTokenValue(), Duration.ofDays(7));
 
         return JwtLoginTokenDto.builder()
                 .accessToken(newAccess.getTokenValue())
