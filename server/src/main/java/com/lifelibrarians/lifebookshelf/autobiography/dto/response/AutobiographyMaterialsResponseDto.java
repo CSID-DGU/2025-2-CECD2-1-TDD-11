@@ -18,8 +18,6 @@ import java.util.List;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AutobiographyMaterialsResponseDto {
-    private final Long autobiographyId;
-
     @ArraySchema(schema = @Schema(implementation = AutobiographyMaterialResponseDto.class))
     private final List<AutobiographyMaterialResponseDto> popularMaterials;
     // 선택 attributes (v1 안정성)
