@@ -150,18 +150,4 @@ class AutobiographyRepositoryImpl(
                 }
             }
         }
-
-    override suspend fun saveLastQuestion(chat: String): Flow<Result<Unit>> =
-        flow { localDataStore.saveLastQuestion(chat) }
-
-    override suspend fun getLastQuestion(): Flow<Result<String>> =
-        flow {
-            localDataStore.lastQuestion.collect { chat ->
-                if (chat != null) {
-                    emit(Result.success(chat))
-                } else {
-                    emit(Result.failure(Exception("[dataStore] last question is null")))
-                }
-            }
-        }
 }

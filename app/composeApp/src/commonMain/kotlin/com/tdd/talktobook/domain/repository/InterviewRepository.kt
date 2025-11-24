@@ -17,4 +17,8 @@ interface InterviewRepository {
     suspend fun getInterviewQuestionList(interviewId: Int): Flow<Result<InterviewQuestionListModel>>
 
     suspend fun getInterviewSummaries(request: InterviewSummariesRequestModel): Flow<Result<InterviewSummariesListModel>>
+
+    suspend fun saveInterviewId(request: Int): Flow<Result<Boolean>>
+
+    suspend fun getInterviewId(): Flow<Result<Int>>
 }

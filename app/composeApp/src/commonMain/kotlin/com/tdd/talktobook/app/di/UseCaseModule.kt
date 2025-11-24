@@ -18,7 +18,6 @@ import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseC
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.GetLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PatchCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyChaptersUseCase
@@ -28,12 +27,13 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.SaveLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewRenewalUseCase
+import com.tdd.talktobook.domain.usecase.interview.SaveInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
@@ -44,7 +44,6 @@ import com.tdd.talktobook.domain.usecase.publication.GetPublicationProgressUseCa
 import com.tdd.talktobook.domain.usecase.publication.PostPublicationUseCase
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
-import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 @Module
@@ -83,8 +82,8 @@ val useCaseModule =
         factory { SaveAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyStatusUseCase(get()) }
-        factory { SaveLastQuestionUseCase(get()) }
-        factory { GetLastQuestionUseCase(get()) }
+        factory { SaveInterviewIdUseCase(get()) }
+        factory { GetInterviewIdUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }

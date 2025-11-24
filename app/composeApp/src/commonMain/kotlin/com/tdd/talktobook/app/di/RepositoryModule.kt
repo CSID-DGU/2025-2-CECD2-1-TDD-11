@@ -20,7 +20,7 @@ val repositoryModule =
         single<AutobiographyRepository> { AutobiographyRepositoryImpl(get(), get()) }
         single<MemberRepository> { MemberRepositoryImpl(get()) }
         single<PublicationRepository> { PublicationRepositoryImpl(get()) }
-        single<InterviewRepository> { InterviewRepositoryImpl(get()) }
+        single<InterviewRepository> { InterviewRepositoryImpl(get(), get()) }
 
         single<InterviewAIRepository> { InterviewAIRepositoryImpl(get()) }
     }
