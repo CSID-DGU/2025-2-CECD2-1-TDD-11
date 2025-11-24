@@ -357,12 +357,8 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         }
         prompt_type = type_mapping.get(target, target)
 
-        # 동일 소재면 직전 답변을 컨텍스트로 활용
-        context_answer = None
-        if not is_first_question:
-            same_material = (current_material == material.name)
-            if same_material:
-                context_answer = answer_text
+        # 직전 답변을 항상 컨텍스트로 활용 (소재 전환 여부 무관)
+        context_answer = answer_text if not is_first_question else None
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
