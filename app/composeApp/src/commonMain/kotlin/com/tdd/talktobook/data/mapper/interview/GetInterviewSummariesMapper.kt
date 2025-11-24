@@ -19,7 +19,7 @@ object GetInterviewSummariesMapper : BaseMapper() {
                             InterviewSummariesItemModel(
                                 id = interview.id,
                                 totalMessageCount = interview.totalMessageCount,
-                                summary = interview.summary,
+                                summary = interview.summary ?: "",
                                 totalAnswerCount = interview.totalAnswerCount,
                                 date = interview.date
                             )

@@ -153,6 +153,9 @@ class HomeViewModel(
 
     private fun onSuccessGetMonthSummaries(interviews: InterviewSummariesListModel) {
         d("[ktor] homeViewmodel -> ${interviews.interviews}")
+//        val firstDate = if (interviews.interviews.isNotEmpty()) interviews.interviews[0].date.split("-")[2].toInt() else 1
+//        val addRepeatNum = firstDate - 1
+
         updateState(
             uiState.value.copy(
                 monthInterviewList = interviews.interviews,

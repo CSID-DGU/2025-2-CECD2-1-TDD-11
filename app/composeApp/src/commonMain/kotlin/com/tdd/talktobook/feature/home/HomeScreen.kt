@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import talktobook.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.BackGround1
 import com.tdd.talktobook.core.designsystem.BackGround2
@@ -43,7 +42,6 @@ import com.tdd.talktobook.core.designsystem.BookShelf
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Fri
 import com.tdd.talktobook.core.designsystem.Gray1
-import com.tdd.talktobook.core.designsystem.HomeNotExistInterview
 import com.tdd.talktobook.core.designsystem.HomeNotExistSummary
 import com.tdd.talktobook.core.designsystem.HomeProgressFinish
 import com.tdd.talktobook.core.designsystem.HomeProgressTitle
@@ -71,13 +69,14 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.Res
 import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun HomeScreen(
     goToPastInterviewPage: (String) -> Unit,
     goToProgressStartPage: () -> Unit = {},
-    goToSettingPage: () -> Unit
+    goToSettingPage: () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -121,7 +120,7 @@ private fun HomeContent(
     onClickSummary: () -> Unit = {},
     isCurrentProgress: Boolean = false,
     onClickStartProgress: () -> Unit = {},
-    onClickSetting: () -> Unit = {}
+    onClickSetting: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -167,7 +166,8 @@ private fun HomeContent(
 
         HomeInterviewSummary(
             selectedDate = selectedDate,
-            selectedDateSummary = if (monthInterviewList.isNotEmpty()) monthInterviewList[selectedDay].summary else HomeNotExistSummary,
+            selectedDateSummary = monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.summary?.takeIf { it.isNotBlank() }
+                ?: HomeNotExistSummary,
             interactionSource = interactionSource,
             onClick = onClickSummary,
             isSummaryEmpty = monthInterviewList.isEmpty()
@@ -179,7 +179,7 @@ private fun HomeContent(
 @Composable
 private fun HomeTopBar(
     onClickSetting: () -> Unit,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource,
 ) {
     Box(
         modifier =
@@ -217,7 +217,7 @@ private fun HomeTopBar(
 private fun HomeMaterialList(
     createdMaterialList: List<CountMaterialsItemModel>,
     isCurrentProgress: Boolean,
-    onClickStartProgress: () -> Unit
+    onClickStartProgress: () -> Unit,
 ) {
     if (isCurrentProgress) {
         LazyRow(
@@ -311,6 +311,7 @@ private fun HomeInterviewCalendar(
     days: List<LocalDate>,
     onSelectDay: (Int) -> Unit,
 ) {
+
     ItemContentBox(
         modifier = modifier,
         paddingTop = 20,
@@ -332,9 +333,8 @@ private fun HomeInterviewCalendar(
                             Modifier
                                 .align(Alignment.CenterStart),
                     )
-
                     Text(
-                        text = if (interviewList.isEmpty()) HomeNotExistInterview else "${selectedDay}일 ${interviewList[selectedDay].totalAnswerCount}번의 대화 수행",
+                        text = "${selectedDay}일 ${interviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.totalMessageCount ?: 0}번의 대화 수행",
                         color = Main1,
                         style = BookShelfTypo.Caption4,
                         modifier =
@@ -390,6 +390,7 @@ private fun CalendarDayOfMonth(
     selectedDay: Int,
     interviewList: List<InterviewSummariesItemModel>,
 ) {
+
     Column(
         modifier =
             Modifier
@@ -420,7 +421,8 @@ private fun CalendarDayOfMonth(
                             interactionSource = interactionSource,
                             onSelect = { onSelectDay(day.dayOfMonth) },
                             isSelectedDate = (day.dayOfMonth == selectedDay),
-                            isInterviewNumNotZero = if (interviewList.isNotEmpty()) (interviewList[day.dayOfMonth].totalMessageCount != 0) else false,
+                            isInterviewNumNotZero = (interviewList.firstOrNull { it.date.split("-")[2].toInt() == day.dayOfMonth }?.totalMessageCount
+                                ?: 0) != 0
                         )
                     }
                 }
@@ -491,7 +493,7 @@ private fun HomeInterviewSummary(
     selectedDateSummary: String,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
-    isSummaryEmpty: Boolean
+    isSummaryEmpty: Boolean,
 ) {
     ItemContentBox(
         modifier =

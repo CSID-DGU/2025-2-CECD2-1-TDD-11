@@ -15,7 +15,7 @@ data class InterviewSummariesResponseDto (
         @SerialName("totalMessageCount")
         val totalMessageCount: Int = 0,
         @SerialName("summary")
-        val summary: String = "",
+        val summary: String? = null,
         @SerialName("totalAnswerCount")
         val totalAnswerCount: Int = 0,
         @SerialName("date")
