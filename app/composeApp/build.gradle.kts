@@ -131,6 +131,9 @@ buildkonfig {
 
         val aiUrl = properties.getProperty("AI_URL")
         buildConfigField(Type.STRING, "AI_URL", aiUrl)
+
+        val policyUrl = properties.getProperty("POLICY_URL")
+        buildConfigField(Type.STRING, "POLICY_URL", policyUrl)
     }
 }
 

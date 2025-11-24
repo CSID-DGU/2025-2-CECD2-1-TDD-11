@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
+import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -11,6 +12,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class SettingViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
+    private val deleteUserUseCase: DeleteUserUseCase
 ) : BaseViewModel<SettingPageState>(
     SettingPageState(),
 ) {
@@ -31,5 +33,13 @@ class SettingViewModel(
                 memberInfo = data,
             ),
         )
+    }
+
+    fun deleteUser() {
+        viewModelScope.launch {
+            deleteUserUseCase(Unit).collect {
+                resultResponse(it, {})
+            }
+        }
     }
 }
