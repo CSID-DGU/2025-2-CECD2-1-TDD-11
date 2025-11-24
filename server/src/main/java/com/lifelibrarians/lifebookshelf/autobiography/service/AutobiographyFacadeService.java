@@ -58,8 +58,8 @@ public class AutobiographyFacadeService {
         autobiographyCommandService.requestAutobiographyGenerate(memberId, autobiographyId);
     }
 
-    public void patchAutobiographyReady(Long memberId, Long autobiographyId) {
-        autobiographyCommandService.patchAutobiographyReady(memberId, autobiographyId);
+    public void patchAutobiographyStatus(Long memberId, Long autobiographyId, String status) {
+        autobiographyCommandService.patchAutobiographyStatus(memberId, autobiographyId, status);
     }
 
 	public void deleteAutobiography(Long memberId, Long autobiographyId) {

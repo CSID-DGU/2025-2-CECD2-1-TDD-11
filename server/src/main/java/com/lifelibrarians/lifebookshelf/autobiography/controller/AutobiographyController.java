@@ -181,9 +181,10 @@ public class AutobiographyController {
     @ResponseStatus(HttpStatus.OK)
     public void patchAutobiographyReady(
             @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+            @RequestParam(value = "status", defaultValue = "ENOUGH") String status
     ) {
-        autobiographyFacadeService.patchAutobiographyReady(memberSessionDto.getMemberId(), autobiographyId);
+        autobiographyFacadeService.patchAutobiographyStatus(memberSessionDto.getMemberId(), autobiographyId, status);
     }
 
     @Operation(summary = "현재 진행중인 자서전 id 조회", description = "자서전 상태가 PROGRESSING인 자서전 중 updatedAt이 가장 최신인 자서전의 id를 조회합니다.")
