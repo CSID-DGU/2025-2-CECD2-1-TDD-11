@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bookshelf.composeapp.generated.resources.Res
+import talktobook.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Neutral900
