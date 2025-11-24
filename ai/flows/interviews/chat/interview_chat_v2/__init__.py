@@ -14,7 +14,7 @@ sys.path.insert(0, parent_dir)
 
 from engine.core import InterviewEngine
 from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories_state
-from engine.generators import generate_first_question, generate_question_llm
+from engine.generators import generate_first_question, generate_question_llm, generate_material_gate_question
 
 
 # ------------------------ 간단 헬퍼 ------------------------
@@ -247,9 +247,102 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         if not material:
             return {"next_question": None, "last_answer_materials_id": []}
 
+        # Material Gate 체크: 소재에 기존 데이터가 없으면 gate 질문 먼저
+        category = engine.categories[cat_num]
+        chunk = category.chunks[chunk_num]
+        full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
+        
+        # 직전 질문이 gate가 아니고, 현재 소재가 완전히 비어있으면 gate 질문 생성
+        # 단, 직전 질문이 gate였어도 다른 소재로 바뀌었으면 gate 질문 생성
+        last_question_type = question.get("type") if question else None
+        last_material_id = tuple(question.get("material_id")) if question and question.get("material_id") else None
+        is_material_empty = (material.progress_score() == 0 and material.count == 0)
+        is_different_material = (last_material_id != material_id)
+        
+        print(f"[DEBUG] Gate 체크: material_id={material_id}, progress_score={material.progress_score()}, count={material.count}, last_type={last_question_type}")
+        print(f"[DEBUG] is_material_empty={is_material_empty}, principle={material.principle}, ex={material.example}, con={material.similar_event}")
+        print(f"[DEBUG] last_material_id={last_material_id}, is_different_material={is_different_material}")
+        
+        if is_material_empty and (last_question_type != "material_gate" or is_different_material):
+            gate_question_text = generate_material_gate_question(full_material_name)
+            
+            next_question = {
+                "id": f"q-{uuid4().hex[:8]}",
+                "material": material.name,
+                "type": "material_gate",
+                "text": gate_question_text,
+                "material_id": material_id
+            }
+            
+            # 메트릭 업데이트 (상태는 변경하지 않음)
+            def serialize_categories(categories):
+                result = []
+                for cat in categories.values():
+                    active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
+                    if not active_chunks:
+                        continue
+
+                    chunks = []
+                    for chunk in active_chunks.values():
+                        materials = [
+                            {"order": m.order, "name": m.name, "principle": m.principle,
+                             "example": m.example, "similar_event": m.similar_event, "count": m.count}
+                            for m in chunk.materials.values()
+                            if any(m.principle) or m.example or m.similar_event or m.count > 0
+                        ]
+                        if materials:
+                            chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
+
+                    if chunks:
+                        result.append({
+                            "category_num": cat.category_num,
+                            "category_name": cat.category_name,
+                            "chunks": chunks,
+                            "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
+                        })
+                return result
+            
+            updated_metrics = {
+                "session_id": sessionId,
+                "categories": serialize_categories(engine.categories),
+                "engine_state": {
+                    "last_material_id": list(engine.state.last_material_id) if engine.state.last_material_id else [],
+                    "last_material_streak": engine.state.last_material_streak,
+                    "epsilon": engine.state.epsilon
+                },
+                "asked_total": metrics.get("asked_total", 0) + 1,
+                "policy_version": "v0.5.0"
+            }
+            
+            session_update = {
+                "metrics": updated_metrics,
+                "last_question": next_question,
+                "updated_at": time.time()
+            }
+            redis_client.setex(session_key, 3600, json.dumps(session_update))
+            
+            print(f"\n🚧 [Material Gate] {full_material_name} - 진입 확인 질문 생성")
+            if last_question_type == "material_gate" and is_different_material:
+                print(f"   (직전도 gate였지만 소재 변경: {last_material_id} → {material_id})")
+            print("=" * 50)
+            
+            return {"next_question": next_question, "last_answer_materials_id": mapped_ids if mapped_ids else []}
+
         material_id, target = engine.select_question_in_material(material_id)
         if not target:
             return {"next_question": None, "last_answer_materials_id": []}
+        
+        print(f"[DEBUG] select_question_in_material 후: material_id={material_id}, target={target}")
+        
+        # 소재가 변경되었는지 확인
+        if material_id != (cat_num, chunk_num, mat_num):
+            print(f"[DEBUG] 소재 변경됨: {(cat_num, chunk_num, mat_num)} -> {material_id}")
+            # 변경된 소재 다시 가져오기
+            cat_num, chunk_num, mat_num = material_id
+            material = engine._get_material(cat_num, chunk_num, mat_num)
+            category = engine.categories[cat_num]
+            chunk = category.chunks[chunk_num]
+            full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
 
         # 타입 매핑: 엔진 타입 → 프롬프트 타입
         type_mapping = {
@@ -270,10 +363,6 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             same_material = (current_material == material.name)
             if same_material:
                 context_answer = answer_text
-
-        category = engine.categories[cat_num]
-        chunk = category.chunks[chunk_num]
-        full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
