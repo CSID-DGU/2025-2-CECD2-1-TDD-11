@@ -54,6 +54,7 @@ internal fun SettingScreen(
     val interactionSource = remember { MutableInteractionSource() }
 
     val policyUrl = BuildKonfig.POLICY_URL
+    val appVersion = BuildKonfig.APP_VERSION
 
     SettingContent(
         interactionSource = interactionSource,
@@ -61,7 +62,8 @@ internal fun SettingScreen(
         memberInfo = uiState.memberInfo,
         onClickDelete = { viewModel.deleteUser() },
         onClickPolicy = { openUrl(policyUrl) },
-        onClickLogOut = {}
+        onClickLogOut = {},
+        appVersion = appVersion
     )
 }
 
@@ -73,6 +75,7 @@ private fun SettingContent(
     onClickPolicy: () -> Unit,
     onClickLogOut: () -> Unit,
     onClickDelete: () -> Unit,
+    appVersion: String
 ) {
     Column(
         modifier =
@@ -103,7 +106,7 @@ private fun SettingContent(
 
         ItemContentRow(
             iconImgUrl = "files/ic_version.svg",
-            content = SettingCurrentVersion,
+            content = SettingCurrentVersion + appVersion,
             isNextVisible = false
         )
 
