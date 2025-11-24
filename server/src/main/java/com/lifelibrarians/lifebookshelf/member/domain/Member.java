@@ -1,5 +1,6 @@
 package com.lifelibrarians.lifebookshelf.member.domain;
 
+import com.lifelibrarians.lifebookshelf.app.domain.MemberAppVersions;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.community.book.domain.Book;
@@ -10,6 +11,7 @@ import com.lifelibrarians.lifebookshelf.notification.domain.DeviceRegistry;
 import com.lifelibrarians.lifebookshelf.notification.domain.NoticeHistory;
 import com.lifelibrarians.lifebookshelf.notification.domain.NotificationSubscribe;
 
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -118,6 +120,9 @@ public class Member {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member", unique = true)
     private AutobiographyStatus memberAutobiographyStatus;
+
+    @OneToMany(mappedBy = "member")
+    private List<MemberAppVersions> memberAppVersions;
     /* } V2 정보 */
 
 	/* 생성자 (V1) { */

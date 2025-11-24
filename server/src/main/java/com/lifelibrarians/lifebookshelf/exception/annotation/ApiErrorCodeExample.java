@@ -1,12 +1,6 @@
 package com.lifelibrarians.lifebookshelf.exception.annotation;
 
-import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.CommunityExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.MemberExceptionStatus;
-import com.lifelibrarians.lifebookshelf.exception.status.PublicationExceptionStatus;
+import com.lifelibrarians.lifebookshelf.exception.status.*;
 import com.lifelibrarians.lifebookshelf.utils.exception.UtilsExceptionStatus;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -50,4 +44,6 @@ public @interface ApiErrorCodeExample {
 	UtilsExceptionStatus[] utilsExceptionStatuses() default {};
 
 	CommonExceptionStatus[] commonExceptionStatuses() default {};
+
+    AppVersionExceptionStatus[] appVersionExceptionStatuses() default {};
 }
