@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BookShelf"
+rootProject.name = "TalkToBook"
 include(":composeApp")

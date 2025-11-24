@@ -4,18 +4,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.pretendard_black
-import bookshelf.composeapp.generated.resources.pretendard_bold
-import bookshelf.composeapp.generated.resources.pretendard_extrabold
-import bookshelf.composeapp.generated.resources.pretendard_extralight
-import bookshelf.composeapp.generated.resources.pretendard_light
-import bookshelf.composeapp.generated.resources.pretendard_medium
-import bookshelf.composeapp.generated.resources.pretendard_regular
-import bookshelf.composeapp.generated.resources.pretendard_semibold
-import bookshelf.composeapp.generated.resources.pretendard_thin
+import talktobook.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.Font
+import talktobook.composeapp.generated.resources.pretendard_black
+import talktobook.composeapp.generated.resources.pretendard_bold
+import talktobook.composeapp.generated.resources.pretendard_extrabold
+import talktobook.composeapp.generated.resources.pretendard_extralight
+import talktobook.composeapp.generated.resources.pretendard_light
+import talktobook.composeapp.generated.resources.pretendard_medium
+import talktobook.composeapp.generated.resources.pretendard_regular
+import talktobook.composeapp.generated.resources.pretendard_semibold
+import talktobook.composeapp.generated.resources.pretendard_thin
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable

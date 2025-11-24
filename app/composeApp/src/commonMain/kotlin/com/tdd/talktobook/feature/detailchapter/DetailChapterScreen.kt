@@ -24,8 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import bookshelf.composeapp.generated.resources.Res
-import bookshelf.composeapp.generated.resources.img_chapter_detail
+import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround3
 import com.tdd.talktobook.core.designsystem.Black900
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
@@ -39,6 +38,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDe
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun DetailChapterScreen(
