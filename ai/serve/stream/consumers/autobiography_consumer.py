@@ -52,24 +52,34 @@ class AutobiographyConsumer:
             cycle_id = payload_data.get("cycleId")
             step = payload_data.get("step", 1)
             
+            # cycleId가 없으면 메시지 거부
+            if not cycle_id:
+                logger.warning("Message rejected: cycleId is required for new cycle management system")
+                channel.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+                return
+            
             payload = InterviewAnswersPayload(**payload_data)
             
             # 자서전 생성
             result = self.consume_interview_answers(payload)
             
             # Aggregator로 완료 결과 전송
-            if cycle_id:
-                from stream import publish_result_to_aggregator
-                publish_result_to_aggregator(
-                    cycle_id, 
-                    step, 
-                    payload.autobiographyId, 
-                    payload.userId,
-                    {"title": result.title, "content": result.content}
-                )
+            from stream import publish_result_to_aggregator
+            publish_result_to_aggregator(
+                cycle_id, 
+                step, 
+                payload.autobiographyId, 
+                payload.userId,
+                {"title": result.title, "content": result.content}
+            )
             
-            # 기존 결과 큐에도 전송 (하위 호환성)
+            # 기존 결과 큐에도 전송 (cycleId 포함하여 전송)
             from stream import publish_generated_autobiography
+            
+            # cycleId와 step을 결과에 포함
+            result.cycleId = cycle_id
+            result.step = step
+                
             publish_generated_autobiography(result)
             
             # ACK

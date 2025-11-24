@@ -148,7 +148,6 @@ public class AutobiographyCompletionService {
     }
 
     private Integer extractCategoryOrder(String materials) {
-        log.info("[DEBUG] extractCategoryOrder - 원본 materials: '{}'", materials);
         // materials에서 첫 번째 배열의 첫 번째 숫자 추출 (예: "[[1, 1, 2], [1, 1, 5]]" -> 1)
         try {
             String cleaned = materials.trim().replaceAll("\\s+", "");
@@ -158,7 +157,6 @@ public class AutobiographyCompletionService {
                 
                 if (firstComma > 2) {
                     String firstNumber = cleaned.substring(2, firstComma);
-                    log.info("[DEBUG] extractCategoryOrder - 추출된 첫 번째 숫자: '{}'", firstNumber);
                     return Integer.parseInt(firstNumber);
                 } else {
                     log.warn("[DEBUG] extractCategoryOrder - 첫 번째 쉼표 위치가 2 이하: {}", firstComma);

@@ -9,6 +9,7 @@ import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRe
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
 import com.lifelibrarians.lifebookshelf.queue.dto.response.AutobiographyGenerateResponseDto;
+import com.lifelibrarians.lifebookshelf.queue.dto.response.AutobiographyMergeResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -30,6 +31,12 @@ public class AutobiographyGenerationConsumer {
     public void receive(AutobiographyGenerateResponseDto dto) {
         LocalDateTime now = LocalDateTime.now();
 
+        // cycleId가 없으면 메시지 거부 (새로운 사이클 관리 시스템 필수)
+        if (dto.getCycleId() == null || dto.getCycleId().isEmpty()) {
+            log.warn("Message rejected: cycleId is required for new cycle management system - autobiographyId: {}", dto.getAutobiographyId());
+            return;
+        }
+
         log.info("자서전 수신: autobiographyId={}, userId={}, cycleId={}, step={}",
                 dto.getAutobiographyId(), dto.getUserId(), dto.getCycleId(), dto.getStep());
 
@@ -43,7 +50,7 @@ public class AutobiographyGenerationConsumer {
         AutobiographyChapter chapter = AutobiographyChapter.of(
                 dto.getTitle(),
                 dto.getContent(),
-                null,
+                null, // step을 chapterOrder로 사용
                 now,
                 now,
                 member,
@@ -55,7 +62,7 @@ public class AutobiographyGenerationConsumer {
 
     @RabbitListener(queues = "autobiography.trigger.cycle.merge.queue")
     @Transactional
-    public void handleCycleCompletion(AutobiographyGenerateResponseDto dto) {
+    public void handleCycleCompletion(AutobiographyMergeResponseDto dto) {
         LocalDateTime now = LocalDateTime.now();
         
         log.info("사이클 완료 수신: cycleId={}, autobiographyId={}, userId={}, action={}", 

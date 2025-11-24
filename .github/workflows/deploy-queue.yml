@@ -28,6 +28,15 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker build -f aggregator/deploy/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AGGREGATOR }}:${{ github.sha }} ./aggregator
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AGGREGATOR }}:${{ github.sha }}
+
       - name: Upload Docker Compose to S3
         run: |
           aws s3 cp deploy/docker-compose.stream.prod.yml s3://talktobook-deploy/
@@ -39,9 +48,17 @@ jobs:
             --parameters 'commands=[
               "cd /opt/deploy",
               "aws s3 cp s3://talktobook-deploy/docker-compose.stream.prod.yml .",
+              "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
               "cat > .env << EOF",
+              "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",
+              "ECR_REPOSITORY_AI=${{ secrets.ECR_REPOSITORY_AGGREGATOR }}",
+              "IMAGE_TAG=${{ github.sha }}",
+              "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}",
+              "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}",
               "RABBITMQ_DEFAULT_USER=${{ secrets.RABBITMQ_DEFAULT_USER }}",
               "RABBITMQ_DEFAULT_PASS=${{ secrets.RABBITMQ_DEFAULT_PASS }}",
+              "REDIS_HOST=${{ secrets.REDIS_HOST }}",
+              "REDIS_PORT=${{ secrets.REDIS_PORT }}",
               "EOF",
               "docker-compose -f docker-compose.stream.prod.yml pull",
               "docker-compose -f docker-compose.stream.prod.yml down",

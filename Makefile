@@ -24,6 +24,11 @@ run-ai: run-redis-ai run-ai-server
 stop-ai: stop-redis stop-ai-server
 clean-ai: rm-redis clean-ai-server
 
+# Aggregator 기본 실행 타겟
+run-aggregator: run-redis-aggregator run-aggregator-server
+stop-aggregator: stop-aggregator-server stop-redis-aggregator
+clean-aggregator: rm-redis-aggregator clean-aggregator-server
+
 ### 서버 관련 명령어 ###
 # 1. LocalStack 실행
 run-localstack:
@@ -162,6 +167,42 @@ remove-rabbitmq:
 
 clean-rabbitmq:
 	docker compose -f deploy/docker-compose.stream.prod.yml down -v --rmi all --remove-orphans
+
+### Aggregator 관련 명령어 ###
+# Aggregator 서버 실행
+run-aggregator-server: ## Run aggregator server
+	@echo "[Makefile] Starting Aggregator server..."
+	@bash ./scripts/aggregator/run-aggregator-server.sh
+
+# Aggregator 서버 종료
+stop-aggregator-server: ## Stop aggregator server
+	@echo "[Makefile] Stopping Aggregator server..."
+	@PID=$$(lsof -ti :8001 2>/dev/null) && \
+	  kill $$PID && echo "[Makefile] Aggregator server process stopped (PID: $$PID)" || \
+	  echo "[Makefile] There is no running Aggregator server on port 8001."
+
+# Aggregator Redis 실행
+run-redis-aggregator: ## Run Redis for aggregator
+	@echo "[Makefile] Starting Redis for Aggregator..."
+	@bash ./scripts/aggregator/run-redis.sh
+
+# Aggregator Redis 종료
+stop-redis-aggregator: ## Stop Redis for aggregator
+	@echo "[Makefile] Stopping Redis for Aggregator..."
+	@docker stop redis-talktobook-aggregator 2>/dev/null || echo "[Makefile] There is no running Redis container."
+
+# Aggregator Redis 정리
+rm-redis-aggregator: ## Remove Redis for aggregator
+	@echo "[Makefile] Removing Redis for Aggregator..."
+	@docker stop redis-talktobook-aggregator 2>/dev/null || true
+	@docker rm redis-talktobook-aggregator 2>/dev/null || true
+	@echo "[Makefile] Redis container removed."
+
+# Aggregator 정리
+clean-aggregator-server: ## Clean aggregator server
+	@echo "[Makefile] Cleaning Aggregator server..."
+	@cd aggregator && rm -rf __pycache__ *.pyc .env
+	@echo "[Makefile] Successfully Aggregator server cleaned."
 
 ### Infrastructure 관련 명령어 ###
 # CDK 배포 스크립트 실행

@@ -72,6 +72,8 @@ class InterviewAnswersPayload(BaseModel):
     
 # generate 자서전에 대한 response payload 정의
 class GeneratedAutobiographyPayload(BaseModel):
+    cycleId: Optional[str] = None
+    step: Optional[int] = None
     autobiographyId: int
     userId: int
     title: str

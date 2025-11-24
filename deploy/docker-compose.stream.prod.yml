@@ -7,5 +7,28 @@ services:
       - "5672:5672" # RabbitMQ main port
       - "15672:15672" # RabbitMQ management UI port (선택사항)
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - .env
+
+  lifebookshelf-aggregator:
+    image: "${ECR_REGISTRY}/${ECR_REPOSITORY_AGGREGATOR}:${IMAGE_TAG}"
+    restart: always
+    container_name: lifebookshelf-aggregator
+    ports:
+      - "8001:8001"
+    environment:
+      - .env
+    depends_on:
+      - talktobook-stream
+      - lifebookshelf-redis
+
+  lifebookshelf-redis:
+    image: redis:7-alpine
+    container_name: talktobook-redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

@@ -99,9 +99,6 @@ def publish_generated_autobiography(payload: GeneratedAutobiographyPayload):
     )
     channel = connection.channel()
     
-    # 큐 선언
-    channel.queue_declare(queue='generated_autobiography_queue', durable=True)
-    
     body = payload.model_dump_json()
     
     channel.basic_publish(
@@ -137,16 +134,16 @@ def publish_result_to_aggregator(cycle_id: str, step: int, autobiography_id: int
     channel = connection.channel()
     
     result_message = {
-        "cycle_id": cycle_id,
+        "cycleId": cycle_id,
         "step": step,
-        "autobiography_id": autobiography_id,
-        "user_id": user_id,
+        "autobiographyId": autobiography_id,
+        "userId": user_id,
         "result": result_data,
         "status": "completed"
     }
     
     channel.basic_publish(
-        exchange='autobiography.trigger.cycle.result.exchange',
+        exchange='autobiography.trigger.exchange',
         routing_key='autobiography.trigger.cycle.result',
         body=json.dumps(result_message),
         properties=pika.BasicProperties(
