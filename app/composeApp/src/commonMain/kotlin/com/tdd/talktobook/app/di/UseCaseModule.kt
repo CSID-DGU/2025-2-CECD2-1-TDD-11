@@ -1,6 +1,8 @@
 package com.tdd.talktobook.app.di
 
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
+import com.tdd.talktobook.domain.usecase.auth.GetAccessTokenUseCase
+import com.tdd.talktobook.domain.usecase.auth.GetRefreshTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
@@ -42,6 +44,7 @@ import com.tdd.talktobook.domain.usecase.publication.GetPublicationProgressUseCa
 import com.tdd.talktobook.domain.usecase.publication.PostPublicationUseCase
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
+import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 @Module
@@ -58,6 +61,8 @@ val useCaseModule =
         factory { DeleteUserUseCase(get()) }
         factory { LogOutUseCase(get()) }
         factory { ReissueTokenUseCase(get()) }
+        factory { GetAccessTokenUseCase(get()) }
+        factory { GetRefreshTokenUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }

@@ -22,4 +22,8 @@ interface AuthRepository {
     suspend fun logOut(): Flow<Result<Boolean>>
 
     suspend fun reissue(refresh: String): Flow<Result<TokenModel>>
+
+    suspend fun getStoredAccessToken(): Flow<Result<String>>
+
+    suspend fun getStoredRefreshToken(): Flow<Result<String>>
 }
