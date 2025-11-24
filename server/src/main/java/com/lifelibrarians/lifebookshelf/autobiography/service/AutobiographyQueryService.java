@@ -9,7 +9,6 @@ import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographySt
 import com.lifelibrarians.lifebookshelf.classification.domain.Category;
 import com.lifelibrarians.lifebookshelf.classification.domain.Material;
 import com.lifelibrarians.lifebookshelf.classification.domain.Theme;
-import com.lifelibrarians.lifebookshelf.classification.domain.ThemeNameType;
 import com.lifelibrarians.lifebookshelf.classification.repository.MaterialRepository;
 import com.lifelibrarians.lifebookshelf.classification.repository.ThemeRepository;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;

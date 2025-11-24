@@ -17,6 +17,12 @@ import java.util.List;
 @FieldNameConstants
 public class AutobiographyGenerateRequestDto {
 
+    @Schema(description = "사이클 ID", example = "cycle-12345")
+    private final String cycleId;
+
+    @Schema(description = "요청 개수", example = "4")
+    private final Integer step;
+
     @Schema(description = "자서전 ID", example = "1")
     private final Long autobiographyId;
 

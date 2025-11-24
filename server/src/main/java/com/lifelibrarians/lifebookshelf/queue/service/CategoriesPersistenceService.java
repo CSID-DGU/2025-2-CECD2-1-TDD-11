@@ -4,7 +4,6 @@ import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
-import com.lifelibrarians.lifebookshelf.autobiography.service.AutobiographyCompletionService;
 import com.lifelibrarians.lifebookshelf.classification.domain.Chunk;
 import com.lifelibrarians.lifebookshelf.classification.repository.ChunkRepository;
 import com.lifelibrarians.lifebookshelf.classification.repository.MaterialRepository;

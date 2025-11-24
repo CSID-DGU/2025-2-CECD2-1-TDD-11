@@ -62,6 +62,8 @@ class InterviewAnswer(BaseModel):
     conversationType: str
 
 class InterviewAnswersPayload(BaseModel):
+    cycleId: Optional[str] = None
+    step: Optional[int] = 1
     autobiographyId: int
     userId: int
     userInfo: UserInfo

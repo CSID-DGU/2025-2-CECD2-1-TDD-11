@@ -16,18 +16,13 @@ logger = get_logger()
 
 class AutobiographyConsumer:
     def __init__(self):
-        logger.info("[TEST] AutobiographyConsumer 초기화 시작")
         self.setup_connection()
-        logger.info("[TEST] AutobiographyConsumer 초기화 완료")
     
     def setup_connection(self):
-        logger.info("[TEST] RabbitMQ 연결 설정 시작")
         rabbitmq_host = os.environ.get("RABBITMQ_HOST")
         rabbitmq_port = int(os.environ.get("RABBITMQ_PORT"))
         rabbitmq_user = os.environ.get("RABBITMQ_USER")
         rabbitmq_password = os.environ.get("RABBITMQ_PASSWORD")
-        
-        logger.info(f"[TEST] RabbitMQ 연결 정보 - Host: {rabbitmq_host}, Port: {rabbitmq_port}, User: {rabbitmq_user}")
         
         credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
         self.connection = pika.BlockingConnection(
@@ -38,7 +33,6 @@ class AutobiographyConsumer:
             )
         )
         self.channel = self.connection.channel()
-        logger.info("[TEST] RabbitMQ 연결 성공")
     
     def start_consuming(self):
         self.channel.basic_consume(
@@ -53,18 +47,34 @@ class AutobiographyConsumer:
         try:
             # 메시지 파싱
             payload_data = json.loads(body)
+            
+            # cycleId와 step 추출
+            cycle_id = payload_data.get("cycleId")
+            step = payload_data.get("step", 1)
+            
             payload = InterviewAnswersPayload(**payload_data)
             
             # 자서전 생성
             result = self.consume_interview_answers(payload)
             
-            # 결과 큐에 전송
+            # Aggregator로 완료 결과 전송
+            if cycle_id:
+                from stream import publish_result_to_aggregator
+                publish_result_to_aggregator(
+                    cycle_id, 
+                    step, 
+                    payload.autobiographyId, 
+                    payload.userId,
+                    {"title": result.title, "content": result.content}
+                )
+            
+            # 기존 결과 큐에도 전송 (하위 호환성)
             from stream import publish_generated_autobiography
             publish_generated_autobiography(result)
             
             # ACK
             channel.basic_ack(delivery_tag=method.delivery_tag)
-            logger.info(f"Processed autobiography generation for ID: {payload.autobiographyId}")
+            logger.info(f"Processed autobiography generation for ID: {payload.autobiographyId}, cycle: {cycle_id}")
             
         except Exception as e:
             logger.error(f"Error processing message: {e}")

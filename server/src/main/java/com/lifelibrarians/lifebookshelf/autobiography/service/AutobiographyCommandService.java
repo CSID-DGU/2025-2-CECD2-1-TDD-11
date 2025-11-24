@@ -20,6 +20,7 @@ import java.util.Objects;
 
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
+import com.lifelibrarians.lifebookshelf.queue.service.AutobiographyCompletionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -145,6 +146,7 @@ public class AutobiographyCommandService {
         if (!autobiography.getMember().getId().equals(memberId)) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
+        // TODO: FINISH, CREATING인 경우, 상태 변경이 불가능합니다.
 
         AutobiographyStatusType newStatus = AutobiographyStatusType.valueOf(status);
 

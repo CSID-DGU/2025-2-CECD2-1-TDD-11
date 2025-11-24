@@ -1,4 +1,4 @@
-package com.lifelibrarians.lifebookshelf.autobiography.service;
+package com.lifelibrarians.lifebookshelf.queue.service;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
@@ -31,6 +31,7 @@ public class AutobiographyCompletionService {
     private final CategoryRepository categoryRepository;
     private final ConversationRepository conversationRepository;
     private final AutobiographyGeneratePublisher autobiographyGeneratePublisher;
+    private final CycleInitService cycleInitService;
     
     private static final double COMPLETION_THRESHOLD = 0.7; // 70%
     private final Map<Long, Boolean> processedAutobiographies = new ConcurrentHashMap<>();
@@ -79,21 +80,26 @@ public class AutobiographyCompletionService {
         
         LocalDateTime now = LocalDateTime.now();
 
-        List<AutobiographyGenerateRequestDto> requests = createGenerateRequests(autobiography);
+        // 1. 사이클 초기화 먼저 실행
+        String cycleId = cycleInitService.initializeCycleProcess(autobiography);
+
+        // 2. 자서전 생성 요청들 생성
+        List<AutobiographyGenerateRequestDto> requests = createGenerateRequests(autobiography, cycleId);
 
         AutobiographyStatus status = autobiography.getAutobiographyStatus();
-        status.updateStatusType(AutobiographyStatusType.CREATING, now); // 상태 업데이트
+        status.updateStatusType(AutobiographyStatusType.CREATING, now);
 
-        // category order 순으로 순차 발행
+        // 3. category order 순으로 순차 발행
         requests.stream()
                 .sorted((a, b) -> a.getAutobiographyInfo().getCategory().compareTo(b.getAutobiographyInfo().getCategory()))
                 .forEach(autobiographyGeneratePublisher::publishGenerateAutobiographyRequest);
         
-        log.info("[DEBUG] triggerPublicationRequest 완료 - autobiographyId: {}", autobiography.getId());
+        log.info("[DEBUG] triggerPublicationRequest 완료 - autobiographyId: {}, cycleId: {}", 
+                autobiography.getId(), cycleId);
     }
 
-    private List<AutobiographyGenerateRequestDto> createGenerateRequests(Autobiography autobiography) {
-        log.info("[DEBUG] createGenerateRequests 시작 - autobiographyId: {}", autobiography.getId());
+    private List<AutobiographyGenerateRequestDto> createGenerateRequests(Autobiography autobiography, String cycleId) {
+        log.info("[DEBUG] createGenerateRequests 시작 - autobiographyId: {}, cycleId: {}", autobiography.getId(), cycleId);
         
         // HUMAN 타입 conversations에서 materials의 첫 번째 숫자로 category order 추출
         Map<Integer, List<String>> conversationsByCategory = conversationRepository
@@ -107,17 +113,19 @@ public class AutobiographyCompletionService {
                 ));
 
         List<AutobiographyGenerateRequestDto> requests = conversationsByCategory.entrySet().stream()
-                .map(entry -> createRequestDto(autobiography, entry.getKey(), entry.getValue()))
+                .map(entry -> createRequestDto(autobiography, cycleId, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
         
         log.info("[DEBUG] createGenerateRequests 완료 - 생성된 요청: {}개", requests.size());
         return requests;
     }
 
-    private AutobiographyGenerateRequestDto createRequestDto(Autobiography autobiography, Integer categoryOrder, List<String> conversations) {
+    private AutobiographyGenerateRequestDto createRequestDto(Autobiography autobiography, String cycleId, Integer categoryOrder, List<String> conversations) {
         String categoryName = getCategoryName(categoryOrder);
         
         return AutobiographyGenerateRequestDto.builder()
+                .cycleId(cycleId)
+                .step(categoryOrder)
                 .autobiographyId(autobiography.getId())
                 .userId(autobiography.getMember().getId())
                 .userInfo(AutobiographyGenerateRequestDto.UserInfo.builder()

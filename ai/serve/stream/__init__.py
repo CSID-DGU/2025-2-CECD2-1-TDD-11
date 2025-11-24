@@ -117,6 +117,48 @@ def publish_generated_autobiography(payload: GeneratedAutobiographyPayload):
     logger.info(f"Published generated autobiography for ID: {payload.autobiographyId}")
     connection.close()
 
+def publish_result_to_aggregator(cycle_id: str, step: int, autobiography_id: int, user_id: int, result_data: dict):
+    """
+    Aggregator로 작업 완료 결과를 전송하는 함수.
+    """
+    rabbitmq_host = os.environ.get("RABBITMQ_HOST")
+    rabbitmq_port = int(os.environ.get("RABBITMQ_PORT", 5672))
+    rabbitmq_user = os.environ.get("RABBITMQ_USER")
+    rabbitmq_password = os.environ.get("RABBITMQ_PASSWORD")
+    
+    credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=rabbitmq_host,
+            port=rabbitmq_port,
+            credentials=credentials
+        )
+    )
+    channel = connection.channel()
+    
+    result_message = {
+        "cycle_id": cycle_id,
+        "step": step,
+        "autobiography_id": autobiography_id,
+        "user_id": user_id,
+        "result": result_data,
+        "status": "completed"
+    }
+    
+    channel.basic_publish(
+        exchange='autobiography.trigger.cycle.result.exchange',
+        routing_key='autobiography.trigger.cycle.result',
+        body=json.dumps(result_message),
+        properties=pika.BasicProperties(
+            content_type="application/json",
+            delivery_mode=2,
+            headers={'cycle_id': cycle_id}
+        )
+    )
+    
+    logger.info(f"Published result to aggregator - cycle: {cycle_id}, step: {step}")
+    connection.close()
+
 def publish_interview_summary_result(payload: InterviewSummaryResponsePayload):
     """
     인터뷰 요약 결과를 publish하는 함수.
