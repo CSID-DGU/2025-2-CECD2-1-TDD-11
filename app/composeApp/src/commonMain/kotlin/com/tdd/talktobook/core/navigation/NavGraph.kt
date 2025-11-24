@@ -132,16 +132,27 @@ fun NavGraphBuilder.pastInterviewNavGraph(
 
 fun NavGraphBuilder.interviewNavGraph(
     navController: NavController,
-    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit
+    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
         route = NavRoutes.InterviewGraph.route,
     ) {
-        composable(route = NavRoutes.InterviewScreen.route) {
+        composable(
+            route = NavRoutes.InterviewScreen.route,
+            arguments = listOf(
+                navArgument("question") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = ""
+                }
+            )
+        ) {
+            val question = it.arguments?.getString("question") ?: ""
 
             InterviewScreen(
-                showStartAutobiographyDialog = showStartAutobiographyDialog
+                showStartAutobiographyDialog = showStartAutobiographyDialog,
+                startQuestion = question
             )
         }
     }
@@ -156,7 +167,7 @@ fun NavGraphBuilder.startProgressNavGraph(
     ) {
         composable(route = NavRoutes.StartProgressScreen.route) {
             StartProgressScreen(
-                goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) { popUpTo(0) } },
+                goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
                 goBackToHome = { navController.popBackStack() }
             )
         }

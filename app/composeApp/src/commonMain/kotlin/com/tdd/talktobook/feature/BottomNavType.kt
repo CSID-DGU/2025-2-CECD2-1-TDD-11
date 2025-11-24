@@ -13,7 +13,7 @@ enum class BottomNavType(
 ) {
     PUBLICATION(Publication, "files/ic_autobiography.svg", NavRoutes.PublicationScreen.route),
     HOME(Home, "files/ic_home.svg", NavRoutes.HomeScreen.route),
-    INTERVIEW(Interview, "files/ic_interview.svg", NavRoutes.InterviewScreen.route),
+    INTERVIEW(Interview, "files/ic_interview.svg", NavRoutes.InterviewScreen.setRouteModel("")),
     DEFAULT(Empty, "drawable/ic_transparent.svg", ""),
     ;
 

@@ -26,15 +26,15 @@ class LocalDataStore(
         dataStore.data.map { preferences ->
             preferences[CURRENT_AUTOBIOGRAPHY_STATUS]
         }
-    
+
     val currentAutobiographyId: Flow<Int?> =
         dataStore.data.map { preferences ->
             preferences[CURRENT_AUTOBIOGRAPHY_ID]
         }
 
-    val lastQuestion: Flow<String?> =
+    val currentInterviewId: Flow<Int?> =
         dataStore.data.map { preferences ->
-            preferences[LAST_QUESTION]
+            preferences[CURRENT_INTERVIEW_ID]
         }
 
     suspend fun saveAccessToken(token: String) {
@@ -61,14 +61,14 @@ class LocalDataStore(
     suspend fun saveCurrentAutobiographyId(currentId: Int) {
         dataStore.edit { preferences ->
             preferences[CURRENT_AUTOBIOGRAPHY_ID] = currentId
-            d("[dataStore] current id: $currentId")
+            d("[dataStore] autobiography id: $currentId")
         }
     }
 
-    suspend fun saveLastQuestion(chat: String) {
+    suspend fun saveCurrentInterviewId(currentId: Int) {
         dataStore.edit { preferences ->
-            preferences[LAST_QUESTION] = chat
-            d("[dataStore] interview last question: $chat")
+            preferences[CURRENT_INTERVIEW_ID] = currentId
+            d("[dataStore] interview id: $currentId")
         }
     }
 
@@ -77,6 +77,6 @@ class LocalDataStore(
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
         val CURRENT_AUTOBIOGRAPHY_STATUS = stringPreferencesKey("current_autobiography_status")
         val CURRENT_AUTOBIOGRAPHY_ID = intPreferencesKey("current_autobiography_id")
-        val LAST_QUESTION = stringPreferencesKey("last_question")
+        val CURRENT_INTERVIEW_ID = intPreferencesKey("current_interview_id")
     }
 }

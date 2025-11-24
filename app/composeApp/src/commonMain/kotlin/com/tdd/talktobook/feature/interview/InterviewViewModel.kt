@@ -7,9 +7,11 @@ import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
+import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
+import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.GetLastQuestionUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.SaveLastQuestionUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import kotlinx.coroutines.launch
@@ -17,15 +19,21 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class InterviewViewModel(
-    private val getLastQuestionUseCase: GetLastQuestionUseCase,
-    private val saveLastQuestionUseCase: SaveLastQuestionUseCase,
+    private val getAutobiographyIdUseCase: GetAutobiographyIdUseCase,
     private val postChatInterviewUseCase: PostChatInterviewUseCase,
-    private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase
+    private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase,
+    private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
+    private val getInterviewIdUseCase: GetInterviewIdUseCase,
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
-    init {
-        initGetAutobiographyStatus()
+
+    fun getFirstQuestion(question: String) {
+        if (question.isNotEmpty()) {
+            addInterviewConversation(question, ChatType.BOT)
+        } else {
+            initGetAutobiographyStatus()
+        }
     }
 
     private fun initGetAutobiographyStatus() {
@@ -40,16 +48,59 @@ class InterviewViewModel(
         if (data == AutobiographyStatusType.EMPTY) {
             emitEventFlow(InterviewEvent.ShowStartAutobiographyDialog)
         } else {
-            initGetLastQuestion()
+            startInterview()
         }
     }
 
-    private fun initGetLastQuestion() {
+    private fun startInterview() {
+        initGetAutobiographyId()
+        initGetInterviewId()
+    }
+
+    private fun initGetAutobiographyId() {
         viewModelScope.launch {
-            getLastQuestionUseCase(Unit).collect {
-                resultResponse(it, { data -> addInterviewConversation(data, ChatType.BOT) })
-            }
+            getAutobiographyIdUseCase(Unit).collect { resultResponse(it, ::onSuccessGetAutobiographyId) }
         }
+    }
+
+    private fun onSuccessGetAutobiographyId(id: Int) {
+        updateState(
+            uiState.value.copy(
+                autobiographyId = id
+            )
+        )
+    }
+
+    private fun initGetInterviewId() {
+        viewModelScope.launch {
+            getInterviewIdUseCase(Unit).collect { resultResponse(it, ::onSuccessGetInterviewId) }
+        }
+    }
+
+    private fun onSuccessGetInterviewId(id: Int) {
+        updateState(
+            uiState.value.copy(
+                interviewId = id
+            )
+        )
+
+        initGetInterviewConversation(id)
+    }
+
+    private fun initGetInterviewConversation(id: Int) {
+        viewModelScope.launch {
+            getInterviewConversationUseCase(id).collect { resultResponse(it, ::onSuccessGetConversation) }
+        }
+    }
+
+    private fun onSuccessGetConversation(data: InterviewConversationListModel) {
+        d("[ktor] interview -> ${data.results}")
+
+        updateState(
+            uiState.value.copy(
+                interviewChatList = data.results
+            )
+        )
     }
 
     private fun addInterviewConversation(
@@ -66,16 +117,6 @@ class InterviewViewModel(
                 interviewChatList = updatedChatList,
             ),
         )
-
-        saveLastQuestion(chatContent, chatType)
-    }
-
-    private fun saveLastQuestion(chat: String, chatType: ChatType) {
-        if (chatType == ChatType.BOT) {
-            viewModelScope.launch {
-                saveLastQuestionUseCase(chat).collect { resultResponse(it, {}) }
-            }
-        }
     }
 
     fun beginInterview() {

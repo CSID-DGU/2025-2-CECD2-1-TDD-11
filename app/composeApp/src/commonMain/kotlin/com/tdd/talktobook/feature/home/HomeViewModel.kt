@@ -15,6 +15,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiog
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
+import com.tdd.talktobook.domain.usecase.interview.SaveInterviewIdUseCase
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -30,7 +31,8 @@ class HomeViewModel(
     private val getCountMaterialsUseCase: GetCountMaterialsUseCase,
     private val getInterviewSummariesUseCase: GetInterviewSummariesUseCase,
     private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
-    private val saveAutobiographyIdUseCase: SaveAutobiographyIdUseCase
+    private val saveAutobiographyIdUseCase: SaveAutobiographyIdUseCase,
+    private val saveInterviewIdUseCase: SaveInterviewIdUseCase
 ) : BaseViewModel<HomePageState>(
     HomePageState(),
 ) {
@@ -153,14 +155,22 @@ class HomeViewModel(
 
     private fun onSuccessGetMonthSummaries(interviews: InterviewSummariesListModel) {
         d("[ktor] homeViewmodel -> ${interviews.interviews}")
-//        val firstDate = if (interviews.interviews.isNotEmpty()) interviews.interviews[0].date.split("-")[2].toInt() else 1
-//        val addRepeatNum = firstDate - 1
-
         updateState(
             uiState.value.copy(
                 monthInterviewList = interviews.interviews,
             ),
         )
+
+        setTodayInterviewId(interviews)
+    }
+
+    private fun setTodayInterviewId(interviews: InterviewSummariesListModel) {
+        val today = uiState.value.today.dayOfMonth
+        val interviewId = interviews.interviews.firstOrNull { it.date.split("-")[2].toInt() == today }?.id ?: 0
+
+        viewModelScope.launch {
+            saveInterviewIdUseCase(interviewId).collect { resultResponse(it, {}) }
+        }
     }
 
     @OptIn(ExperimentalTime::class)

@@ -9,11 +9,11 @@ import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressReque
 import com.tdd.talktobook.domain.entity.request.interview.ai.StartInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiographyModel
 import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
+import com.tdd.talktobook.domain.entity.response.interview.ai.StartInterviewResponseModel
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.SaveLastQuestionUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
 import kotlinx.coroutines.launch
@@ -23,10 +23,9 @@ import org.koin.android.annotation.KoinViewModel
 class StartProgressViewModel(
     private val postStartProgressUseCase: PostStartProgressUseCase,
     private val saveAutobiographyIdUseCase: SaveAutobiographyIdUseCase,
-    private val saveLastQuestionUseCase: SaveLastQuestionUseCase,
     private val getSelectedThemeUseCase: GetSelectedThemeUseCase,
     private val postStartInterviewUseCase: PostStartInterviewUseCase,
-    private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase
+    private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
 ) : BaseViewModel<StartProgressPageState>(
     StartProgressPageState()
 ) {
@@ -106,14 +105,16 @@ class StartProgressViewModel(
         viewModelScope.launch {
             postStartInterviewUseCase(
                 StartInterviewRequestModel(autobiographyId, selectedThemes.categories)
-            ).collect { resultResponse(it, { data -> saveLastInterviewQuestion(data.text) }) }
+            ).collect { resultResponse(it, ::onSuccessGetInterviewQuestion) }
         }
     }
 
-    private fun saveLastInterviewQuestion(chat: String) {
-        viewModelScope.launch {
-            saveLastQuestionUseCase(chat).collect { resultResponse(it, {}) }
-        }
+    private fun onSuccessGetInterviewQuestion(data: StartInterviewResponseModel) {
+        updateState(
+            uiState.value.copy(
+                firstQuestion = data.text
+            )
+        )
 
         emitEventFlow(StartProgressEvent.GoToInterviewPage)
     }

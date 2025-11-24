@@ -10,5 +10,6 @@ data class StartProgressPageState (
     val material: MaterialType = MaterialType.DEFAULT,
     val reasonInput: String = "",
     val interviewId: Int = 0,
-    val autobiographyId: Int = 0
+    val autobiographyId: Int = 0,
+    val firstQuestion: String = ""
 ): PageState

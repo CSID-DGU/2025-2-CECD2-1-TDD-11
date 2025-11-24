@@ -34,7 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun StartProgressScreen(
-    goToInterviewPage: () -> Unit,
+    goToInterviewPage: (String) -> Unit,
     goBackToHome: () -> Unit,
 ) {
     val viewModel: StartProgressViewModel = koinViewModel()
@@ -46,7 +46,7 @@ internal fun StartProgressScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is StartProgressEvent.GoToInterviewPage -> {
-                    goToInterviewPage()
+                    goToInterviewPage(uiState.firstQuestion)
                 }
             }
         }

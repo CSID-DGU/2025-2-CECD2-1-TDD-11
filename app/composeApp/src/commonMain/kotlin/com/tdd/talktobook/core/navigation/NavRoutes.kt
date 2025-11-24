@@ -1,5 +1,7 @@
 package com.tdd.talktobook.core.navigation
 
+import co.touchlab.kermit.Logger.Companion.d
+
 sealed class NavRoutes(val route: String) {
     // LogIn Graph
     data object LogInGraph : NavRoutes("login_graph")
@@ -38,8 +40,10 @@ sealed class NavRoutes(val route: String) {
     // Interview Graph
     data object InterviewGraph : NavRoutes("interview_graph")
 
-    data object InterviewScreen : NavRoutes("interview/{autobiographyId}") {
-        fun setRouteModel(autobiographyId: Int): String = "interview/$autobiographyId"
+    data object InterviewScreen : NavRoutes("interview?question={question}") {
+        fun setRouteModel(question: String): String =
+            if (question.isBlank())  "interview"
+            else "interview?question=$question"
     }
 
     // StartProgress Graph

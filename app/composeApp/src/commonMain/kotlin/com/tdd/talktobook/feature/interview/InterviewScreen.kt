@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.BackGround2
-import com.tdd.talktobook.core.designsystem.Empty
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogBtn
@@ -27,7 +26,6 @@ import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogTitle
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
-import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.util.rememberSpeechToText
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
@@ -40,7 +38,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun InterviewScreen(
-    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit
+    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    startQuestion: String = "",
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -53,12 +52,12 @@ internal fun InterviewScreen(
     val mergedChat =
         remember(uiState.interviewChatList, uiState.interviewProgressType, partial) {
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
-                d("[인터뷰] 대화 -> $partial")
+                d("[interview] 대화 -> $partial")
                 uiState.interviewChatList +
-                    InterviewChatItem(
-                        content = partial,
-                        chatType = ChatType.HUMAN,
-                    )
+                        InterviewChatItem(
+                            content = partial,
+                            chatType = ChatType.HUMAN,
+                        )
             } else {
                 uiState.interviewChatList
             }
@@ -80,6 +79,10 @@ internal fun InterviewScreen(
                 }
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getFirstQuestion(startQuestion)
     }
 
     InterviewContent(
