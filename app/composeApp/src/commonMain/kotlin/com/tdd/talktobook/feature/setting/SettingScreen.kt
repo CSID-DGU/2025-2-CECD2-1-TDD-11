@@ -63,7 +63,7 @@ internal fun SettingScreen(
         memberInfo = uiState.memberInfo,
         onClickDelete = { viewModel.deleteUser() },
         onClickPolicy = { openUrl(policyUrl) },
-        onClickLogOut = {},
+        onClickLogOut = { viewModel.logOut() },
         appVersion = appVersion
     )
 }
