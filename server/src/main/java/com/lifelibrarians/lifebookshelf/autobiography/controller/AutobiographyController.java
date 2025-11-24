@@ -166,7 +166,7 @@ public class AutobiographyController {
         autobiographyFacadeService.requestAutobiographyGenerate(memberSessionDto.getMemberId(), autobiographyId);
     }
 
-    @Operation(summary = "현재 진행중인 자서전 ENOUGH 상태로 변경 요청", description = "특정 자서전의 상태를 ENOUGH로 강제로 변경합니다.")
+    @Operation(summary = "현재 진행중인 자서전 상태를 변경", description = "특정 자서전의 상태를 변경 합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "ok"),
     })
