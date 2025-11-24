@@ -31,8 +31,8 @@ sealed class NavRoutes(val route: String) {
     // Past Interview Graph
     data object PastInterviewGraph : NavRoutes("past_interview_graph")
 
-    data object PastInterviewScreen : NavRoutes("past_interview/{date}") {
-        fun setRouteModel(date: String): String = "past_interview/$date"
+    data object PastInterviewScreen : NavRoutes("past_interview/{date}/{interviewId}") {
+        fun setRouteModel(date: String, interviewId: Int): String = "past_interview/$date/$interviewId"
     }
 
     // Interview Graph

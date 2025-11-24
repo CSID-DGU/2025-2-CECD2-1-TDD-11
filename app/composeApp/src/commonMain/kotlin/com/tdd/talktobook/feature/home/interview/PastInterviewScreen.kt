@@ -20,6 +20,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun PastInterviewScreen(
     goBackToHome: () -> Unit,
     selectedDate: String,
+    interviewId: Int
 ) {
     val viewModel: PastInterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -27,7 +28,7 @@ internal fun PastInterviewScreen(
     val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(Unit) {
-        viewModel.setSelectedDate(selectedDate)
+        viewModel.setSelectedData(selectedDate, interviewId)
     }
 
     PastInterviewContent(

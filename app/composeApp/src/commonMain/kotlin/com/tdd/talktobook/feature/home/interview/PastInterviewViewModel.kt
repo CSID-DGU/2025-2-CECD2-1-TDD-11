@@ -1,37 +1,43 @@
 package com.tdd.talktobook.feature.home.interview
 
+import androidx.lifecycle.viewModelScope
 import com.tdd.talktobook.core.ui.base.BaseViewModel
-import com.tdd.talktobook.domain.entity.enums.ChatType
-import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
+import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
+import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class PastInterviewViewModel() : BaseViewModel<PastInterviewPageState>(
+class PastInterviewViewModel(
+    private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
+) : BaseViewModel<PastInterviewPageState>(
     PastInterviewPageState(),
 ) {
-    init {
-        initSetInterviewList()
-    }
 
-    private fun initSetInterviewList() {
-        val interviews: List<InterviewChatItem> =
-            listOf(
-//                InterviewChatItem(0, "나는 AI", ChatType.BOT),
-//                InterviewChatItem("나는 인간", ChatType.HUMAN),
-            )
-
-        updateState(
-            uiState.value.copy(
-                interviewList = interviews,
-            ),
-        )
-    }
-
-    fun setSelectedDate(date: String) {
+    fun setSelectedData(date: String, interviewId: Int) {
         updateState(
             uiState.value.copy(
                 selectedDate = date,
+                interviewId = interviewId
             ),
+        )
+
+        initGetInterviewList(interviewId)
+    }
+
+    private fun initGetInterviewList(interviewId: Int) {
+        viewModelScope.launch {
+            getInterviewConversationUseCase(interviewId).collect {
+                resultResponse(it, ::onSuccessGetInterview)
+            }
+        }
+    }
+
+    private fun onSuccessGetInterview(data: InterviewConversationListModel) {
+        updateState(
+            uiState.value.copy(
+                interviewList = data.results
+            )
         )
     }
 }

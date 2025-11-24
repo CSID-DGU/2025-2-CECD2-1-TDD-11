@@ -74,7 +74,7 @@ import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun HomeScreen(
-    goToPastInterviewPage: (String) -> Unit,
+    goToPastInterviewPage: (String, Int) -> Unit,
     goToProgressStartPage: () -> Unit = {},
     goToSettingPage: () -> Unit,
 ) {
@@ -99,7 +99,7 @@ internal fun HomeScreen(
         selectedDay = uiState.selectedDay,
         selectedDate = uiState.selectedDate,
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
-        onClickSummary = { goToPastInterviewPage(uiState.selectedDate) },
+        onClickSummary = { goToPastInterviewPage(uiState.selectedDate, uiState.monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == uiState.selectedDay }?.id ?: 0) },
         isCurrentProgress = uiState.isCurrentProgress,
         onClickStartProgress = { goToProgressStartPage() },
         onClickSetting = { goToSettingPage() }
@@ -170,7 +170,7 @@ private fun HomeContent(
                 ?: HomeNotExistSummary,
             interactionSource = interactionSource,
             onClick = onClickSummary,
-            isSummaryEmpty = monthInterviewList.isEmpty()
+            isExistMessageCount = (monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay}?.totalMessageCount ?: 0) != 0
         )
     }
 }
@@ -421,8 +421,7 @@ private fun CalendarDayOfMonth(
                             interactionSource = interactionSource,
                             onSelect = { onSelectDay(day.dayOfMonth) },
                             isSelectedDate = (day.dayOfMonth == selectedDay),
-                            isInterviewNumNotZero = (interviewList.firstOrNull { it.date.split("-")[2].toInt() == day.dayOfMonth }?.totalMessageCount
-                                ?: 0) != 0
+                            isInterviewNumNotZero = (interviewList.firstOrNull { it.date.split("-")[2].toInt() == day.dayOfMonth }?.totalMessageCount ?: 0) != 0
                         )
                     }
                 }
@@ -493,13 +492,14 @@ private fun HomeInterviewSummary(
     selectedDateSummary: String,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
-    isSummaryEmpty: Boolean,
+//    isSummaryEmpty: Boolean,
+    isExistMessageCount: Boolean
 ) {
     ItemContentBox(
         modifier =
             Modifier
                 .clickable(
-                    enabled = !isSummaryEmpty,
+                    enabled = isExistMessageCount,
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
@@ -509,42 +509,39 @@ private fun HomeInterviewSummary(
         paddingStart = 20,
         paddingEnd = 20,
         content = {
-            Column {
-                Text(
-                    text = selectedDate,
-                    color = Black1,
-                    style = BookShelfTypo.Body4,
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
                     modifier =
                         Modifier
-                            .padding(top = 15.dp, start = 20.dp),
-                )
-
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp, vertical = 12.dp),
+                            .padding(top = 15.dp, bottom = 15.dp, start = 20.dp, end = 10.dp)
+                            .weight(1f)
                 ) {
+                    Text(
+                        text = selectedDate,
+                        color = Black1,
+                        style = BookShelfTypo.Body4,
+                    )
+
                     Text(
                         text = selectedDateSummary,
                         color = Black1,
                         style = BookShelfTypo.Caption4,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                    )
+                }
+
+                if (isExistMessageCount) {
+                    AsyncImage(
+                        model = Res.getUri("files/ic_right.svg"),
+                        contentDescription = "move",
                         modifier =
                             Modifier
-                                .weight(1f),
+                                .padding(end = 4.dp)
+                                .size(24.dp),
                     )
-
-                    if (!isSummaryEmpty) {
-                        AsyncImage(
-                            model = Res.getUri("files/ic_right.svg"),
-                            contentDescription = "move",
-                            modifier =
-                                Modifier
-                                    .padding(end = 4.dp)
-                                    .align(Alignment.Bottom)
-                                    .size(24.dp),
-                        )
-                    }
                 }
             }
         },
