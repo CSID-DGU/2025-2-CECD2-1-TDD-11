@@ -51,4 +51,9 @@ class AuthRepositoryImpl(
         DefaultBooleanNotJsonMapper.responseToModel(apiCall = {
             authDataSource.postEmailVerification(request.email, request.code)
         })
+
+    override suspend fun deleteUser(): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = {
+            authDataSource.deleteUser()
+        })
 }

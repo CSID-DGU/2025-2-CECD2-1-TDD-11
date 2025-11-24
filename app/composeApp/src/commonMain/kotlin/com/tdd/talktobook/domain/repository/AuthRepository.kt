@@ -16,4 +16,6 @@ interface AuthRepository {
     suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<Boolean>>
 
     suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>>
+
+    suspend fun deleteUser(): Flow<Result<Boolean>>
 }

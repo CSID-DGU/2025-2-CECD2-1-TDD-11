@@ -24,4 +24,7 @@ class AuthDataSourceImpl(
 
     override suspend fun postEmailVerification(email: String, code: String): HttpResponse =
         authService.postEmailVerify(email, code)
+
+    override suspend fun deleteUser(): HttpResponse =
+        authService.deleteUser()
 }
