@@ -51,7 +51,7 @@ jobs:
               "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
               "cat > .env << EOF",
               "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",
-              "ECR_REPOSITORY_AI=${{ secrets.ECR_REPOSITORY_AGGREGATOR }}",
+              "ECR_REPOSITORY_AGGREGATOR=${{ secrets.ECR_REPOSITORY_AGGREGATOR }}",
               "IMAGE_TAG=${{ github.sha }}",
               "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}",
               "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}",
