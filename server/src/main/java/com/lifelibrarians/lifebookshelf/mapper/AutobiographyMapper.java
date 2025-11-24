@@ -1,6 +1,7 @@
 package com.lifelibrarians.lifebookshelf.mapper;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyChapter;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.classification.domain.Category;
@@ -12,6 +13,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public abstract class AutobiographyMapper {
@@ -40,17 +42,13 @@ public abstract class AutobiographyMapper {
     @Mapping(target = "imageUrl", ignore = true) // 이미지가 있다면 나중에 매핑
     public abstract AutobiographyMaterialResponseDto toAutobiographyMaterialResponseDto(Material material);
 
-	@Mapping(source = "autobiography.id", target = "autobiographyId")
-	@Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
-	public abstract AutobiographyDetailResponseDto toAutobiographyDetailResponseDto(
-			Autobiography autobiography,
-			Long interviewId
-	);
-
-	// 오버로드된 메서드 - interviewId 없이 사용
 	@Mapping(source = "id", target = "autobiographyId")
-	@Mapping(source = "coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
+	@Mapping(source = "autobiographyChapters", target = "chapters")
 	public abstract AutobiographyDetailResponseDto toAutobiographyDetailResponseDto(Autobiography autobiography);
+
+	@Mapping(source = "id", target = "chapterId")
+	@Mapping(source = "coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
+	public abstract AutobiographyDetailResponseDto.ChapterContent toChapterContent(AutobiographyChapter chapter);
 
     @Mapping(source="id", target="autobiographyId")
     public abstract AutobiographyCurrentResponseDto toAutobiographyCurrentResponseDto(Autobiography autobiography);
