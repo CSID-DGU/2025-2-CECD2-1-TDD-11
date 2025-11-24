@@ -45,8 +45,8 @@ class AggregatorService:
         
     def setup_rabbitmq(self):
         credentials = pika.PlainCredentials(
-            os.getenv('RABBITMQ_USER'),
-            os.getenv('RABBITMQ_PASSWORD')
+            os.getenv('RABBITMQ_DEFAULT_USER'),
+            os.getenv('RABBITMQ_DEFAULT_PASS')
         )
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
