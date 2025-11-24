@@ -33,4 +33,6 @@ interface AuthService {
     @DELETE(EndPoints.Auth.UNREGISTER)
     suspend fun deleteUser(): HttpResponse
 
+    @POST(EndPoints.Auth.LOGOUT)
+    suspend fun logOut(): HttpResponse
 }

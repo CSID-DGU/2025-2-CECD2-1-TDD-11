@@ -56,4 +56,7 @@ class AuthRepositoryImpl(
         DefaultBooleanMapper.responseToModel(apiCall = {
             authDataSource.deleteUser()
         })
+
+    override suspend fun logOut(): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { authDataSource.logOut() })
 }

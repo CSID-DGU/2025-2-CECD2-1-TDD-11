@@ -1,6 +1,7 @@
 package com.tdd.talktobook.app.di
 
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
+import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
@@ -54,6 +55,7 @@ val useCaseModule =
         factory { PostEmailSignUpUseCase(get()) }
         factory { PostEmailVerifyUseCase(get()) }
         factory { DeleteUserUseCase(get()) }
+        factory { LogOutUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }

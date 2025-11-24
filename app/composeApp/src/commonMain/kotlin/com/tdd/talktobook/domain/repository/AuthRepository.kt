@@ -18,4 +18,6 @@ interface AuthRepository {
     suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>>
 
     suspend fun deleteUser(): Flow<Result<Boolean>>
+
+    suspend fun logOut(): Flow<Result<Boolean>>
 }

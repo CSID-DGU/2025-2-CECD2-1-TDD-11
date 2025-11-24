@@ -7,6 +7,7 @@ object EndPoints {
         const val EMAILSIGNUP = "$AUTH/email-register"
         const val EMAILVERIFY = "$AUTH/email-verify"
         const val UNREGISTER = "$AUTH/unregister"
+        const val LOGOUT = "$AUTH/logout"
     }
 
     object Autobiography {

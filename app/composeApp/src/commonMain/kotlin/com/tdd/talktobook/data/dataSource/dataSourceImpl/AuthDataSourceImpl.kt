@@ -27,4 +27,7 @@ class AuthDataSourceImpl(
 
     override suspend fun deleteUser(): HttpResponse =
         authService.deleteUser()
+
+    override suspend fun logOut(): HttpResponse =
+        authService.logOut()
 }
