@@ -23,8 +23,16 @@ flow = load_flow(str(flow_path))
 class ImageGenerationRequest(BaseModel):
     autobiography_content: str
     chapter_title: Optional[str] = "부모님과 행복했던 나날"
-    style: Optional[str] = "natural"
-    size: Optional[str] = "1240x1754"
+    style: Optional[str] = "vivid"
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "autobiography_content": "어머니와의 소중한 추억들은 제 삶의 가장 따뜻한 뿌리입니다. 어린 시절의 집은 늘 아침 냄새로 가득했어요.",
+                "chapter_title": "부모님과 행복했던 나날",
+                "style": "vivid"
+            }
+        }
 
 
 class ImageGenerationResponse(BaseModel):
@@ -43,8 +51,7 @@ async def generate_image(request: ImageGenerationRequest):
     try:
         result = flow(
             autobiography_content=request.autobiography_content,
-            style=request.style,
-            size=request.size
+            style=request.style
         )
         
         image_url = result.get("image_url")

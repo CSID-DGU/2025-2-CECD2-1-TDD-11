@@ -4,13 +4,13 @@ import json
 import os
 
 @tool
-def generate_image(autobiography_content: str, style: str = "natural", size: str = "1024x1024") -> str:
+def generate_image(autobiography_content: str, style: str = "natural") -> str:
     """
-    자서전 내용을 바탕으로 이미지 생성
+    하드코딩된 프롬프트로 이미지 생성 (1024x1792 고정)
     """
     try:
-        # 하드코딩된 프롬프트 + 자서전 내용
-        prompt = f'다음 내용은 자서전의 챕터이다. 해당 챕터의 표지를 작성하시오.: "{autobiography_content}"'
+        # 하드코딩된 프롬프트 템플릿
+        prompt = f"Create a symbolic scene with a cover-like, centered composition and elegant typography-friendly negative space. IMPORTANT: Do NOT include any text, words, letters, numbers, or written characters in the image. Do NOT depict a book, book cover, or any text layout. The theme should be: {autobiography_content}"
         
         api_key = None
         
@@ -30,11 +30,6 @@ def generate_image(autobiography_content: str, style: str = "natural", size: str
         if not api_key:
             return "Error: No OpenAI API key found"
         
-        # 유효한 크기로 변환
-        valid_sizes = ["1024x1024", "1792x1024", "1024x1792"]
-        if size not in valid_sizes:
-            size = "1024x1024"
-        
         # OpenAI API 직접 호출
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -45,7 +40,7 @@ def generate_image(autobiography_content: str, style: str = "natural", size: str
             "model": "dall-e-3",
             "prompt": prompt,
             "style": style,
-            "size": size,
+            "size": "1024x1792",
             "quality": "standard",
             "n": 1
         }

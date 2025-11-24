@@ -4,10 +4,7 @@ inputs:
     type: string
   style:
     type: string
-    default: "natural"
-  size:
-    type: string
-    default: "1024x1024"
+    default: natural
 outputs:
   image_url:
     type: string
@@ -21,4 +18,3 @@ nodes:
   inputs:
     autobiography_content: ${inputs.autobiography_content}
     style: ${inputs.style}
-    size: ${inputs.size}
