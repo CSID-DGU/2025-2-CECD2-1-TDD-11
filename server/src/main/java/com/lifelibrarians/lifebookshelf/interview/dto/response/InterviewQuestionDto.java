@@ -20,7 +20,6 @@ public class InterviewQuestionDto {
 	private final Long questionId;
 
 	@Schema(description = "질문 순서", example = "1")
-    @JsonProperty("question_order")
 	private final int questionOrder;
 
 	@Schema(description = "질문 내용", example = "What is your name?")
