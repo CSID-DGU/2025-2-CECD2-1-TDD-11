@@ -52,7 +52,7 @@ internal fun InterviewScreen(
     val mergedChat =
         remember(uiState.interviewChatList, uiState.interviewProgressType, partial) {
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
-                d("[interview] 대화 -> $partial")
+                d("[stt] 대화 -> $partial")
                 uiState.interviewChatList +
                         InterviewChatItem(
                             content = partial,
@@ -62,6 +62,10 @@ internal fun InterviewScreen(
                 uiState.interviewChatList
             }
         }
+
+    LaunchedEffect(Unit) {
+        viewModel.getFirstQuestion(startQuestion)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
@@ -79,10 +83,6 @@ internal fun InterviewScreen(
                 }
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.getFirstQuestion(startQuestion)
     }
 
     InterviewContent(
