@@ -1,11 +1,13 @@
 package com.lifelibrarians.lifebookshelf.autobiography.service;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyChapter;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
+import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyChapterRepository;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
 import com.lifelibrarians.lifebookshelf.classification.service.ClassificationInitService;
@@ -34,6 +36,7 @@ public class AutobiographyCommandService {
 
 	private final AutobiographyRepository autobiographyRepository;
     private final AutobiographyStatusRepository autobiographyStatusRepository;
+    private final AutobiographyChapterRepository autobiographyChapterRepository;
     private final InterviewRepository interviewRepository;
     private final MemberRepository memberRepository;
 	private final ImageService imageService;
@@ -97,16 +100,19 @@ public class AutobiographyCommandService {
     }
 
 	public void patchAutobiography(Long memberId, Long autobiographyId, AutobiographyUpdateRequestDto requestDto) {
-		Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
-				.orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
-		if (!autobiography.getMember().getId().equals(memberId)) {
-			throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
-		}
+        AutobiographyChapter autobiographyChapter = autobiographyChapterRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_CHAPTER_NOT_FOUND::toServiceException);
+        if (!autobiographyChapter.getAutobiography().getMember().getId().equals(memberId)) {
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
 		String preSignedImageUrl = null;
 		if (!Objects.isNull(requestDto.getPreSignedCoverImageUrl()) && !requestDto.getPreSignedCoverImageUrl().isBlank()) {
 			preSignedImageUrl = imageService.parseImageUrl(requestDto.getPreSignedCoverImageUrl(), BIO_COVER_IMAGE_DIR);
 		}
-		autobiography.updateAutoBiography(requestDto.getTitle(), requestDto.getContent(), preSignedImageUrl, LocalDateTime.now());
+		autobiographyChapter.updateAutoBiographyChapter(requestDto.getTitle(), requestDto.getContent(), preSignedImageUrl, now);
 	}
 
     public void patchReasonAutobiography(Long memberId, Long autobiographyId, AutobiographyInitRequestDto requestDto) {

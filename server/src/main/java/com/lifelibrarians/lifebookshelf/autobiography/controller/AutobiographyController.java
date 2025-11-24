@@ -115,13 +115,13 @@ public class AutobiographyController {
 			}
 	)
 	@PreAuthorize("isAuthenticated()")
-	@PostMapping(value = "/{autobiographyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/{autobiographyChapterId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public void updateAutobiography(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
-			@PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+			@PathVariable("autobiographyChapterId") @Parameter(description = "자서전 챕터 ID") Long autobiographyChapterId,
 			@Valid @ModelAttribute AutobiographyUpdateRequestDto requestDto
 	) {
-		autobiographyFacadeService.patchAutobiography(memberSessionDto.getMemberId(), autobiographyId, requestDto);
+		autobiographyFacadeService.patchAutobiography(memberSessionDto.getMemberId(), autobiographyChapterId, requestDto);
 	}
 
     @Operation(summary = "특정 자서전의 생성 이유 수정 요청", description = "자서전 id로 자서전의 reason를 수정합니다.")
