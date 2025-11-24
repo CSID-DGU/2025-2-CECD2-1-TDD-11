@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tdd.talktobook.BuildKonfig
 import com.tdd.talktobook.core.designsystem.BackGround1
 import com.tdd.talktobook.core.designsystem.BackGround4
+import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Main1
@@ -156,27 +157,6 @@ private fun SettingProfileBox(
                 .background(BackGround1)
                 .border(1.dp, Main1, RoundedCornerShape(5.dp)),
     ) {
-//        Text(
-//            text = buildAnnotatedString {
-//                withStyle(
-//                    style = BookShelfTypo.Body1.toSpanStyle().copy(
-//                        color = Black1
-//                    )
-//                ) {
-//                    append(SettingEmail)
-//                }
-//
-//                withStyle(
-//                    style = BookShelfTypo.Caption3.toSpanStyle().copy(
-//                        color = Black1
-//                    )
-//                ) {
-//                    append(email)
-//                }
-//            },
-//            modifier = Modifier
-//                .padding(top = 12.dp, start = 15.dp)
-//        )
 
         Row(
             modifier = Modifier
@@ -187,7 +167,7 @@ private fun SettingProfileBox(
                 text = buildAnnotatedString {
                     withStyle(
                         style = BookShelfTypo.Caption1.toSpanStyle().copy(
-                            color = Gray5
+                            color = Black1
                         )
                     ) {
                         append(SettingAge)
@@ -195,7 +175,7 @@ private fun SettingProfileBox(
 
                     withStyle(
                         style = BookShelfTypo.Caption4.toSpanStyle().copy(
-                            color = Gray5
+                            color = Black1
                         )
                     ) {
                         append(ageGroup)
@@ -209,7 +189,7 @@ private fun SettingProfileBox(
                 text = buildAnnotatedString {
                     withStyle(
                         style = BookShelfTypo.Caption1.toSpanStyle().copy(
-                            color = Gray5
+                            color = Black1
                         )
                     ) {
                         append(SettingGender)
@@ -217,7 +197,7 @@ private fun SettingProfileBox(
 
                     withStyle(
                         style = BookShelfTypo.Caption4.toSpanStyle().copy(
-                            color = Gray5
+                            color = Black1
                         )
                     ) {
                         append(gender)
@@ -231,7 +211,7 @@ private fun SettingProfileBox(
                 text = buildAnnotatedString {
                     withStyle(
                         style = BookShelfTypo.Caption1.toSpanStyle().copy(
-                            color = Gray5
+                            color = Black1
                         )
                     ) {
                         append(SettingOccupation)
@@ -239,7 +219,7 @@ private fun SettingProfileBox(
 
                     withStyle(
                         style = BookShelfTypo.Caption4.toSpanStyle().copy(
-                            color = Gray5
+                            color = Black1
                         )
                     ) {
                         append(occupation)
