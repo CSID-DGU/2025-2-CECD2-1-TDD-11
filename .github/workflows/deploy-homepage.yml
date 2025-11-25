@@ -60,10 +60,10 @@ jobs:
       
       - name: Deploy to S3
         run: |
-          aws s3 sync homepage/out/ s3://${{ secrets.WEB_S3_BUCKET_NAME }}/homepage/ --delete
+          aws s3 sync homepage/_site/ s3://${{ secrets.WEB_S3_BUCKET_NAME }}/ --delete
       
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.WEB_CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/homepage/*"
+            --paths "/*"
