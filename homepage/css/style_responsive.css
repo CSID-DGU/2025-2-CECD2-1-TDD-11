@@ -1,0 +1,161 @@
+/* ========= LARGE DESKTOP ========= */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* ========= TABLET ========= */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .hero {
+    gap: 20px;
+    padding: 40px 30px;
+  }
+
+  .hero-content {
+    max-width: 60%;
+    padding-left: clamp(0px, 8vw, 150px);
+  }
+
+  .hero-phone {
+    width: clamp(200px, 28vw, 400px);
+    right: clamp(20px, 10vw, 200px);
+  }
+  
+  .qr-box {
+    right: clamp(30px, 15vw, 250px);
+  }
+  
+  .qr-image {
+    width: 200px;
+  }
+}
+
+/* ========= SMALL TABLET ========= */
+@media (min-width: 768px) and (max-width: 991px) {
+  .colord .col-md-3 {
+    width: 50%;
+    float: left;
+  }
+  
+  #contactUs .container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========= MOBILE ========= */
+@media (max-width: 767px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 15px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    text-align: center;
+    padding-left: 0;
+    margin-top: 120px;
+  }
+
+  .hero-phone {
+    position: static;
+    margin-top: 30px;
+    width: clamp(200px, 60vw, 300px);
+  }
+
+  .store-buttons {
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 40px;
+  }
+
+  .qr-box {
+    position: relative;
+    right: 0;
+    top: 0;
+    margin: 25px auto;
+  }
+  
+  .qr-image {
+    width: 160px;
+  }
+  
+  .colord .col-md-3 {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  
+  #aboutUs .step {
+    transform: scale(1);
+  }
+  
+  #contactUs .container {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .why-title {
+    font-size: clamp(28px, 6vw, 36px);
+  }
+}
+
+/* ========= SMALL MOBILE ========= */
+@media (max-width: 480px) {
+  .hero-content {
+    margin-top: 100px;
+  }
+  
+  .hero-title {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+  
+  .hero-subtitle {
+    font-size: clamp(16px, 4vw, 22px);
+  }
+  
+  .store-buttons {
+    margin-top: 30px;
+    gap: 15px;
+  }
+  
+  .store-badge {
+    height: clamp(35px, 10vw, 45px);
+  }
+  
+  .logo-wrap {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .logo-wrap img.logo-img {
+    width: 45px !important;
+  }
+  
+  .logo-wrap .logo-text {
+    font-size: 18px !important;
+  }
+  
+  .qr-image {
+    width: 140px;
+  }
+  
+  .qr-text {
+    font-size: 14px;
+  }
+  
+  .why-item {
+    padding: 20px 15px;
+  }
+  
+  .circle {
+    height: 60px;
+    width: 60px;
+    padding: 15px;
+  }
+  
+  .social a {
+    font-size: 24px;
+    margin: 0 6px;
+  }
+}
