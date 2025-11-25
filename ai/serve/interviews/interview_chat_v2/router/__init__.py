@@ -75,28 +75,28 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
                 session_manager.save_session(session_key, metrics, first_question)
             else:
             
-            # first_question_data에서 datetime 객체를 문자열로 변환
-            safe_question_data = None
-            if isinstance(first_question_data, dict):
-                safe_question_data = first_question_data.copy()
-                # datetime 객체가 있다면 문자열로 변환
-                for key, value in safe_question_data.items():
-                    if hasattr(value, 'isoformat'):  # datetime 객체 체크
-                        safe_question_data[key] = value.isoformat()
+                # first_question_data에서 datetime 객체를 문자열로 변환
+                safe_question_data = None
+                if isinstance(first_question_data, dict):
+                    safe_question_data = first_question_data.copy()
+                    # datetime 객체가 있다면 문자열로 변환
+                    for key, value in safe_question_data.items():
+                        if hasattr(value, 'isoformat'):  # datetime 객체 체크
+                            safe_question_data[key] = value.isoformat()
             
-            session_manager.save_session(
-                session_key,
-                metrics={
-                    "session_id": session_key,
-                    "user_id": user_id,
-                    "autobiography_id": autobiography_id,
-                    "preferred_categories": request.preferred_categories,
-                    "categories": [],  # Changed from {} to []
-                    "engine_state": {"last_material_id": None, "last_material_streak": 0},
-                    "asked_total": 1
-                },
-                last_question=safe_question_data
-            )
+                session_manager.save_session(
+                    session_key,
+                    metrics={
+                        "session_id": session_key,
+                        "user_id": user_id,
+                        "autobiography_id": autobiography_id,
+                        "preferred_categories": request.preferred_categories,
+                        "categories": [],  # Changed from {} to []
+                        "engine_state": {"last_material_id": None, "last_material_streak": 0},
+                        "asked_total": 1
+                    },
+                    last_question=safe_question_data
+                )
         
         # queue publish 용 데이터 세팅
         import json
