@@ -86,7 +86,7 @@ internal fun InterviewScreen(
 
     LaunchedEffect(nickName) {
         nickName.collect {
-            viewModel.setUsrNickName(it)
+            viewModel.setUserNickName(it)
         }
     }
 

@@ -23,6 +23,7 @@ import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import com.tdd.talktobook.feature.interview.type.SkipQuestionType
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -39,7 +40,10 @@ class InterviewViewModel(
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
-    fun setUsrNickName(name: String) {
+    private val viewModelCreatedAt: Long = Clock.System.now().toEpochMilliseconds()
+
+
+    fun setUserNickName(name: String) {
         updateState(
             uiState.value.copy(
                 nickName = name
@@ -136,6 +140,8 @@ class InterviewViewModel(
                 interviewChatList = updatedChatList,
             ),
         )
+
+        checkIsAutobiographyEnough()
     }
 
     fun beginInterview() {
@@ -166,9 +172,17 @@ class InterviewViewModel(
     }
 
     private fun checkIsAutobiographyEnough() {
-        // TODO 인터뷰 3분 경과 시
 
-        changeAutobiographyStatus()
+
+        val nowMillis = Clock.System.now().toEpochMilliseconds()
+        val elapsedMillis = nowMillis - viewModelCreatedAt
+        val threeMinutesMillis = 3 * 60 * 1000L
+
+        if (elapsedMillis >= threeMinutesMillis) {
+            d("[ktor] interview -> 3분 경과, 자서전 상태 변경")
+
+            changeAutobiographyStatus()
+        }
     }
 
     private fun changeAutobiographyStatus() {
