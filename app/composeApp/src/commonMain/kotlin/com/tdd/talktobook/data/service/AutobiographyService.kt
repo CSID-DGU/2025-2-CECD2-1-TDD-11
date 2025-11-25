@@ -71,6 +71,7 @@ interface AutobiographyService {
         @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 
+    @Multipart
     @PATCH(EndPoints.Autobiography.CREATE_AUTOBIOGRAPHY)
     suspend fun patchCreateAutobiography(
         @Path("autobiographyId") autobiographyId: Int,
@@ -81,6 +82,7 @@ interface AutobiographyService {
         @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 
+    @Multipart
     @PATCH(EndPoints.Autobiography.CHANGE_STATUS)
     suspend fun patchChangeStatus(
         @Path("autobiographyId") autobiographyId: Int,

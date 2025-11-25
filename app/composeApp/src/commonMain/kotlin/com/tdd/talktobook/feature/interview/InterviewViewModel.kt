@@ -12,6 +12,7 @@ import com.tdd.talktobook.domain.entity.response.interview.InterviewConversation
 import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.PatchCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
@@ -28,7 +29,8 @@ class InterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
     private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
-    private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase
+    private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
+    private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
@@ -73,8 +75,6 @@ class InterviewViewModel(
                 autobiographyId = id,
             ),
         )
-
-        changeAutobiographyStatus() // TODO 삭제
     }
 
     private fun initGetInterviewId() {
@@ -155,7 +155,7 @@ class InterviewViewModel(
     private fun checkIsAutobiographyEnough() {
         // TODO 인터뷰 3분 경과 시
 
-//        changeAutobiographyStatus()
+        changeAutobiographyStatus()
     }
 
     private fun changeAutobiographyStatus() {
@@ -176,6 +176,9 @@ class InterviewViewModel(
     }
 
     fun createCurrentAutobiography() {
-        d("[test] interview -> 자서전 생성 요청")
+        d("[ktor] interview -> 자서전 생성 요청")
+        viewModelScope.launch {
+            createAutobiographyUseCase(uiState.value.autobiographyId).collect { resultResponse(it, {}) }
+        }
     }
 }
