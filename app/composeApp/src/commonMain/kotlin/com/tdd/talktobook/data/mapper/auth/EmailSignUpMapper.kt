@@ -1,22 +1,24 @@
 package com.tdd.talktobook.data.mapper.auth
 
 import com.tdd.talktobook.data.base.BaseMapper
-import com.tdd.talktobook.data.entity.response.auth.EmailLogInResponseDto
-import com.tdd.talktobook.domain.entity.response.auth.AccessTokenModel
+import com.tdd.talktobook.data.entity.response.auth.EmailTokenResponseDto
+import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
 object EmailSignUpMapper : BaseMapper() {
-    fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<AccessTokenModel>> {
+    fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<TokenModel>> {
         return baseMapper(
             apiCall = { apiCall() },
-            successDeserializer = EmailLogInResponseDto.serializer(),
+            successDeserializer = EmailTokenResponseDto.serializer(),
             responseToModel = { response ->
                 response?.let { data ->
-                    AccessTokenModel(
+                    TokenModel(
                         accessToken = data.accessToken,
+                        refreshToken = data.refreshToken,
+                        metadataSuccess = data.metaDataSuccess,
                     )
-                } ?: AccessTokenModel()
+                } ?: TokenModel()
             },
         )
     }

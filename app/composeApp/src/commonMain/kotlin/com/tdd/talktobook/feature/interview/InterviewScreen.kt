@@ -1,22 +1,11 @@
 package com.tdd.talktobook.feature.interview
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,34 +13,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger.Companion.d
-import com.tdd.talktobook.core.designsystem.Blue300
-import com.tdd.talktobook.core.designsystem.BookShelfTypo
-import com.tdd.talktobook.core.designsystem.Gray50
-import com.tdd.talktobook.core.designsystem.Gray600
+import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
-import com.tdd.talktobook.core.designsystem.White0
+import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogBtn
+import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogContent
+import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogTitle
+import com.tdd.talktobook.core.ui.common.button.RectangleBtn
+import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.util.rememberSpeechToText
 import com.tdd.talktobook.domain.entity.enums.ChatType
+import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun InterviewScreen(
-    interviewId: Int,
-    goBackPage: () -> Unit,
+    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    startQuestion: String = "",
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -64,7 +52,7 @@ internal fun InterviewScreen(
     val mergedChat =
         remember(uiState.interviewChatList, uiState.interviewProgressType, partial) {
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
-                d("[인터뷰] 대화 -> $partial")
+                d("[stt] 대화 -> $partial")
                 uiState.interviewChatList +
                     InterviewChatItem(
                         content = partial,
@@ -76,13 +64,30 @@ internal fun InterviewScreen(
         }
 
     LaunchedEffect(Unit) {
-        viewModel.setInterview(interviewId)
+        viewModel.getFirstQuestion(startQuestion)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is InterviewEvent.ShowStartAutobiographyDialog -> {
+                    showStartAutobiographyDialog(
+                        OneBtnDialogModel(
+                            title = StartAutobiographyDialogTitle,
+                            semiTitle = StartAutobiographyDialogContent,
+                            btnText = StartAutobiographyDialogBtn,
+                            isBottomTextVisible = true,
+                            bottomText = NextTime,
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     InterviewContent(
         interviewChatList = mergedChat,
         interactionSource = interactionSource,
-        onClickBack = { goBackPage() },
         interviewProgressType = uiState.interviewProgressType,
         isInterviewProgressIng = (uiState.interviewProgressType == ConversationType.ING),
         onStartInterview = {
@@ -108,7 +113,6 @@ internal fun InterviewScreen(
 private fun InterviewContent(
     interviewChatList: List<InterviewChatItem> = emptyList(),
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
-    onClickBack: () -> Unit = {},
     interviewProgressType: ConversationType = ConversationType.BEFORE,
     isInterviewProgressIng: Boolean = false,
     onStartInterview: () -> Unit = {},
@@ -118,145 +122,35 @@ private fun InterviewContent(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(White0),
+                .background(BackGround2),
     ) {
         TopBarContent(
             content = InterviewScreenTitle,
             interactionSource = interactionSource,
-            onClickIcon = onClickBack,
+            iconVisible = false,
         )
 
-        InterviewChat(
+        InterviewList(
+            interviewList = interviewChatList,
             modifier = Modifier.weight(1f),
-            interviewChatList = interviewChatList,
         )
 
-        Box(
-            modifier =
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 35.dp)
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(Blue300)
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null,
-                        onClick = {
-                            if (isInterviewProgressIng) {
-                                onFinishInterview()
-                            } else {
-                                onStartInterview()
-                            }
-                        },
-                    ),
-        ) {
-            Image(
-                painter =
-                    painterResource(
-                        ConversationType.getConversationBtnImg(
-                            interviewProgressType,
-                        ),
-                    ),
-                contentDescription = "interview btn",
-                modifier =
-                    Modifier
-                        .width(45.dp)
-                        .align(Alignment.Center),
-            )
-        }
-    }
-}
-
-@Composable
-private fun InterviewChat(
-    modifier: Modifier,
-    interviewChatList: List<InterviewChatItem>,
-) {
-    BoxWithConstraints(
-        modifier =
-            modifier
-                .padding(bottom = 120.dp)
-                .fillMaxWidth(),
-    ) {
-        val chatMaxWidth = maxWidth * 0.7f
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-        ) {
-            interviewChatList.forEachIndexed { index, chatItem ->
-                when (chatItem.chatType) {
-                    ChatType.BOT -> {
-                        InterviewBotChatItem(
-                            content = chatItem.content,
-                            modifier =
-                                Modifier
-                                    .align(Alignment.Start)
-                                    .padding(start = 20.dp)
-                                    .widthIn(max = chatMaxWidth),
-                        )
-                    }
-
-                    ChatType.HUMAN -> {
-                        InterviewHumanChatItem(
-                            content = chatItem.content,
-                            modifier =
-                                Modifier
-                                    .align(Alignment.End)
-                                    .padding(end = 20.dp)
-                                    .widthIn(max = chatMaxWidth),
-                        )
-                    }
+        RectangleBtn(
+            btnContent =
+                ConversationType.getConversationBtnImg(
+                    interviewProgressType,
+                ),
+            isBtnActivated = true,
+            onClickAction = {
+                if (isInterviewProgressIng) {
+                    onFinishInterview()
+                } else {
+                    onStartInterview()
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun InterviewBotChatItem(
-    content: String,
-    modifier: Modifier,
-) {
-    Box(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomEnd = 12.dp))
-                .background(Gray50),
-    ) {
-        Text(
-            text = content,
-            color = Gray600,
-            style = BookShelfTypo.Regular,
-            fontSize = 14.sp,
-            modifier =
-                Modifier
-                    .padding(top = 20.dp, bottom = 20.dp, start = 16.dp, end = 20.dp),
+            },
         )
-    }
-}
 
-@Composable
-private fun InterviewHumanChatItem(
-    content: String,
-    modifier: Modifier,
-) {
-    Box(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 12.dp))
-                .background(Blue300),
-    ) {
-        Text(
-            text = content,
-            color = White0,
-            style = BookShelfTypo.Regular,
-            fontSize = 14.sp,
-            modifier =
-                Modifier
-                    .padding(top = 20.dp, bottom = 20.dp, end = 16.dp, start = 20.dp),
-        )
+        Spacer(modifier = Modifier.height(15.dp))
     }
 }
 

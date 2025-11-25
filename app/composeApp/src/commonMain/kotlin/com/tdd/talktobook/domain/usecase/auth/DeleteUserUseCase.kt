@@ -8,7 +8,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class DeleteUserUseCase(
     private val repository: AuthRepository,
-) : UseCase<Unit, Result<Unit>>() {
-    override suspend fun invoke(request: Unit): Flow<Result<Unit>> =
+) : UseCase<Unit, Result<Boolean>>() {
+    override suspend fun invoke(request: Unit): Flow<Result<Boolean>> =
         repository.deleteUser()
 }
