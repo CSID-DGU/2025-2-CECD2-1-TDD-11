@@ -93,7 +93,6 @@ export default function VerifyCodePage() {
             type="text"
             value={verificationCode}
             onChange={handleInputChange}
-            leftIcon={<CheckCircle size={20} />}
             placeholder="6자리 숫자 입력"
             error={error}
             maxLength={6}

@@ -105,7 +105,6 @@ export default function RegisterPage() {
             type="email"
             value={formData.email}
             onChange={handleInputChange('email')}
-            leftIcon={<Mail size={20} />}
             placeholder="이메일을 입력하세요"
             error={errors.email}
             helperText="인증 메일이 발송됩니다"
@@ -116,7 +115,6 @@ export default function RegisterPage() {
             type={showPassword ? 'text' : 'password'}
             value={formData.password}
             onChange={handleInputChange('password')}
-            leftIcon={<Lock size={20} />}
             rightIcon={showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             onRightIconClick={() => setShowPassword(!showPassword)}
             placeholder="비밀번호를 입력하세요"
@@ -129,7 +127,6 @@ export default function RegisterPage() {
             type={showConfirmPassword ? 'text' : 'password'}
             value={formData.confirmPassword}
             onChange={handleInputChange('confirmPassword')}
-            leftIcon={<Lock size={20} />}
             rightIcon={showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
             placeholder="비밀번호를 다시 입력하세요"

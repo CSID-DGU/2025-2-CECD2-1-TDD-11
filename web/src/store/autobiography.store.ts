@@ -52,7 +52,7 @@ export const useAutobiographyStore = create<AutobiographyState>()(
         }),
 
       setStatus: (
-        status: 'EMPTY' | 'PROGRESSING' | 'CREATING' | 'FINISH' | null
+        status: 'EMPTY' | 'PROGRESSING' | 'ENOUGH' | 'CREATING' | 'FINISH' | null
       ) =>
         set({
           status: status,
