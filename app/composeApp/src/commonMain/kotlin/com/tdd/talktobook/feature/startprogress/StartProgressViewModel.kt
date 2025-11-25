@@ -47,6 +47,15 @@ class StartProgressViewModel(
         )
     }
 
+    fun onNickNameValueChange(newValue: String) {
+        updateState(
+            uiState.value.copy(
+                nickNameInput = newValue,
+                isBtnActivated = newValue.isNotEmpty()
+            )
+        )
+    }
+
     fun onReasonValueChange(newValue: String) {
         updateState(
             uiState.value.copy(

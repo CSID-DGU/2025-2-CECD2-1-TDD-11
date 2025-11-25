@@ -6,6 +6,7 @@ import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
@@ -30,10 +31,18 @@ class InterviewViewModel(
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
     private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
     private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
-    private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase
+    private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
+    fun setUsrNickName(name: String) {
+        updateState(
+            uiState.value.copy(
+                nickName = name
+            )
+        )
+    }
+
     fun getFirstQuestion(question: String) {
         if (question.isNotEmpty()) {
             addInterviewConversation(question, ChatType.BOT)
@@ -171,14 +180,14 @@ class InterviewViewModel(
 
     private fun saveAutobiographyStatus() {
         viewModelScope.launch {
-            saveAutobiographyStatusUseCase(AutobiographyStatusType.ENOUGH).collect { resultResponse(it, {})}
+            saveAutobiographyStatusUseCase(AutobiographyStatusType.ENOUGH).collect { resultResponse(it, {}) }
         }
     }
 
     fun createCurrentAutobiography() {
         d("[ktor] interview -> 자서전 생성 요청")
         viewModelScope.launch {
-            createAutobiographyUseCase(uiState.value.autobiographyId).collect { resultResponse(it, {}) }
+            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
         }
     }
 }

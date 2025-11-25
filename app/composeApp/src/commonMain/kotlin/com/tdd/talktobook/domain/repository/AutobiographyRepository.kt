@@ -19,8 +19,6 @@ import kotlinx.coroutines.flow.Flow
 interface AutobiographyRepository {
     suspend fun getAllAutobiographies(): Flow<Result<AllAutobiographyListModel>>
 
-    suspend fun postCreateAutobiographies(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>>
-
     suspend fun getAutobiographiesDetail(autobiographyId: Int): Flow<Result<AutobiographiesDetailModel>>
 
     suspend fun postEditAutobiographiesDetail(body: EditAutobiographyDetailRequestModel): Flow<Result<Boolean>>
@@ -43,7 +41,7 @@ interface AutobiographyRepository {
 
     suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>>
 
-    suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>>
+    suspend fun patchCreateAutobiography(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>>
 
     suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>>
 

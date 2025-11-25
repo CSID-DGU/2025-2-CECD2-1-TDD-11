@@ -3,12 +3,15 @@ package com.tdd.talktobook.feature
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class MainViewModel : BaseViewModel<MainPageState>(
     MainPageState(),
 ) {
+    val userNickName = MutableStateFlow("")
+
     fun setBottomNavType(route: String?) {
         val type =
             when (route) {

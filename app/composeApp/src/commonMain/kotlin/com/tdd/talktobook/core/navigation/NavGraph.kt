@@ -17,6 +17,7 @@ import com.tdd.talktobook.feature.onboarding.OnboardingScreen
 import com.tdd.talktobook.feature.publication.PublicationScreen
 import com.tdd.talktobook.feature.setting.SettingScreen
 import com.tdd.talktobook.feature.startprogress.StartProgressScreen
+import kotlinx.coroutines.flow.StateFlow
 
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
@@ -134,6 +135,7 @@ fun NavGraphBuilder.pastInterviewNavGraph(
 fun NavGraphBuilder.interviewNavGraph(
     navController: NavController,
     showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
+    userNickName: StateFlow<String>
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
@@ -155,7 +157,8 @@ fun NavGraphBuilder.interviewNavGraph(
             InterviewScreen(
                 showStartAutobiographyDialog = showOneBtnDialogModel,
                 startQuestion = question,
-                showCreateAutobiographyDialog = showOneBtnDialogModel
+                showCreateAutobiographyDialog = showOneBtnDialogModel,
+                nickName = userNickName
             )
         }
     }
@@ -163,6 +166,7 @@ fun NavGraphBuilder.interviewNavGraph(
 
 fun NavGraphBuilder.startProgressNavGraph(
     navController: NavController,
+    setUserNickName: (String) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.StartProgressScreen.route,
@@ -172,6 +176,7 @@ fun NavGraphBuilder.startProgressNavGraph(
             StartProgressScreen(
                 goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
                 goBackToHome = { navController.popBackStack() },
+                setUserNickName = setUserNickName
             )
         }
     }

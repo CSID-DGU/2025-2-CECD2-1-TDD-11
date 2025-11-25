@@ -36,6 +36,7 @@ import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.feature.interview.type.ConversationType
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -46,6 +47,7 @@ internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     startQuestion: String = "",
+    nickName: StateFlow<String>
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -72,6 +74,12 @@ internal fun InterviewScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getFirstQuestion(startQuestion)
+    }
+
+    LaunchedEffect(nickName) {
+        nickName.collect {
+            viewModel.setUsrNickName(it)
+        }
     }
 
     LaunchedEffect(Unit) {

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tdd.talktobook.core.designsystem.BackGround2
+import com.tdd.talktobook.core.designsystem.NickNameInputHint
 import com.tdd.talktobook.core.designsystem.ReasonWriteHint
 import com.tdd.talktobook.core.designsystem.StartProgressTitle
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
@@ -28,6 +29,7 @@ import com.tdd.talktobook.core.ui.common.content.SeriesTitleText
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
 import com.tdd.talktobook.core.ui.common.textfield.ExplainTextFieldBox
+import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
 import com.tdd.talktobook.domain.entity.enums.MaterialType
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
 import org.koin.compose.viewmodel.koinViewModel
@@ -36,6 +38,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun StartProgressScreen(
     goToInterviewPage: (String) -> Unit,
     goBackToHome: () -> Unit,
+    setUserNickName: (String) -> Unit,
 ) {
     val viewModel: StartProgressViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,7 +58,10 @@ internal fun StartProgressScreen(
     StartProgressContent(
         pageType = uiState.pageType,
         onClickNext = { viewModel.setPageType(it) },
-        onClickStartProgress = { viewModel.postStartProgress() },
+        onClickStartProgress = {
+            setUserNickName(uiState.nickNameInput)
+            viewModel.postStartProgress()
+        },
         selectedMaterial = uiState.material,
         onSelectMaterial = { viewModel.setMaterial(it) },
         reasonInput = uiState.reasonInput,
@@ -63,12 +69,14 @@ internal fun StartProgressScreen(
         isBtnActivated = uiState.isBtnActivated,
         interactionSource = interactionSource,
         onClickBack = { goBackToHome() },
+        nickNameInput = uiState.nickNameInput,
+        onNickNameValueChange = { viewModel.onNickNameValueChange(it) }
     )
 }
 
 @Composable
 private fun StartProgressContent(
-    pageType: StartProgressPageType = StartProgressPageType.FIRST_PAGE,
+    pageType: StartProgressPageType = StartProgressPageType.BEGIN_PAGE,
     onClickNext: (StartProgressPageType) -> Unit,
     onClickStartProgress: () -> Unit,
     selectedMaterial: MaterialType,
@@ -78,6 +86,8 @@ private fun StartProgressContent(
     isBtnActivated: Boolean = false,
     interactionSource: MutableInteractionSource,
     onClickBack: () -> Unit,
+    nickNameInput: String,
+    onNickNameValueChange: (String) -> Unit,
 ) {
     Column(
         modifier =
@@ -95,8 +105,8 @@ private fun StartProgressContent(
         Spacer(modifier = Modifier.padding(top = 15.dp))
 
         SeriesNumText(
-            totalNum = 2,
-            currentNum = pageType.page,
+            totalNum = 3,
+            currentNum = pageType.page + 1,
         )
 
         SeriesTitleText(
@@ -108,6 +118,16 @@ private fun StartProgressContent(
             modifier = Modifier.weight(1f),
         ) {
             when (pageType) {
+                StartProgressPageType.BEGIN_PAGE -> {
+                    Spacer(modifier = Modifier.padding(top = 50.dp))
+
+                    TextFieldBox(
+                        textInput = nickNameInput,
+                        onValueChange = onNickNameValueChange,
+                        hintText = NickNameInputHint
+                    )
+                }
+
                 StartProgressPageType.FIRST_PAGE -> {
                     SelectMaterial(
                         selectedMaterial = selectedMaterial,
@@ -134,6 +154,7 @@ private fun StartProgressContent(
             isBtnActivated = isBtnActivated,
             onClickAction = {
                 when (pageType) {
+                    StartProgressPageType.BEGIN_PAGE -> onClickNext(StartProgressPageType.FIRST_PAGE)
                     StartProgressPageType.FIRST_PAGE -> onClickNext(StartProgressPageType.SECOND_PAGE)
                     StartProgressPageType.SECOND_PAGE -> onClickStartProgress()
                 }
@@ -142,6 +163,11 @@ private fun StartProgressContent(
 
         Spacer(modifier = Modifier.padding(bottom = 60.dp))
     }
+}
+
+@Composable
+private fun WriteNickname() {
+    //
 }
 
 @Composable

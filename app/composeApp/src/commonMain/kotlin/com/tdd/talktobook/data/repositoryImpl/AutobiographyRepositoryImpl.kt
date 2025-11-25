@@ -6,7 +6,6 @@ import com.tdd.talktobook.data.mapper.autobiograph.AllAutobiographyMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographiesDetailMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographyChapterMapper
 import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyChaptersMapper.toDto
-import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.EditAutobiographyDetailMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.GetCountMaterialsMapper
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentInterviewProgressMapper
@@ -40,13 +39,6 @@ class AutobiographyRepositoryImpl(
 ) : AutobiographyRepository {
     override suspend fun getAllAutobiographies(): Flow<Result<AllAutobiographyListModel>> =
         AllAutobiographyMapper.responseToModel(apiCall = { autobiographyDataSource.getAllAutobiographies() })
-
-    override suspend fun postCreateAutobiographies(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = {
-            autobiographyDataSource.postCreateAutobiographies(
-                body.toDto(),
-            )
-        })
 
     override suspend fun getAutobiographiesDetail(autobiographyId: Int): Flow<Result<AutobiographiesDetailModel>> =
         AutobiographiesDetailMapper.responseToModel(apiCall = {
@@ -113,10 +105,10 @@ class AutobiographyRepositoryImpl(
     override suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>> =
         flow { localDataStore.saveCurrentAutobiographyStatus(currentStatue.type) }
 
-    override suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>> =
+    override suspend fun patchCreateAutobiography(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             autobiographyDataSource.patchCreateAutobiography(
-                autobiographyId,
+                body.autobiographyId, body.name,
             )
         })
 

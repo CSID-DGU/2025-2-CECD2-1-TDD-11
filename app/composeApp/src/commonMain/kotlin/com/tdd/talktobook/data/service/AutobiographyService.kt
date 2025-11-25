@@ -75,6 +75,7 @@ interface AutobiographyService {
     @PATCH(EndPoints.Autobiography.CREATE_AUTOBIOGRAPHY)
     suspend fun patchCreateAutobiography(
         @Path("autobiographyId") autobiographyId: Int,
+        @Part("name") name: String,
     ): HttpResponse
 
     @GET(EndPoints.Autobiography.SELECTED_THEME)

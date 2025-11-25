@@ -131,6 +131,8 @@ const val HomeNotExistSummary = "대화 내역이 없습니다"
 
 // Start Progress
 const val StartProgressTitle = "자서전 생성 시작"
+const val StartProgressBeginPage = "자서전을 생성할 이름(닉네임)을 작성해 주세요."
+const val NickNameInputHint = "닉네임 (ex: 대화로)"
 const val StartProgressFirstPage = "가장 처음 대화하고 싶은 주제를\n선택해 주세요."
 const val StartProgressSecondPage = "자서전의 생성 목적을\n간단히 작성해 주세요."
 const val StartInterviewBtn = "인터뷰 시작"
