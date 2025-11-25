@@ -154,7 +154,10 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         # 세션 로드
         session_data = session_manager.load_session(session_key)
         if not session_data:
-            raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
+            # 세션이 없으면 자동 생성 (첫 질문 생성)
+            print(f"[INFO] Session not found for {session_key}, creating new session")
+            session_manager.create_session(session_key, user_id, autobiography_id, preferred_categories=[])
+            session_data = session_manager.load_session(session_key)
         
         # flow 실행 전 metrics 저장
         previous_metrics = session_data.get("metrics", {})

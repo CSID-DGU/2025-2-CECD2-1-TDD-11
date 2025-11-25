@@ -529,7 +529,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "last_question": next_question,
                 "updated_at": time.time()
             }
-            redis_client.setex(session_key, 3600, json.dumps(session_update))
+            redis_client.set(session_key, json.dumps(session_update))
             
             print(f"\n🚧 [Material Gate] {full_material_name} - 진입 확인 질문 생성")
             if last_question_type == "material_gate" and is_different_material:
@@ -702,7 +702,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "last_question": next_question,
             "updated_at": time.time()
         }
-        redis_client.setex(session_key, 3600, json.dumps(session_update))
+        redis_client.set(session_key, json.dumps(session_update))
 
         print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
         print(f"[DEBUG] 선택된 소재 ID: {material_id}, chunk_weight: {category.chunk_weight.get(chunk_num, 0)}, progress_score: {material.progress_score()}")
