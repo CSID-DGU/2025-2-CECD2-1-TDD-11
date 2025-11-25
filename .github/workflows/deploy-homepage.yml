@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  web-build:
+  jekyll-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,14 +42,14 @@ jobs:
           path: homepage/_site/
           if-no-files-found: error
 
-  deploy-web-to-s3:
+  deploy-jekyll-to-s3:
     runs-on: ubuntu-latest
-    needs: [web-build]
+    needs: [jekyll-build]
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: web-build
+          name: jekyll-build
           path: homepage/out/
       
       - name: Configure AWS credentials
