@@ -54,20 +54,27 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         
         first_question = result.get("next_question")
         
-        # 세션 저장
+        # 세션 저장 (첫 질문 포함)
         if first_question:
-            session_manager.save_session(
-                session_key,
-                metrics={
-                    "session_id": session_key,
-                    "user_id": user_id,
-                    "autobiography_id": autobiography_id,
-                    "categories": {},
-                    "engine_state": {"last_material_id": None},
-                    "asked_total": 0
-                },
-                last_question=first_question
-            )
+            session_data = session_manager.load_session(session_key)
+            if session_data:
+                metrics = session_data.get("metrics", {})
+                metrics["asked_total"] = metrics.get("asked_total", 0) + 1
+                session_manager.save_session(session_key, metrics, first_question)
+            else:
+                session_manager.save_session(
+                    session_key,
+                    metrics={
+                        "session_id": session_key,
+                        "user_id": user_id,
+                        "autobiography_id": autobiography_id,
+                        "preferred_categories": request.preferred_categories,
+                        "categories": [],
+                        "engine_state": {"last_material_id": None, "last_material_streak": 0},
+                        "asked_total": 1
+                    },
+                    last_question=first_question
+                )
         
         return SessionStartResponseDto(
             first_question=first_question

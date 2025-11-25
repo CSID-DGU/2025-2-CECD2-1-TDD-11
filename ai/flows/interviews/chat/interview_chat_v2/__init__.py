@@ -92,7 +92,11 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
     session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None
-    print(f"[DEBUG] Session loaded")
+    print(f"[DEBUG] Session loaded: session_data={session_data is not None}")
+    if session_data:
+        print(f"[DEBUG] last_question exists: {session_data.get('last_question') is not None}")
+        if session_data.get('last_question'):
+            print(f"[DEBUG] last_question: {session_data.get('last_question')}")
 
     # 첫 질문 분기
     if not session_data or not session_data.get("last_question"):
@@ -183,22 +187,48 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full)
 
         # 소재 매칭
+        print(f"[DEBUG] LLM items count: {len(llm_items)}")
         for item in llm_items:
             if not isinstance(item, dict) or not item.get("material"):
+                print(f"[DEBUG] Skipping invalid item: {item}")
                 continue
             
-            name = item["material"]
-            key = name if name in material_mapping else norm_index.get(_norm(name))
+            material_value = item["material"]
+            print(f"[DEBUG] material_value type: {type(material_value)}, value: {material_value}")
+            
+            # dict 형태면 name 추출, 아니면 문자열 그대로
+            if isinstance(material_value, dict):
+                name = material_value.get("name", "")
+                print(f"[DEBUG] Extracted name from dict: '{name}'")
+            else:
+                name = str(material_value)
+                print(f"[DEBUG] Using string as-is: '{name}'")
+            
+            if not name:
+                print(f"[DEBUG] Empty name, skipping")
+                continue
+            
+            # 매핑 파일에서 찾기 (여러 패턴 시도)
+            key = None
+            for k in material_mapping.keys():
+                if name in k or _norm(name) in _norm(k):
+                    key = k
+                    print(f"[DEBUG] Found matching key: {k[:80]}...")
+                    break
+            
             if not key:
+                print(f"[DEBUG] No matching key found for name: '{name}'")
                 continue
 
             matched_materials.append(key)
             axes_analysis_by_material[key] = item.get("axes", {})
             
-            # 소재 ID 매핑
             mid = material_mapping.get(key)
             if isinstance(mid, list) and len(mid) == 3:
                 mapped_ids.append(mid)
+                print(f"[DEBUG] Mapped to ID: {mid}")
+            else:
+                print(f"[DEBUG] Invalid mapping ID: {mid}")
 
         # LLM 분석 결과 반영
         for i, material_id in enumerate(mapped_ids):
