@@ -8,7 +8,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    
-    @Query("SELECT c.name FROM Category c WHERE c.order = :categoryOrder")
-    Optional<String> findNameByOrder(@Param("categoryOrder") Integer categoryOrder);
+
+    @Query("SELECT c.name FROM Category c WHERE c.autobiography.id = :autobiographyId AND c.order = :categoryOrder")
+    Optional<String> findNameByOrder(
+            @Param("autobiographyId") Long autobiographyId,
+            @Param("categoryOrder") Integer categoryOrder
+    );
 }
