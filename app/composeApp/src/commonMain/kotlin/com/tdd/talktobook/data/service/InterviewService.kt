@@ -6,6 +6,7 @@ import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 import io.ktor.client.statement.HttpResponse
 
 interface InterviewService {
@@ -28,5 +29,12 @@ interface InterviewService {
     @GET(EndPoints.Interview.INTERVIEWQUESTIONLIST)
     suspend fun getInterviewQuestionList(
         @Path("interviewId") interviewId: Int,
+    ): HttpResponse
+
+    @GET(EndPoints.Interview.INTERVIEW_SUMMARY)
+    suspend fun getInterviewSummaries(
+        @Path("autobiographyId") autobiographyId: Int,
+        @Query("year") year: Int,
+        @Query("month") month: Int,
     ): HttpResponse
 }

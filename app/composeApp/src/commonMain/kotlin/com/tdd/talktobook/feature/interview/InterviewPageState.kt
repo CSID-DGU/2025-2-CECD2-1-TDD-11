@@ -9,6 +9,7 @@ import com.tdd.talktobook.feature.interview.type.ConversationType
 data class InterviewPageState(
     val interviewConversationModel: InterviewConversationListModel = InterviewConversationListModel(),
     val interviewChatList: List<InterviewChatItem> = emptyList(),
+    val autobiographyId: Int = 0,
     val interviewId: Int = 0,
     val interviewQuestionList: List<InterviewQuestionItemModel> = emptyList(),
     val interviewCurrentQuestionId: Int = 0,

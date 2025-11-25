@@ -1,7 +1,7 @@
 package com.tdd.talktobook.domain.entity.request.interview.ai
 
 import com.tdd.talktobook.domain.entity.response.autobiography.ChapterInfoModel
-import com.tdd.talktobook.domain.entity.response.member.MemberInfoModel
+import com.tdd.talktobook.domain.entity.request.member.MemberInfoModel
 
 data class InterviewQuestionsRequestModel(
     val userInfo: MemberInfoModel = MemberInfoModel(),

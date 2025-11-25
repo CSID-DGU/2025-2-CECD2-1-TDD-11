@@ -22,5 +22,18 @@ class AuthDataSourceImpl(
     ): HttpResponse =
         authService.postEmailSignUp(email, password)
 
-    override suspend fun deleteUser(): HttpResponse = authService.deleteUser()
+    override suspend fun postEmailVerification(
+        email: String,
+        code: String,
+    ): HttpResponse =
+        authService.postEmailVerify(email, code)
+
+    override suspend fun deleteUser(): HttpResponse =
+        authService.deleteUser()
+
+    override suspend fun logOut(): HttpResponse =
+        authService.logOut()
+
+    override suspend fun reissue(refreshToken: String): HttpResponse =
+        authService.reissue(refreshToken)
 }

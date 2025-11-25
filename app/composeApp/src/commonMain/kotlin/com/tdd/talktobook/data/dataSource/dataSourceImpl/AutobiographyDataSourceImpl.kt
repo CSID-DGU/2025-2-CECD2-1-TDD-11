@@ -38,4 +38,25 @@ class AutobiographyDataSourceImpl(
 
     override suspend fun postUpdateCurrentChapter(): HttpResponse =
         autobiographyService.updateCurrentChapter()
+
+    override suspend fun getCurrentProgressAutobiography(): HttpResponse =
+        autobiographyService.getCurrentProgressAutobiography()
+
+    override suspend fun postStartProgress(
+        theme: String,
+        reason: String,
+    ): HttpResponse =
+        autobiographyService.postStartProgress(theme, reason)
+
+    override suspend fun getCountMaterials(autobiographyId: Int): HttpResponse =
+        autobiographyService.getCountMaterials(autobiographyId)
+
+    override suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse =
+        autobiographyService.getCurrentInterviewProgress(autobiographyId)
+
+    override suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse =
+        autobiographyService.patchCreateAutobiography(autobiographyId)
+
+    override suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse =
+        autobiographyService.getSelectedTheme(autobiographyId)
 }

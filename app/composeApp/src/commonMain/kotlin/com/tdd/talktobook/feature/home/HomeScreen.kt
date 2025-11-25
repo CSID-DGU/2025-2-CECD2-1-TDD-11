@@ -1,398 +1,551 @@
 package com.tdd.talktobook.feature.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import talktobook.composeapp.generated.resources.Res
 import coil3.compose.AsyncImage
-import com.tdd.talktobook.core.designsystem.BackGround3
+import com.tdd.talktobook.core.designsystem.BackGround1
+import com.tdd.talktobook.core.designsystem.BackGround2
+import com.tdd.talktobook.core.designsystem.Black1
+import com.tdd.talktobook.core.designsystem.BookShelf
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
-import com.tdd.talktobook.core.designsystem.HomeCurrentChapterEmpty
-import com.tdd.talktobook.core.designsystem.HomeCurrentProgressTitle
-import com.tdd.talktobook.core.designsystem.HomeSemiTitle
+import com.tdd.talktobook.core.designsystem.Fri
+import com.tdd.talktobook.core.designsystem.Gray1
+import com.tdd.talktobook.core.designsystem.HomeNotExistSummary
+import com.tdd.talktobook.core.designsystem.HomeProgressFinish
+import com.tdd.talktobook.core.designsystem.HomeProgressTitle
+import com.tdd.talktobook.core.designsystem.HomeStartProgress
 import com.tdd.talktobook.core.designsystem.HomeTitle
-import com.tdd.talktobook.core.designsystem.Neutral500
-import com.tdd.talktobook.core.designsystem.Neutral900
-import com.tdd.talktobook.core.designsystem.White0
-import com.tdd.talktobook.core.designsystem.White100
-import com.tdd.talktobook.domain.entity.response.autobiography.ChapterItemModel
-import com.tdd.talktobook.domain.entity.response.autobiography.SubChapterItemModel
+import com.tdd.talktobook.core.designsystem.Main1
+import com.tdd.talktobook.core.designsystem.Mon
+import com.tdd.talktobook.core.designsystem.Sat
+import com.tdd.talktobook.core.designsystem.Sun
+import com.tdd.talktobook.core.designsystem.Thu
+import com.tdd.talktobook.core.designsystem.Tue
+import com.tdd.talktobook.core.designsystem.Wed
+import com.tdd.talktobook.core.designsystem.White3
+import com.tdd.talktobook.core.ui.common.button.RectangleBtn
+import com.tdd.talktobook.core.ui.common.content.BasicDivider
+import com.tdd.talktobook.core.ui.common.content.ItemContentBox
+import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
+import com.tdd.talktobook.core.ui.util.generateCalendarDays
+import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
+import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import talktobook.composeapp.generated.resources.ic_send
-import talktobook.composeapp.generated.resources.img_chapter_default
-import talktobook.composeapp.generated.resources.img_current_chapter_default
+import talktobook.composeapp.generated.resources.Res
+import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun HomeScreen(
-    goToInterviewPage: (Int) -> Unit,
-    goToDetailChapterPage: (Int) -> Unit,
-    goToLogInPage: () -> Unit,
+    goToPastInterviewPage: (String, Int) -> Unit,
+    goToProgressStartPage: () -> Unit = {},
+    goToSettingPage: () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
-
-    LaunchedEffect(Unit) {
-        viewModel.eventFlow.collect { event ->
-            when (event) {
-                is HomeEvent.GoToDetailChapterPage -> {
-                    goToDetailChapterPage(viewModel.checkAutobiographyId())
-                }
-                is HomeEvent.GoToLogInPage -> {
-                    goToLogInPage()
-                }
-            }
-        }
-    }
+    val today =
+        Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+    var year by remember { mutableIntStateOf(today.year) }
+    var month by remember { mutableIntStateOf(today.monthNumber) }
+    var days by remember { mutableStateOf(generateCalendarDays(year, month)) }
 
     HomeContent(
-        chapterList = uiState.chapterList,
-        currentChapterId = uiState.currentChapterId,
-        onClickCurrentChapterInterview = { goToInterviewPage(viewModel.setInterviewId()) },
         interactionSource = interactionSource,
-        onClickChapterDetail = { detailChapterId ->
-//            goToDetailChapterPage(viewModel.setAutobiographyId(detailChapterId))
-            viewModel.setAutobiographyId(detailChapterId)
-        },
-        currentChapter = uiState.currentChapter,
-        onClickDeleteUser = { viewModel.deleteUser() },
+        createdMaterialList = uiState.createdMaterialList,
+        interviewProgress = uiState.autobiographyProgress,
+        monthInterviewList = uiState.monthInterviewList,
+        days = days,
+        selectedDay = uiState.selectedDay,
+        selectedDate = uiState.selectedDate,
+        onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
+        onClickSummary = { goToPastInterviewPage(uiState.selectedDate, uiState.monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == uiState.selectedDay }?.id ?: 0) },
+        isCurrentProgress = uiState.isCurrentProgress,
+        onClickStartProgress = { goToProgressStartPage() },
+        onClickSetting = { goToSettingPage() },
     )
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun HomeContent(
-    chapterList: List<ChapterItemModel> = emptyList(),
-    currentChapterId: Int = 0,
-    onClickCurrentChapterInterview: () -> Unit = {},
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
-    onClickChapterDetail: (Int) -> Unit = {},
-    currentChapter: SubChapterItemModel = SubChapterItemModel(),
-    onClickDeleteUser: () -> Unit = {},
+    createdMaterialList: List<CountMaterialsItemModel> = emptyList(),
+    interviewProgress: Float = 0f,
+    monthInterviewList: List<InterviewSummariesItemModel> = emptyList(),
+    days: List<LocalDate> = emptyList(),
+    selectedDay: Int = 0,
+    selectedDate: String = "",
+    onSelectDay: (Int) -> Unit = {},
+    onClickSummary: () -> Unit = {},
+    isCurrentProgress: Boolean = false,
+    onClickStartProgress: () -> Unit = {},
+    onClickSetting: () -> Unit = {},
 ) {
     Column(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(White0),
+                .background(BackGround2),
     ) {
-        Text(
-            text = "회원탈퇴",
-            color = Neutral500,
-            style =
-                BookShelfTypo.SemiBold.copy(
-                    textDecoration = TextDecoration.Underline,
-                ),
-            fontSize = 15.sp,
-            modifier =
-                Modifier
-                    .align(Alignment.End)
-                    .padding(top = 45.dp, end = 25.dp)
-                    .clickable(
-                        onClick = onClickDeleteUser,
-                        interactionSource = interactionSource,
-                        indication = null,
-                    ),
-        )
-
-        Text(
-            text = HomeSemiTitle,
-            color = Neutral500,
-            style = BookShelfTypo.SemiBold,
-            fontSize = 13.sp,
-            modifier =
-                Modifier
-                    .padding(top = 45.dp, start = 25.dp),
+        HomeTopBar(
+            onClickSetting = onClickSetting,
+            interactionSource = interactionSource,
         )
 
         Text(
             text = HomeTitle,
-            color = Neutral900,
-            style = BookShelfTypo.SemiBold,
-            fontSize = 21.sp,
+            color = Black1,
+            style = BookShelfTypo.Body1,
             modifier =
                 Modifier
-                    .padding(top = 2.dp, start = 25.dp),
+                    .padding(start = 20.dp),
         )
 
-        Spacer(modifier = Modifier.padding(top = 28.dp))
+        HomeMaterialList(
+            createdMaterialList = createdMaterialList,
+            isCurrentProgress = isCurrentProgress,
+            onClickStartProgress = onClickStartProgress,
+        )
 
-        HomeChapter(
-            currentChapterId = currentChapterId,
-            chapterList = chapterList,
+        BasicDivider()
+
+        HomeProgress(
+            progress = interviewProgress,
+        )
+
+        HomeInterviewCalendar(
             modifier = Modifier.weight(1f),
-            onClickCurrentChapterInterview = onClickCurrentChapterInterview,
+            selectedDay = selectedDay,
+            selectedDate = selectedDate,
+            interviewList = monthInterviewList,
             interactionSource = interactionSource,
-            onClickChapterDetail = onClickChapterDetail,
-            currentChapter = currentChapter,
+            days = days,
+            onSelectDay = onSelectDay,
+        )
+
+        HomeInterviewSummary(
+            selectedDate = selectedDate,
+            selectedDateSummary =
+                monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.summary?.takeIf { it.isNotBlank() }
+                    ?: HomeNotExistSummary,
+            interactionSource = interactionSource,
+            onClick = onClickSummary,
+            isExistMessageCount = (monthInterviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.totalMessageCount ?: 0) != 0,
         )
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun HomeChapter(
-    currentChapterId: Int,
-    chapterList: List<ChapterItemModel>,
-    modifier: Modifier,
-    onClickCurrentChapterInterview: () -> Unit,
+private fun HomeTopBar(
+    onClickSetting: () -> Unit,
     interactionSource: MutableInteractionSource,
-    onClickChapterDetail: (Int) -> Unit,
-    currentChapter: SubChapterItemModel,
 ) {
-    Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .background(BackGround3),
-    ) {
-        Spacer(modifier = Modifier.padding(top = 25.dp))
-
-        HomeCurrentProgressBox(
-            onClickAction = onClickCurrentChapterInterview,
-            interactionSource = interactionSource,
-            currentChapter = currentChapter,
-        )
-
-        Spacer(modifier = Modifier.padding(top = 50.dp))
-
-        HomeChapterList(
-            chapterList = chapterList,
-            onClickChapterDetail = onClickChapterDetail,
-        )
-    }
-}
-
-@Composable
-private fun HomeCurrentProgressBox(
-    onClickAction: () -> Unit,
-    interactionSource: MutableInteractionSource,
-    currentChapter: SubChapterItemModel,
-) {
-    Column(
+    Box(
         modifier =
             Modifier
-                .clickable(
-                    onClick = onClickAction,
-                    indication = null,
-                    interactionSource = interactionSource,
-                ),
+                .fillMaxWidth()
+                .padding(start = 20.dp, top = 25.dp, bottom = 25.dp),
+    ) {
+        Text(
+            text = BookShelf,
+            color = Black1,
+            style = BookShelfTypo.Head1,
+            modifier =
+                Modifier
+                    .align(Alignment.CenterStart),
+        )
+
+        AsyncImage(
+            model = Res.getUri("files/ic_home_settings.svg"),
+            contentDescription = "setting",
+            modifier =
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(top = 20.dp, end = 15.dp)
+                    .size(24.dp)
+                    .clickable(
+                        onClick = onClickSetting,
+                        interactionSource = interactionSource,
+                        indication = null,
+                    ),
+        )
+    }
+}
+
+@Composable
+private fun HomeMaterialList(
+    createdMaterialList: List<CountMaterialsItemModel>,
+    isCurrentProgress: Boolean,
+    onClickStartProgress: () -> Unit,
+) {
+    if (isCurrentProgress) {
+        LazyRow(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+        ) {
+            itemsIndexed(createdMaterialList) { index, item ->
+                SelectCircleListItem(
+                    itemImg = Res.drawable.img_chapter_detail,
+                    itemText = item.name,
+                    isSelected = true,
+                )
+            }
+        }
+    } else {
+        Spacer(modifier = Modifier.padding(top = 20.dp))
+
+        RectangleBtn(
+            btnContent = HomeStartProgress,
+            isBtnActivated = true,
+            onClickAction = onClickStartProgress,
+        )
+
+        Spacer(modifier = Modifier.padding(top = 24.dp))
+    }
+}
+
+@Composable
+private fun HomeProgress(
+    progress: Float,
+) {
+    val progressBox = (progress / 100f).coerceIn(0f, 1f)
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 5.dp)
+                .padding(horizontal = 20.dp),
+    ) {
+        Text(
+            text = HomeProgressTitle,
+            color = Black1,
+            style = BookShelfTypo.Body1,
+            modifier =
+                Modifier
+                    .align(Alignment.CenterStart),
+        )
+
+        Text(
+            text = "$HomeProgressFinish$progress%",
+            color = Main1,
+            style = BookShelfTypo.Caption2,
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd),
+        )
+    }
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(5.dp)
+                .padding(horizontal = 24.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Gray1),
     ) {
         Box(
             modifier =
                 Modifier
-                    .padding(horizontal = 28.dp)
-                    .fillMaxWidth()
-                    .height(90.dp),
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.img_current_chapter_default),
-                contentDescription = "current chapter img",
-                contentScale = ContentScale.FillBounds,
-                modifier =
-                    Modifier
-                        .fillMaxSize(),
-            )
+                    .fillMaxWidth(progressBox)
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Main1),
+        )
+    }
+}
 
-            Box(
-                modifier =
-                    Modifier
-                        .padding(end = 53.dp)
-                        .fillMaxWidth()
-                        .align(Alignment.BottomStart)
-                        .clip(RoundedCornerShape(topEnd = 8.dp))
-                        .background(White100),
-            ) {
-                Text(
-                    text = HomeCurrentProgressTitle,
-                    color = White0,
-                    style = BookShelfTypo.Regular,
-                    fontSize = 13.sp,
+@Composable
+private fun HomeInterviewCalendar(
+    modifier: Modifier,
+    selectedDate: String,
+    selectedDay: Int,
+    interviewList: List<InterviewSummariesItemModel>,
+    interactionSource: MutableInteractionSource,
+    days: List<LocalDate>,
+    onSelectDay: (Int) -> Unit,
+) {
+    ItemContentBox(
+        modifier = modifier,
+        paddingTop = 20,
+        paddingStart = 20,
+        paddingEnd = 20,
+        content = {
+            Column {
+                Box(
                     modifier =
                         Modifier
-                            .padding(top = 8.dp, bottom = 8.dp, start = 17.dp),
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp),
+                ) {
+                    Text(
+                        text = selectedDate,
+                        color = Black1,
+                        style = BookShelfTypo.Body3,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterStart),
+                    )
+                    Text(
+                        text = "${selectedDay}일 ${interviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.totalMessageCount ?: 0}번의 대화 수행",
+                        color = Main1,
+                        style = BookShelfTypo.Caption4,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd),
+                    )
+                }
+
+                CalendarWeekTitle()
+
+                CalendarDayOfMonth(
+                    interactionSource = interactionSource,
+                    days = days,
+                    onSelectDay = onSelectDay,
+                    selectedDay = selectedDay,
+                    interviewList = interviewList,
                 )
             }
-        }
+        },
+    )
+}
 
-        Row(
-            modifier =
-                Modifier
-                    .padding(horizontal = 28.dp)
-                    .fillMaxWidth(),
-        ) {
-            Box(
+@Composable
+private fun CalendarWeekTitle() {
+    val weeks: List<String> = listOf(Sun, Mon, Tue, Wed, Thu, Fri, Sat)
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+    ) {
+        weeks.forEach { week ->
+            Text(
+                text = week,
+                color = Black1,
+                style = BookShelfTypo.Body3,
+                textAlign = TextAlign.Center,
                 modifier =
                     Modifier
-                        .padding(end = 14.dp)
                         .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(White0),
-            ) {
-                Text(
-                    text = currentChapter.chapterName.ifEmpty { HomeCurrentChapterEmpty },
-                    color = Neutral900,
-                    style = BookShelfTypo.SemiBold,
-                    fontSize = 17.sp,
-                    modifier =
-                        Modifier
-                            .padding(top = 10.dp, start = 17.dp, bottom = 10.dp),
-                )
-            }
+                        .padding(vertical = 10.dp),
+            )
+        }
+    }
+}
 
-            Box(
+@Composable
+private fun CalendarDayOfMonth(
+    days: List<LocalDate>,
+    interactionSource: MutableInteractionSource,
+    onSelectDay: (Int) -> Unit,
+    selectedDay: Int,
+    interviewList: List<InterviewSummariesItemModel>,
+) {
+    Column(
+        modifier =
+            Modifier
+                .padding(top = 12.dp, bottom = 20.dp, start = 24.dp, end = 24.dp)
+                .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        days.chunked(7).forEach { week ->
+            Row(
                 modifier =
                     Modifier
-                        .clip(RoundedCornerShape(7.dp))
-                        .background(White0),
+                        .fillMaxWidth()
+                        .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
             ) {
-                Image(
-                    painter = painterResource(Res.drawable.ic_send),
-                    contentDescription = "chapter start",
-                    modifier =
-                        Modifier
-                            .padding(7.dp)
-                            .size(21.dp),
-                )
+                week.forEach { day ->
+                    val index = day.dayOfMonth - 1
+
+                    BoxWithConstraints(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                    ) {
+                        CalendarDateItem(
+                            day = day.dayOfMonth,
+                            modifier = Modifier.width(maxWidth).fillMaxHeight(),
+                            interactionSource = interactionSource,
+                            onSelect = { onSelectDay(day.dayOfMonth) },
+                            isSelectedDate = (day.dayOfMonth == selectedDay),
+                            isInterviewNumNotZero = (interviewList.firstOrNull { it.date.split("-")[2].toInt() == day.dayOfMonth }?.totalMessageCount ?: 0) != 0,
+                        )
+                    }
+                }
+
+                if (week.size < 7) {
+                    repeat(7 - week.size) {
+                        Spacer(modifier = Modifier.weight(1f).fillMaxHeight())
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun HomeChapterList(
-    chapterList: List<ChapterItemModel>,
-    onClickChapterDetail: (Int) -> Unit,
+private fun CalendarDateItem(
+    day: Int,
+    modifier: Modifier,
+    interactionSource: MutableInteractionSource,
+    onSelect: () -> Unit,
+    isSelectedDate: Boolean,
+    isInterviewNumNotZero: Boolean,
 ) {
     Column(
         modifier =
-            Modifier
-                .padding(start = 22.dp, end = 22.dp, bottom = 30.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(17.dp),
+            modifier
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onSelect,
+                ),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        chapterList.forEachIndexed { index, chapterItem ->
+        Box(
+            modifier =
+                Modifier
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(if (isInterviewNumNotZero) Main1 else BackGround1)
+                    .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(
-                text = chapterItem.chapterName,
-                style = BookShelfTypo.SemiBold,
-                fontSize = 17.sp,
-                color = Neutral900,
-                modifier =
-                    Modifier
-                        .padding(bottom = 5.dp),
+                text = day.toString(),
+                color = if (isInterviewNumNotZero) White3 else Black1,
+                style = BookShelfTypo.Body4,
+                textAlign = TextAlign.Center,
             )
+        }
 
-            Column(
+        if (isSelectedDate) {
+            Box(
                 modifier =
                     Modifier
-                        .padding(horizontal = 22.dp)
-                        .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(17.dp),
-            ) {
-                chapterItem.subChapters.forEachIndexed { subIndex, subChapterItem ->
-                    HomeSubChapterListItem(
-                        subItem = subChapterItem,
-                        onClickAction = { onClickChapterDetail(subChapterItem.chapterId) },
-                    )
-                }
-            }
+                        .padding(top = 2.dp)
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Main1),
+            )
         }
     }
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun HomeSubChapterListItem(
-    subItem: SubChapterItemModel,
-    onClickAction: () -> Unit,
+private fun HomeInterviewSummary(
+    selectedDate: String,
+    selectedDateSummary: String,
+    onClick: () -> Unit,
+    interactionSource: MutableInteractionSource,
+//    isSummaryEmpty: Boolean,
+    isExistMessageCount: Boolean,
 ) {
-    Row(
+    ItemContentBox(
         modifier =
             Modifier
-                .fillMaxWidth()
                 .clickable(
-                    onClick = onClickAction,
+                    enabled = isExistMessageCount,
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
                 ),
-    ) {
-        AsyncImage(
-            model = Res.getUri("files/ic_chapter_circle.svg"),
-            contentDescription = "",
-            modifier =
-                Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 12.dp)
-                    .size(14.dp),
-        )
-
-        Row(
-            modifier =
-                Modifier
-                    .weight(1f),
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.img_chapter_default),
-                contentDescription = "sub chapter img",
-                modifier =
-                    Modifier
-                        .size(86.dp)
-                        .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)),
-            )
-
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .height(86.dp)
-                        .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-                        .background(White0),
+        paddingTop = 15,
+        paddingBottom = 15,
+        paddingStart = 20,
+        paddingEnd = 20,
+        content = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = subItem.chapterNumber,
-                    color = Neutral500,
-                    style = BookShelfTypo.SemiBold,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 15.dp, start = 11.dp),
-                )
-                Text(
-                    text = subItem.chapterName,
-                    color = Neutral900,
-                    style = BookShelfTypo.SemiBold,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(start = 12.dp, top = 5.dp),
-                )
+                Column(
+                    modifier =
+                        Modifier
+                            .padding(top = 15.dp, bottom = 15.dp, start = 20.dp, end = 10.dp)
+                            .weight(1f),
+                ) {
+                    Text(
+                        text = selectedDate,
+                        color = Black1,
+                        style = BookShelfTypo.Body4,
+                    )
+
+                    Text(
+                        text = selectedDateSummary,
+                        color = Black1,
+                        style = BookShelfTypo.Caption4,
+                        modifier =
+                            Modifier
+                                .padding(top = 10.dp),
+                    )
+                }
+
+                if (isExistMessageCount) {
+                    AsyncImage(
+                        model = Res.getUri("files/ic_right.svg"),
+                        contentDescription = "move",
+                        modifier =
+                            Modifier
+                                .padding(end = 4.dp)
+                                .size(24.dp),
+                    )
+                }
             }
-        }
-    }
+        },
+    )
 }
 
 @Preview

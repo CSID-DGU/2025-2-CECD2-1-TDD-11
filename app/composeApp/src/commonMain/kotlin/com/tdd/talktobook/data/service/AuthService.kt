@@ -23,6 +23,22 @@ interface AuthService {
         @Part("password") password: String,
     ): HttpResponse
 
-    @DELETE(EndPoints.Auth.DELETE)
+    @Multipart
+    @POST(EndPoints.Auth.EMAILVERIFY)
+    suspend fun postEmailVerify(
+        @Part("email") email: String,
+        @Part("verificationCode") code: String,
+    ): HttpResponse
+
+    @DELETE(EndPoints.Auth.UNREGISTER)
     suspend fun deleteUser(): HttpResponse
+
+    @POST(EndPoints.Auth.LOGOUT)
+    suspend fun logOut(): HttpResponse
+
+    @Multipart
+    @POST(EndPoints.Auth.REISSUE)
+    suspend fun reissue(
+        @Part("refreshToken") refreshToken: String,
+    ): HttpResponse
 }

@@ -93,6 +93,7 @@ object KtorModule {
 
             defaultRequest {
                 contentType(ContentType.Application.Json)
+//                contentType(ContentType.MultiPart.FormData)
                 accept(ContentType.Application.Json)
                 headers.append(HttpHeaders.AcceptCharset, HEADER_VALUE)
             }
