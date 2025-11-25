@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavController
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogBtn
@@ -47,13 +47,13 @@ internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     startQuestion: String = "",
-    nickName: StateFlow<String>
+    nickName: StateFlow<String>,
+    navController: NavController,
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
-    val navController = rememberNavController()
 
     val stt = rememberSpeechToText()
     val scope = rememberCoroutineScope()
@@ -63,10 +63,10 @@ internal fun InterviewScreen(
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
                 d("[stt] 대화 -> $partial")
                 uiState.interviewChatList +
-                    InterviewChatItem(
-                        content = partial,
-                        chatType = ChatType.HUMAN,
-                    )
+                        InterviewChatItem(
+                            content = partial,
+                            chatType = ChatType.HUMAN,
+                        )
             } else {
                 uiState.interviewChatList
             }
@@ -98,7 +98,7 @@ internal fun InterviewScreen(
                         ),
                     )
                 }
-                
+
                 is InterviewEvent.ShowCreateAutobiographyDialog -> {
                     showCreateAutobiographyDialog(
                         OneBtnDialogModel(

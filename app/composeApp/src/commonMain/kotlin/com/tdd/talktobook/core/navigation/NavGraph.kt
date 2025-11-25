@@ -158,7 +158,8 @@ fun NavGraphBuilder.interviewNavGraph(
                 showStartAutobiographyDialog = showOneBtnDialogModel,
                 startQuestion = question,
                 showCreateAutobiographyDialog = showOneBtnDialogModel,
-                nickName = userNickName
+                nickName = userNickName,
+                navController = navController
             )
         }
     }

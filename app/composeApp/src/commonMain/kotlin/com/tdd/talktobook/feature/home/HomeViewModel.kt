@@ -77,6 +77,8 @@ class HomeViewModel(
                 updateState(
                     uiState.value.copy(isCurrentProgress = false),
                 )
+
+                saveCurrentProgress(AutobiographyStatusType.EMPTY)
             }
         }
     }
