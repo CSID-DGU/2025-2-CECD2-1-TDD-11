@@ -209,6 +209,7 @@ fun NavGraphBuilder.settingNavGraph(
         composable(NavRoutes.SettingPageScreen.route) {
             SettingScreen(
                 goBackPage = { navController.popBackStack() },
+                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route )}
             )
         }
     }

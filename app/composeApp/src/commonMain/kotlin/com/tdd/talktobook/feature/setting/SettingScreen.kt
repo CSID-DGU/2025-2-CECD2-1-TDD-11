@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun SettingScreen(
     goBackPage: () -> Unit,
+    goToLogInPage: () -> Unit
 ) {
     val viewModel: SettingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -56,6 +58,16 @@ internal fun SettingScreen(
 
     val policyUrl = BuildKonfig.POLICY_URL
     val appVersion = BuildKonfig.APP_VERSION
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is SettingEvent.GoToLogInPage -> {
+                    goToLogInPage()
+                }
+            }
+        }
+    }
 
     SettingContent(
         interactionSource = interactionSource,
