@@ -1,0 +1,69 @@
+package com.tdd.talktobook.feature.auth.login
+
+import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger.Companion.d
+import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
+import com.tdd.talktobook.domain.entity.response.auth.TokenModel
+import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
+import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
+import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
+
+@KoinViewModel
+class LogInViewModel(
+    private val postEmailLogInUseCase: PostEmailLogInUseCase,
+    private val saveTokenUseCase: SaveTokenUseCase,
+) : BaseViewModel<LogInPageState>(
+        LogInPageState(),
+    ) {
+    fun onEmailValueChange(newValue: String) {
+        updateState(
+            uiState.value.copy(
+                emailInput = newValue,
+            ),
+        )
+    }
+
+    fun onPasswordValueChange(newValue: String) {
+        updateState(
+            uiState.value.copy(
+                passwordInput = newValue,
+            ),
+        )
+    }
+
+    fun postEmailLogIn() {
+        viewModelScope.launch {
+            postEmailLogInUseCase(
+                EmailLogInRequestModel(
+                    email = uiState.value.emailInput,
+                    password = uiState.value.passwordInput,
+                ),
+            ).collect {
+                resultResponse(it, ::onSuccessPostEmailLogIn)
+            }
+        }
+    }
+
+    private fun onSuccessPostEmailLogIn(data: TokenModel) {
+        d("[ktor] email response -> $data")
+        if (data.accessToken.isNotEmpty()) {
+            saveAccessToken(data)
+            setNextPage(data.metadataSuccess)
+        }
+    }
+
+    private fun saveAccessToken(data: TokenModel) {
+        viewModelScope.launch {
+            saveTokenUseCase(data).collect { }
+        }
+    }
+
+    private fun setNextPage(data: Boolean) {
+        when (data) {
+            true -> emitEventFlow(LogInEvent.GoToHomePage)
+            false -> emitEventFlow(LogInEvent.GoToOnboardingPage)
+        }
+    }
+}

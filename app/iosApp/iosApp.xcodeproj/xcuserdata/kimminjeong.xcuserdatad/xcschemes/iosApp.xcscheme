@@ -14,7 +14,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0A05B5F7C9CD43E7A8EF15D3"
-               BuildableName = "BookShelf.app"
+               BuildableName = "TalkToBook.app"
                BlueprintName = "iosApp"
                ReferencedContainer = "container:iosApp.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0A05B5F7C9CD43E7A8EF15D3"
-            BuildableName = "BookShelf.app"
+            BuildableName = "TalkToBook.app"
             BlueprintName = "iosApp"
             ReferencedContainer = "container:iosApp.xcodeproj">
          </BuildableReference>
