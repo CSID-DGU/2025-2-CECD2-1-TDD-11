@@ -38,7 +38,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: web-build
+          name: jekyll-build
           path: homepage/_site/
           if-no-files-found: error
 
@@ -60,7 +60,7 @@ jobs:
       
       - name: Deploy to S3
         run: |
-          aws s3 sync homepage/out/ s3://${{ secrets.WEB_S3_BUCKET_NAME }}/ --delete
+          aws s3 sync homepage/out/ s3://${{ secrets.WEB_S3_BUCKET_NAME }}/ --delete --exclude "web/*"
       
       - name: Invalidate CloudFront
         run: |
