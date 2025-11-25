@@ -39,4 +39,6 @@ interface AutobiographyDataSource {
     suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse
 
     suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse
+
+    suspend fun patchChangeStatus(autobiographyId: Int, status: String): HttpResponse
 }

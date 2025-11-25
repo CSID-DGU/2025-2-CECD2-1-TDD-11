@@ -11,6 +11,7 @@ import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
 import com.tdd.talktobook.domain.usecase.auth.ReissueTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.DeleteAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
@@ -88,6 +89,7 @@ val useCaseModule =
         factory { GetInterviewIdUseCase(get()) }
         factory { DeleteLocalAllDataUseCase(get()) }
         factory { DeleteLocalTokenUseCase(get()) }
+        factory { ChangeAutobiographyStatusUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }

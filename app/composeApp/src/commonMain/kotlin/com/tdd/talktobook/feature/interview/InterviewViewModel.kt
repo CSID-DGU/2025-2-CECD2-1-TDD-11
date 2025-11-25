@@ -5,11 +5,14 @@ import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
+import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
+import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
@@ -24,9 +27,11 @@ class InterviewViewModel(
     private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase,
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
+    private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
+    private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase
 ) : BaseViewModel<InterviewPageState>(
-        InterviewPageState(),
-    ) {
+    InterviewPageState(),
+) {
     fun getFirstQuestion(question: String) {
         if (question.isNotEmpty()) {
             addInterviewConversation(question, ChatType.BOT)
@@ -68,6 +73,8 @@ class InterviewViewModel(
                 autobiographyId = id,
             ),
         )
+
+        changeAutobiographyStatus() // TODO 삭제
     }
 
     private fun initGetInterviewId() {
@@ -141,7 +148,34 @@ class InterviewViewModel(
     private fun postInterviewAnswer(chat: String) {
         viewModelScope.launch {
             postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
-                .collect { resultResponse(it, { data -> addInterviewConversation(chat, ChatType.BOT) }) }
+                .collect { resultResponse(it, { data -> addInterviewConversation(data.text, ChatType.BOT) }) }
         }
+    }
+
+    private fun checkIsAutobiographyEnough() {
+        // TODO 인터뷰 3분 경과 시
+
+//        changeAutobiographyStatus()
+    }
+
+    private fun changeAutobiographyStatus() {
+        viewModelScope.launch {
+            changeAutobiographyStatusUseCase(ChangeAutobiographyStatusRequestModel(uiState.value.autobiographyId, AutobiographyStatusType.ENOUGH)).collect {
+                resultResponse(it, {})
+            }
+        }
+
+        saveAutobiographyStatus()
+        emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
+    }
+
+    private fun saveAutobiographyStatus() {
+        viewModelScope.launch {
+            saveAutobiographyStatusUseCase(AutobiographyStatusType.ENOUGH).collect { resultResponse(it, {})}
+        }
+    }
+
+    fun createCurrentAutobiography() {
+        d("[test] interview -> 자서전 생성 요청")
     }
 }

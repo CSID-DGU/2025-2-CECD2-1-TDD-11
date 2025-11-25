@@ -12,6 +12,7 @@ import de.jensklingenberg.ktorfit.http.PATCH
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Part
 import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 import io.ktor.client.statement.HttpResponse
 
 interface AutobiographyService {
@@ -78,5 +79,11 @@ interface AutobiographyService {
     @GET(EndPoints.Autobiography.SELECTED_THEME)
     suspend fun getSelectedTheme(
         @Path("autobiographyId") autobiographyId: Int,
+    ): HttpResponse
+
+    @PATCH(EndPoints.Autobiography.CHANGE_STATUS)
+    suspend fun patchChangeStatus(
+        @Path("autobiographyId") autobiographyId: Int,
+        @Query("status") status: String
     ): HttpResponse
 }

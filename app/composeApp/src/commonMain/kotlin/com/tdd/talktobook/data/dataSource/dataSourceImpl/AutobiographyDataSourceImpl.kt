@@ -59,4 +59,7 @@ class AutobiographyDataSourceImpl(
 
     override suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse =
         autobiographyService.getSelectedTheme(autobiographyId)
+
+    override suspend fun patchChangeStatus(autobiographyId: Int, status: String): HttpResponse=
+        autobiographyService.patchChangeStatus(autobiographyId, status)
 }

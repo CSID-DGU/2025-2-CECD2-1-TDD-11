@@ -15,6 +15,7 @@ import com.tdd.talktobook.data.mapper.autobiograph.GetSelectedThemeMapper
 import com.tdd.talktobook.data.mapper.autobiograph.PostStartProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
+import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
@@ -150,4 +151,7 @@ class AutobiographyRepositoryImpl(
                 }
             }
         }
+
+    override suspend fun patchChangeStatus(body: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.patchChangeStatus(body.autobiographyId, body.status.type) })
 }

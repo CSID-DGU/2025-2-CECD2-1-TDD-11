@@ -22,6 +22,7 @@ object EndPoints {
         const val CURRENT_INTERVIEW_PROGRESS = "$AUTOBIOGRAPHIESDETAIL/progress"
         const val CREATE_AUTOBIOGRAPHY = "$AUTOBIOGRAPHIESDETAIL/generate"
         const val SELECTED_THEME = "$AUTOBIOGRAPHIESDETAIL/theme"
+        const val CHANGE_STATUS = "$AUTOBIOGRAPHIESDETAIL/status"
     }
 
     object Member {

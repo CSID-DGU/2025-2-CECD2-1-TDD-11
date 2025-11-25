@@ -1,6 +1,7 @@
 package com.tdd.talktobook.domain.repository
 
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
+import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
@@ -51,4 +52,6 @@ interface AutobiographyRepository {
     suspend fun getAutobiographyId(): Flow<Result<Int>>
 
     suspend fun getAutobiographyStatus(): Flow<Result<AutobiographyStatusType>>
+
+    suspend fun patchChangeStatus(body: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>>
 }
