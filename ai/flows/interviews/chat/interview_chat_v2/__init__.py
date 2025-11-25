@@ -223,6 +223,12 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
     # 이후 질문 생성 준비
     question = session_data.get("last_question", {})
+    # question이 문자열이면 JSON 파싱 시도
+    if isinstance(question, str):
+        try:
+            question = json.loads(question)
+        except:
+            question = {}
     metrics = session_data.get("metrics", {})
 
     # material.json 로드 및 엔진 초기화
@@ -250,8 +256,8 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         return {"next_question": None, "last_answer_materials_id": []}
 
     # 답변 분석
-    current_material = question.get("material", "") if question else ""
-    current_material_id = question.get("material_id") if question else None
+    current_material = question.get("material", "") if isinstance(question, dict) else ""
+    current_material_id = question.get("material_id") if isinstance(question, dict) else None
     is_first_question = not answer_text or not current_material
     
     # 현재 질문 소재의 전체 경로 찾기 (LLM에 전달용)
@@ -706,5 +712,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
 
     except Exception as e:
+        import traceback
         print(f"[ERROR] 질문 생성 실패: {e}")
+        print(f"[ERROR] Traceback: {traceback.format_exc()}")
         return {"next_question": None, "last_answer_materials_id": []}

@@ -77,7 +77,19 @@ def generate_question_llm(material: str, target: str, context_answer: Optional[s
             temperature=0.8
         )
         
-        question_text = result.get("question", {}).get("text", "")
+        print(f"[DEBUG] generate_question_llm result type: {type(result)}, value: {result}")
+        
+        # flow output: {"question": {"text": "...", ...}}
+        if isinstance(result, dict):
+            question_data = result.get("question", {})
+            print(f"[DEBUG] question_data type: {type(question_data)}, value: {question_data}")
+            if isinstance(question_data, dict):
+                question_text = question_data.get("text", "")
+            else:
+                question_text = str(question_data)
+        else:
+            question_text = str(result)
+            
         if question_text:
             return question_text
         else:
@@ -109,7 +121,16 @@ def generate_material_gate_question(full_material_name: str) -> str:
             temperature=0.7
         )
         
-        question_text = result.get("question", {}).get("text", "")
+        # flow output: {"question": {"text": "...", ...}}
+        if isinstance(result, dict):
+            question_data = result.get("question", {})
+            if isinstance(question_data, dict):
+                question_text = question_data.get("text", "")
+            else:
+                question_text = str(question_data)
+        else:
+            question_text = str(result)
+            
         if question_text:
             return question_text
         else:
