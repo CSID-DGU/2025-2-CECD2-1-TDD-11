@@ -16,13 +16,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.BackGround2
+import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogBtn
+import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogContent
+import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogBtn
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogContent
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogTitle
+import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
@@ -39,12 +44,14 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     startQuestion: String = "",
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
+    val navController = rememberNavController()
 
     val stt = rememberSpeechToText()
     val scope = rememberCoroutineScope()
@@ -78,7 +85,23 @@ internal fun InterviewScreen(
                             btnText = StartAutobiographyDialogBtn,
                             isBottomTextVisible = true,
                             bottomText = NextTime,
+                            onClickBtn = { navController.navigate(NavRoutes.StartProgressScreen.route) },
+                            onClickBottomText = { navController.navigate(NavRoutes.HomeScreen.route) }
                         ),
+                    )
+                }
+                
+                is InterviewEvent.ShowCreateAutobiographyDialog -> {
+                    showCreateAutobiographyDialog(
+                        OneBtnDialogModel(
+                            title = CreateAutobiographyDialogTitle,
+                            semiTitle = CreateAutobiographyDialogContent,
+                            btnText = CreateAutobiographyDialogBtn,
+                            isBottomTextVisible = true,
+                            bottomText = NextTime,
+                            onClickBtn = { viewModel.createCurrentAutobiography() },
+                            onClickBottomText = {}
+                        )
                     )
                 }
             }

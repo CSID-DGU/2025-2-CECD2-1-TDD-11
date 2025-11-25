@@ -70,11 +70,13 @@ fun MainScreen() {
             bottomText = uiState.oneBtnDialogModel.bottomText,
             onClickBtn = {
                 isShowDialog.value = false
-                navController.navigate(NavRoutes.StartProgressScreen.route)
+                uiState.oneBtnDialogModel.onClickBtn()
+//                navController.navigate(NavRoutes.StartProgressScreen.route)
             },
             onClickBottomText = {
                 isShowDialog.value = false
-                navController.navigate(NavRoutes.HomeScreen.route)
+                uiState.oneBtnDialogModel.onClickBottomText()
+//                navController.navigate(NavRoutes.HomeScreen.route)
             },
             onDismiss = { isShowDialog.value = false },
         )
@@ -137,7 +139,7 @@ fun MainScreen() {
                 )
                 interviewNavGraph(
                     navController = navController,
-                    showStartAutobiographyDialog = showOneBtnDialog,
+                    showOneBtnDialogModel = showOneBtnDialog,
                 )
                 startProgressNavGraph(
                     navController = navController,

@@ -133,7 +133,7 @@ fun NavGraphBuilder.pastInterviewNavGraph(
 
 fun NavGraphBuilder.interviewNavGraph(
     navController: NavController,
-    showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
@@ -153,8 +153,9 @@ fun NavGraphBuilder.interviewNavGraph(
             val question = it.arguments?.getString("question") ?: ""
 
             InterviewScreen(
-                showStartAutobiographyDialog = showStartAutobiographyDialog,
+                showStartAutobiographyDialog = showOneBtnDialogModel,
                 startQuestion = question,
+                showCreateAutobiographyDialog = showOneBtnDialogModel
             )
         }
     }

@@ -146,6 +146,9 @@ const val InterviewFinishBtn = "답변 중단하기"
 const val StartAutobiographyDialogTitle = "자서전 생성 시작하기"
 const val StartAutobiographyDialogContent = "지금 바로 대화 인터뷰를 통해\n나만의 자서전을 생성해 보세요!"
 const val StartAutobiographyDialogBtn = "자서전 생성 시작하기"
+const val CreateAutobiographyDialogTitle = "자서전 생성"
+const val CreateAutobiographyDialogContent = "자서전 생성이 가능합니다.\n인생 이야기를 확인해 보세요!"
+const val CreateAutobiographyDialogBtn = "자서전 생성 요청"
 
 // Publication
 const val PublicationTitle = "생성된 자서전"
