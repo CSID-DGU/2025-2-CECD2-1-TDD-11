@@ -37,7 +37,10 @@ public class AutobiographyCompletionService {
     private final Map<Long, Boolean> processedAutobiographies = new ConcurrentHashMap<>();
 
     @Transactional(readOnly = true)
-    public boolean checkCompletionAndTriggerPublication(Autobiography autobiography) {
+    public boolean checkCompletionAndTriggerPublication(Autobiography autobiography, String name) {
+
+        String safeName = (name == null || name.isBlank()) ? "사용자" : name;
+
         // 이미 처리된 자서전은 스킵
         if (processedAutobiographies.containsKey(autobiography.getId())) {
             return false;
@@ -53,7 +56,7 @@ public class AutobiographyCompletionService {
         log.info("Autobiography {} reached completion threshold: {}", autobiography.getId(), completionRate);
         
         // 70% 이상일 때만 복잡한 로직 실행
-        triggerPublicationRequest(autobiography);
+        triggerPublicationRequest(autobiography, safeName);
         processedAutobiographies.put(autobiography.getId(), true);
         
         return true;
@@ -76,7 +79,7 @@ public class AutobiographyCompletionService {
         return (double) completedMaterials / totalMaterials;
     }
 
-    public void triggerPublicationRequest(Autobiography autobiography) {
+    public void triggerPublicationRequest(Autobiography autobiography, String name) {
         
         LocalDateTime now = LocalDateTime.now();
 
@@ -88,6 +91,12 @@ public class AutobiographyCompletionService {
 
         AutobiographyStatus status = autobiography.getAutobiographyStatus();
         status.updateStatusType(AutobiographyStatusType.CREATING, now);
+
+        // CoShow용 title 생성
+        String coShowExampleTitle = name + "님의 자서전";
+        String description = "CoShow 대화로책 부스에 참여해주셔서 감사합니다.";
+
+        autobiography.updateAutoBiography(coShowExampleTitle, description, autobiography.getCoverImageUrl(), now);
 
         // 3. category order 순으로 순차 발행
         requests.stream()
@@ -121,7 +130,7 @@ public class AutobiographyCompletionService {
     }
 
     private AutobiographyGenerateRequestDto createRequestDto(Autobiography autobiography, String cycleId, Integer categoryOrder, List<String> conversations) {
-        String categoryName = getCategoryName(categoryOrder);
+        String categoryName = getCategoryName(autobiography.getId(), categoryOrder);
         
         return AutobiographyGenerateRequestDto.builder()
                 .cycleId(cycleId)
@@ -171,8 +180,8 @@ public class AutobiographyCompletionService {
         return 0;
     }
 
-    private String getCategoryName(Integer categoryOrder) {
-        return categoryRepository.findNameByOrder(categoryOrder)
+    private String getCategoryName(Long autobiographyId, Integer categoryOrder) {
+        return categoryRepository.findNameByOrder(autobiographyId, categoryOrder)
                 .orElse("default");
     }
 }

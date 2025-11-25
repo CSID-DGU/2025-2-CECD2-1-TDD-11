@@ -6,6 +6,7 @@ import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.CoShowAutobiographyGenerateRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyInitResponseDto;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyChapterRepository;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
@@ -131,7 +132,7 @@ public class AutobiographyCommandService {
         autobiography.updateAutoBiographyV2(autobiography.getTitle(), autobiography.getContent(), autobiography.getCoverImageUrl(), autobiography.getTheme(), requestDto.getReason(), now);
     }
 
-    public void requestAutobiographyGenerate(Long memberId, Long autobiographyId) {
+    public void requestAutobiographyGenerate(Long memberId, Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
         if (!autobiography.getMember().getId().equals(memberId)) {
@@ -143,7 +144,7 @@ public class AutobiographyCommandService {
         }
 
         // 자서전 생성 요청
-        autobiographyCompletionService.triggerPublicationRequest(autobiography);
+        autobiographyCompletionService.triggerPublicationRequest(autobiography, requestDto.getName());
     }
 
     public void patchAutobiographyStatus(Long memberId, Long autobiographyId, String status) {

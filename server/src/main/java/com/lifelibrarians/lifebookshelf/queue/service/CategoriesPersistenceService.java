@@ -77,8 +77,10 @@ public class CategoriesPersistenceService {
             });
         }
 
+        String coShowExampleName = "사용자"; // 기본 이름 설정
+
         // 자서전 완료 여부 체크 및 상태 업데이트
-        boolean isEnough = autobiographyCompletionService.checkCompletionAndTriggerPublication(autobiography);
+        boolean isEnough = autobiographyCompletionService.checkCompletionAndTriggerPublication(autobiography, coShowExampleName);
         if (isEnough) {
             LocalDateTime now = LocalDateTime.now();
             AutobiographyStatus status = autobiography.getAutobiographyStatus();

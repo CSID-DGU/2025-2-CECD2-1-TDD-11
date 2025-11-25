@@ -4,11 +4,11 @@ import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.CoShowAutobiographyGenerateRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.autobiography.service.AutobiographyFacadeService;
 import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
-import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -157,13 +157,14 @@ public class AutobiographyController {
             }
     )
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{autobiographyId}/generate")
+    @PatchMapping(value = "/{autobiographyId}/generate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void requestAutobiographyGenerate(
             @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+            @Valid @ModelAttribute CoShowAutobiographyGenerateRequestDto requestDto
     ) {
-        autobiographyFacadeService.requestAutobiographyGenerate(memberSessionDto.getMemberId(), autobiographyId);
+        autobiographyFacadeService.requestAutobiographyGenerate(memberSessionDto.getMemberId(), autobiographyId, requestDto);
     }
 
     @Operation(summary = "현재 진행중인 자서전 상태를 변경", description = "특정 자서전의 상태를 변경 합니다.")
