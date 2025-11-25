@@ -36,6 +36,7 @@ jobs:
           cat <<EOF > local.properties
           BASE_URL=${{ secrets.BASE_URL }}
           AI_URL=${{ secrets.AI_URL }}
+          POLICY_URL=${{ secrets.POLICY_URL }}
           EOF
 
       - name: Lint (ktlint)
