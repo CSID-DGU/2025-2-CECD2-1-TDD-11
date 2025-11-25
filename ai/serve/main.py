@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from promptflow.connections import AzureOpenAIConnection, OpenAIConnection
 from promptflow.client import PFClient
 from dotenv import load_dotenv
@@ -53,6 +54,17 @@ create_connection()
 app = FastAPI(
     description="Life Bookshelf AI API",
     version="0.0.1",
+)
+
+web_url = os.environ.get("WEB_URL")
+
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", web_url],  # 개발용, 프로덕션에서는 특정 도메인으로 제한
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # 유지되는 API들
