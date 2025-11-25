@@ -14,5 +14,16 @@ interface AuthDataSource {
         password: String,
     ): HttpResponse
 
+    suspend fun postEmailVerification(
+        email: String,
+        code: String,
+    ): HttpResponse
+
     suspend fun deleteUser(): HttpResponse
+
+    suspend fun logOut(): HttpResponse
+
+    suspend fun reissue(
+        refreshToken: String,
+    ): HttpResponse
 }

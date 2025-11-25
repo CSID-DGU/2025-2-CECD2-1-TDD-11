@@ -34,7 +34,6 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
-            binaryOption("bundleId", "com.tdd.talktobook")
             isStatic = true
         }
     }
@@ -73,6 +72,8 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.svg)
             implementation(libs.image.loader)
+
+            implementation(libs.kotlinx.datetime)
 
             api(libs.datastore.preferences)
             api(libs.datastore)
@@ -130,6 +131,12 @@ buildkonfig {
 
         val aiUrl = properties.getProperty("AI_URL")
         buildConfigField(Type.STRING, "AI_URL", aiUrl)
+
+        val policyUrl = properties.getProperty("POLICY_URL")
+        buildConfigField(Type.STRING, "POLICY_URL", policyUrl)
+
+        val appVersion = project.properties["version"]?.toString() ?: "1.0.0"
+        buildConfigField(Type.STRING, "APP_VERSION", appVersion)
     }
 }
 
@@ -148,10 +155,4 @@ tasks.named("runKtlintCheckOverCommonMainSourceSet") {
 
 tasks.named("runKtlintFormatOverCommonMainSourceSet") {
     dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
-}
-
-tasks.configureEach {
-    if (name == "syncComposeResourcesForIos") {
-        enabled = false
-    }
 }

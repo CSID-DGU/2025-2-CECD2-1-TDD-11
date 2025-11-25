@@ -24,4 +24,19 @@ interface AutobiographyDataSource {
     suspend fun postCreateChapterList(body: PostCreateAutobiographyChapterRequestDto): HttpResponse
 
     suspend fun postUpdateCurrentChapter(): HttpResponse
+
+    suspend fun getCurrentProgressAutobiography(): HttpResponse
+
+    suspend fun postStartProgress(
+        theme: String,
+        reason: String,
+    ): HttpResponse
+
+    suspend fun getCountMaterials(autobiographyId: Int): HttpResponse
+
+    suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse
+
+    suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse
+
+    suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse
 }

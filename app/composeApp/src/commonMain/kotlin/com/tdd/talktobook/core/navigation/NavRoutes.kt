@@ -11,6 +11,13 @@ sealed class NavRoutes(val route: String) {
 
     data object SignUpScreen : NavRoutes("signup")
 
+    // EmailCheck Graph
+    data object EmailCheckGraph : NavRoutes("email_check_graph")
+
+    data object EmailCheckScreen : NavRoutes("email_check/{email}") {
+        fun setRouteModel(email: String): String = "email_check/$email"
+    }
+
     // Onboarding Graph
     data object OnboardingGraph : NavRoutes("splash_graph")
 
@@ -21,12 +28,32 @@ sealed class NavRoutes(val route: String) {
 
     data object HomeScreen : NavRoutes("home")
 
+    // Past Interview Graph
+    data object PastInterviewGraph : NavRoutes("past_interview_graph")
+
+    data object PastInterviewScreen : NavRoutes("past_interview/{date}/{interviewId}") {
+        fun setRouteModel(
+            date: String,
+            interviewId: Int,
+        ): String = "past_interview/$date/$interviewId"
+    }
+
     // Interview Graph
     data object InterviewGraph : NavRoutes("interview_graph")
 
-    data object InterviewScreen : NavRoutes("interview/{interviewId}") {
-        fun setRouteModel(interviewId: Int): String = "interview/$interviewId"
+    data object InterviewScreen : NavRoutes("interview?question={question}") {
+        fun setRouteModel(question: String): String =
+            if (question.isBlank()) {
+                "interview"
+            } else {
+                "interview?question=$question"
+            }
     }
+
+    // StartProgress Graph
+    data object StartProgressGraph : NavRoutes("start_progress_graph")
+
+    data object StartProgressScreen : NavRoutes("start_progress")
 
     // DetailChapter Graph
     data object DetailChapterGraph : NavRoutes("detail_chapter_graph")
@@ -36,9 +63,9 @@ sealed class NavRoutes(val route: String) {
     }
 
     // MyPage Graph
-    data object MyPageGraph : NavRoutes("my_page_graph")
+    data object SettingPageGraph : NavRoutes("setting_page_graph")
 
-    data object MyPageScreen : NavRoutes("my_page")
+    data object SettingPageScreen : NavRoutes("setting_page")
 
     // Publication
     data object PublicationGraph : NavRoutes("publication_graph")
