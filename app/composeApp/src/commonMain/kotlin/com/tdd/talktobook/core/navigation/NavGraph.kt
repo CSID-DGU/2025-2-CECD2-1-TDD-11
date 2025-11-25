@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
 import com.tdd.talktobook.feature.auth.login.LogInScreen
 import com.tdd.talktobook.feature.auth.signup.SignUpScreen
@@ -135,7 +136,8 @@ fun NavGraphBuilder.pastInterviewNavGraph(
 fun NavGraphBuilder.interviewNavGraph(
     navController: NavController,
     showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
-    userNickName: StateFlow<String>
+    userNickName: StateFlow<String>,
+    showTwoBtnDialogModel: (TwoBtnDialogModel) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
@@ -159,7 +161,8 @@ fun NavGraphBuilder.interviewNavGraph(
                 startQuestion = question,
                 showCreateAutobiographyDialog = showOneBtnDialogModel,
                 nickName = userNickName,
-                navController = navController
+                navController = navController,
+                showSkipQuestionDialog = showTwoBtnDialogModel
             )
         }
     }

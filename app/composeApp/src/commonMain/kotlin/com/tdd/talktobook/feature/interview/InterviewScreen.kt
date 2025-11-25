@@ -24,6 +24,11 @@ import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogContent
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.SkipQuestionBottomHint
+import com.tdd.talktobook.core.designsystem.SkipQuestionContent
+import com.tdd.talktobook.core.designsystem.SkipQuestionFirstBtn
+import com.tdd.talktobook.core.designsystem.SkipQuestionSecondBtn
+import com.tdd.talktobook.core.designsystem.SkipQuestionTitle
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogBtn
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogContent
 import com.tdd.talktobook.core.designsystem.StartAutobiographyDialogTitle
@@ -34,8 +39,10 @@ import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.util.rememberSpeechToText
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.feature.interview.type.ConversationType
+import com.tdd.talktobook.feature.interview.type.SkipQuestionType
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -46,6 +53,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    showSkipQuestionDialog: (TwoBtnDialogModel) -> Unit,
     startQuestion: String = "",
     nickName: StateFlow<String>,
     navController: NavController,
@@ -136,6 +144,20 @@ internal fun InterviewScreen(
                 partial = ""
             }
         },
+        onItemLongClick = {
+            showSkipQuestionDialog(
+                TwoBtnDialogModel(
+                    title = SkipQuestionTitle,
+                    semiTitle = SkipQuestionContent,
+                    firstBtnText = SkipQuestionFirstBtn,
+                    onClickBtnFirst = { viewModel.setSkipQuestion(SkipQuestionType.A) },
+                    secondBtnText = SkipQuestionSecondBtn,
+                    onClickBtnSecond = { viewModel.setSkipQuestion(SkipQuestionType.B) },
+                    bottomBtnText = SkipQuestionBottomHint,
+                    onClickBottomText = { viewModel.setSkipQuestion(SkipQuestionType.DEFAULT) }
+                )
+            )
+        }
     )
 }
 
@@ -148,6 +170,7 @@ private fun InterviewContent(
     isInterviewProgressIng: Boolean = false,
     onStartInterview: () -> Unit = {},
     onFinishInterview: () -> Unit = {},
+    onItemLongClick: (InterviewChatItem) -> Unit = {},
 ) {
     Column(
         modifier =
@@ -164,6 +187,8 @@ private fun InterviewContent(
         InterviewList(
             interviewList = interviewChatList,
             modifier = Modifier.weight(1f),
+            interactionSource = interactionSource,
+            onItemLongClick = onItemLongClick
         )
 
         RectangleBtn(

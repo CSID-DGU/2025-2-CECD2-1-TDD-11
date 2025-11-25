@@ -36,7 +36,9 @@ import com.tdd.talktobook.core.navigation.settingNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
 import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
+import com.tdd.talktobook.core.ui.common.dialog.TwoBtnDialog
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -49,11 +51,16 @@ fun MainScreen() {
     val interactionSource = remember { MutableInteractionSource() }
 
     val isShowDialog = remember { mutableStateOf(false) }
+    val isShowTwoBtnDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val showOneBtnDialog: (OneBtnDialogModel) -> Unit = {
         viewModel.onSetOneBtnDialog(it)
         isShowDialog.value = true
+    }
+    val showTwoBtnDialog: (TwoBtnDialogModel) -> Unit = {
+        viewModel.onSetTwoBtnDialog(it)
+        isShowTwoBtnDialog.value = true
     }
     val settingUserNickName: (String) -> Unit = {
         scope.launch {
@@ -79,14 +86,35 @@ fun MainScreen() {
             onClickBtn = {
                 isShowDialog.value = false
                 uiState.oneBtnDialogModel.onClickBtn()
-//                navController.navigate(NavRoutes.StartProgressScreen.route)
             },
             onClickBottomText = {
                 isShowDialog.value = false
                 uiState.oneBtnDialogModel.onClickBottomText()
-//                navController.navigate(NavRoutes.HomeScreen.route)
             },
             onDismiss = { isShowDialog.value = false },
+        )
+    }
+    if (isShowTwoBtnDialog.value) {
+        TwoBtnDialog(
+            title = uiState.twoBtnDialogModel.title,
+            semiTitle = uiState.twoBtnDialogModel.semiTitle,
+            firstBtnText = uiState.twoBtnDialogModel.firstBtnText,
+            onClickFirstBtn = {
+                isShowTwoBtnDialog.value = false
+                uiState.twoBtnDialogModel.onClickBtnFirst()
+            },
+            secondBtnText = uiState.twoBtnDialogModel.secondBtnText,
+            onClickSecondBtn = {
+                isShowTwoBtnDialog.value = false
+                uiState.twoBtnDialogModel.onClickBtnSecond()
+            },
+            bottomText = uiState.twoBtnDialogModel.bottomBtnText,
+            onClickBottomText = {
+                isShowTwoBtnDialog.value = false
+                uiState.twoBtnDialogModel.onClickBottomText()
+            },
+            isBottomTextVisible = true,
+            onDismiss = { isShowTwoBtnDialog.value = false }
         )
     }
 
@@ -148,7 +176,8 @@ fun MainScreen() {
                 interviewNavGraph(
                     navController = navController,
                     showOneBtnDialogModel = showOneBtnDialog,
-                    userNickName = viewModel.userNickName
+                    userNickName = viewModel.userNickName,
+                    showTwoBtnDialogModel = showTwoBtnDialog
                 )
                 startProgressNavGraph(
                     navController = navController,

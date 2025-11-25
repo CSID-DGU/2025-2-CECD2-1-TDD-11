@@ -3,6 +3,7 @@ package com.tdd.talktobook.feature
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.annotation.KoinViewModel
 
@@ -47,6 +48,14 @@ class MainViewModel : BaseViewModel<MainPageState>(
         updateState(
             uiState.value.copy(
                 oneBtnDialogModel = data,
+            ),
+        )
+    }
+
+    fun onSetTwoBtnDialog(data: TwoBtnDialogModel) {
+        updateState(
+            uiState.value.copy(
+                twoBtnDialogModel = data,
             ),
         )
     }

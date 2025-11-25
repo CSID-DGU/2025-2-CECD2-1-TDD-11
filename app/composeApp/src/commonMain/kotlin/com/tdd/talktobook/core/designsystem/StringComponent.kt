@@ -151,6 +151,12 @@ const val StartAutobiographyDialogBtn = "자서전 생성 시작하기"
 const val CreateAutobiographyDialogTitle = "자서전 생성"
 const val CreateAutobiographyDialogContent = "자서전 생성이 가능합니다.\n인생 이야기를 확인해 보세요!"
 const val CreateAutobiographyDialogBtn = "자서전 생성 요청"
+const val SkipQuestionTitle = "해당 질문 넘기기"
+const val SkipQuestionContent = "질문을 넘기고 싶은 이유를 선택해 주세요"
+const val SkipQuestionFirstBtn = "이전에 답변한 질문과 비슷해요"
+const val SkipQuestionSecondBtn = "뭐라고 답변해야 할 지 모르겠어요"
+const val SkipQuestionBottomHint = "기타 이유"
+const val SkipQuestionReason = "다른 얘기 하고 싶어"
 
 // Publication
 const val PublicationTitle = "생성된 자서전"

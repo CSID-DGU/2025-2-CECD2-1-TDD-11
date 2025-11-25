@@ -1,6 +1,8 @@
 package com.tdd.talktobook.core.ui.common.item
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,12 +23,21 @@ fun InterviewListItem(
     chatText: String,
     chatType: ChatType,
     modifier: Modifier,
+    onClick: () -> Unit = {},
+    onLongPress: () -> Unit = {},
+    interactionSource: MutableInteractionSource,
 ) {
     Box(
         modifier =
             modifier
                 .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp, bottomStart = if (chatType == ChatType.BOT) 0.dp else 5.dp, bottomEnd = if (chatType == ChatType.BOT) 5.dp else 0.dp))
-                .background(if (chatType == ChatType.BOT) Gray1 else Main1),
+                .background(if (chatType == ChatType.BOT) Gray1 else Main1)
+                .combinedClickable(
+                    onLongClick = onLongPress,
+                    onClick = onClick,
+                    indication = null,
+                    interactionSource = interactionSource
+                ),
     ) {
         Text(
             text = chatText,

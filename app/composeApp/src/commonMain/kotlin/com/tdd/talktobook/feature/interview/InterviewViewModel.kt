@@ -2,6 +2,7 @@ package com.tdd.talktobook.feature.interview
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
+import com.tdd.talktobook.core.designsystem.SkipQuestionReason
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
@@ -10,6 +11,7 @@ import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiograph
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
@@ -19,6 +21,7 @@ import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCa
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
+import com.tdd.talktobook.feature.interview.type.SkipQuestionType
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -32,6 +35,7 @@ class InterviewViewModel(
     private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
     private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
     private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
@@ -189,5 +193,26 @@ class InterviewViewModel(
         viewModelScope.launch {
             createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
         }
+
+        initClearLocalData()
+    }
+
+    private fun initClearLocalData() {
+        viewModelScope.launch {
+            deleteLocalAllDataUseCase(Unit).collect { resultResponse(it, {}) }
+        }
+    }
+
+    fun setSkipQuestion(skipType: SkipQuestionType) {
+        //TODO 질문 넘기는 이유 이벤트 설정
+        d("[ktor] interview -> 질문 넘기기: $skipType")
+
+        updateState(
+            uiState.value.copy(
+                interviewProgressType = ConversationType.BEFORE,
+            ),
+        )
+
+        postInterviewAnswer(SkipQuestionReason)
     }
 }
