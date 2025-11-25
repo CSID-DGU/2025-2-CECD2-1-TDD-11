@@ -6,7 +6,6 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/deploy-web.yml'
-
 env:
   AWS_REGION: ap-northeast-2
 
