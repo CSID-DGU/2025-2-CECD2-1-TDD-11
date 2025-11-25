@@ -1,4 +1,4 @@
-name: Deploy Web to CDN
+name: Deploy Homepage to CDN
 
 on:
   push:
