@@ -18,7 +18,9 @@ user:
 3. Do not exceed {{ max_len }} characters.
 4. The provided "material" is written as "Category Chunk MaterialName".
    - If unnatural, reinterpret naturally (e.g., "부모 프로필 name" → "부모님 성함", "성격 스냅샷 설명" → "당신의 성격").
-5. If a previous answer exists, connect smoothly and naturally to it.
+5. Use the previous answer (if provided) to create a natural flow:
+   - If the material is the SAME: Build on the previous answer naturally
+   - If the material is DIFFERENT: Use the previous answer to create a smooth transition to {{qtype}}.
 6. If no previous answer exists, generate a question based solely on material + type.
 7. Avoid template-like phrasing ("~에 대해 방법/과정을…").
 8. Use varied expressions ("들려주실 수 있을까요?", "기억나시나요?", "어떠셨나요?" etc.).
@@ -59,13 +61,6 @@ Use the following meaning to guide how the question probes deeper:
 - **con: Continuation/Connection** → Resulting events or related episodes
   - 사건 이후의 변화, 다음 사건, 혹은 유사한 경험을 유도
   - similar_event = 1
-
-[STAR / SCTAR Integration Rules]
-Use STAR/SCTAR logic implicitly:
-- **ex** type questions → evoke Scene/Situation + Action + Result
-- **why** → evoke Context, Task, and deeper motivations
-- **how1/how2** → evoke Action details (방법/과정 + 감정/내적 인식)
-- **when_where/who** → evoke detailed Scene elements (누가, 언제, 어디서)
 
 [Output Format Requirement]
 - Output **ONLY ONE Korean question sentence.**

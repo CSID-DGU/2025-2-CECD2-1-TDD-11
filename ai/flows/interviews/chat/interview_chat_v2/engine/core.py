@@ -50,7 +50,7 @@ class Category:
 class EngineState:
     last_material_id: Optional[MaterialId] = None
     last_material_streak: int = 0
-    epsilon: float = 0.10
+    epsilon: float = 0.05
 
 #기존 알고리즘 - 메인 엔진
 class InterviewEngine:
@@ -79,20 +79,38 @@ class InterviewEngine:
             
     #기존 알고리즘 - 소재 선택
     def select_material(self) -> MaterialId:
+        print(f"\n[STREAK DEBUG] select_material 호출")
+        print(f"  last_material_id: {self.state.last_material_id}")
+        print(f"  last_material_streak: {self.state.last_material_streak}")
+        
         # 1) 직전 소재 유지
         if self.state.last_material_id: 
             cat, ch, m = self.state.last_material_id
             mat = self._get_material(cat, ch, m)
             if mat:
-                if self.state.last_material_streak < 3 and mat.count < 1: 
+                print(f"  직전 소재 확인: {self.state.last_material_id}")
+                print(f"    mat.count: {mat.count}")
+                print(f"    streak < 3: {self.state.last_material_streak < 3}")
+                print(f"    mat.count < 1: {mat.count < 1}")
+                
+                if self.state.last_material_streak < 3 and mat.count < 1:
+                    print(f"  → 직전 소재 유지: {self.state.last_material_id}")
                     return self.state.last_material_id
+                else:
+                    print(f"  → 직전 소재 변경 필요 (streak={self.state.last_material_streak}, count={mat.count})")
 
         # 2) ε-greedy 탐색
-        if random.random() < self.state.epsilon:
-            return self._random_material_id()
+        rand_val = random.random()
+        print(f"  ε-greedy: rand={rand_val:.4f}, epsilon={self.state.epsilon}")
+        if rand_val < self.state.epsilon:
+            result = self._random_material_id()
+            print(f"  → 랜덤 선택: {result}")
+            return result
 
         # 3) 우선순위 선택
-        return self._select_priority_material()
+        result = self._select_priority_material()
+        print(f"  → 우선순위 선택: {result}")
+        return result
     
     def _select_priority_material(self) -> MaterialId:
         """우선순위 기반 소재 선택 (미완료 소재만)"""
@@ -114,8 +132,8 @@ class InterviewEngine:
             # 모든 소재가 완료된 경우 - 무작위 선택
             return self._random_material_id()
 
-        # 정렬: chunk_weight DESC, sumw ASC
-        candidates.sort(key=lambda x: (-x["cw"], x["sumwc"]))
+        # 정렬: chunk_weight DESC, sumw ASC, category_num ASC
+        candidates.sort(key=lambda x: (-x["cw"], x["sumwc"], x["id"][0]))
 
         # 동률 처리
         best_group = [candidates[0]]

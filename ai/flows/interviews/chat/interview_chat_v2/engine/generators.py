@@ -25,23 +25,23 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
             
             if category_names:
                 categories_text = ", ".join(category_names)
-                question_text = f"{categories_text}에 대해서 주로 이야기하게 될 거에요. 만약 이 책이 만들어진다면 누구에게 가장 필요할 것 같나요?"
+                question_text = f"{categories_text}에 대해서 이야기하게 될 거에요. 어떤 이야기를 하고 싶으신가요?"
                 selected_cat_num = preferred_categories[0]
             else:
                 return {"next_question": None, "last_answer_materials_id": []}
         else:
             # 선호 카테고리가 없으면 그냥 어떤 이야기가 하고 싶냐고 물어봄
-            question_text = "이 책이 만들어지면 누구에게 가장 필요할 거 같으세요?"
+            question_text = "어떤 이야기를 하고 싶으신가요? 자유롭게 이야기 해주세요."
             selected_cat_num = 0
             category_names = []
 
         return {
             "next_question": {
                 "id": f"q-{uuid4().hex[:8]}",
-                "material": f"{', '.join(category_names) if preferred_categories else '일반'}_소개",
+                "material": "첫 질문(material 없음)",
                 "type": "category_intro",
                 "text": question_text,
-                "material_id": [selected_cat_num, 0, 0]
+                "material_id": []
             },
             "last_answer_materials_id": []
         }
@@ -88,6 +88,40 @@ def generate_question_llm(material: str, target: str, context_answer: Optional[s
         print(f"[ERROR] LLM 질문 생성 실패: {e}")
         print(f"[INFO] Using simple fallback for {material}, {target}")
         return f"{material}에 대해 더 자세히 이야기해 주세요."
+
+#V2 추가 함수 - Material Gate 질문 생성
+def generate_material_gate_question(full_material_name: str) -> str:
+    """소재 진입 전 확인 질문 생성 (LLM)"""
+    try:
+        current_dir = Path(__file__).parent.parent
+        flow_path = current_dir.parent.parent / "standard" / "generate_material_gate_question" / "flow.dag.yaml"
+        
+        if not flow_path.exists():
+            print(f"[WARNING] Material gate flow not found: {flow_path}")
+            raise FileNotFoundError(f"Flow not found: {flow_path}")
+        
+        from promptflow import load_flow
+        flow = load_flow(str(flow_path.absolute()))
+        
+        result = flow(
+            material=full_material_name,
+            model="gpt-4o-mini",
+            temperature=0.7
+        )
+        
+        question_text = result.get("question", {}).get("text", "")
+        if question_text:
+            return question_text
+        else:
+            print(f"[WARNING] LLM returned empty gate question for {full_material_name}")
+            raise ValueError("Empty question returned")
+            
+    except Exception as e:
+        print(f"[ERROR] Material gate 질문 생성 실패: {e}")
+        print(f"[INFO] Using simple fallback for {full_material_name}")
+        parts = full_material_name.split()
+        material_name = parts[-1] if parts else full_material_name
+        return f"{material_name}에 대해 이야기할 것이 있으신가요?"
 
 #V2 추가 함수 - 테마 관리
 class ThemeManager:

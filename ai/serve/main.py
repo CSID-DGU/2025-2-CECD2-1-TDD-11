@@ -15,6 +15,7 @@ from interviews.interview_chat_v2.router import (
 from interviews.interview_summary.router import (
     router as interviews_summary_router,
 )
+from images import router as images_router
 
 from logs import get_logger
 import stream.consumers  # 컨슈머 자동 시작
@@ -71,7 +72,7 @@ app.add_middleware(
 app.include_router(autobiographies_generate_autobiography_router, prefix="/api/v2/autobiographies")
 app.include_router(interviews_request_interview_chat_v2_router, prefix="/api/v2/interviews")
 app.include_router(interviews_summary_router, prefix="/api/v2/interviews")
-
+app.include_router(images_router, prefix="/api/v2/images")
 
 if __name__ == "__main__":
     import uvicorn
