@@ -80,6 +80,8 @@ security:
     domain: http://localhost:8080
     ip: http://8.8.8.8:8080
     web: http://localhost:5173
+    android: myapp://callback
+    ios: myapp://callback
 
 images:
   path:
