@@ -102,8 +102,8 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         import json
         material_id = first_question_data.get("material_id", []) if isinstance(first_question_data, dict) else []
         
-        # material_id에서 categoryId 추출 (material_id = [category_order, chunk_order, material_order])
-        category_id = material_id[0] if material_id and len(material_id) >= 1 else None
+        # preferred_categories의 첫 번째 값을 categoryId로 사용
+        category_id = request.preferred_categories[0] if request.preferred_categories else None
         
         question = InterviewQuestion(
             questionText=first_question,
@@ -222,27 +222,27 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         print(f"[DEBUG] material_id = {material_id}")
         print(f"[INFO] result: {result}")
         
+        # categoryId 추출: BOT question의 material_id에서
+        next_material_id = result.get("next_question", {}).get("material_id", [])
+        category_id = next_material_id[0] if next_material_id and len(next_material_id) >= 1 else None
+        
         # queue publish 용 데이터 세팅
         question = InterviewQuestion(
             questionText=next_question,
-            questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
-            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
+            questionOrder=0,
+            materials=json.dumps(last_answer_materials_id)
         )
-        
-        # material_id에서 categoryId 추출
-        next_material_id = result.get("next_question", {}).get("material_id", [])
-        category_id = next_material_id[0] if next_material_id and len(next_material_id) >= 1 else None
         
         human_conversation = Conversation(
             content=request.answer_text,
             conversationType="HUMAN",
-            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
+            materials=json.dumps(last_answer_materials_id)
         )
         
         ai_conversation = Conversation(
             content=next_question,
             conversationType="BOT",
-            materials=json.dumps(material_id) # JSON 문자열로 변환
+            materials=json.dumps(material_id)
         )
         
         payload = InterviewPayload(
