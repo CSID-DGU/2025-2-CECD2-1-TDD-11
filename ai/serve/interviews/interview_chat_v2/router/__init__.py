@@ -143,6 +143,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
 async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
+        print(f"[CHAT] Received request - URL: {http_request.url}, autobiography_id: {autobiography_id}")
         
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
