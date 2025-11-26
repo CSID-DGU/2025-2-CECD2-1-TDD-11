@@ -5,6 +5,7 @@ import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateReq
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyChapterRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiographyRequestDto
+import com.tdd.talktobook.data.service.AuthService
 import com.tdd.talktobook.data.service.AutobiographyService
 import io.ktor.client.statement.HttpResponse
 import org.koin.core.annotation.Single
@@ -12,6 +13,7 @@ import org.koin.core.annotation.Single
 @Single(binds = [AutobiographyDataSource::class])
 class AutobiographyDataSourceImpl(
     private val autobiographyService: AutobiographyService,
+    private val authService: AuthService
 ) : AutobiographyDataSource {
     override suspend fun getAllAutobiographies(): HttpResponse =
         autobiographyService.getAllAutobiographies()
@@ -50,7 +52,7 @@ class AutobiographyDataSourceImpl(
         autobiographyService.postStartProgress(theme, reason)
 
     override suspend fun postCoShowStartProgress(theme: String, reason: String): HttpResponse =
-        autobiographyService.postCoShowInit(theme, reason)
+        authService.postCoShowInit(theme, reason)
 
     override suspend fun getCountMaterials(autobiographyId: Int): HttpResponse =
         autobiographyService.getCountMaterials(autobiographyId)
@@ -68,5 +70,5 @@ class AutobiographyDataSourceImpl(
         autobiographyService.patchChangeStatus(autobiographyId, status)
 
     override suspend fun getCoShowGenerate(autobiographyId: Int, request: GetCoShowGenerateRequestDto): HttpResponse =
-        autobiographyService.getCoShowGenerate(autobiographyId, request)
+        authService.getCoShowGenerate(autobiographyId, request)
 }

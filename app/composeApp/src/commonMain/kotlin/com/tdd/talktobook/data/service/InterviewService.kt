@@ -33,22 +33,10 @@ interface InterviewService {
         @Path("interviewId") interviewId: Int,
     ): HttpResponse
 
-    @Multipart
-    @POST(EndPoints.Interview.COSHOW_INTERVIEW_QUESTION)
-    suspend fun postCoShowInterviewAnswer(
-        @Path("interviewId") interviewId: Int,
-        @Part("answerText") answerText: String
-    ): HttpResponse
-
     @GET(EndPoints.Interview.INTERVIEW_SUMMARY)
     suspend fun getInterviewSummaries(
         @Path("autobiographyId") autobiographyId: Int,
         @Query("year") year: Int,
         @Query("month") month: Int,
-    ): HttpResponse
-
-    @GET(EndPoints.Interview.COSHOW_INTERVIEW_CONVERSATIONS)
-    suspend fun getCoShowInterviewConversation(
-        @Path("interviewId") interviewId: Int,
     ): HttpResponse
 }

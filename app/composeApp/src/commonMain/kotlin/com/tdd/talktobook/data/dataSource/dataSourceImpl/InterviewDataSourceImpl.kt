@@ -2,6 +2,7 @@ package com.tdd.talktobook.data.dataSource.dataSourceImpl
 
 import com.tdd.talktobook.data.dataSource.InterviewDataSource
 import com.tdd.talktobook.data.entity.request.interview.InterviewConversationRequestDto
+import com.tdd.talktobook.data.service.AuthService
 import com.tdd.talktobook.data.service.InterviewService
 import io.ktor.client.statement.HttpResponse
 import org.koin.core.annotation.Single
@@ -9,12 +10,13 @@ import org.koin.core.annotation.Single
 @Single(binds = [InterviewDataSource::class])
 class InterviewDataSourceImpl(
     private val interviewService: InterviewService,
+    private val authService: AuthService
 ) : InterviewDataSource {
     override suspend fun getInterviewConversation(interviewId: Int): HttpResponse =
         interviewService.getInterviewConversation(interviewId)
 
     override suspend fun getCoShowInterviewConversation(interviewId: Int): HttpResponse =
-        interviewService.getCoShowInterviewConversation(interviewId)
+        authService.getCoShowInterviewConversation(interviewId)
 
     override suspend fun postInterviewRenewal(interviewId: Int): HttpResponse =
         interviewService.postInterviewRenewal(interviewId)
@@ -34,4 +36,7 @@ class InterviewDataSourceImpl(
         month: Int,
     ): HttpResponse =
         interviewService.getInterviewSummaries(autobiographyId, year, month)
+
+    override suspend fun postCoShowInterviewAnswer(interviewId: Int, answerText: String): HttpResponse =
+        authService.postCoShowInterviewAnswer(interviewId, answerText)
 }
