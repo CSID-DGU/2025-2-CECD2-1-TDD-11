@@ -40,11 +40,15 @@ public class AutobiographyPublicationService {
     private String bucket;
 
     public byte[] generatePdf(Long autobiographyId) throws IOException, DocumentException {
+        log.info("[GENERATE_PDF] PDF 생성 시작 - autobiographyId: {}", autobiographyId);
+        
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(() -> new IllegalArgumentException("Autobiography not found"));
 
         List<AutobiographyChapter> chapters = autobiographyChapterRepository
                 .findByAutobiographyIdOrderByCreatedAtAsc(autobiographyId);
+        
+        log.info("[GENERATE_PDF] 챕터 조회 완료 - autobiographyId: {}, chaptersCount: {}", autobiographyId, chapters.size());
 
         Context context = new Context();
         context.setVariable("autobiography", autobiography);
@@ -64,9 +68,28 @@ public class AutobiographyPublicationService {
         }
 
         context.setVariable("emptyPages", emptyPages);
+        log.info("[GENERATE_PDF] 페이지 계산 완료 - totalPages: {}, emptyPages: {}", totalPages, emptyPages.size());
+
+        // 로고 이미지를 base64로 인코딩
+        ClassPathResource logoResource = new ClassPathResource("static/logo.png");
+        String logoBase64;
+        try (InputStream is = logoResource.getInputStream()) {
+            byte[] logoBytes = is.readAllBytes();
+            logoBase64 = "data:image/png;base64," + java.util.Base64.getEncoder().encodeToString(logoBytes);
+        }
+        context.setVariable("logoBase64", logoBase64);
+        log.info("[GENERATE_PDF] 로고 이미지 인코딩 완료 - autobiographyId: {}", autobiographyId);
 
         // HTML 렌더링
         String html = templateEngine.process("autobiography-publication", context);
+        log.info("[GENERATE_PDF] HTML 렌더링 완료 - autobiographyId: {}, htmlLength: {}", autobiographyId, html.length());
+        log.debug("[GENERATE_PDF] HTML 내용:\n{}", html.substring(0, Math.min(500, html.length())));
+
+        // chapters가 비어있는지 확인
+        if (chapters.isEmpty()) {
+            log.warn("[GENERATE_PDF] 챕터가 비어있음 - autobiographyId: {}, autobiography.title: {}", 
+                    autobiographyId, autobiography.getTitle());
+        }
 
         // PDF 생성
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -81,26 +104,31 @@ public class AutobiographyPublicationService {
         }
 
         renderer.getFontResolver().addFont(tempFont.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        log.info("[GENERATE_PDF] 폰트 로드 완료 - autobiographyId: {}", autobiographyId);
 
         renderer.setDocumentFromString(html);
         renderer.layout();
         renderer.createPDF(outputStream);
 
-        return outputStream.toByteArray();
+        byte[] pdfBytes = outputStream.toByteArray();
+        log.info("[GENERATE_PDF] PDF 생성 완료 - autobiographyId: {}, pdfSize: {} bytes", autobiographyId, pdfBytes.length);
+
+        return pdfBytes;
     }
 
     public String uploadPdfToS3(Long autobiographyId, String name) throws IOException, DocumentException {
+        log.info("[UPLOAD_PDF_TO_S3] S3 업로드 시작 - autobiographyId: {}, name: {}", autobiographyId, name);
 
         byte[] pdfBytes;
         try {
             pdfBytes = generatePdf(autobiographyId);
         } catch (Exception e) {
-            log.error("[ERROR] PDF 생성 실패 - autobiographyId={}", autobiographyId, e);
+            log.error("[UPLOAD_PDF_TO_S3] PDF 생성 실패 - autobiographyId: {}", autobiographyId, e);
             throw e;
         }
 
         if (pdfBytes.length == 0) {
-            log.error("[ERROR] PDF 바이트 크기가 0입니다 - autobiographyId={}", autobiographyId);
+            log.error("[UPLOAD_PDF_TO_S3] PDF 바이트 크기가 0입니다 - autobiographyId: {}", autobiographyId);
             throw new IllegalStateException("PDF generation failed: empty file");
         }
 
@@ -109,6 +137,8 @@ public class AutobiographyPublicationService {
 
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "publications/" + safeName + "_" + autobiographyId + "_" + date + ".pdf";
+
+        log.info("[UPLOAD_PDF_TO_S3] 파일명 생성 완료 - fileName: {}, size: {} bytes", fileName, pdfBytes.length);
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/pdf");
@@ -121,11 +151,15 @@ public class AutobiographyPublicationService {
                     new ByteArrayInputStream(pdfBytes),
                     metadata
             ));
+            log.info("[UPLOAD_PDF_TO_S3] S3 업로드 성공 - fileName: {}, bucket: {}", fileName, bucket);
         } catch (Exception e) {
-            log.error("[ERROR] S3 업로드 실패 - fileName={}, bucket={}", fileName, bucket, e);
+            log.error("[UPLOAD_PDF_TO_S3] S3 업로드 실패 - fileName: {}, bucket: {}", fileName, bucket, e);
             throw e;
         }
 
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        String url = amazonS3Client.getUrl(bucket, fileName).toString();
+        log.info("[UPLOAD_PDF_TO_S3] S3 업로드 완료 - autobiographyId: {}, url: {}", autobiographyId, url);
+
+        return url;
     }
 }

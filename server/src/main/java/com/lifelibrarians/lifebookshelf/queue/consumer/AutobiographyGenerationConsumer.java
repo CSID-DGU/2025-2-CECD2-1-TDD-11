@@ -25,22 +25,22 @@ public class AutobiographyGenerationConsumer {
 
     @RabbitListener(queues = "autobiography.trigger.result.queue")
     public void receive(AutobiographyGenerateResponseDto dto) {
+        log.info("[RECEIVE_AUTOBIOGRAPHY] 자서전 챕터 수신 - autobiographyId: {}, userId: {}, cycleId: {}, step: {}", 
+                dto.getAutobiographyId(), dto.getUserId(), dto.getCycleId(), dto.getStep());
+        
         LocalDateTime now = LocalDateTime.now();
 
         // Aggregator에서 온 메시지인지 확인 (title, content가 없으면 Aggregator 메시지)
         if (dto.getTitle() == null && dto.getContent() == null) {
-            log.warn("Message rejected: This appears to be an Aggregator message, not an AI result message - autobiographyId: {}", dto.getAutobiographyId());
+            log.warn("[RECEIVE_AUTOBIOGRAPHY] Aggregator 메시지 거부 - autobiographyId: {}", dto.getAutobiographyId());
             return;
         }
 
         // cycleId가 없으면 메시지 거부 (새로운 사이클 관리 시스템 필수)
         if (dto.getCycleId() == null || dto.getCycleId().isEmpty()) {
-            log.warn("Message rejected: cycleId is required for new cycle management system - autobiographyId: {}", dto.getAutobiographyId());
+            log.warn("[RECEIVE_AUTOBIOGRAPHY] cycleId 없음 - autobiographyId: {}", dto.getAutobiographyId());
             return;
         }
-
-        log.info("자서전 수신: autobiographyId={}, userId={}, cycleId={}, step={}",
-                dto.getAutobiographyId(), dto.getUserId(), dto.getCycleId(), dto.getStep());
 
         Autobiography autobiography = autobiographyRepository.findById(dto.getAutobiographyId())
                 .orElseThrow(() -> new RuntimeException("Autobiography not found: " + dto.getAutobiographyId()));
@@ -60,5 +60,6 @@ public class AutobiographyGenerationConsumer {
         );
 
         autobiographyChapterRepository.save(chapter);
+        log.info("[RECEIVE_AUTOBIOGRAPHY] 챕터 저장 완료 - chapterId: {}, step: {}", chapter.getId(), dto.getStep());
     }
 }
