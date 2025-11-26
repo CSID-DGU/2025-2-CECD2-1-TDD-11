@@ -149,6 +149,37 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
         
+        # autobiography_id가 0이면 해당 user의 세션에서 찾기
+        if autobiography_id == 0:
+            import redis
+            redis_client = session_manager.redis_client
+            pattern = f"session:{user_id}:*"
+            keys = redis_client.keys(pattern)
+            
+            if keys:
+                # 가장 최근 세션 사용 (updated_at 기준)
+                latest_key = None
+                latest_time = 0
+                for key in keys:
+                    key_str = key.decode() if isinstance(key, bytes) else key
+                    session_data_raw = redis_client.get(key)
+                    if session_data_raw:
+                        session_data = json.loads(session_data_raw)
+                        updated_at = session_data.get("updated_at", 0)
+                        if updated_at > latest_time:
+                            latest_time = updated_at
+                            latest_key = key_str
+                
+                if latest_key:
+                    # session:{user_id}:{autobiography_id} 형식에서 autobiography_id 추출
+                    parts = latest_key.split(":")
+                    if len(parts) == 3:
+                        autobiography_id = int(parts[2])
+                        print(f"[INFO] Found autobiography_id={autobiography_id} from user {user_id}'s latest session key: {latest_key}")
+            
+            if autobiography_id == 0:
+                raise HTTPException(status_code=400, detail="유효한 세션을 찾을 수 없습니다. /start 엔드포인트를 먼저 호출하세요.")
+        
         # 세션 키 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
         
