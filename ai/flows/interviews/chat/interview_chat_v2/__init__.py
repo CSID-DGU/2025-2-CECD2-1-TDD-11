@@ -311,144 +311,131 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 name = material_value.get("name", "")
                 print(f"[DEBUG] Extracted name from dict: '{name}'")
             else:
-                name = str(material_value)
-                print(f"[DEBUG] Using string as-is: '{name}'")
-            
-            if not name:
-                print(f"[DEBUG] Empty name, skipping")
-                continue
-            
-            # 매핑 파일에서 찾기 (여러 패턴 시도)
-            key = None
-            for k in material_mapping.keys():
-                if name in k or _norm(name) in _norm(k):
-                    key = k
-                    print(f"[DEBUG] Found matching key: {k[:80]}...")
-                    break
-            
-            if not key:
-                print(f"[DEBUG] No matching key found for name: '{name}'")
-                continue
-
-            matched_materials.append(key)
-            axes_analysis_by_material[key] = item.get("axes", {})
-            # 소재 ID 매핑
-            mid = material_mapping.get(key)
-
-        # 소재 ID 매핑
-        for material_name in matched_materials:
-            mid = material_mapping.get(material_name)
-            if isinstance(mid, list) and len(mid) == 3:
-                mapped_ids.append(mid)
-                print(f"[DEBUG] Mapped to ID: {mid}")
-            else:
-                print(f"[DEBUG] Invalid mapping ID: {mid}")
-
-        # LLM 분석 결과 반영
-        for i, material_id in enumerate(mapped_ids):
-            cat_num, chunk_num, mat_num = material_id
-            material = engine._get_material(cat_num, chunk_num, mat_num)
-            if not material:
-                continue
-
-            axes_data = axes_analysis_by_material.get(matched_materials[i], {})
-            is_pass = axes_data.get("pass", 0) == 1
-
-            if is_pass:
-                # 회피/반감 응답: 소재 완료 처리
-                material.principle = [1, 1, 1, 1, 1, 1]
-                material.example, material.similar_event = 1, 1
-                material.count = 1
-                print(f"[INFO] 회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
-            else:
-                # ========== PRINCIPLE 증가 부분 (6W 축) ==========
-                # principle (6W) - 각 축별로 0에서 1로 변경될 때 증가
-                if isinstance(axes_data.get("principle"), list) and len(axes_data["principle"]) == 6:
-                    principle_delta = [0,0,0,0,0,0]
-                    for j, detected in enumerate(axes_data["principle"]):
-                        if detected == 1 and material.principle[j] == 0:  # 0→1 변화만 감지
-                            material.principle[j] = 1  # ★ PRINCIPLE 증가 지점
-                            principle_delta[j] = 1
-                else:
-                    # 휴리스틱 보조 - LLM이 축 정보를 제공하지 않을 때
-                    principle_delta = [0,0,0,0,0,0]
-                    for j, detected in enumerate(axes_evidence.values()):
-                        if detected and j < 6 and material.principle[j] == 0:  # 0→1 변화만 감지
-                            material.principle[j] = 1  # ★ PRINCIPLE 증가 지점 (휴리스틱)
-                            principle_delta[j] = 1
-
-                # ========== EXAMPLE 증가 부분 ==========
-                example_delta = 0
-                if (axes_data.get("example") == 1 or ex_flag) and material.example == 0:  # 0→1 변화만 감지
-                    material.example = 1  # ★ EXAMPLE 증가 지점
-                    example_delta = 1
-                    
-                # ========== SIMILAR_EVENT 증가 부분 ==========
-                similar_event_delta = 0
-                if (axes_data.get("similar_event") == 1 or con_flag) and material.similar_event == 0:  # 0→1 변화만 감지
-                    material.similar_event = 1  # ★ SIMILAR_EVENT 증가 지점
-                    similar_event_delta = 1
-
-                # material 변경사항 발행
-                if any(principle_delta) or example_delta or similar_event_delta:
-                    print(f"[DEBUG] Material changes detected: principle_delta={principle_delta}, example_delta={example_delta}, similar_event_delta={similar_event_delta}")
-                    
-                    # material 변화량 데이터 구성
-                    material_deltas = [{
-                        'chunk_id': chunk_num,
-                        'material_id': material.order,
-                        'example_delta': example_delta,
-                        'similar_event_delta': similar_event_delta,
-                        'count_delta': 0,
-                        'principle_delta': principle_delta
-                    }]
-                    
-                    # AI cat_num을 DB 매핑으로 변환
-                    theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
-                    
-                    print(f"[DEBUG] publish_delta_change params: user_id={user_id}, autobiography_id={autobiography_id}, theme_id={theme_id}, category_order={category_order}")
-                    
-                    publish_delta_change(
-                        user_id=user_id,
-                        autobiography_id=autobiography_id, 
-                        theme_id=theme_id,
-                        category_id=category_order,  # DB의 category order 사용
-                        material_deltas=material_deltas
-                    )
-
-                # ========== CHUNK WEIGHT 증가 부분 ==========
-                category = engine.categories[cat_num]
-                category.chunk_weight[chunk_num] = category.chunk_weight.get(chunk_num, 0) + 1  # ★ CHUNK WEIGHT 증가 지점 (+1씩 누적)
-                
-                # chunk weight 증가 발행
-                # chunk weight 변화량 데이터 구성
-                chunk_deltas = [{
-                    'chunk_id': chunk_num,
-                    'weight_delta': 1  # weight 증가
-                }]
-                
-                # AI cat_num을 DB 매핑으로 변환
-                theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
-                
-                publish_delta_change(
-                    user_id=user_id,
-                    autobiography_id=autobiography_id,
-                    theme_id=theme_id,
-                    category_id=category_order,  # DB의 category order 사용
-                    chunk_deltas=chunk_deltas
-                )
-                
-                # ========== MATERIAL COUNT 증가 부분 ==========
-                material.mark_filled_if_ready()  # ★ 이 함수 내부에서 MATERIAL COUNT가 0→1로 변경됨
-
-        same_material = (current_material in matched_materials) if current_material else False
+                # 폴백: 기존 키워드 매칭
+                matched_materials = find_matching_materials(answer_text, current_material, material_data)
+                axes_analysis_by_material = {}
+                print(f"[WARNING] 키워드 매칭 사용")
+        except Exception as e:
+            # 에러 시 폴백
+            matched_materials = find_matching_materials(answer_text, current_material, material_data)
+            axes_analysis_by_material = {}
+            print(f"[ERROR] LLM 매칭 실패: {e}, 폴백 사용")
+        same_material = current_material in matched_materials if current_material else False
+        
+        # 소재 매칭 분석
         print(f"\n🔍 [소재 매칭] {current_material} → {matched_materials} (동일:{same_material})")
         if axes_analysis_by_material:
-            print("📋 [축 분석 결과]")
-            for k, v in axes_analysis_by_material.items():
-                print(f"  - {k}: {v}")
-    # ------------------ 다음 질문 생성 ------------------
+            print(f"📋 [축 분석 결과]")
+            for material_name, axes in axes_analysis_by_material.items():
+                print(f"  {material_name}: {axes}")
+        
 
+        
+        # 메트릭 업데이트
+        if matched_materials:
+            mapped_ids = []
+            current_id = None
+            
+            print(f"\n🔍 [소재 ID 매핑] current_material: '{current_material}'")
+            for material_name in matched_materials:
+                # 소재명을 띄어쓰기로 분리하여 직접 매칭
+                parts = material_name.split()
+                if len(parts) >= 3:
+                    cat_name, chunk_name, mat_name = parts[0], parts[1], ' '.join(parts[2:])
+                    
+                    # 카테고리 찾기
+                    found_cat = None
+                    for cat_num, category in engine.categories.items():
+                        if category.category_name == cat_name:
+                            found_cat = category
+                            break
+                    
+                    if found_cat:
+                        # 청크 찾기
+                        found_chunk = None
+                        for chunk_num, chunk in found_cat.chunks.items():
+                            if chunk.chunk_name == chunk_name:
+                                found_chunk = chunk
+                                break
+                        
+                        if found_chunk:
+                            # 소재 찾기
+                            for mat_num, material in found_chunk.materials.items():
+                                if material.material_name == mat_name:
+                                    material_id = [cat_num, chunk_num, mat_num]
+                                    mapped_ids.append(material_id)
+                                    print(f"  '{material_name}' → {material_id}")
+                                    break
+                            else:
+                                print(f"  '{material_name}' → None (소재 미발견: '{mat_name}')")
+                        else:
+                            print(f"  '{material_name}' → None (청크 미발견: '{chunk_name}')")
+                    else:
+                        print(f"  '{material_name}' → None (카테고리 미발견: '{cat_name}')")
+                else:
+                    print(f"  '{material_name}' → None (형식 오류: {len(parts)}개 부분)")
+            
+            print(f"mapped_ids: {mapped_ids} (total: {len(mapped_ids)})")
+            
+            if mapped_ids:
+                print(f"\n✅ 메트릭 업데이트 시작!")
+                print(f"\n📊 [메트릭 업데이트] {len(mapped_ids)}개 소재")
+                
+                for i, material_id in enumerate(mapped_ids):
+                    cat_num, chunk_num, mat_num = material_id
+                    material = engine._get_material(cat_num, chunk_num, mat_num)
+                    if material:
+                        material_name = matched_materials[i] if i < len(matched_materials) else None
+                        material_axes = axes_analysis_by_material.get(material_name) if material_name and axes_analysis_by_material else None
+                        print(f"  {i+1}. {material_name} → {material_id}")
+                        print(f"    처리중: {material_axes}")
+                        
+                        old_w = material.w.copy()
+                        old_ex = material.ex
+                        old_con = material.con
+                        
+                        if material_axes and "w" in material_axes:
+                            w_values = material_axes["w"]
+                            if isinstance(w_values, list) and len(w_values) == 6:
+                                for j, detected in enumerate(w_values):
+                                    if detected == 1:
+                                        material.w[j] = 1
+                                print(f"    6W 반영: {w_values} → {material.w}")
+                        else:
+                            for j, detected in enumerate(axes_evidence.values()):
+                                if detected and j < 6:
+                                    material.w[j] = 1
+                        
+                        if material_axes and material_axes.get("ex") == 1:
+                            material.ex = 1
+                        elif ex_flag:
+                            material.ex = 1
+                        
+                        if material_axes and material_axes.get("con") == 1:
+                            material.con = 1
+                        elif con_flag:
+                            material.con = 1
+                        
+                        print(f"    변경: w {old_w} → {material.w}, ex {old_ex} → {material.ex}, con {old_con} → {material.con}")
+                        
+                        category = engine.categories[cat_num]
+                        old_weight = category.chunk_weight.get(chunk_num, 0)
+                        category.chunk_weight[chunk_num] = old_weight + 1
+                        print(f"    chunk_weight: {old_weight} → {category.chunk_weight[chunk_num]}")
+                        
+                        material.mark_filled_if_ready()
+                        print(f"    material_count: {material.material_count}")
+            else:
+                print(f"\n⚠️ [메트릭 업데이트 실패] mapped_ids가 비어있음")
+                print(f"    원인: find_material_id()가 모든 소재에 대해 None 반환")
+        else:
+            print(f"\n⚠️ [메트릭 업데이트 실패] matched_materials가 비어있음")
+                
+
+        
+
+    
+    # 다음 질문 생성
     try:
         material_id = engine.select_material()
         cat_num, chunk_num, mat_num = material_id
@@ -586,32 +573,49 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "text": question_text,
             "material_id": material_id
         }
-
+        
+        # Redis에 업데이트된 상태 저장 (활성 데이터만)
         def serialize_categories(categories):
-            result = []
-            for cat in categories.values():
-                active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
+            result = {}
+            for k, v in categories.items():
+                # 활성 청크만 포함 (chunk_weight > 0)
+                active_chunks = {ck: cv for ck, cv in v.chunks.items() 
+                               if v.chunk_weight.get(ck, 0) > 0}
+                
                 if not active_chunks:
                     continue
-
-                chunks = []
-                for chunk in active_chunks.values():
-                    materials = [
-                        {"order": m.order, "name": m.name, "principle": m.principle,
-                         "example": m.example, "similar_event": m.similar_event, "count": m.count}
-                        for m in chunk.materials.values()
-                        if any(m.principle) or m.example or m.similar_event or m.count > 0
-                    ]
-                    if materials:
-                        chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
-
+                    
+                chunks = {}
+                for ck, cv in active_chunks.items():
+                    # 활성 소재만 포함 (w/ex/con 중 하나라도 값이 있음)
+                    active_materials = {}
+                    for mk, mv in cv.materials.items():
+                        if (any(mv.w) or mv.ex or mv.con or mv.material_count > 0):
+                            active_materials[f"mat_{mk}"] = {
+                                "material_num": mv.material_num,
+                                "material_name": mv.material_name,
+                                "w": mv.w,
+                                "ex": mv.ex,
+                                "con": mv.con,
+                                "material_count": mv.material_count
+                            }
+                    
+                    if active_materials:
+                        chunks[f"chunk_{ck}"] = {
+                            "chunk_num": cv.chunk_num,
+                            "chunk_name": cv.chunk_name,
+                            "materials": active_materials
+                        }
+                
                 if chunks:
-                    result.append({
-                        "category_num": cat.category_num,
-                        "category_name": cat.category_name,
+                    # 활성 chunk_weight만 포함
+                    active_weights = {str(ck): weight for ck, weight in v.chunk_weight.items() if weight > 0}
+                    result[f"cat_{k}"] = {
+                        "category_num": v.category_num,
+                        "category_name": v.category_name,
                         "chunks": chunks,
-                        "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
-                    })
+                        "chunk_weight": active_weights
+                    }
             return result
 
         # 이전 상태 저장
