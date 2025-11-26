@@ -6,22 +6,18 @@ import com.tdd.talktobook.data.dataStore.LocalDataStore
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.accept
+import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
@@ -72,33 +68,16 @@ object KtorModule {
                     }
             }
 
-            install(Auth) {
-                val baseHost = Url(BuildKonfig.BASE_URL).host
-
-                bearer {
-                    loadTokens {
-//                        val token = localDataStore.accessToken.firstOrNull()
-                        val token = runBlocking { tokenProvider.getAccessToken() }
-
-                        token?.let {
-                            BearerTokens(
-                                accessToken = it,
-                                refreshToken = "",
-                            )
-                        }
-                    }
-
-                    sendWithoutRequest { request ->
-                        request.url.host == baseHost
-                    }
-                }
-            }
-
             defaultRequest {
                 contentType(ContentType.Application.Json)
 //                contentType(ContentType.MultiPart.FormData)
                 accept(ContentType.Application.Json)
                 headers.append(HttpHeaders.AcceptCharset, HEADER_VALUE)
+
+                val token = runBlocking { tokenProvider.getAccessToken() }
+                if (!token.isNullOrBlank()) {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         }
 

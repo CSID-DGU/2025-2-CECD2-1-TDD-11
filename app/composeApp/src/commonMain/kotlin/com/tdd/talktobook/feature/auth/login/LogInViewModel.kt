@@ -50,7 +50,6 @@ class LogInViewModel(
         d("[ktor] email response -> $data")
         if (data.accessToken.isNotEmpty()) {
             saveAccessToken(data)
-            setNextPage(data.metadataSuccess)
         }
     }
 
@@ -58,6 +57,8 @@ class LogInViewModel(
         viewModelScope.launch {
             saveTokenUseCase(data).collect { }
         }
+
+        setNextPage(data.metadataSuccess)
     }
 
     private fun setNextPage(data: Boolean) {
