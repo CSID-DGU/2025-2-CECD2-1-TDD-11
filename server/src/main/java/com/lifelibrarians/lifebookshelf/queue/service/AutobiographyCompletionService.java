@@ -8,6 +8,7 @@ import com.lifelibrarians.lifebookshelf.classification.repository.MaterialReposi
 import com.lifelibrarians.lifebookshelf.interview.domain.Conversation;
 import com.lifelibrarians.lifebookshelf.interview.domain.ConversationType;
 import com.lifelibrarians.lifebookshelf.interview.repository.ConversationRepository;
+import com.lifelibrarians.lifebookshelf.publication.service.AutobiographyPublicationService;
 import com.lifelibrarians.lifebookshelf.queue.dto.request.AutobiographyGenerateRequestDto;
 import com.lifelibrarians.lifebookshelf.queue.publisher.AutobiographyGeneratePublisher;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class AutobiographyCompletionService {
     private final ConversationRepository conversationRepository;
     private final AutobiographyGeneratePublisher autobiographyGeneratePublisher;
     private final CycleInitService cycleInitService;
+    private final AutobiographyPublicationService autobiographyPublicationService;
     
     private static final double COMPLETION_THRESHOLD = 0.7; // 70%
     private final Map<Long, Boolean> processedAutobiographies = new ConcurrentHashMap<>();
@@ -103,33 +105,39 @@ public class AutobiographyCompletionService {
                 .sorted((a, b) -> a.getAutobiographyInfo().getCategory().compareTo(b.getAutobiographyInfo().getCategory()))
                 .forEach(autobiographyGeneratePublisher::publishGenerateAutobiographyRequest);
         
+        // 4. PDF 생성 및 S3 업로드
+        try {
+            String pdfUrl = autobiographyPublicationService.uploadPdfToS3(autobiography.getId(), name);
+            log.info("[DEBUG] PDF 업로드 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
+        } catch (Exception e) {
+            log.error("[ERROR] PDF 생성 실패 - autobiographyId: {}", autobiography.getId(), e);
+        }
+        
         log.info("[DEBUG] triggerPublicationRequest 완료 - autobiographyId: {}, cycleId: {}", 
                 autobiography.getId(), cycleId);
     }
 
     private List<AutobiographyGenerateRequestDto> createGenerateRequests(Autobiography autobiography, String cycleId) {
         log.info("[DEBUG] createGenerateRequests 시작 - autobiographyId: {}, cycleId: {}", autobiography.getId(), cycleId);
-        
-        // HUMAN 타입 conversations에서 materials의 첫 번째 숫자로 category order 추출
-        Map<Integer, List<String>> conversationsByCategory = conversationRepository
+
+        // 대화들을 카테고리 오더별로 그룹화
+        Map<Integer, List<Conversation>> conversationsByCategory = conversationRepository
                 .findByAutobiographyId(autobiography.getId())
                 .stream()
-                .filter(conv -> ConversationType.HUMAN.equals(conv.getConversationType()))
                 .filter(conv -> conv.getMaterials() != null && !conv.getMaterials().isEmpty())
                 .collect(Collectors.groupingBy(
-                    conv -> extractCategoryOrder(conv.getMaterials()),
-                    Collectors.mapping(Conversation::getContent, Collectors.toList())
+                        conv -> extractCategoryOrder(conv.getMaterials())
                 ));
 
         List<AutobiographyGenerateRequestDto> requests = conversationsByCategory.entrySet().stream()
                 .map(entry -> createRequestDto(autobiography, cycleId, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
-        
+
         log.info("[DEBUG] createGenerateRequests 완료 - 생성된 요청: {}개", requests.size());
         return requests;
     }
 
-    private AutobiographyGenerateRequestDto createRequestDto(Autobiography autobiography, String cycleId, Integer categoryOrder, List<String> conversations) {
+    private AutobiographyGenerateRequestDto createRequestDto(Autobiography autobiography, String cycleId, Integer categoryOrder, List<Conversation> conversations) {
         String categoryName = getCategoryName(autobiography.getId(), categoryOrder);
         
         return AutobiographyGenerateRequestDto.builder()
@@ -148,9 +156,9 @@ public class AutobiographyCompletionService {
                         .category(categoryName)
                         .build())
                 .answers(conversations.stream()
-                        .map(content -> AutobiographyGenerateRequestDto.InterviewAnswer.builder()
-                                .content(content)
-                                .conversationType("HUMAN")
+                        .map(conv -> AutobiographyGenerateRequestDto.InterviewAnswer.builder()
+                                .content(conv.getContent())
+                                .conversationType(conv.getConversationType().name())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

@@ -77,6 +77,10 @@ dependencies {
 
     // queue
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // PDF generation
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.1.22'
 }
 
 test {
