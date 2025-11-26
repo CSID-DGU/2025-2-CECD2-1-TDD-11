@@ -4,6 +4,8 @@ import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
 import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
+import com.lifelibrarians.lifebookshelf.interview.dto.request.CoShowChatInterviewRequestDto;
+import com.lifelibrarians.lifebookshelf.interview.dto.response.CoShowChatInterviewResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionResponseDto;
 
@@ -19,12 +21,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -95,5 +97,40 @@ public class InterviewController {
             @RequestParam("month") @Parameter(description = "월", example = "12") Integer month
     ) {
         return interviewFacadeService.getInterviewSummaries(memberSessionDto.getMemberId(), autobiographyId, year, month);
+    }
+
+    // --------------------------------------------------------
+    @Operation(summary = "3. Co-Show 다음 인터뷰 질문 응답", description = "Co-Show - isLast가 true가 되기 전까지 응답을 보내주세요. true가 되면 Co-Show 4번 최종 자서전 생성 요청을 해주세요.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            interviewExceptionStatuses = {
+                    InterviewExceptionStatus.INTERVIEW_NOT_FOUND,
+            }
+    )
+    @PostMapping(value = "/{interviewId}/co-show/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CoShowChatInterviewResponseDto getCoShowInterviewQuestions(
+            @PathVariable ("interviewId") @Parameter(description = "인터뷰 ID", example = "1") Long interviewId,
+            @Valid @ModelAttribute CoShowChatInterviewRequestDto requestDto) {
+        return interviewFacadeService.getCoShowInterviewQuestions(interviewId, requestDto);
+    }
+
+    @Operation(summary = "2. Co-Show 채팅 인터뷰 대화 조회", description = "Co-Show용 - 선택한 interviewId에 대한 대화 기록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            interviewExceptionStatuses = {
+                    InterviewExceptionStatus.INTERVIEW_NOT_FOUND,
+            }
+    )
+    @GetMapping("/{interviewId}/co-show/conversations")
+    public InterviewConversationResponseDto coShowGetConversations(
+            @PathVariable ("interviewId") @Parameter(description = "인터뷰 ID", example = "1") Long interviewId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        return interviewFacadeService.coShowGetConversations(interviewId, PageRequest.of(page, size));
     }
 }

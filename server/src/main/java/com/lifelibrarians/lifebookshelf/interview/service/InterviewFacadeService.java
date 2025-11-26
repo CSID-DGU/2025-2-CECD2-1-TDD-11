@@ -3,6 +3,8 @@ package com.lifelibrarians.lifebookshelf.interview.service;
 import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
 import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
 
+import com.lifelibrarians.lifebookshelf.interview.dto.request.CoShowChatInterviewRequestDto;
+import com.lifelibrarians.lifebookshelf.interview.dto.response.CoShowChatInterviewResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewSummaryOfMonthResponseDto;
@@ -31,5 +33,13 @@ public class InterviewFacadeService {
 
     public InterviewSummaryOfMonthResponseDto getInterviewSummaries(Long memberId, Long autobiographyId, Integer year, Integer month) {
         return interviewQueryService.getInterviewSummaries(memberId, autobiographyId, year, month);
+    }
+
+    public CoShowChatInterviewResponseDto getCoShowInterviewQuestions(Long interviewId, CoShowChatInterviewRequestDto requestDto) {
+        return interviewQueryService.getCoShowInterviewQuestions(interviewId, requestDto);
+    }
+
+    public InterviewConversationResponseDto coShowGetConversations(Long interviewId, Pageable pageable) {
+        return interviewQueryService.coShowGetConversations(interviewId, pageable);
     }
 }

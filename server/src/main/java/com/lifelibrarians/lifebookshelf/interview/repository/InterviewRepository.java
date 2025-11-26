@@ -16,6 +16,12 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 			+ "WHERE i.id = :interviewId")
 	Optional<Interview> findWithQuestionsById(Long interviewId);
 
+	@Query("SELECT i FROM Interview i "
+			+ "LEFT JOIN FETCH i.questions "
+			+ "LEFT JOIN FETCH i.currentQuestion "
+			+ "WHERE i.id = :interviewId")
+	Optional<Interview> findWithQuestionsAndCurrentQuestionById(Long interviewId);
+
 	// 특정 멤버의 인터뷰 개수 조회
 	@Query("SELECT COUNT(i) FROM Interview i WHERE i.member.id = :memberId")
 	Long countByMemberId(@Param("memberId") Long memberId);

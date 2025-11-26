@@ -66,4 +66,14 @@ public class AutobiographyFacadeService {
 	public void deleteAutobiography(Long memberId, Long autobiographyId) {
 		autobiographyCommandService.deleteAutobiography(memberId, autobiographyId);
 	}
+
+    // ----------------------------------------------------
+    // CoShow용
+    public void coShowRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
+        autobiographyCommandService.coShowRequestAutobiographyGenerate(autobiographyId, requestDto);
+    }
+
+    public AutobiographyInitResponseDto coShowInitAutobiography(AutobiographyInitRequestDto requestDto) {
+        return autobiographyCommandService.coShowInitAutobiography(requestDto);
+    }
 }

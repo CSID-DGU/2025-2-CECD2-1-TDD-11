@@ -265,5 +265,37 @@ public class AutobiographyController {
     ) {
         return autobiographyFacadeService.getAutobiographyTheme(memberSessionDto.getMemberId(), autobiographyId);
     }
+
+    // ----------------------------------------------------
+    // CoShow용
+    @Operation(summary = "4. CoShow - 최종 자서전 생성 요청", description = "CoShow용 - 자서전 ID로 최종 자서전 생성을 요청합니다. 상태가 CREATING으로 전환됩니다. 완성되면 상태가 FINISH로 전환되고, 곧 PDF로 확인할 수 있습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND
+            }
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{autobiographyId}/coshow/generate")
+    public void coShowRequestAutobiographyGenerate(
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+            @Valid @ModelAttribute CoShowAutobiographyGenerateRequestDto requestDto
+    ) {
+        autobiographyFacadeService.coShowRequestAutobiographyGenerate(autobiographyId, requestDto);
+    }
+
+    @Operation(summary = "1. CoShow - 자서전 초기화 요청", description = "CoShow용 - 자서전 테마와 이유를 등록하고 새로운 자서전 id, 인터뷰 id를 반환합니다. 로그인이 필요하지 않습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "created"),
+    })
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/coshow/init", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AutobiographyInitResponseDto coShowInitAutobiography(
+            @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
+    ) {
+        return autobiographyFacadeService.coShowInitAutobiography(requestDto);
+    }
 }
 
