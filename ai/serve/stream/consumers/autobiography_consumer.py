@@ -123,9 +123,14 @@ class AutobiographyConsumer:
         # Flow 직접 실행
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.join(current_dir, "..", "..", "..", "..")
-        flow_path = os.path.join(project_root, "ai", "flows", "autobiographies", "standard", "generate_autobiography", "flow.dag.yaml")
+        flow_path = os.path.join(project_root, "flows", "autobiographies", "standard", "generate_autobiography", "flow.dag.yaml")
         flow_path = os.path.abspath(flow_path)
         
+        if not os.path.exists(flow_path):
+            logger.error(f"[ERROR] Flow file not found at: {flow_path}")
+            raise FileNotFoundError(f"Flow file not found at: {flow_path}")
+        
+        logger.info(f"[FLOW] Loading flow from {flow_path}")
         flow = Flow.load(flow_path)
         result = flow(
             user_info=user_info.dict(),
