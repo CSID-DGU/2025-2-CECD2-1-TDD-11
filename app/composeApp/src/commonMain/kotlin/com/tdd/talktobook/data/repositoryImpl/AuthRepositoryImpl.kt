@@ -53,14 +53,6 @@ class AuthRepositoryImpl(
             authDataSource.postEmailVerification(request.email, request.code)
         })
 
-    override suspend fun deleteUser(): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = {
-            authDataSource.deleteUser()
-        })
-
-    override suspend fun logOut(): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = { authDataSource.logOut() })
-
     override suspend fun reissue(refresh: String): Flow<Result<TokenModel>> =
         ReissueMapper.responseToModel(apiCall = { authDataSource.reissue(refresh) })
 
@@ -84,5 +76,15 @@ class AuthRepositoryImpl(
                     emit(Result.failure(Exception("[dataStore] refresh token is null")))
                 }
             }
+        }
+
+    override suspend fun clearToken(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearTokens()
+        }
+
+    override suspend fun clearAllData(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearAll()
         }
 }

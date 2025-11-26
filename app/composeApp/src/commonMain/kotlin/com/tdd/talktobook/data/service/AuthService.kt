@@ -30,12 +30,6 @@ interface AuthService {
         @Part("verificationCode") code: String,
     ): HttpResponse
 
-    @DELETE(EndPoints.Auth.UNREGISTER)
-    suspend fun deleteUser(): HttpResponse
-
-    @POST(EndPoints.Auth.LOGOUT)
-    suspend fun logOut(): HttpResponse
-
     @Multipart
     @POST(EndPoints.Auth.REISSUE)
     suspend fun reissue(

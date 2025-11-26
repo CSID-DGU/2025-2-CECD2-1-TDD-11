@@ -21,8 +21,4 @@ interface InterviewRepository {
     suspend fun saveInterviewId(request: Int): Flow<Result<Boolean>>
 
     suspend fun getInterviewId(): Flow<Result<Int>>
-
-    suspend fun clearToken(): Flow<Result<Boolean>>
-
-    suspend fun clearAllData(): Flow<Result<Boolean>>
 }

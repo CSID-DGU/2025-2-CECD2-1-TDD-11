@@ -8,4 +8,8 @@ interface MemberRepository {
     suspend fun getMemberInfo(): Flow<Result<MemberInfoResponseModel>>
 
     suspend fun putEditMemberInfo(request: MemberInfoModel): Flow<Result<Boolean>>
+
+    suspend fun deleteUser(): Flow<Result<Boolean>>
+
+    suspend fun logOut(): Flow<Result<Boolean>>
 }

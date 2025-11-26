@@ -63,14 +63,4 @@ class InterviewRepositoryImpl(
                 }
             }
         }
-
-    override suspend fun clearToken(): Flow<Result<Boolean>> =
-        flow {
-            localDataStore.clearTokens()
-        }
-
-    override suspend fun clearAllData(): Flow<Result<Boolean>> =
-        flow {
-            localDataStore.clearAll()
-        }
 }
