@@ -17,6 +17,7 @@ class InterviewQuestion(BaseModel):
 class InterviewPayload(BaseModel):
     autobiographyId: int
     userId: int
+    categoryId: int
     conversation: Optional[list[Conversation]] = []
     interviewQuestion: Optional[InterviewQuestion]
 

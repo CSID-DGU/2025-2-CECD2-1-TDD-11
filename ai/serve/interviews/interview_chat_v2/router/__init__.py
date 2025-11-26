@@ -101,6 +101,10 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         # queue publish 용 데이터 세팅
         import json
         material_id = first_question_data.get("material_id", []) if isinstance(first_question_data, dict) else []
+        
+        # material_id에서 categoryId 추출 (material_id = [category_order, chunk_order, material_order])
+        category_id = material_id[0] if material_id and len(material_id) >= 1 else None
+        
         question = InterviewQuestion(
             questionText=first_question,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
@@ -116,6 +120,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         payload = InterviewPayload(
             autobiographyId=autobiography_id,
             userId=user_id,
+            categoryId=category_id,
             conversation=[ai_conversation],
             interviewQuestion=question
         )
@@ -224,6 +229,10 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
             materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
         
+        # material_id에서 categoryId 추출
+        next_material_id = result.get("next_question", {}).get("material_id", [])
+        category_id = next_material_id[0] if next_material_id and len(next_material_id) >= 1 else None
+        
         human_conversation = Conversation(
             content=request.answer_text,
             conversationType="HUMAN",
@@ -239,6 +248,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         payload = InterviewPayload(
             autobiographyId=autobiography_id,
             userId=user_id,
+            categoryId=category_id,
             conversation=[human_conversation, ai_conversation],
             interviewQuestion=question
         )
