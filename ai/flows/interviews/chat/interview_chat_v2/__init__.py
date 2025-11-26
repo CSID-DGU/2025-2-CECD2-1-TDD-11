@@ -95,15 +95,85 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         if preferred_categories:
             engine.boost_theme(preferred_categories, initial_weight=10)
             print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
-
-        metrics = {"preferred_categories": preferred_categories}
-        result = generate_first_question(engine, metrics)
-        # material_id를 material 내부로 이동
-        if result.get("next_question") and "material_id" in result["next_question"]:
-            material_id = result["next_question"].pop("material_id")
-            result["next_question"]["material"]["full_material_id"] = material_id
-        result["last_answer_materials_id"] = []
-        return result
+            
+            # preferred_categories가 있으면 material gate 질문 생성
+            material_id = engine.select_material()
+            cat_num, chunk_num, mat_num = material_id
+            material = engine._get_material(cat_num, chunk_num, mat_num)
+            category = engine.categories[cat_num]
+            chunk = category.chunks[chunk_num]
+            full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
+            
+            gate_question_text = generate_material_gate_question(full_material_name)
+            
+            next_question = {
+                "id": f"q-{uuid4().hex[:8]}",
+                "material": {
+                    "full_material_name": full_material_name,
+                    "full_material_id": list(material_id),
+                    "material_name": material.name,
+                    "material_order": material.order
+                },
+                "type": "material_gate",
+                "text": gate_question_text
+            }
+            
+            def serialize_categories(categories):
+                result = []
+                for cat in categories.values():
+                    active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
+                    if not active_chunks:
+                        continue
+                    chunks = []
+                    for chunk in active_chunks.values():
+                        materials = [
+                            {"order": m.order, "name": m.name, "principle": m.principle,
+                             "example": m.example, "similar_event": m.similar_event, "count": m.count}
+                            for m in chunk.materials.values()
+                            if any(m.principle) or m.example or m.similar_event or m.count > 0
+                        ]
+                        if materials:
+                            chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
+                    if chunks:
+                        result.append({
+                            "category_num": cat.category_num,
+                            "category_name": cat.category_name,
+                            "chunks": chunks,
+                            "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
+                        })
+                return result
+            
+            updated_metrics = {
+                "session_id": sessionId,
+                "categories": serialize_categories(engine.categories),
+                "engine_state": {
+                    "last_material_id": list(engine.state.last_material_id) if engine.state.last_material_id else [],
+                    "last_material_streak": engine.state.last_material_streak,
+                    "epsilon": engine.state.epsilon
+                },
+                "asked_total": 1,
+                "preferred_categories": preferred_categories,
+                "policy_version": "v0.5.0"
+            }
+            
+            session_update = {
+                "metrics": updated_metrics,
+                "last_question": next_question,
+                "updated_at": time.time()
+            }
+            redis_client.setex(session_key, 3600, json.dumps(session_update))
+            
+            print(f"\n🚧 [첫 질문 - Material Gate] {full_material_name}")
+            return {"next_question": next_question, "last_answer_materials_id": []}
+        else:
+            # preferred_categories가 없으면 자유 질문
+            metrics = {"preferred_categories": preferred_categories}
+            result = generate_first_question(engine, metrics)
+            if result.get("next_question") and "material_id" in result["next_question"]:
+                material_id = result["next_question"].pop("material_id")
+                result["next_question"]["material"]["full_material_id"] = material_id
+            result["last_answer_materials_id"] = []
+            return result
 
     # 이후 질문 생성 준비
     question = session_data.get("last_question", {})
