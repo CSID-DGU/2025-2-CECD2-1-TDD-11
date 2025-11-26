@@ -1,5 +1,7 @@
 import json
 import os
+import sys
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
@@ -21,6 +23,15 @@ logger = get_logger()
 
 router = APIRouter()
 
+# flow 경로 추가
+current_dir = Path(__file__).parent.parent.parent.parent.parent
+flows_dir = current_dir / "flows" / "autobiographies" / "standard" / "generate_autobiography"
+sys.path.insert(0, str(flows_dir))
+
+# flow 로드
+flow_path = flows_dir / "flow.dag.yaml"
+flow = Flow.load(str(flow_path))
+
 
 @router.post(
     "/generate/{autobiography_id}",
@@ -37,17 +48,9 @@ async def generate_autobiography(
 ):
     try:
         current_user = get_current_user(request)
-        # Flow 로드 및 실행
-        # 프로젝트 루트 기준 상대 경로 사용
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.join(current_dir, "..", "..", "..", "..")
-        flow_path = os.path.join(project_root, "flows", "autobiographies", "standard", "generate_autobiography", "flow.dag.yaml")
-        flow_path = os.path.abspath(flow_path)
+        logger.info(f"[GENERATE] Starting autobiography generation - autobiography_id={autobiography_id} user_id={current_user.get('memberId')} interviews_count={len(requestDto.interviews)}")
         
-        if not os.path.exists(flow_path):
-            raise HTTPException(status_code=500, detail=f"Flow file not found at: {flow_path}")
-        
-        flow = Flow.load(str(flow_path))
+        logger.info(f"[FLOW] Executing autobiography generation flow")
         result = flow(
             user_info=requestDto.user_info.dict(),
             autobiography_info=requestDto.autobiography_info.dict(),
@@ -68,6 +71,7 @@ async def generate_autobiography(
                 try:
                     flow_output = ''.join(flow_output)
                 except:
+                    logger.error("[ERROR] Failed to join generator output")
                     flow_output = "자서전 생성 중 오류 발생"
             
             try:
@@ -75,7 +79,9 @@ async def generate_autobiography(
                 if isinstance(parsed, dict):
                     title = parsed.get("title", title)
                     text = parsed.get("autobiographical_text", text)
+                    logger.info(f"[RESULT] Generated autobiography - title_length={len(title)} text_length={len(text)}")
             except:
+                logger.warning("[WARN] Failed to parse flow output as JSON, using raw output")
                 text = str(flow_output) if flow_output else text
 
         return AutobiographyGenerateResponseDto(
@@ -83,16 +89,19 @@ async def generate_autobiography(
             autobiographical_text=str(text)
         )
 
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"[ERROR] JSON decode error: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail="Failed to parse the autobiography generation result.",
         )
 
     except ValidationError as e:
+        logger.error(f"[ERROR] Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
     except Exception as e:
+        logger.error(f"[ERROR] Unexpected error in autobiography generation: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"An unexpected error occurred: {str(e)}"
         )
