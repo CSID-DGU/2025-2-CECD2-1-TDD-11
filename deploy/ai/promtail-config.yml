@@ -1,0 +1,20 @@
+server:
+  http_listen_port: ${PROMTAIL_PORT}
+
+# 로그 위치 설정
+positions:
+  filename: /tmp/positions.yaml
+
+# Loki 서버 설정
+clients:
+  - url: ${LOKI_URL}
+
+# AI 서버 로그 디렉토리의 모든 .log 파일을 스크랩하도록 설정
+scrape_configs:
+  - job_name: ai-server
+    static_configs:
+      - targets:
+        - localhost
+        labels:
+          job: ai-server
+          __path__: /app/serve/logs/*.log

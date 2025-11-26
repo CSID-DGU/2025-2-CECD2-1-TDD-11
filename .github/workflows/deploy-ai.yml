@@ -5,7 +5,7 @@ on:
     branches: [devops]
     paths:
       - 'ai/**'
-      - 'deploy/docker-compose.ai.prod.yml'
+      - 'deploy/ai/docker-compose.ai.prod.yml'
       - '.github/workflows/deploy-ai.yml'
   workflow_dispatch:
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Upload Docker Compose to S3
         run: |
-          aws s3 cp deploy/docker-compose.ai.prod.yml s3://talktobook-deploy/
+          aws s3 cp deploy/ai/docker-compose.ai.prod.yml s3://talktobook-deploy/
 
       - name: Deploy to EC2 via SSM
         run: |

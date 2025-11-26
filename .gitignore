@@ -31,3 +31,8 @@ ai/serve/run_test.bat
 ai/serve/test_advanced_scenarios.py
 ai/serve/TEST_README.md 
 ##############################################################
+
+.env
+*.env.*
+!.env.example
+!.env.*.example

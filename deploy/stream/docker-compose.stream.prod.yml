@@ -8,6 +8,7 @@ services:
       - "15672:15672" # RabbitMQ management UI port (선택사항)
     volumes:
       - ./rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
+      - /var/log/rabbitmq:/var/log/rabbitmq
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_management load_definitions "/etc/rabbitmq/definitions.json"
     env_file:
@@ -21,6 +22,8 @@ services:
       - "8001:8001"
     env_file:
       - .env
+    volumes:
+      - /var/log/aggregator:/var/log/aggregator
     depends_on:
       - talktobook-stream
       - lifebookshelf-redis
@@ -33,6 +36,21 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: "talktobook-promtail"
+    env_file:
+      - .env.promtail
+    volumes:
+      - ./promtail-config.yml:/promtail-config.yml
+      - /var/log/aggregator:/var/log/aggregator
+      - /var/log/rabbitmq:/var/log/rabbitmq
+    command: 
+      - -config.file=/promtail-config.yml
+      - -config.expand-env=true  # 환경 변수 확장 활성화
+    networks:
+      - talktobook-stream-network
 
 volumes:
   redis_data:

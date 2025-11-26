@@ -7,6 +7,8 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    volumes:
+      - /var/log/ai-server:/app/serve/logs
     networks:
       - talktobook-ai-network
 
@@ -16,6 +18,20 @@ services:
     container_name: "talktobook-redis"
     ports:
       - "${REDIS_PORT}:6379"
+    networks:
+      - talktobook-ai-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: "talktobook-promtail"
+    env_file:
+      - .env.promtail
+    volumes:
+      - ./promtail-config.yml:/promtail-config.yml
+      - /var/log/ai-server:/app/serve/logs
+    command: 
+      - -config.file=/promtail-config.yml
+      - -config.expand-env=true  # 환경 변수 확장 활성화
     networks:
       - talktobook-ai-network
 

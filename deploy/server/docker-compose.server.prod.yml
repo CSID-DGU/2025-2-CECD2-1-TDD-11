@@ -7,6 +7,8 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    volumes:
+      - /var/log/spring-boot:/var/log/spring-boot
     networks:
       - talktobook-server-network
   
@@ -16,6 +18,20 @@ services:
     container_name: "talktobook-redis"
     ports:
       - "${REDIS_PORT}:6379"
+    networks:
+      - talktobook-server-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: "talktobook-promtail"
+    env_file:
+      - .env.promtail
+    volumes:
+      - ./promtail-config.yml:/promtail-config.yml
+      - /var/log/spring-boot:/var/log/spring-boot
+    command: 
+      - -config.file=/promtail-config.yml
+      - -config.expand-env=true  # 환경 변수 확장 활성화
     networks:
       - talktobook-server-network
 

@@ -4,7 +4,7 @@ on:
   push:
     branches: [devops]
     paths:
-      - 'deploy/docker-compose.stream.prod.yml'
+      - 'deploy/stream/docker-compose.stream.prod.yml'
       - '.github/workflows/deploy-queue.yml'
       - 'aggregator/**'
   workflow_dispatch:
@@ -40,8 +40,8 @@ jobs:
 
       - name: Upload Docker Compose to S3
         run: |
-          aws s3 cp deploy/docker-compose.stream.prod.yml s3://talktobook-deploy/
-          aws s3 cp deploy/rabbitmq-definitions.json s3://talktobook-deploy/
+          aws s3 cp deploy/stream/docker-compose.stream.prod.yml s3://talktobook-deploy/
+          aws s3 cp deploy/stream/rabbitmq-definitions.json s3://talktobook-deploy/
 
       - name: Deploy to EC2 via SSM
         run: |

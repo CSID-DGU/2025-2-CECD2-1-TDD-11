@@ -1,0 +1,28 @@
+server:
+  http_listen_port: ${PROMTAIL_PORT}
+
+# 로그 위치 설정
+positions:
+  filename: /tmp/positions.yaml
+
+# Loki 서버 설정
+clients:
+  - url: ${LOKI_URL}
+
+# Aggregator와 RabbitMQ 로그를 수집
+scrape_configs:
+  - job_name: aggregator
+    static_configs:
+      - targets:
+        - localhost
+        labels:
+          job: aggregator
+          __path__: /var/log/aggregator/*.log
+  
+  - job_name: rabbitmq
+    static_configs:
+      - targets:
+        - localhost
+        labels:
+          job: rabbitmq
+          __path__: /var/log/rabbitmq/*.log
