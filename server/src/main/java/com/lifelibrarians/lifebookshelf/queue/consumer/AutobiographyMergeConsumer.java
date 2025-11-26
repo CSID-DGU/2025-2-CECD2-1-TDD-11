@@ -41,9 +41,10 @@ public class AutobiographyMergeConsumer {
 
         // PDF 생성 및 S3 업로드
         try {
+            String pdfUrl = null;
             if (status.getStatus() == AutobiographyStatusType.FINISH) {
                 log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 시작 - autobiographyId: {}", autobiography.getId());
-                autobiographyPublicationService.uploadPdfToS3(
+                pdfUrl = autobiographyPublicationService.uploadPdfToS3(
                         autobiography.getId(),
                         autobiography.getTitle()
                 );
