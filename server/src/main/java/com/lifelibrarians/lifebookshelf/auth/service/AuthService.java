@@ -61,10 +61,9 @@ public class AuthService {
 			}
 		}
 
-		// String code = generateVerificationCode();
-        // emailService.sendVerificationCode(requestDto.getEmail(), code);
+		String code = generateVerificationCode();
+        emailService.sendVerificationCode(requestDto.getEmail(), code);
 
-        /*
 		TemporaryUser temporaryUser = TemporaryUser.builder()
 				.email(requestDto.getEmail())
 				.password(requestDto.getPassword())
@@ -72,26 +71,8 @@ public class AuthService {
 				.expiresAt(LocalDateTime.now().plusMinutes(5))
 				.build();
 		temporaryUserStore.save(requestDto.getEmail(), temporaryUser);
-         */
 
-        LocalDateTime now = LocalDateTime.now();
-        PasswordMember passwordMember = PasswordMember.of(requestDto.getPassword());
-        passwordMemberRepository.save(passwordMember);
-        log.info("[REGISTER_EMAIL] PasswordMember 저장 완료 - id: {}", passwordMember.getId());
-        
-        Member member = Member.of(
-                LoginType.PASSWORD,
-                requestDto.getEmail(),
-                MemberRole.MEMBER,
-                null,
-                requestDto.getEmail().split("@")[0] + UUID.randomUUID().toString().substring(0, 6),
-                now,
-                now,
-                null
-        );
-        member.addPasswordMember(passwordMember);
-        memberRepository.save(member);
-        log.info("[REGISTER_EMAIL] 회원가입 완료 - memberId: {}, email: {}", member.getId(), member.getEmail());
+        log.info("[REGISTER_EMAIL] 임시 사용자 저장 완료 - email: {}, code: {}", requestDto.getEmail(), code);
 	}
 
 	public void verifyEmail(String email, String code) {
@@ -135,76 +116,46 @@ public class AuthService {
     public JwtLoginTokenDto loginEmail(EmailLoginRequestDto requestDto) {
         log.info("[LOGIN_EMAIL] 이메일 로그인 시작 - email: {}", requestDto.getEmail());
 
-        // 1) 기존 회원 조회
-        Optional<Member> optionalMember = memberRepository.findByEmail(requestDto.getEmail());
+        Optional<Member> member = memberRepository.findByEmail(requestDto.getEmail());
 
-        Member member = null;
-
-        if (optionalMember.isEmpty()) {
-            log.info("[LOGIN_EMAIL] 신규 회원 자동 생성 - email: {}", requestDto.getEmail());
-            // ===== 신규 회원 자동 생성 =====
-            LocalDateTime now = LocalDateTime.now();
-            PasswordMember passwordMember = PasswordMember.of(requestDto.getPassword());
-            passwordMemberRepository.save(passwordMember);
-            member = Member.of(
-                    LoginType.PASSWORD,
-                    requestDto.getEmail(),
-                    MemberRole.MEMBER,
-                    null,
-                    requestDto.getEmail().split("@")[0] + UUID.randomUUID().toString().substring(0, 6),
-                    now,
-                    now,
-                    null
-            );
-            member.addPasswordMember(passwordMember);
-            memberRepository.save(member);
-            log.info("[LOGIN_EMAIL] 신규 회원 생성 완료 - memberId: {}", member.getId());
-
-        } else {
-            log.info("[LOGIN_EMAIL] 기존 회원 로그인 - email: {}", requestDto.getEmail());
-            // ===== 기존 회원 로그인 =====
-            member = optionalMember.get();
-
-            if (member.getDeletedAt() != null) {
-                log.warn("[LOGIN_EMAIL] 탈퇴한 회원 - memberId: {}", member.getId());
-                throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
-            }
-
-            if (!member.getPasswordMember().matchPassword(requestDto.getPassword())) {
-                log.warn("[LOGIN_EMAIL] 비밀번호 불일치 - email: {}", requestDto.getEmail());
-                throw AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT.toServiceException();
-            }
-
-            if (member.getRole() == MemberRole.PRE_MEMBER) {
-                log.warn("[LOGIN_EMAIL] 이메일 미인증 회원 - memberId: {}", member.getId());
-                throw AuthExceptionStatus.EMAIL_NOT_VERIFIED.toServiceException();
-            }
+        if (member.isPresent() && member.get().getDeletedAt() != null) {
+            log.warn("[LOGIN_EMAIL] 탈퇴한 회원 - email: {}", requestDto.getEmail());
+            throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
         }
 
-        // 2) 토큰 발급
-        log.info("[LOGIN_EMAIL] 토큰 발급 시작 - memberId: {}", member.getId());
-        Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.getId());
-        Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.getId());
+        if (member.isEmpty() || !member.get().getPasswordMember()
+                .matchPassword(requestDto.getPassword())) {
+            log.warn("[LOGIN_EMAIL] 이메일 또는 비밀번호 불일치 - email: {}", requestDto.getEmail());
+            throw AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT.toServiceException();
+        }
 
-        String memberId = member.getId().toString();
+        if (member.get().getRole() == MemberRole.PRE_MEMBER) {
+            log.warn("[LOGIN_EMAIL] 이메일 미인증 회원 - memberId: {}", member.get().getId());
+            throw AuthExceptionStatus.EMAIL_NOT_VERIFIED.toServiceException();
+        }
 
-        refreshTokenRedisTemplate.opsForValue()
-                .set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
-        refreshTokenRedisTemplate.opsForValue()
-                .set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
-        log.info("[LOGIN_EMAIL] Redis에 토큰 저장 완료 - memberId: {}", memberId);
+        Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.get().getId());
+        Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.get().getId());
+        log.info("[LOGIN_EMAIL] JWT 토큰 발급 완료 - memberId: {}", member.get().getId());
 
-        // 3) Device Token 업데이트
+        // Redis에 Access Token과 Refresh Token 저장
+        String memberId = member.get().getId().toString();
+        refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
+        refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
+        log.info("[LOGIN_EMAIL] Redis 토큰 저장 완료 - memberId: {}", memberId);
+
+        // Device Token 업데이트
         if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
-            log.info("[LOGIN_EMAIL] Device Token 업데이트 - memberId: {}", memberId);
-            notificationService.updateDeviceToken(member, requestDto.getDeviceToken(), LocalDateTime.now());
+            log.info("[LOGIN_EMAIL] Device Token 업데이트 시작 - memberId: {}", memberId);
+            notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
+                    LocalDateTime.now());
         }
 
         // 4) metadata 입력 여부 확인
-        boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.getId())
-                .map(meta -> meta.getGender() != null &&
-                        meta.getOccupation() != null &&
-                        meta.getAgeGroup() != null)
+        boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.get().getId())
+                .map(metadata -> metadata.getGender() != null
+                        && metadata.getOccupation() != null
+                        && metadata.getAgeGroup() != null)
                 .orElse(false);
         log.info("[LOGIN_EMAIL] 로그인 완료 - memberId: {}, metadataSuccessed: {}", memberId, metadataSuccessed);
 

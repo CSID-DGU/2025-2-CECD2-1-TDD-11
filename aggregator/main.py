@@ -15,7 +15,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+log_dir = os.getenv('LOG_DIR', '/var/log/aggregator')
+os.makedirs(log_dir, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(f'{log_dir}/aggregator.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Aggregator Service")
