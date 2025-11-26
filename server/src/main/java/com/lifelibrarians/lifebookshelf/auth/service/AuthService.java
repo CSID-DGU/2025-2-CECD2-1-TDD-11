@@ -57,9 +57,10 @@ public class AuthService {
 			}
 		}
 
-		String code = generateVerificationCode();
-        emailService.sendVerificationCode(requestDto.getEmail(), code);
+		// String code = generateVerificationCode();
+        // emailService.sendVerificationCode(requestDto.getEmail(), code);
 
+        /*
 		TemporaryUser temporaryUser = TemporaryUser.builder()
 				.email(requestDto.getEmail())
 				.password(requestDto.getPassword())
@@ -67,6 +68,23 @@ public class AuthService {
 				.expiresAt(LocalDateTime.now().plusMinutes(5))
 				.build();
 		temporaryUserStore.save(requestDto.getEmail(), temporaryUser);
+         */
+
+        LocalDateTime now = LocalDateTime.now();
+        PasswordMember passwordMember = PasswordMember.of(requestDto.getPassword());
+        passwordMemberRepository.save(passwordMember);
+        Member member = Member.of(
+                LoginType.PASSWORD,
+                requestDto.getEmail(),
+                MemberRole.MEMBER,
+                null,
+                requestDto.getEmail().split("@")[0] + UUID.randomUUID().toString().substring(0, 6),
+                now,
+                now,
+                null
+        );
+        member.addPasswordMember(passwordMember);
+        memberRepository.save(member);
 	}
 
 	public void verifyEmail(String email, String code) {
