@@ -106,51 +106,78 @@ public class AuthService {
 		temporaryUserStore.remove(email);
 	}
 
-	public JwtLoginTokenDto loginEmail(EmailLoginRequestDto requestDto) {
-		Optional<Member> member = memberRepository.findByEmail(requestDto.getEmail());
+    public JwtLoginTokenDto loginEmail(EmailLoginRequestDto requestDto) {
 
-		if (member.isPresent() && member.get().getDeletedAt() != null) {
-			throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
-		}
+        // 1) 기존 회원 조회
+        Optional<Member> optionalMember = memberRepository.findByEmail(requestDto.getEmail());
 
-		if (member.isEmpty() || !member.get().getPasswordMember()
-				.matchPassword(requestDto.getPassword())) {
-			throw AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT.toServiceException();
-		}
+        Member member = null;
 
-		if (member.get().getRole() == MemberRole.PRE_MEMBER) {
-			throw AuthExceptionStatus.EMAIL_NOT_VERIFIED.toServiceException();
-		}
+        if (optionalMember.isEmpty()) {
+            // ===== 신규 회원 자동 생성 =====
+            LocalDateTime now = LocalDateTime.now();
+            PasswordMember passwordMember = PasswordMember.of(requestDto.getPassword());
+            passwordMemberRepository.save(passwordMember);
+            member = Member.of(
+                    LoginType.PASSWORD,
+                    requestDto.getEmail(),
+                    MemberRole.MEMBER,
+                    null,
+                    requestDto.getEmail().split("@")[0] + UUID.randomUUID().toString().substring(0, 6),
+                    now,
+                    now,
+                    null
+            );
+            member.addPasswordMember(passwordMember);
+            memberRepository.save(member);
 
-		if (member.get().getDeletedAt() != null) {
-			throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
-		}
+        } else {
+            // ===== 기존 회원 로그인 =====
+            member = optionalMember.get();
 
-		Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.get().getId());
-		Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.get().getId());
+            if (member.getDeletedAt() != null) {
+                throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
+            }
 
-		// Redis에 Access Token과 Refresh Token 저장
-		String memberId = member.get().getId().toString();
-		refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
-		refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
+            if (!member.getPasswordMember().matchPassword(requestDto.getPassword())) {
+                throw AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT.toServiceException();
+            }
 
-		if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
-			notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
-					LocalDateTime.now());
-		}
+            if (member.getRole() == MemberRole.PRE_MEMBER) {
+                throw AuthExceptionStatus.EMAIL_NOT_VERIFIED.toServiceException();
+            }
+        }
 
-		boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.get().getId())
-				.map(metadata -> metadata.getGender() != null 
-						&& metadata.getOccupation() != null 
-						&& metadata.getAgeGroup() != null)
-				.orElse(false);
+        // 2) 토큰 발급
+        Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.getId());
+        Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.getId());
 
-		return JwtLoginTokenDto.builder()
-				.accessToken(accessToken.getTokenValue())
-				.refreshToken(refreshToken.getTokenValue())
-				.metadataSuccessed(metadataSuccessed)
-				.build();
-	}
+        String memberId = member.getId().toString();
+
+        refreshTokenRedisTemplate.opsForValue()
+                .set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
+        refreshTokenRedisTemplate.opsForValue()
+                .set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
+
+        // 3) Device Token 업데이트
+        if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
+            notificationService.updateDeviceToken(member, requestDto.getDeviceToken(), LocalDateTime.now());
+        }
+
+        // 4) metadata 입력 여부 확인
+        boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.getId())
+                .map(meta -> meta.getGender() != null &&
+                        meta.getOccupation() != null &&
+                        meta.getAgeGroup() != null)
+                .orElse(false);
+
+        // 5) 반환
+        return JwtLoginTokenDto.builder()
+                .accessToken(accessToken.getTokenValue())
+                .refreshToken(refreshToken.getTokenValue())
+                .metadataSuccessed(metadataSuccessed)
+                .build();
+    }
 
     // 토큰 재발급
     public JwtLoginTokenDto reissueToken(ReIssueTokenRequestDto requestDto) {
