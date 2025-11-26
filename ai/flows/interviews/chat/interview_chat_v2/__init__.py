@@ -197,11 +197,22 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
     redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
-    session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None
-    # print(f"[DEBUG] Session loaded")
+    
+    # 세션 데이터 파싱
+    session_data = None
+    if session_data_raw:
+        try:
+            session_data = json.loads(session_data_raw) if isinstance(session_data_raw, str) else session_data_raw
+            print(f"[DEBUG] Session loaded: last_question exists = {bool(session_data.get('last_question'))}")
+        except Exception as e:
+            print(f"[ERROR] Session parse failed: {e}")
+            session_data = None
 
     # 첫 질문 분기
-    if not session_data or not session_data.get("last_question"):
+    is_first_question = not session_data or not session_data.get("last_question")
+    print(f"[DEBUG] is_first_question: {is_first_question}")
+    
+    if is_first_question:
         preferred_categories = session_data.get("metrics", {}).get("preferred_categories", []) if session_data else []
 
         material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
@@ -530,6 +541,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "updated_at": time.time()
             }
             redis_client.set(session_key, json.dumps(session_update))
+            print(f"[DEBUG] Session saved (gate): {session_key}, has last_question: {bool(session_update.get('last_question'))}")
             
             print(f"\n🚧 [Material Gate] {full_material_name} - 진입 확인 질문 생성")
             if last_question_type == "material_gate" and is_different_material:
@@ -703,6 +715,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "updated_at": time.time()
         }
         redis_client.set(session_key, json.dumps(session_update))
+        print(f"[DEBUG] Session saved (normal): {session_key}, has last_question: {bool(session_update.get('last_question'))}")
 
         print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
         print(f"[DEBUG] 선택된 소재 ID: {material_id}, chunk_weight: {category.chunk_weight.get(chunk_num, 0)}, progress_score: {material.progress_score()}")
