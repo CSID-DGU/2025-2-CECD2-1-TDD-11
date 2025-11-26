@@ -8,14 +8,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+COPY aggregator/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
-COPY ../deploy/stream/promtail-config.yaml /etc/promtail-config.yaml
+COPY aggregator/ .
+COPY deploy/stream/promtail-config.yaml /etc/promtail-config.yaml
 
 # Expose port
 EXPOSE 8001
