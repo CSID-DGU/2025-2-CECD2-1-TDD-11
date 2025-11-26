@@ -161,6 +161,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         # flow 실행 전 metrics 저장
         previous_metrics = session_data.get("metrics", {})
+        print(f"[DEBUG] previous_metrics = {previous_metrics}")
         
         # 다음 질문 생성
         result = flow(
@@ -172,13 +173,16 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         # flow 실행 후 metrics 로드
         updated_session_data = session_manager.load_session(session_key)
+        print(f"[DEBUG] updated_session_data = {updated_session_data}")
         current_metrics = updated_session_data.get("metrics", {})
+        print(f"[DEBUG] current_metrics = {current_metrics}")
         
         next_question_data = result.get("next_question")
         next_question = next_question_data.get("text") if isinstance(next_question_data, dict) else next_question_data
         last_answer_materials_id = result.get("last_answer_materials_id", []) # 응답에 대한 material
         material_id = [list(result.get("next_question", {}).get("material_id", []))] # 다음 질문에 대한 material
-        
+        print(f"[DEBUG] last_answer_materials_id = {last_answer_materials_id}")
+        print(f"[DEBUG] material_id = {material_id}")
         print(f"[INFO] result: {result}")
         
         # queue publish 용 데이터 세팅
