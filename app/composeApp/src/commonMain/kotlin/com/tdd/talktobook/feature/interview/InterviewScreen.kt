@@ -170,18 +170,20 @@ internal fun InterviewScreen(
         onSetInterviewContinuous = { viewModel.setInterviewContinuous() },
         onSetInterviewRequestNextQuestion = { viewModel.setInterviewRequestNextQuestion() },
         onItemLongClick = {
-            showSkipQuestionDialog(
-                TwoBtnDialogModel(
-                    title = SkipQuestionTitle,
-                    semiTitle = SkipQuestionContent,
-                    firstBtnText = SkipQuestionFirstBtn,
-                    onClickBtnFirst = { viewModel.setSkipQuestion(SkipQuestionType.A) },
-                    secondBtnText = SkipQuestionSecondBtn,
-                    onClickBtnSecond = { viewModel.setSkipQuestion(SkipQuestionType.B) },
-                    bottomBtnText = SkipQuestionBottomHint,
-                    onClickBottomText = { viewModel.setSkipQuestion(SkipQuestionType.DEFAULT) }
+            if (uiState.flowType == FlowType.DEFAULT) {
+                showSkipQuestionDialog(
+                    TwoBtnDialogModel(
+                        title = SkipQuestionTitle,
+                        semiTitle = SkipQuestionContent,
+                        firstBtnText = SkipQuestionFirstBtn,
+                        onClickBtnFirst = { viewModel.setSkipQuestion(SkipQuestionType.A) },
+                        secondBtnText = SkipQuestionSecondBtn,
+                        onClickBtnSecond = { viewModel.setSkipQuestion(SkipQuestionType.B) },
+                        bottomBtnText = SkipQuestionBottomHint,
+                        onClickBottomText = { viewModel.setSkipQuestion(SkipQuestionType.DEFAULT) }
+                    )
                 )
-            )
+            }
         }
     )
 }

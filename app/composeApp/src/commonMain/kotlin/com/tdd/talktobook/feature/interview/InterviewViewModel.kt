@@ -304,33 +304,44 @@ class InterviewViewModel(
     private fun checkIsAutobiographyEnough() {
 
 
-        val nowMillis = Clock.System.now().toEpochMilliseconds()
-        val elapsedMillis = nowMillis - viewModelCreatedAt
-        val threeMinutesMillis = 3 * 60 * 1000L
-
-        if (elapsedMillis >= threeMinutesMillis) {
-            d("[ktor] interview -> 3분 경과, 자서전 상태 변경")
-
-            changeAutobiographyStatus()
-        }
-    }
-
-    private fun changeAutobiographyStatus() {
+//        val nowMillis = Clock.System.now().toEpochMilliseconds()
+//        val elapsedMillis = nowMillis - viewModelCreatedAt
+//        val threeMinutesMillis = 3 * 60 * 1000L
+//
+//        if (elapsedMillis >= threeMinutesMillis) {
+//            d("[ktor] interview -> 3분 경과, 자서전 상태 변경")
+//
+//            changeAutobiographyStatus()
+//        }
         viewModelScope.launch {
-            changeAutobiographyStatusUseCase(ChangeAutobiographyStatusRequestModel(uiState.value.autobiographyId, AutobiographyStatusType.ENOUGH)).collect {
-                resultResponse(it, {})
+            getAutobiographyStatusUseCase(Unit).collect {
+                resultResponse(it, ::onSuccessCheckAutobiographyStatus)
             }
         }
-
-        saveAutobiographyStatus()
-        emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
     }
 
-    private fun saveAutobiographyStatus() {
-        viewModelScope.launch {
-            saveAutobiographyStatusUseCase(AutobiographyStatusType.ENOUGH).collect { resultResponse(it, {}) }
+    private fun onSuccessCheckAutobiographyStatus(data: AutobiographyStatusType) {
+        if (data == AutobiographyStatusType.ENOUGH) {
+            emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
         }
     }
+
+//    private fun changeAutobiographyStatus() {
+//        viewModelScope.launch {
+//            changeAutobiographyStatusUseCase(ChangeAutobiographyStatusRequestModel(uiState.value.autobiographyId, AutobiographyStatusType.ENOUGH)).collect {
+//                resultResponse(it, {})
+//            }
+//        }
+//
+//        saveAutobiographyStatus()
+//        emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
+//    }
+
+//    private fun saveAutobiographyStatus() {
+//        viewModelScope.launch {
+//            saveAutobiographyStatusUseCase(AutobiographyStatusType.ENOUGH).collect { resultResponse(it, {}) }
+//        }
+//    }
 
     private fun checkIsAutobiographyEnoughInCoShow(type: ChatType) {
         if (uiState.value.isLast && (type == ChatType.HUMAN)) {
