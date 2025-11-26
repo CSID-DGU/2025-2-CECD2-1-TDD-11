@@ -321,49 +321,42 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         print(f"[DEBUG] LLM items count: {len(llm_items)}")
         for item in llm_items:
             if not isinstance(item, dict) or not item.get("material"):
-                print(f"[DEBUG] Skipping invalid item: {item}")
                 continue
             
-            material_value = item["material"]
-            print(f"[DEBUG] material_value type: {type(material_value)}, value: {material_value}")
+            llm_material = item["material"]
             
-            # dict 형태면 name 추출, 아니면 문자열 그대로
-            if isinstance(material_value, dict):
-                name = material_value.get("name", "")
-                print(f"[DEBUG] Extracted name from dict: '{name}'")
-            else:
-                name = str(material_value)
-                print(f"[DEBUG] Using string as-is: '{name}'")
-            
-            if not name:
-                print(f"[DEBUG] Empty name, skipping")
-                continue
-            
-            # 매핑 파일에서 찾기 (여러 패턴 시도)
+            # 매핑 파일에서 찾기
             key = None
             for k in material_mapping.keys():
-                if name in k or _norm(name) in _norm(k):
+                # 1. 정확히 포함되는지 확인
+                if llm_material in k:
                     key = k
-                    print(f"[DEBUG] Found matching key: {k[:80]}...")
                     break
+                # 2. 공백 제거 후 포함되는지 확인
+                if _norm(llm_material) in _norm(k):
+                    key = k
+                    break
+                # 3. 소재명만 추출해서 비교 (예: "배움의 길(학교·직업훈련·삶에서 배운 것)")
+                # LLM: "부모님 기본정보 배움의 길(...)" -> 마지막 부분만 추출
+                parts = llm_material.split()
+                if len(parts) >= 3:  # "카테고리 청크 소재명" 형태
+                    material_name = " ".join(parts[2:])  # 소재명 부분
+                    if material_name in k:
+                        key = k
+                        break
             
             if not key:
-                print(f"[DEBUG] No matching key found for name: '{name}'")
+                print(f"[DEBUG] No match for: {llm_material}")
                 continue
 
             matched_materials.append(key)
             axes_analysis_by_material[key] = item.get("axes", {})
-            # 소재 ID 매핑
-            mid = material_mapping.get(key)
 
         # 소재 ID 매핑
         for material_name in matched_materials:
             mid = material_mapping.get(material_name)
             if isinstance(mid, list) and len(mid) == 3:
                 mapped_ids.append(mid)
-                print(f"[DEBUG] Mapped to ID: {mid}")
-            else:
-                print(f"[DEBUG] Invalid mapping ID: {mid}")
 
         # LLM 분석 결과 반영
         for i, material_id in enumerate(mapped_ids):
