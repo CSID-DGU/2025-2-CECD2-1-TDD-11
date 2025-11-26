@@ -4,6 +4,7 @@ from stream import publish_persistence_message
 import sys
 import json
 from pathlib import Path
+import logging
 
 # serve 폴더를 sys.path에 추가 (session_manager, auth import용)
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
@@ -15,6 +16,8 @@ import os
 from pathlib import Path
 from stream.dto import Conversation, InterviewQuestion, InterviewPayload
 from promptflow import load_flow
+
+logger = logging.getLogger(__name__)
 
 # flow 경로 추가
 current_dir = Path(__file__).parent.parent.parent.parent.parent
@@ -62,6 +65,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         )
         
         first_question = result.get("next_question")
+        logger.info(f"[INFO] 첫 질문 생성 결과: {first_question}")
         
         # 세션 저장 (첫 질문 포함)
         if first_question:
@@ -89,17 +93,18 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         import json
         first_question_text = first_question.get("text") if isinstance(first_question, dict) else first_question
                 
-        material_id = first_question.get("material_id", []) if isinstance(first_question, dict) else []
+        material = first_question.get("material", {})
+        full_material_id = material.get("full_material_id", [])
         question = InterviewQuestion(
             questionText=first_question_text,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
-            materials=json.dumps(material_id)  # JSON 문자열로 변환
+            materials=json.dumps(full_material_id)  # JSON 문자열로 변환
         )
         
         ai_conversation = Conversation(
             content=first_question_text,
             conversationType="BOT",
-            materials=json.dumps(material_id)  # JSON 문자열로 변환
+            materials=json.dumps(full_material_id)  # JSON 문자열로 변환
         )
         
         payload = InterviewPayload(
@@ -153,6 +158,8 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
             autobiography_id=autobiography_id
         )
         
+        logger.info(f"[INFO] 다음 질문 생성 결과: {result}")
+        
         next_question = result.get("next_question")
         last_answer_materials_id = result.get("last_answer_materials_id", [])
         
@@ -160,7 +167,8 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         
         # flow 실행 후 metrics 로드
-        material_id = [list(result.get("next_question", {}).get("material_id", []))] # 다음 질문에 대한 material
+        material = next_question.get("material", {})
+        full_material_id = material.get("full_material_id", [])
         
         print(f"[INFO] result: {result}")
         next_question_text = next_question.get("text") if isinstance(next_question, dict) else next_question
@@ -169,7 +177,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         question = InterviewQuestion(
             questionText=next_question_text,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
-            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
+            materials=json.dumps(full_material_id) # JSON 문자열로 변환
         )
         
         human_conversation = Conversation(
@@ -181,7 +189,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         ai_conversation = Conversation(
             content=next_question_text,
             conversationType="BOT",
-            materials=json.dumps(material_id) # JSON 문자열로 변환
+            materials=json.dumps(full_material_id) # JSON 문자열로 변환
         )
         
         payload = InterviewPayload(
@@ -226,14 +234,17 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # 최종 메트릭 준비
-        final_metrics = session_data.get("metrics")
+        metrics_data = session_data.get("metrics")
+        if metrics_data and "categories" not in metrics_data:
+            # Redis의 metrics 구조를 DTO 형식으로 변환
+            metrics_data["categories"] = []
         
         # 세션 삭제
         session_manager.delete_session(session_key)
         
         return SessionEndResponseDto(
             session_id=session_key,
-            final_metrics=final_metrics,
+            final_metrics=metrics_data,
             pool_to_save=[]  # V2에서는 pool 사용 안 함
         )
         

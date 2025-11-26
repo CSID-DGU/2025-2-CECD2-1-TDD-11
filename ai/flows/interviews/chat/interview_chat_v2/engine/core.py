@@ -280,10 +280,18 @@ class InterviewEngine:
                 materials: Dict[int, Material] = {}
                 m_num = 1
 
-                for mat_name in ch_entry.get("material", []):
-                    materials[m_num] = Material(
-                        order=m_num,
-                        name=str(mat_name)
+                for mat_entry in ch_entry.get("material", []):
+                    # mat_entry가 dict면 name 추출, 아니면 그대로 사용
+                    if isinstance(mat_entry, dict):
+                        mat_name = mat_entry.get("name", "")
+                        mat_order = mat_entry.get("order", m_num)
+                    else:
+                        mat_name = str(mat_entry)
+                        mat_order = m_num
+                    
+                    materials[mat_order] = Material(
+                        order=mat_order,
+                        name=mat_name
                     )
                     m_num += 1
 
