@@ -4,21 +4,28 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.SkipQuestionReason
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.GetCoShowGenerateRequestModel
+import com.tdd.talktobook.domain.entity.request.interview.CoShowAnswerRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewRequestModel
+import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PatchCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetCoShowInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
+import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import com.tdd.talktobook.feature.interview.type.SkipQuestionType
@@ -36,7 +43,10 @@ class InterviewViewModel(
     private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
     private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
     private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
-    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
+    private val getCoShowInterviewConversationUseCase: GetCoShowInterviewConversationUseCase,
+    private val postCoShowAnswerUseCase: PostCoShowAnswerUseCase,
+    private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
@@ -44,6 +54,14 @@ class InterviewViewModel(
 
     init {
         initGetAutobiographyStatus()
+    }
+
+    fun setFlowType(type: FlowType) {
+        updateState(
+            uiState.value.copy(
+                flowType = type
+            )
+        )
     }
 
 
@@ -118,8 +136,17 @@ class InterviewViewModel(
     }
 
     private fun getInterviewConversation() {
-        viewModelScope.launch {
-            getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+        when (uiState.value.flowType) {
+            FlowType.DEFAULT -> {
+                viewModelScope.launch {
+                    getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+                }
+            }
+            FlowType.COSHOW -> {
+                viewModelScope.launch {
+                    getCoShowInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+                }
+            }
         }
 
         d("[test] interview -> 5 get conversation (test)")
@@ -151,7 +178,10 @@ class InterviewViewModel(
             ),
         )
 
-        checkIsAutobiographyEnough()
+        when (uiState.value.flowType) {
+            FlowType.DEFAULT -> { checkIsAutobiographyEnough() }
+            FlowType.COSHOW -> { checkIsAutobiographyEnoughInCoShow(chatType) }
+        }
     }
 
     fun beginInterview() {
@@ -234,6 +264,13 @@ class InterviewViewModel(
     }
 
     private fun postInterviewAnswer(chat: String) {
+        when (uiState.value.flowType) {
+            FlowType.DEFAULT -> { defaultInterviewAnswer(chat) }
+            FlowType.COSHOW -> { coShowInterviewAnswer(chat) }
+        }
+    }
+
+    private fun defaultInterviewAnswer(chat: String) {
         viewModelScope.launch {
             postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
                 .collect { resultResponse(it, { data -> addInterviewConversation(data.text, ChatType.BOT) }) }
@@ -242,6 +279,24 @@ class InterviewViewModel(
         updateState(
             uiState.value.copy(
                 answerInputs = emptyList()
+            )
+        )
+    }
+
+    private fun coShowInterviewAnswer(chat: String) {
+        viewModelScope.launch {
+            postCoShowAnswerUseCase(CoShowAnswerRequestModel(uiState.value.autobiographyId, chat))
+                .collect { resultResponse(it,  ::onSuccessCoShowInterviewAnswer) }
+        }
+    }
+
+    private fun onSuccessCoShowInterviewAnswer(data: CoShowAnswerModel) {
+        addInterviewConversation(data.question, ChatType.BOT)
+
+        updateState(
+            uiState.value.copy(
+                answerInputs = emptyList(),
+                isLast = data.isLast
             )
         )
     }
@@ -277,13 +332,36 @@ class InterviewViewModel(
         }
     }
 
+    private fun checkIsAutobiographyEnoughInCoShow(type: ChatType) {
+        if (uiState.value.isLast && (type == ChatType.HUMAN)) {
+            emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
+        }
+    }
+
     fun createCurrentAutobiography() {
+        when (uiState.value.flowType) {
+            FlowType.DEFAULT ->  { createAutobiographyDefault() }
+            FlowType.COSHOW -> { createAutobiographyInCoShow() }
+        }
+    }
+
+    private fun createAutobiographyDefault() {
         d("[ktor] interview -> 자서전 생성 요청 name: ${uiState.value.nickName}")
         viewModelScope.launch {
             createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
         }
 
         initClearLocalData()
+    }
+
+    private fun createAutobiographyInCoShow() {
+        d("[ktor] interview -> 자서전 생성 요청 name: ${uiState.value.nickName}")
+        viewModelScope.launch {
+            getCoShowGenerateUseCase(GetCoShowGenerateRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
+        }
+
+        initClearLocalData()
+        emitEventFlow(InterviewEvent.GoBackToLogIn)
     }
 
     private fun initClearLocalData() {

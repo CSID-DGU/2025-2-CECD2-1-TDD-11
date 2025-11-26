@@ -39,6 +39,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun StartProgressScreen(
     goToInterviewPage: (String) -> Unit,
+    goToCoShowInterviewPage: () -> Unit,
     goBackToHome: () -> Unit,
     setUserNickName: (String) -> Unit,
     flowType: StateFlow<FlowType>,
@@ -53,6 +54,9 @@ internal fun StartProgressScreen(
             when (event) {
                 is StartProgressEvent.GoToInterviewPage -> {
                     goToInterviewPage(uiState.firstQuestion)
+                }
+                is StartProgressEvent.GoToCoShowInterviewPage -> {
+                    goToCoShowInterviewPage()
                 }
             }
         }

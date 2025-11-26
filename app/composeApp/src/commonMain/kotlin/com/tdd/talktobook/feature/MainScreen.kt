@@ -184,11 +184,13 @@ fun MainScreen() {
                     navController = navController,
                     showOneBtnDialogModel = showOneBtnDialog,
                     userNickName = viewModel.userNickName,
-                    showTwoBtnDialogModel = showTwoBtnDialog
+                    showTwoBtnDialogModel = showTwoBtnDialog,
+                    flowType = viewModel.screenFlowType
                 )
                 startProgressNavGraph(
                     navController = navController,
-                    setUserNickName = settingUserNickName
+                    setUserNickName = settingUserNickName,
+                    flowType = viewModel.screenFlowType
                 )
                 publicationNavGraph(
                     navController = navController,

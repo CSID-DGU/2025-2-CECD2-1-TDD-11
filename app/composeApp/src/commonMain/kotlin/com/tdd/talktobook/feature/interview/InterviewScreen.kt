@@ -43,6 +43,7 @@ import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.util.rememberSpeechToText
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
@@ -61,9 +62,11 @@ internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showSkipQuestionDialog: (TwoBtnDialogModel) -> Unit,
+    goBackToLogIn: () -> Unit,
     startQuestion: String = "",
     nickName: StateFlow<String>,
     navController: NavController,
+    flowType: StateFlow<FlowType>,
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -86,6 +89,12 @@ internal fun InterviewScreen(
                 uiState.interviewChatList
             }
         }
+
+    LaunchedEffect(flowType) {
+        flowType.collect {
+            viewModel.setFlowType(it)
+        }
+    }
 
     LaunchedEffect(uiState.interviewId) {
         if (uiState.interviewId != 0) {
@@ -128,6 +137,10 @@ internal fun InterviewScreen(
                             onClickBottomText = {}
                         )
                     )
+                }
+
+                is InterviewEvent.GoBackToLogIn -> {
+                    goBackToLogIn()
                 }
             }
         }

@@ -107,6 +107,7 @@ class StartProgressViewModel(
             ),
         )
 
+        changeAutobiographyStatus()
         saveCurrentAutobiographyId(data.autobiographyId)
         saveInterviewId(data.interviewId)
     }
@@ -149,7 +150,7 @@ class StartProgressViewModel(
             saveInterviewIdUseCase(id).collect { resultResponse(it, {}) }
         }
 
-        emitEventFlow(StartProgressEvent.GoToInterviewPage)
+        emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
     }
 
     private fun initGetSelectedTheme(autobiographyId: Int) {

@@ -1,12 +1,14 @@
 package com.tdd.talktobook.feature.interview
 
 import com.tdd.talktobook.core.ui.base.PageState
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionItemModel
 import com.tdd.talktobook.feature.interview.type.ConversationType
 
 data class InterviewPageState(
+    val flowType: FlowType = FlowType.DEFAULT,
     val interviewConversationModel: InterviewConversationListModel = InterviewConversationListModel(),
     val interviewChatList: List<InterviewChatItem> = emptyList(),
     val autobiographyId: Int = 0,
@@ -15,5 +17,6 @@ data class InterviewPageState(
     val interviewCurrentQuestionId: Int = 0,
     val interviewProgressType: ConversationType = ConversationType.BEFORE,
     val nickName: String = "",
-    val answerInputs: List<String> = emptyList()
+    val answerInputs: List<String> = emptyList(),
+    val isLast: Boolean = false
 ) : PageState

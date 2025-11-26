@@ -143,7 +143,8 @@ fun NavGraphBuilder.interviewNavGraph(
     navController: NavController,
     showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
     userNickName: StateFlow<String>,
-    showTwoBtnDialogModel: (TwoBtnDialogModel) -> Unit
+    showTwoBtnDialogModel: (TwoBtnDialogModel) -> Unit,
+    flowType: StateFlow<FlowType>,
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
@@ -168,7 +169,9 @@ fun NavGraphBuilder.interviewNavGraph(
                 showCreateAutobiographyDialog = showOneBtnDialogModel,
                 nickName = userNickName,
                 navController = navController,
-                showSkipQuestionDialog = showTwoBtnDialogModel
+                showSkipQuestionDialog = showTwoBtnDialogModel,
+                flowType = flowType,
+                goBackToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } }
             )
         }
     }
@@ -186,6 +189,7 @@ fun NavGraphBuilder.startProgressNavGraph(
         composable(route = NavRoutes.StartProgressScreen.route) {
             StartProgressScreen(
                 goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
+                goToCoShowInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) },
                 goBackToHome = { navController.popBackStack() },
                 setUserNickName = setUserNickName,
                 flowType = flowType
