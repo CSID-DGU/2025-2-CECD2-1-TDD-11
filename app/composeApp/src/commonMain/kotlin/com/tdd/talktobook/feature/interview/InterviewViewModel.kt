@@ -48,6 +48,7 @@ class InterviewViewModel(
 
 
     fun setUserNickName(name: String) {
+        d("[test] interview -> name: $name")
         updateState(
             uiState.value.copy(
                 nickName = name
@@ -60,7 +61,6 @@ class InterviewViewModel(
         if (question.isNotEmpty()) {
             addInterviewConversation(question, ChatType.BOT)
         } else {
-//            initGetAutobiographyStatus()
             getInterviewConversation()
         }
     }
@@ -115,8 +115,6 @@ class InterviewViewModel(
                 interviewId = id,
             ),
         )
-
-//        initGetInterviewConversation(id)
     }
 
     private fun getInterviewConversation() {
@@ -165,15 +163,74 @@ class InterviewViewModel(
     }
 
     fun setInterviewAnswer(chat: String) {
+        val originalAnswer = uiState.value.answerInputs
         addInterviewConversation(chat, ChatType.HUMAN)
 
+        updateState(
+            uiState.value.copy(
+                interviewProgressType = ConversationType.FINISH,
+                answerInputs = originalAnswer + chat
+            ),
+        )
+    }
+
+    fun setInterviewReAnswer() {
+        val originalAnswers = uiState.value.answerInputs
+        val currentList = uiState.value.interviewChatList
+
+        val updatedAnswers = originalAnswers.dropLast(1)
+        val updatedList = currentList.dropLast(1)
+
+        updateState(
+            uiState.value.copy(
+                answerInputs = updatedAnswers,
+                interviewChatList = updatedList,
+                interviewProgressType = ConversationType.BEFORE,
+            )
+        )
+    }
+
+    fun setInterviewContinuous() {
         updateState(
             uiState.value.copy(
                 interviewProgressType = ConversationType.BEFORE,
             ),
         )
+    }
 
-        postInterviewAnswer(chat)
+    fun setInterviewRequestNextQuestion() {
+        val answers = uiState.value.answerInputs
+        val finalAnswer = answers.joinToString(separator = " ")
+        val updatedList = deleteTemporaryLastAnswers() + InterviewChatItem(content = finalAnswer, chatType = ChatType.HUMAN)
+
+        updateState(
+            uiState.value.copy(
+                interviewProgressType = ConversationType.BEFORE,
+                interviewChatList = updatedList
+            ),
+        )
+
+        postInterviewAnswer(finalAnswer)
+    }
+
+    fun deleteTemporaryLastAnswers(): List<InterviewChatItem> {
+        val currentList = uiState.value.interviewChatList
+        if (currentList.isEmpty()) return currentList
+
+        var index = currentList.lastIndex
+
+        while (index >= 0 && currentList[index].chatType == ChatType.HUMAN) {
+            index--
+        }
+
+        val newList =
+            if (index == -1) {
+                emptyList()
+            } else {
+                currentList.subList(0, index + 1)
+            }
+
+        return newList
     }
 
     private fun postInterviewAnswer(chat: String) {
@@ -181,6 +238,12 @@ class InterviewViewModel(
             postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
                 .collect { resultResponse(it, { data -> addInterviewConversation(data.text, ChatType.BOT) }) }
         }
+
+        updateState(
+            uiState.value.copy(
+                answerInputs = emptyList()
+            )
+        )
     }
 
     private fun checkIsAutobiographyEnough() {
@@ -239,6 +302,7 @@ class InterviewViewModel(
             ),
         )
 
+        addInterviewConversation(SkipQuestionReason, ChatType.HUMAN)
         postInterviewAnswer(SkipQuestionReason)
     }
 }

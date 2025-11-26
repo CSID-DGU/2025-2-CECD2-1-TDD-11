@@ -14,5 +14,6 @@ data class InterviewPageState(
     val interviewQuestionList: List<InterviewQuestionItemModel> = emptyList(),
     val interviewCurrentQuestionId: Int = 0,
     val interviewProgressType: ConversationType = ConversationType.BEFORE,
-    val nickName: String = ""
+    val nickName: String = "",
+    val answerInputs: List<String> = emptyList()
 ) : PageState

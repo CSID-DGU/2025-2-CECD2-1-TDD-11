@@ -36,6 +36,7 @@ const val FinishStatus = "FINISH"
 // Interview Conversation Status
 const val BeforeStart = "진행 전"
 const val InterviewIng = "진행 중"
+const val FinishRequest = "다음 질문 요청 가능"
 
 // Book Title
 const val Top = "TOP"
@@ -143,6 +144,10 @@ const val ReasonWriteTextMax = "%d/300"
 const val InterviewScreenTitle = "인터뷰"
 const val InterviewStartBtn = "답변 시작하기"
 const val InterviewFinishBtn = "답변 중단하기"
+const val InterviewContinuous = "이어 말하기"
+const val InterviewReAnswer = "다시 말하기"
+const val InterviewNextQuestion = "다음 질문 넘어가기"
+
 
 // Dialog
 const val StartAutobiographyDialogTitle = "자서전 생성 시작하기"

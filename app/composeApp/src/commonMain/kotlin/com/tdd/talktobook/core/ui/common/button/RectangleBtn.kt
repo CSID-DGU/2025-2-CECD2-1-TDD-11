@@ -26,6 +26,7 @@ fun RectangleBtn(
     btnContent: String,
     isBtnActivated: Boolean = false,
     onClickAction: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -34,6 +35,7 @@ fun RectangleBtn(
         btnTextContent = btnContent,
         isBtnActivated = isBtnActivated,
         onClickAction = onClickAction,
+        modifier = modifier
     )
 }
 
@@ -43,12 +45,11 @@ private fun RectangleBtnContent(
     btnTextContent: String,
     isBtnActivated: Boolean = false,
     onClickAction: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+            modifier
                 .clip(RoundedCornerShape(10.dp))
                 .background(if (isBtnActivated) Main1 else Gray1)
                 .wrapContentHeight()

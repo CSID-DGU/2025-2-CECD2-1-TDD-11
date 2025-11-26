@@ -2,10 +2,14 @@ package com.tdd.talktobook.feature.interview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -22,6 +27,8 @@ import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogBtn
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogContent
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
+import com.tdd.talktobook.core.designsystem.InterviewContinuous
+import com.tdd.talktobook.core.designsystem.InterviewReAnswer
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
 import com.tdd.talktobook.core.designsystem.SkipQuestionBottomHint
@@ -138,7 +145,7 @@ internal fun InterviewScreen(
                 stt.start { p -> partial = p }
             }
         },
-        onFinishInterview = {
+        onSetInterview = {
             scope.launch {
                 val finalText = stt.stop()
                 val text = finalText.ifBlank { partial }
@@ -146,6 +153,9 @@ internal fun InterviewScreen(
                 partial = ""
             }
         },
+        onSetInterviewReAnswer = { viewModel.setInterviewReAnswer() },
+        onSetInterviewContinuous = { viewModel.setInterviewContinuous() },
+        onSetInterviewRequestNextQuestion = { viewModel.setInterviewRequestNextQuestion() },
         onItemLongClick = {
             showSkipQuestionDialog(
                 TwoBtnDialogModel(
@@ -171,7 +181,10 @@ private fun InterviewContent(
     interviewProgressType: ConversationType = ConversationType.BEFORE,
     isInterviewProgressIng: Boolean = false,
     onStartInterview: () -> Unit = {},
-    onFinishInterview: () -> Unit = {},
+    onSetInterview: () -> Unit = {},
+    onSetInterviewReAnswer: () -> Unit = {},
+    onSetInterviewContinuous: () -> Unit = {},
+    onSetInterviewRequestNextQuestion: () -> Unit = {},
     onItemLongClick: (InterviewChatItem) -> Unit = {},
 ) {
     Column(
@@ -193,18 +206,53 @@ private fun InterviewContent(
             onItemLongClick = onItemLongClick
         )
 
+        Spacer(modifier = Modifier.height(10.dp))
+
+        if (interviewProgressType.plusFirstBtn != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
+                RectangleBtn(
+                    btnContent = InterviewReAnswer,
+                    isBtnActivated = true,
+                    onClickAction = onSetInterviewReAnswer,
+                    modifier = Modifier.weight(1f)
+                )
+
+                RectangleBtn(
+                    btnContent = InterviewContinuous,
+                    isBtnActivated = true,
+                    onClickAction = onSetInterviewContinuous,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         RectangleBtn(
             btnContent =
-                ConversationType.getConversationBtnImg(
+                ConversationType.getConversationBtnText(
                     interviewProgressType,
                 ),
             isBtnActivated = true,
             onClickAction = {
-                if (isInterviewProgressIng) {
-                    onFinishInterview()
-                } else {
-                    onStartInterview()
+                when (interviewProgressType) {
+                    ConversationType.BEFORE -> { onStartInterview() }
+
+                    ConversationType.ING -> { onSetInterview() }
+
+                    ConversationType.FINISH -> { onSetInterviewRequestNextQuestion() }
                 }
+
+//                if (isInterviewProgressIng) {
+//                    onSetInterview()
+//                } else {
+//                    onStartInterview()
+//                }
             },
         )
 
