@@ -106,8 +106,8 @@
 <div class="page cover-page">
     <div class="cover-title"></div>
 
-    <div class="cover-sub" th:text="${autobiography.title + '의 이야기'}">
-        OOO의 이야기
+    <div class="cover-sub" th:text="${autobiography.title}">
+        000의 자서전
     </div>
 
     <div class="cover-symbol">✣</div>
@@ -133,7 +133,7 @@
      (빈 페이지 로고 - 책자 4의 배수 맞추기에서 서버에서 동적으로 추가)
 =========================== -->
 <div th:each="i : ${emptyPages}" class="page empty-page">
-    <img src="/static/logo.png" class="empty-logo" alt="대화로책 로고"/>
+    <img th:src="${logoBase64}" class="empty-logo" alt="대화로책 로고"/>
 </div>
 
 </body>
