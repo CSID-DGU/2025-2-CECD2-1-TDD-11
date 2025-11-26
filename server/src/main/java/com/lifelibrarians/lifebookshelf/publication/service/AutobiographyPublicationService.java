@@ -10,6 +10,7 @@ import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRe
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,16 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class AutobiographyPublicationService {
 
     private final AutobiographyRepository autobiographyRepository;
@@ -49,12 +50,11 @@ public class AutobiographyPublicationService {
         context.setVariable("autobiography", autobiography);
         context.setVariable("chapters", chapters);
 
-        // 빈 페이지 계산하기
+        // 빈 페이지 계산
         int contentPages = chapters.size();
-        int totalPages = 1 + contentPages; // 표지 포함
+        int totalPages = 1 + contentPages;
 
         int remainder = totalPages % 4;
-
         List<Integer> emptyPages = new ArrayList<>();
         if (remainder != 0) {
             int toAdd = 4 - remainder;
@@ -65,15 +65,23 @@ public class AutobiographyPublicationService {
 
         context.setVariable("emptyPages", emptyPages);
 
+        // HTML 렌더링
         String html = templateEngine.process("autobiography-publication", context);
 
+        // PDF 생성
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
-        
+
+        // 폰트: ClassPathResource.getFile() 금지 → InputStream 기반 복사
         ClassPathResource fontResource = new ClassPathResource("fonts/NanumGothic.ttf");
-        String fontPath = fontResource.getFile().getAbsolutePath();
-        renderer.getFontResolver().addFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-        
+        File tempFont = File.createTempFile("NanumGothic", ".ttf");
+        try (InputStream is = fontResource.getInputStream();
+             FileOutputStream fos = new FileOutputStream(tempFont)) {
+            is.transferTo(fos);
+        }
+
+        renderer.getFontResolver().addFont(tempFont.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
         renderer.setDocumentFromString(html);
         renderer.layout();
         renderer.createPDF(outputStream);
@@ -82,23 +90,42 @@ public class AutobiographyPublicationService {
     }
 
     public String uploadPdfToS3(Long autobiographyId, String name) throws IOException, DocumentException {
-        byte[] pdfBytes = generatePdf(autobiographyId);
-        
+
+        byte[] pdfBytes;
+        try {
+            pdfBytes = generatePdf(autobiographyId);
+        } catch (Exception e) {
+            log.error("[ERROR] PDF 생성 실패 - autobiographyId={}", autobiographyId, e);
+            throw e;
+        }
+
+        if (pdfBytes.length == 0) {
+            log.error("[ERROR] PDF 바이트 크기가 0입니다 - autobiographyId={}", autobiographyId);
+            throw new IllegalStateException("PDF generation failed: empty file");
+        }
+
         String safeName = (name == null || name.isBlank()) ? "autobiography" : name;
-        String date = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        safeName = safeName.replaceAll("[^a-zA-Z0-9가-힣_\\-]", "_");
+
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "publications/" + safeName + "_" + autobiographyId + "_" + date + ".pdf";
-        
+
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/pdf");
         metadata.setContentLength(pdfBytes.length);
-        
-        amazonS3Client.putObject(new PutObjectRequest(
-                bucket, 
-                fileName, 
-                new ByteArrayInputStream(pdfBytes), 
-                metadata
-        ));
-        
+
+        try {
+            amazonS3Client.putObject(new PutObjectRequest(
+                    bucket,
+                    fileName,
+                    new ByteArrayInputStream(pdfBytes),
+                    metadata
+            ));
+        } catch (Exception e) {
+            log.error("[ERROR] S3 업로드 실패 - fileName={}, bucket={}", fileName, bucket, e);
+            throw e;
+        }
+
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 }
