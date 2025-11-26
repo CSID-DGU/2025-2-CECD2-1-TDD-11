@@ -6,6 +6,10 @@ import sys
 import os
 import time
 from uuid import uuid4
+import logging
+
+# 로거 설정
+logger = logging.getLogger(__name__)
 
 # engine 모듈 import 경로 추가
 current_dir = os.path.dirname(__file__)
@@ -13,7 +17,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 from engine.core import InterviewEngine
-from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories_state
+from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories_state, find_matching_materials
 from engine.generators import generate_first_question, generate_question_llm, generate_material_gate_question
 import redis
 
@@ -297,29 +301,45 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full)
 
         # 소재 매칭
-        print(f"[DEBUG] LLM items count: {len(llm_items)}")
-        for item in llm_items:
-            if not isinstance(item, dict) or not item.get("material"):
-                print(f"[DEBUG] Skipping invalid item: {item}")
-                continue
-            
-            material_value = item["material"]
-            print(f"[DEBUG] material_value type: {type(material_value)}, value: {material_value}")
-            
-            # dict 형태면 name 추출, 아니면 문자열 그대로
-            if isinstance(material_value, dict):
-                name = material_value.get("name", "")
-                print(f"[DEBUG] Extracted name from dict: '{name}'")
-            else:
-                # 폴백: 기존 키워드 매칭
-                matched_materials = find_matching_materials(answer_text, current_material, material_data)
-                axes_analysis_by_material = {}
-                print(f"[WARNING] 키워드 매칭 사용")
+        try:
+            print(f"[DEBUG] LLM items count: {len(llm_items)}")
+            for item in llm_items:
+                if not isinstance(item, dict) or not item.get("material"):
+                    print(f"[DEBUG] Skipping invalid item: {item}")
+                    continue
+                
+                material_value = item["material"]
+                print(f"[DEBUG] material_value type: {type(material_value)}, value: {material_value}")
+                
+                # dict 형태면 name 추출, 아니면 문자열 그대로
+                if isinstance(material_value, dict):
+                    name = material_value.get("name", "")
+                    logger.debug(f"[LLM] Extracted name from dict: '{name}'")
+                else:
+                    # 폴백: 기존 키워드 매칭
+                    logger.warning(f"[FALLBACK] material_value is not dict, type: {type(material_value)}, value: {material_value}")
+                    logger.debug(f"[FALLBACK] current_material type: {type(current_material)}, value: {current_material}")
+                    logger.debug(f"[FALLBACK] answer_text: {answer_text[:100]}...")
+                    logger.debug(f"[FALLBACK] material_data keys: {material_data.keys() if isinstance(material_data, dict) else 'not a dict'}")
+                    
+                    current_material_str = current_material.get("name") if isinstance(current_material, dict) else current_material
+                    logger.debug(f"[FALLBACK] current_material_str: {current_material_str}")
+                    
+                    matched_materials = find_matching_materials(answer_text, current_material_str, material_data)
+                    axes_analysis_by_material = {}
+                    logger.warning(f"[FALLBACK] Using keyword matching, matched: {matched_materials}")
         except Exception as e:
             # 에러 시 폴백
-            matched_materials = find_matching_materials(answer_text, current_material, material_data)
+            logger.error(f"[ERROR] LLM matching failed: {e}")
+            logger.debug(f"[ERROR] current_material type: {type(current_material)}, value: {current_material}")
+            logger.debug(f"[ERROR] answer_text: {answer_text[:100]}...")
+            
+            current_material_str = current_material.get("name") if isinstance(current_material, dict) else current_material
+            logger.debug(f"[ERROR] current_material_str: {current_material_str}")
+            
+            matched_materials = find_matching_materials(answer_text, current_material_str, material_data)
             axes_analysis_by_material = {}
-            print(f"[ERROR] LLM 매칭 실패: {e}, 폴백 사용")
+            logger.error(f"[ERROR] Fallback result, matched: {matched_materials}")
         same_material = current_material in matched_materials if current_material else False
         
         # 소재 매칭 분석
@@ -554,8 +574,16 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         }
         prompt_type = type_mapping.get(target, target)
 
-        # 직전 답변을 항상 컨텍스트로 활용 (소재 전환 여부 무관)
-        context_answer = answer_text if not is_first_question else None
+                # 카테고리가 같으면 이전 답변을 컨텍스트로 전달
+        context_answer = None
+        if not is_first_question and last_material_id:
+            last_cat_num = last_material_id[0] if isinstance(last_material_id, (list, tuple)) and len(last_material_id) >= 1 else None
+            current_cat_num = material_id[0]
+            if last_cat_num == current_cat_num:
+                context_answer = answer_text
+                print(f"[DEBUG] 같은 카테고리({current_cat_num}) - 이전 답변 전달")
+            else:
+                print(f"[DEBUG] 다른 카테고리({last_cat_num} → {current_cat_num}) - 이전 답변 미전달")
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
@@ -566,56 +594,46 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             engine.state.last_material_id = material_id
             engine.state.last_material_streak = 1
 
+        # material.name 직접 사용
+        material_name = material.name
+        
         next_question = {
             "id": f"q-{uuid4().hex[:8]}",
-            "material": material.name,
+            "material": {
+                "full_material_name": full_material_name,
+                "full_material_id": list(material_id),
+                "material_name": material_name,
+                "material_order": material.order
+            },
             "type": target,
-            "text": question_text,
-            "material_id": material_id
+            "text": question_text
         }
         
-        # Redis에 업데이트된 상태 저장 (활성 데이터만)
         def serialize_categories(categories):
-            result = {}
-            for k, v in categories.items():
-                # 활성 청크만 포함 (chunk_weight > 0)
-                active_chunks = {ck: cv for ck, cv in v.chunks.items() 
-                               if v.chunk_weight.get(ck, 0) > 0}
-                
+            result = []
+            for cat in categories.values():
+                active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
                 if not active_chunks:
                     continue
-                    
-                chunks = {}
-                for ck, cv in active_chunks.items():
-                    # 활성 소재만 포함 (w/ex/con 중 하나라도 값이 있음)
-                    active_materials = {}
-                    for mk, mv in cv.materials.items():
-                        if (any(mv.w) or mv.ex or mv.con or mv.material_count > 0):
-                            active_materials[f"mat_{mk}"] = {
-                                "material_num": mv.material_num,
-                                "material_name": mv.material_name,
-                                "w": mv.w,
-                                "ex": mv.ex,
-                                "con": mv.con,
-                                "material_count": mv.material_count
-                            }
-                    
-                    if active_materials:
-                        chunks[f"chunk_{ck}"] = {
-                            "chunk_num": cv.chunk_num,
-                            "chunk_name": cv.chunk_name,
-                            "materials": active_materials
-                        }
-                
+
+                chunks = []
+                for chunk in active_chunks.values():
+                    materials = [
+                        {"order": m.order, "name": m.name, "principle": m.principle,
+                         "example": m.example, "similar_event": m.similar_event, "count": m.count}
+                        for m in chunk.materials.values()
+                        if any(m.principle) or m.example or m.similar_event or m.count > 0
+                    ]
+                    if materials:
+                        chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
+
                 if chunks:
-                    # 활성 chunk_weight만 포함
-                    active_weights = {str(ck): weight for ck, weight in v.chunk_weight.items() if weight > 0}
-                    result[f"cat_{k}"] = {
-                        "category_num": v.category_num,
-                        "category_name": v.category_name,
+                    result.append({
+                        "category_num": cat.category_num,
+                        "category_name": cat.category_name,
                         "chunks": chunks,
-                        "chunk_weight": active_weights
-                    }
+                        "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
+                    })
             return result
 
         # 이전 상태 저장

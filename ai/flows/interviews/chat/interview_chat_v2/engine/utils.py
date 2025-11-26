@@ -30,11 +30,14 @@ def find_matching_materials(answer: str, current_material: str, material_data: d
     
     matched = []
     for material in all_materials:
-        if material in answer:
+        material_name = material.get('name') if isinstance(material, dict) else material
+        if material_name and material_name in answer:
             matched.append(material)
     
-    if current_material and current_material in answer and current_material not in matched:
-        matched.append(current_material)
+    if current_material:
+        current_name = current_material.get('name') if isinstance(current_material, dict) else current_material
+        if current_name and current_name in answer and current_material not in matched:
+            matched.append(current_material)
     
     return matched
 

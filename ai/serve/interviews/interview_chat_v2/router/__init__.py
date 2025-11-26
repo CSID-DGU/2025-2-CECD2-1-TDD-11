@@ -38,8 +38,6 @@ flow = load_flow(str(flow_path))
 async def start_session(http_request: Request, autobiography_id: int, request: SessionStartRequestDto):
     """세션 시작"""
     try:
-        now = datetime.now(timezone.utc)
-        
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
@@ -63,10 +61,9 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
             autobiography_id=autobiography_id
         )
         
-        first_question_data = result.get("next_question")
-        first_question = first_question_data.get("text") if isinstance(first_question_data, dict) else first_question_data
+        first_question = result.get("next_question")
         
-        # 세션 저장 (datetime 객체를 문자열로 변환)
+        # 세션 저장 (첫 질문 포함)
         if first_question:
             session_data = session_manager.load_session(session_key)
             if session_data:
@@ -74,16 +71,6 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
                 metrics["asked_total"] = metrics.get("asked_total", 0) + 1
                 session_manager.save_session(session_key, metrics, first_question)
             else:
-            
-                # first_question_data에서 datetime 객체를 문자열로 변환
-                safe_question_data = None
-                if isinstance(first_question_data, dict):
-                    safe_question_data = first_question_data.copy()
-                    # datetime 객체가 있다면 문자열로 변환
-                    for key, value in safe_question_data.items():
-                        if hasattr(value, 'isoformat'):  # datetime 객체 체크
-                            safe_question_data[key] = value.isoformat()
-            
                 session_manager.save_session(
                     session_key,
                     metrics={
@@ -91,24 +78,26 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
                         "user_id": user_id,
                         "autobiography_id": autobiography_id,
                         "preferred_categories": request.preferred_categories,
-                        "categories": [],  # Changed from {} to []
+                        "categories": [],
                         "engine_state": {"last_material_id": None, "last_material_streak": 0},
                         "asked_total": 1
                     },
-                    last_question=safe_question_data
+                    last_question=first_question
                 )
         
         # queue publish 용 데이터 세팅
         import json
-        material_id = first_question_data.get("material_id", []) if isinstance(first_question_data, dict) else []
+        first_question_text = first_question.get("text") if isinstance(first_question, dict) else first_question
+                
+        material_id = first_question.get("material_id", []) if isinstance(first_question, dict) else []
         question = InterviewQuestion(
-            questionText=first_question,
+            questionText=first_question_text,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
             materials=json.dumps(material_id)  # JSON 문자열로 변환
         )
         
         ai_conversation = Conversation(
-            content=first_question,
+            content=first_question_text,
             conversationType="BOT",
             materials=json.dumps(material_id)  # JSON 문자열로 변환
         )
@@ -124,7 +113,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         publish_persistence_message(payload)
         
         return SessionStartResponseDto(
-            first_question=first_question_data  # 딕셔너리 전달
+            first_question=first_question
         )
         
     except Exception as e:
@@ -156,9 +145,6 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         if not session_data:
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
-        # flow 실행 전 metrics 저장
-        previous_metrics = session_data.get("metrics", {})
-        
         # 다음 질문 생성
         result = flow(
             sessionId=session_key,
@@ -167,20 +153,21 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
             autobiography_id=autobiography_id
         )
         
-        # flow 실행 후 metrics 로드
-        updated_session_data = session_manager.load_session(session_key)
-        current_metrics = updated_session_data.get("metrics", {})
+        next_question = result.get("next_question")
+        last_answer_materials_id = result.get("last_answer_materials_id", [])
         
-        next_question_data = result.get("next_question")
-        next_question = next_question_data.get("text") if isinstance(next_question_data, dict) else next_question_data
-        last_answer_materials_id = result.get("last_answer_materials_id", []) # 응답에 대한 material
+        # Flow에서 Redis에 직접 업데이트하므로 별도 저장 불필요
+        
+        
+        # flow 실행 후 metrics 로드
         material_id = [list(result.get("next_question", {}).get("material_id", []))] # 다음 질문에 대한 material
         
         print(f"[INFO] result: {result}")
+        next_question_text = next_question.get("text") if isinstance(next_question, dict) else next_question
         
         # queue publish 용 데이터 세팅
         question = InterviewQuestion(
-            questionText=next_question,
+            questionText=next_question_text,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
             materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
@@ -192,7 +179,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         )
         
         ai_conversation = Conversation(
-            content=next_question,
+            content=next_question_text,
             conversationType="BOT",
             materials=json.dumps(material_id) # JSON 문자열로 변환
         )
@@ -207,7 +194,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         # queue에 메시지 발행
         publish_persistence_message(payload)
         
-        return InterviewChatV2ResponseDto(next_question=next_question_data, last_answer_materials_id=last_answer_materials_id)
+        return InterviewChatV2ResponseDto(next_question=next_question, last_answer_materials_id=last_answer_materials_id)
         
     except HTTPException:
         raise

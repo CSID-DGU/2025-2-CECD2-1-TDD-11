@@ -11,7 +11,6 @@ import java.util.List;
 public class InterviewPayloadResponseDto {
     private Long autobiographyId;
     private Long userId;
-    private Integer categoryId; // AI에서 보내는 categoryId 필드 추가
     private List<Conversation> conversation;
     private InterviewQuestion interviewQuestion;
 
