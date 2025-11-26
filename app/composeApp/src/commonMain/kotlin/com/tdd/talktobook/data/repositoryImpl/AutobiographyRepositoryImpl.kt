@@ -88,6 +88,11 @@ class AutobiographyRepositoryImpl(
             )
         })
 
+    override suspend fun postCoShowStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>> =
+        PostStartProgressMapper.responseToModel(apiCall = {
+            autobiographyDataSource.postCoShowStartProgress(body.theme, body.reason)
+        })
+
     override suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>> =
         GetCountMaterialsMapper.responseToModel(apiCall = {
             autobiographyDataSource.getCountMaterials(

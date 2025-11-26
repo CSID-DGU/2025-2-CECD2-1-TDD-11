@@ -48,6 +48,9 @@ class AutobiographyDataSourceImpl(
     ): HttpResponse =
         autobiographyService.postStartProgress(theme, reason)
 
+    override suspend fun postCoShowStartProgress(theme: String, reason: String): HttpResponse =
+        autobiographyService.postCoShowInit(theme, reason)
+
     override suspend fun getCountMaterials(autobiographyId: Int): HttpResponse =
         autobiographyService.getCountMaterials(autobiographyId)
 

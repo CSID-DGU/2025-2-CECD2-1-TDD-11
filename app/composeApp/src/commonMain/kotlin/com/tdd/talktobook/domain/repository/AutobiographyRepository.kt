@@ -35,6 +35,8 @@ interface AutobiographyRepository {
 
     suspend fun postStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>>
 
+    suspend fun postCoShowStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>>
+
     suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>>
 
     suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>>

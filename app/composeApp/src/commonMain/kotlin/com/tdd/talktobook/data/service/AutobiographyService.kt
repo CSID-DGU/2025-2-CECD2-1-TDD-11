@@ -61,6 +61,13 @@ interface AutobiographyService {
         @Part("reason") reason: String,
     ): HttpResponse
 
+    @Multipart
+    @POST(EndPoints.Autobiography.COSHOW_START_PROGRESS)
+    suspend fun postCoShowInit(
+        @Part("theme") theme: String,
+        @Part("reason") reason: String,
+    ): HttpResponse
+
     @GET(EndPoints.Autobiography.COUNT_MATERIALS)
     suspend fun getCountMaterials(
         @Path("autobiographyId") autobiographyId: Int,
