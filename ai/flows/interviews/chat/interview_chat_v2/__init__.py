@@ -229,7 +229,17 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
         metrics = {"preferred_categories": preferred_categories}
         result = generate_first_question(engine, metrics)
-        result["last_answer_materials_id"] = []  # 첫 질문이므로 비움
+        result["last_answer_materials_id"] = []
+        
+        # 첫 질문도 세션에 저장
+        session_update = {
+            "metrics": metrics,
+            "last_question": result["next_question"],
+            "updated_at": time.time()
+        }
+        redis_client.set(session_key, json.dumps(session_update))
+        print(f"[DEBUG] Session saved (first): {session_key}, question: {result['next_question']['text'][:30]}...")
+        
         return result
 
     # 이후 질문 생성 준비
