@@ -173,10 +173,12 @@ public class InterviewQueryService {
 
         log.info("[GET_COSHOW_INTERVIEW_QUESTIONS] 인터뷰 조회 완료 - interviewId: {}, questionsCount: {}", interviewId, interview.getQuestions().size());
 
-        Integer currentOrder = interview.getCurrentQuestion().getQuestionOrder();
+        Integer currentOrder = interview.getCurrentQuestion() != null 
+                ? interview.getCurrentQuestion().getQuestionOrder() 
+                : null;
         
         if (currentOrder == null) {
-            log.warn("[GET_COSHOW_INTERVIEW_QUESTIONS] Redis에 진행 상태 없음, 1로 초기화 - interviewId: {}", interviewId);
+            log.warn("[GET_COSHOW_INTERVIEW_QUESTIONS] currentQuestion 없음, 1로 초기화 - interviewId: {}", interviewId);
             currentOrder = 1;
         }
 
