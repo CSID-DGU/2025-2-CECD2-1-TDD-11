@@ -121,10 +121,10 @@ class AutobiographyConsumer:
         ]
         
         # Flow 직접 실행
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.join(current_dir, "..", "..", "..", "..")
-        flow_path = os.path.join(project_root, "ai", "flows", "autobiographies", "standard", "generate_autobiography", "flow.dag.yaml")
-        flow_path = os.path.abspath(flow_path)
+        flow_path = os.environ.get(
+            "AUTOBIOGRAPHY_FLOW_PATH",
+            "/app/flows/autobiographies/standard/generate_autobiography/flow.dag.yaml"
+        )
         
         flow = Flow.load(flow_path)
         result = flow(
