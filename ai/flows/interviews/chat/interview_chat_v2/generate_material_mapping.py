@@ -1,51 +1,53 @@
+"""
+material.json에서 material_id_mapping.json 생성
+구조: "카테고리 청크 소재": [category_order, chunk_order, material_order]
+"""
 import json
+import os
 
-def generate_material_id_mapping():
-    """material.json을 기반으로 material_id 매핑을 생성"""
-    
+def generate_material_mapping():
     # material.json 로드
-    with open('data/material.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    current_dir = os.path.dirname(__file__)
+    material_json_path = os.path.join(current_dir, "data", "material.json")
+    
+    with open(material_json_path, 'r', encoding='utf-8') as f:
+        material_data = json.load(f)
     
     mapping = {}
     
-    # 각 카테고리, 청크, 소재에 대해 ID 매핑 생성
-    for cat_idx, category in enumerate(data['category']):
-        cat_name = category['name']
+    # 카테고리 순회
+    for category in material_data.get("category", []):
+        cat_order = category.get("order")
+        cat_name = category.get("name")
         
-        for chunk_idx, chunk in enumerate(category['chunk']):
-            chunk_name = chunk['name']
+        # 청크 순회
+        for chunk in category.get("chunk", []):
+            chunk_order = chunk.get("order")
+            chunk_name = chunk.get("name")
             
-            for mat_idx, material in enumerate(chunk['material']):
-                # material이 이제 {"order": 1, "name": "소재명"} 형태
-                material_name = material.get('name', '') if isinstance(material, dict) else material
+            # 소재 순회
+            for material in chunk.get("material", []):
+                mat_order = material.get("order")
+                mat_name = material.get("name")
                 
-                # 소재명 형식: "카테고리 청크 소재명"
-                full_material_name = f"{cat_name} {chunk_name} {material_name}"
-                
-                # ID는 [카테고리order, 청크order, 소재order] (실제 order 값 사용)
-                cat_order = category.get('order', cat_idx + 1)
-                chunk_order = chunk.get('order', chunk_idx + 1)
-                mat_order = material.get('order', mat_idx + 1) if isinstance(material, dict) else mat_idx + 1
-                
-                material_id = [cat_order, chunk_order, mat_order]
-                
-                mapping[full_material_name] = material_id
+                # 키: "카테고리 청크 소재"
+                key = f"{cat_name} {chunk_name} {mat_name}"
+                # 값: [category_order, chunk_order, material_order]
+                mapping[key] = [cat_order, chunk_order, mat_order]
     
-    # 매핑 파일 저장
-    with open('data/material_id_mapping.json', 'w', encoding='utf-8') as f:
+    # 저장
+    output_path = os.path.join(current_dir, "data", "material_id_mapping.json")
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(mapping, f, ensure_ascii=False, indent=2)
     
-    print(f"Generated {len(mapping)} material mappings")
-    return mapping
-
-if __name__ == "__main__":
-    mapping = generate_material_id_mapping()
+    print(f"✅ material_id_mapping.json 생성 완료")
+    print(f"   총 {len(mapping)}개 소재 매핑")
+    print(f"   저장 위치: {output_path}")
     
     # 샘플 출력
-    print("\n=== Sample mappings ===")
-    for i, (material, id_) in enumerate(mapping.items()):
-        if i < 5:  # 처음 5개만 출력
-            print(f"{material} -> {id_}")
-        else:
-            break
+    print("\n📝 샘플 (처음 3개):")
+    for i, (key, value) in enumerate(list(mapping.items())[:3]):
+        print(f"   \"{key}\": {value}")
+
+if __name__ == "__main__":
+    generate_material_mapping()
