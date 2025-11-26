@@ -28,6 +28,11 @@ class InterviewRepositoryImpl(
             interviewDataSource.getInterviewConversation(interviewId)
         })
 
+    override suspend fun getCoShowInterviewConversation(interviewId: Int): Flow<Result<InterviewConversationListModel>> =
+        GetInterviewConversationMapper.responseToModel(apiCall = {
+            interviewDataSource.getCoShowInterviewConversation(interviewId)
+        })
+
     override suspend fun postInterviewRenewal(interviewId: Int): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             interviewDataSource.postInterviewRenewal(interviewId)

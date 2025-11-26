@@ -30,6 +30,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetCoShowInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
@@ -103,6 +104,7 @@ val useCaseModule =
 
         // Interview
         factory { GetInterviewConversationUseCase(get()) }
+        factory { GetCoShowInterviewConversationUseCase(get()) }
         factory { PostInterviewRenewalUseCase(get()) }
         factory { PostInterviewConversationUseCase(get()) }
         factory { GetInterviewQuestionListUseCase(get()) }

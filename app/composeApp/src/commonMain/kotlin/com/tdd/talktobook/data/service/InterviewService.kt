@@ -37,4 +37,9 @@ interface InterviewService {
         @Query("year") year: Int,
         @Query("month") month: Int,
     ): HttpResponse
+
+    @GET(EndPoints.Interview.COSHOW_INTERVIEW_CONVERSATIONS)
+    suspend fun getCoShowInterviewConversation(
+        @Path("interviewId") interviewId: Int,
+    ): HttpResponse
 }

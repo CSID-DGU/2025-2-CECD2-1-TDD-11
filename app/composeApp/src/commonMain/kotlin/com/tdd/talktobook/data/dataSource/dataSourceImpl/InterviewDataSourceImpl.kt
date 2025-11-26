@@ -13,6 +13,9 @@ class InterviewDataSourceImpl(
     override suspend fun getInterviewConversation(interviewId: Int): HttpResponse =
         interviewService.getInterviewConversation(interviewId)
 
+    override suspend fun getCoShowInterviewConversation(interviewId: Int): HttpResponse =
+        interviewService.getCoShowInterviewConversation(interviewId)
+
     override suspend fun postInterviewRenewal(interviewId: Int): HttpResponse =
         interviewService.postInterviewRenewal(interviewId)
 
