@@ -101,10 +101,6 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         # queue publish 용 데이터 세팅
         import json
         material_id = first_question_data.get("material_id", []) if isinstance(first_question_data, dict) else []
-        
-        # preferred_categories의 첫 번째 값을 categoryId로 사용
-        category_id = request.preferred_categories[0] if request.preferred_categories else None
-        
         question = InterviewQuestion(
             questionText=first_question,
             questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
@@ -120,7 +116,6 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         payload = InterviewPayload(
             autobiographyId=autobiography_id,
             userId=user_id,
-            categoryId=category_id,
             conversation=[ai_conversation],
             interviewQuestion=question
         )
@@ -148,42 +143,10 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
 async def interview_chat(http_request: Request, autobiography_id: int, request: InterviewChatV2RequestDto):
     """인터뷰 대화"""
     try:
-        print(f"[CHAT] Received request - URL: {http_request.url}, autobiography_id: {autobiography_id}")
         
         # JWT에서 userId 추출
         auth_header = http_request.headers.get("Authorization")
         user_id = session_manager.extract_user_id_from_token(auth_header)
-        
-        # autobiography_id가 0이면 해당 user의 세션에서 찾기
-        if autobiography_id == 0:
-            import redis
-            redis_client = session_manager.redis_client
-            pattern = f"session:{user_id}:*"
-            keys = redis_client.keys(pattern)
-            
-            if keys:
-                # 가장 최근 세션 사용 (updated_at 기준)
-                latest_key = None
-                latest_time = 0
-                for key in keys:
-                    key_str = key.decode() if isinstance(key, bytes) else key
-                    session_data_raw = redis_client.get(key)
-                    if session_data_raw:
-                        session_data = json.loads(session_data_raw)
-                        updated_at = session_data.get("updated_at", 0)
-                        if updated_at > latest_time:
-                            latest_time = updated_at
-                            latest_key = key_str
-                
-                if latest_key:
-                    # session:{user_id}:{autobiography_id} 형식에서 autobiography_id 추출
-                    parts = latest_key.split(":")
-                    if len(parts) == 3:
-                        autobiography_id = int(parts[2])
-                        print(f"[INFO] Found autobiography_id={autobiography_id} from user {user_id}'s latest session key: {latest_key}")
-            
-            if autobiography_id == 0:
-                raise HTTPException(status_code=400, detail="유효한 세션을 찾을 수 없습니다. /start 엔드포인트를 먼저 호출하세요.")
         
         # 세션 키 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
@@ -191,14 +154,10 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         # 세션 로드
         session_data = session_manager.load_session(session_key)
         if not session_data:
-            # 세션이 없으면 자동 생성 (첫 질문 생성)
-            print(f"[INFO] Session not found for {session_key}, creating new session")
-            session_manager.create_session(session_key, user_id, autobiography_id, preferred_categories=[])
-            session_data = session_manager.load_session(session_key)
+            raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # flow 실행 전 metrics 저장
         previous_metrics = session_data.get("metrics", {})
-        print(f"[DEBUG] previous_metrics = {previous_metrics}")
         
         # 다음 질문 생성
         result = flow(
@@ -210,45 +169,37 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         # flow 실행 후 metrics 로드
         updated_session_data = session_manager.load_session(session_key)
-        print(f"[DEBUG] updated_session_data = {updated_session_data}")
         current_metrics = updated_session_data.get("metrics", {})
-        print(f"[DEBUG] current_metrics = {current_metrics}")
         
         next_question_data = result.get("next_question")
         next_question = next_question_data.get("text") if isinstance(next_question_data, dict) else next_question_data
         last_answer_materials_id = result.get("last_answer_materials_id", []) # 응답에 대한 material
         material_id = [list(result.get("next_question", {}).get("material_id", []))] # 다음 질문에 대한 material
-        print(f"[DEBUG] last_answer_materials_id = {last_answer_materials_id}")
-        print(f"[DEBUG] material_id = {material_id}")
-        print(f"[INFO] result: {result}")
         
-        # categoryId 추출: BOT question의 material_id에서
-        next_material_id = result.get("next_question", {}).get("material_id", [])
-        category_id = next_material_id[0] if next_material_id and len(next_material_id) >= 1 else None
+        print(f"[INFO] result: {result}")
         
         # queue publish 용 데이터 세팅
         question = InterviewQuestion(
             questionText=next_question,
-            questionOrder=0,
-            materials=json.dumps(last_answer_materials_id)
+            questionOrder=0, # 질문 순서 정보가 없으므로 0으로 설정
+            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
         
         human_conversation = Conversation(
             content=request.answer_text,
             conversationType="HUMAN",
-            materials=json.dumps(last_answer_materials_id)
+            materials=json.dumps(last_answer_materials_id) # JSON 문자열로 변환
         )
         
         ai_conversation = Conversation(
             content=next_question,
             conversationType="BOT",
-            materials=json.dumps(material_id)
+            materials=json.dumps(material_id) # JSON 문자열로 변환
         )
         
         payload = InterviewPayload(
             autobiographyId=autobiography_id,
             userId=user_id,
-            categoryId=category_id,
             conversation=[human_conversation, ai_conversation],
             interviewQuestion=question
         )
@@ -288,13 +239,7 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # 최종 메트릭 준비
-        final_metrics = session_data.get("metrics", {})
-        
-        # 필수 필드 추가
-        if "session_id" not in final_metrics:
-            final_metrics["session_id"] = session_key
-        if "categories" not in final_metrics:
-            final_metrics["categories"] = []
+        final_metrics = session_data.get("metrics")
         
         # 세션 삭제
         session_manager.delete_session(session_key)

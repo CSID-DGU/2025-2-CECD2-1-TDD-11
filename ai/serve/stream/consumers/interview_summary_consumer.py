@@ -41,9 +41,9 @@ class InterviewSummaryConsumer:
         # 큐가 이미 존재한다고 가정
     
     def setup_flow(self):
-        # flow 로드
-        PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-        flow_path = PROJECT_ROOT / "flows/interview_summary/standard/summarize_interview/flow.dag.yaml"
+        # flow 로드 - 올바른 경로 사용
+        current_dir = Path(__file__).parent.parent.parent.parent
+        flow_path = current_dir / "flows" / "interview_summary" / "standard" / "summarize_interview" / "flow.dag.yaml"
         self.flow = load_flow(str(flow_path))
     
     def start_consuming(self):

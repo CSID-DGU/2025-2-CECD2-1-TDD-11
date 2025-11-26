@@ -11,7 +11,7 @@ from auth import AuthRequired
 from promptflow import load_flow
 
 # flow 경로
-current_dir = Path(__file__).resolve().parent.parent.parent
+current_dir = Path(__file__).parent.parent.parent
 flow_path = current_dir / "flows" / "gen_image" / "flow.dag.yaml"
 
 router = APIRouter()

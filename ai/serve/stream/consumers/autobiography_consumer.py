@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 import pika
 from promptflow.core import Flow
 from ..dto import InterviewAnswersPayload, GeneratedAutobiographyPayload
@@ -122,8 +121,10 @@ class AutobiographyConsumer:
         ]
         
         # Flow 직접 실행
-        PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-        flow_path = PROJECT_ROOT / "flows/autobiographies/standard/generate_autobiography/flow.dag.yaml"
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.join(current_dir, "..", "..", "..", "..")
+        flow_path = os.path.join(project_root, "ai", "flows", "autobiographies", "standard", "generate_autobiography", "flow.dag.yaml")
+        flow_path = os.path.abspath(flow_path)
         
         flow = Flow.load(flow_path)
         result = flow(

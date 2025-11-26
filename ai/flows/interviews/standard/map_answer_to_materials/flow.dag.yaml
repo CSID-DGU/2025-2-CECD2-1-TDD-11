@@ -3,11 +3,9 @@ inputs:
   answer_text:
     type: string
   materials_list:
-    type: object
+    type: list
   current_material:
     type: string
-  current_material_id:
-    type: list
 outputs:
   analysis_result:
     type: object
@@ -25,6 +23,5 @@ nodes:
     answer_text: ${inputs.answer_text}
     materials_list: ${inputs.materials_list}
     current_material: ${inputs.current_material}
-    current_material_id: ${inputs.current_material_id}
   connection: open_ai_connection
   api: chat

@@ -17,17 +17,11 @@ from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories
 from engine.generators import generate_first_question, generate_question_llm, generate_material_gate_question
 import redis
 
-from logs import get_logger
-
-logger = get_logger()
-
 # 실제 함수 구현
 def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk_deltas=None, material_deltas=None):
     """실제 변화량을 CategoriesPayload로 전송"""
     try:
-        from logs import get_logger
-        logger = get_logger()
-        logger.info(f"[PUBLISH_DELTA] Called with user_id={user_id}, autobiography_id={autobiography_id}, theme_id={theme_id}, category_id={category_id}")
+        # print(f"[DEBUG] publish_delta_change called with theme_id={theme_id}, category_id={category_id}")
         
         # serve 디렉토리 경로 추가
         serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
@@ -37,7 +31,7 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
         
         # None 값 체크
         if user_id is None or autobiography_id is None:
-            logger.info("[PUBLISH_DELTA] Skipping due to None values")
+            print("[DEBUG] Skipping publish_delta_change due to None values")
             return
             
         # 현재 시간
@@ -96,17 +90,37 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", "", (s or "").strip())
 
 
-def _build_materials_list_from_mapping(mapping_path: str) -> dict:
-    """material_id_mapping.json에서 {name: [cat, chunk, mat]} dict 반환"""
+def _build_materials_list(material_data: dict) -> List[str]:
+    """카테고리-청크-소재 풀네임 리스트 (예: '카테고리 청크 소재')"""
+    out: List[str] = []
+    for category in material_data.get("category", []):
+        c = category.get("name", "")
+        for chunk in category.get("chunk", []):
+            ch = chunk.get("name", "")
+            for material in chunk.get("material", []):
+                # material이 이제 {"order": 1, "name": "소재명"} 형태
+                material_name = material.get("name", "") if isinstance(material, dict) else material
+                out.append(f"{c} {ch} {material_name}")
+    return out
+
+
+def _load_mapping(mapping_path: str) -> Tuple[dict, dict]:
+    """
+    material_id_mapping.json 로드
+    - 반환1: 원본 매핑 { "카테고리 청크 소재": [cat,chunk,mat], ... }
+    - 반환2: 공백 제거 인덱스 { "카테고리청크소재": "카테고리 청크 소재", ... }
+    """
     try:
-        with open(mapping_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        with open(mapping_path, "r", encoding="utf-8") as f:
+            mapping = json.load(f)
+        norm_index = {_norm(k): k for k in mapping.keys()}
+        return mapping, norm_index
     except Exception as e:
         print(f"[ERROR] material_id_mapping.json 로드 실패: {e}")
-        return {}
+        return {}, {}
 
 
-def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: dict, current_material: str, current_material_id: List[int]) -> List[dict]:
+def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: List[str], current_material: str) -> List[dict]:
     """LLM 플로우 호출"""
     if not os.path.exists(flow_path):
         return []
@@ -114,7 +128,7 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: dict, c
     try:
         from promptflow import load_flow
         flow = load_flow(flow_path)
-        res = flow(answer_text=answer_text, materials_list=materials_list, current_material=current_material, current_material_id=current_material_id)
+        res = flow(answer_text=answer_text, materials_list=materials_list, current_material=current_material)
         items = res.get("analysis_result", [])
         
         print(f"[DEBUG] LLM raw response: {items}")
@@ -183,22 +197,11 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
     redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
-    
-    # 세션 데이터 파싱
-    session_data = None
-    if session_data_raw:
-        try:
-            session_data = json.loads(session_data_raw) if isinstance(session_data_raw, str) else session_data_raw
-            print(f"[DEBUG] Session loaded: last_question exists = {bool(session_data.get('last_question'))}")
-        except Exception as e:
-            print(f"[ERROR] Session parse failed: {e}")
-            session_data = None
+    session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None
+    # print(f"[DEBUG] Session loaded")
 
     # 첫 질문 분기
-    is_first_question = not session_data or not session_data.get("last_question")
-    print(f"[DEBUG] is_first_question: {is_first_question}")
-    
-    if is_first_question:
+    if not session_data or not session_data.get("last_question"):
         preferred_categories = session_data.get("metrics", {}).get("preferred_categories", []) if session_data else []
 
         material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
@@ -210,87 +213,13 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         
         # 테마 부스팅 적용
         if preferred_categories:
-            engine.boost_theme(preferred_categories, initial_weight=10, force=True)
+            engine.boost_theme(preferred_categories, initial_weight=10)
             print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
-            
-            # preferred_categories가 있으면 material gate 질문 생성
-            material_id = engine.select_material()
-            cat_num, chunk_num, mat_num = material_id
-            material = engine._get_material(cat_num, chunk_num, mat_num)
-            category = engine.categories[cat_num]
-            chunk = category.chunks[chunk_num]
-            full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
-            
-            gate_question_text = generate_material_gate_question(full_material_name)
-            
-            next_question = {
-                "id": f"q-{uuid4().hex[:8]}",
-                "material": {
-                    "full_material_name": full_material_name,
-                    "full_material_id": list(material_id),
-                    "material_name": material.name,
-                    "material_order": material.order
-                },
-                "type": "material_gate",
-                "text": gate_question_text
-            }
-            
-            def serialize_categories(categories):
-                result = []
-                for cat in categories.values():
-                    active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
-                    if not active_chunks:
-                        continue
-                    chunks = []
-                    for chunk in active_chunks.values():
-                        materials = [
-                            {"order": m.order, "name": m.name, "principle": m.principle,
-                             "example": m.example, "similar_event": m.similar_event, "count": m.count}
-                            for m in chunk.materials.values()
-                            if any(m.principle) or m.example or m.similar_event or m.count > 0
-                        ]
-                        if materials:
-                            chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
-                    if chunks:
-                        result.append({
-                            "category_num": cat.category_num,
-                            "category_name": cat.category_name,
-                            "chunks": chunks,
-                            "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
-                        })
-                return result
-            
-            updated_metrics = {
-                "session_id": sessionId,
-                "categories": serialize_categories(engine.categories),
-                "engine_state": {
-                    "last_material_id": list(engine.state.last_material_id) if engine.state.last_material_id else [],
-                    "last_material_streak": engine.state.last_material_streak,
-                    "epsilon": engine.state.epsilon
-                },
-                "asked_total": 1,
-                "preferred_categories": preferred_categories,
-                "policy_version": "v0.5.0"
-            }
-            
-            session_update = {
-                "metrics": updated_metrics,
-                "last_question": next_question,
-                "updated_at": time.time()
-            }
-            redis_client.setex(session_key, 3600, json.dumps(session_update))
-            
-            print(f"\n🚧 [첫 질문 - Material Gate] {full_material_name}")
-            return {"next_question": next_question, "last_answer_materials_id": []}
-        else:
-            # preferred_categories가 없으면 자유 질문
-            metrics = {"preferred_categories": preferred_categories}
-            result = generate_first_question(engine, metrics)
-            if result.get("next_question") and "material_id" in result["next_question"]:
-                material_id = result["next_question"].pop("material_id")
-                result["next_question"]["material"]["full_material_id"] = material_id
-            result["last_answer_materials_id"] = []
-            return result
+
+        metrics = {"preferred_categories": preferred_categories}
+        result = generate_first_question(engine, metrics)
+        result["last_answer_materials_id"] = []  # 첫 질문이므로 비움
+        return result
 
     # 이후 질문 생성 준비
     question = session_data.get("last_question", {})
@@ -301,7 +230,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         except:
             question = {}
     metrics = session_data.get("metrics", {})
-    
+
     # material.json 로드 및 엔진 초기화
     material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
     try:
@@ -320,36 +249,20 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         engine_state = metrics.get("engine_state", {})
         engine.state.last_material_id = engine_state.get("last_material_id")
         engine.state.last_material_streak = engine_state.get("last_material_streak", 0)
-        
-        # preferred_categories 부스팅 (매번 적용)
-        preferred_categories = metrics.get("preferred_categories", [])
-        if preferred_categories:
-            engine.boost_theme(preferred_categories, initial_weight=10, force=True)
-            print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
+        engine.theme_initialized = engine_state.get("theme_initialized", False)
 
     except Exception as e:
         print(f"[ERROR] 엔진 초기화 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}
 
     # 답변 분석
-    current_material = question.get("material", "") if question else ""
-    # material_id는 material.full_material_id 또는 최상위 material_id에서 가져오기 (하위 호환)
-    current_material_id = None
-    if isinstance(current_material, dict):
-        current_material_id = current_material.get("full_material_id")
-    if not current_material_id:
-        current_material_id = question.get("material_id") if question else None
+    current_material = question.get("material", "") if isinstance(question, dict) else ""
+    current_material_id = question.get("material_id") if isinstance(question, dict) else None
     is_first_question = not answer_text or not current_material
     
-    # 현재 질문 소재의 full_material_name 찾기 (LLM에 전달용)
-    current_material_full = ""
-    if isinstance(current_material, dict):
-        current_material_full = current_material.get("full_material_name", "")
-    elif isinstance(current_material, str):
-        current_material_full = current_material
-    
-    # full_material_name이 없으면 material_id로 역검색
-    if not current_material_full and current_material_id and isinstance(current_material_id, list) and len(current_material_id) == 3:
+    # 현재 질문 소재의 전체 경로 찾기 (LLM에 전달용)
+    current_material_full = current_material
+    if current_material_id and isinstance(current_material_id, list) and len(current_material_id) == 3:
         cat_num, chunk_num, mat_num = current_material_id
         temp_cat = engine.categories.get(cat_num)
         if temp_cat:
@@ -371,53 +284,65 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         if not con_flag and len(answer_text or "") >= 80:
             con_flag = 1
 
-        # 상대경로로 map flow 찾기
-        map_flow_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_dir))))
-        mapping_path = os.path.join(map_flow_path, "flows", "interviews", "standard", "map_answer_to_materials", "flow.dag.yaml")
-        materials_list = _build_materials_list_from_mapping(mapping_path)
+        # ---------- 간결해진 LLM 기반 소재 매핑 ----------
+        # 상대 경로로 flows 디렉토리 찾기
+        flows_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_dir))))
+        map_flow_path = os.path.join(flows_dir, "flows", "interviews", "standard", "map_answer_to_materials", "flow.dag.yaml")
+        materials_list = _build_materials_list(material_data)
 
         # 매핑 파일 로드
         mapping_path = os.path.join(os.path.dirname(__file__), "data", "material_id_mapping.json")
-        materials_list = _build_materials_list_from_mapping(mapping_path)
+        material_mapping, norm_index = _load_mapping(mapping_path)
 
-        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full, list(current_material_id) if current_material_id else [])
+        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full)
 
         # 소재 매칭
         print(f"[DEBUG] LLM items count: {len(llm_items)}")
         for item in llm_items:
             if not isinstance(item, dict) or not item.get("material"):
+                print(f"[DEBUG] Skipping invalid item: {item}")
                 continue
             
-            material_id = item["material"]
-            print(f"[DEBUG] material_id type: {type(material_id)}, value: {material_id}")
+            material_value = item["material"]
+            print(f"[DEBUG] material_value type: {type(material_value)}, value: {material_value}")
             
-            # material_id는 [cat, chunk, mat] 형태여야 함
-            if not isinstance(material_id, list) or len(material_id) != 3:
-                print(f"[DEBUG] Invalid material_id format: {material_id}")
+            # dict 형태면 name 추출, 아니면 문자열 그대로
+            if isinstance(material_value, dict):
+                name = material_value.get("name", "")
+                print(f"[DEBUG] Extracted name from dict: '{name}'")
+            else:
+                name = str(material_value)
+                print(f"[DEBUG] Using string as-is: '{name}'")
+            
+            if not name:
+                print(f"[DEBUG] Empty name, skipping")
                 continue
             
-            # 소재 이름 찾기
-            cat_num, chunk_num, mat_num = material_id
-            temp_cat = engine.categories.get(cat_num)
-            if not temp_cat:
-                print(f"[DEBUG] Category {cat_num} not found")
-                continue
+            # 매핑 파일에서 찾기 (여러 패턴 시도)
+            key = None
+            for k in material_mapping.keys():
+                if name in k or _norm(name) in _norm(k):
+                    key = k
+                    print(f"[DEBUG] Found matching key: {k[:80]}...")
+                    break
             
-            temp_chunk = temp_cat.chunks.get(chunk_num)
-            if not temp_chunk:
-                print(f"[DEBUG] Chunk {chunk_num} not found in category {cat_num}")
+            if not key:
+                print(f"[DEBUG] No matching key found for name: '{name}'")
                 continue
-            
-            temp_mat = temp_chunk.materials.get(mat_num)
-            if not temp_mat:
-                print(f"[DEBUG] Material {mat_num} not found in chunk {chunk_num}")
-                continue
-            
-            material_name = f"{temp_cat.category_name} {temp_chunk.chunk_name} {temp_mat.name}"
-            matched_materials.append(material_name)
-            axes_analysis_by_material[material_name] = item.get("axes", {})
-            mapped_ids.append(material_id)
-            print(f"[DEBUG] Mapped to ID: {material_id}, name: {material_name}")
+
+            matched_materials.append(key)
+            axes_analysis_by_material[key] = item.get("axes", {})
+            # 소재 ID 매핑
+            mid = material_mapping.get(key)
+
+        # 소재 ID 매핑
+        for material_name in matched_materials:
+            mid = material_mapping.get(material_name)
+            if isinstance(mid, list) and len(mid) == 3:
+                mapped_ids.append(mid)
+                print(f"[DEBUG] Mapped to ID: {mid}")
+            else:
+                print(f"[DEBUG] Invalid mapping ID: {mid}")
 
         # LLM 분석 결과 반영
         for i, material_id in enumerate(mapped_ids):
@@ -540,12 +465,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         # 직전 질문이 gate가 아니고, 현재 소재가 완전히 비어있으면 gate 질문 생성
         # 단, 직전 질문이 gate였어도 다른 소재로 바뀌었으면 gate 질문 생성
         last_question_type = question.get("type") if question else None
-        # material_id는 material.full_material_id 또는 최상위 material_id에서 가져오기
-        last_material_id = None
-        if isinstance(current_material, dict):
-            last_material_id = tuple(current_material.get("full_material_id", [])) if current_material.get("full_material_id") else None
-        if not last_material_id:
-            last_material_id = tuple(question.get("material_id")) if question and question.get("material_id") else None
+        last_material_id = tuple(question.get("material_id")) if question and question.get("material_id") else None
         is_material_empty = (material.progress_score() == 0 and material.count == 0)
         is_different_material = (last_material_id != material_id)
         
@@ -556,19 +476,12 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         if is_material_empty and (last_question_type != "material_gate" or is_different_material):
             gate_question_text = generate_material_gate_question(full_material_name)
             
-            # material.name 직접 사용
-            material_name = material.name
-            
             next_question = {
                 "id": f"q-{uuid4().hex[:8]}",
-                "material": {
-                    "full_material_name": full_material_name,
-                    "full_material_id": list(material_id),
-                    "material_name": material_name,
-                    "material_order": material.order
-                },
+                "material": material.name,
                 "type": "material_gate",
-                "text": gate_question_text
+                "text": gate_question_text,
+                "material_id": material_id
             }
             
             # 메트릭 업데이트 (상태는 변경하지 않음)
@@ -616,8 +529,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "last_question": next_question,
                 "updated_at": time.time()
             }
-            redis_client.set(session_key, json.dumps(session_update))
-            print(f"[DEBUG] Session saved (gate): {session_key}, has last_question: {bool(session_update.get('last_question'))}")
+            redis_client.setex(session_key, 3600, json.dumps(session_update))
             
             print(f"\n🚧 [Material Gate] {full_material_name} - 진입 확인 질문 생성")
             if last_question_type == "material_gate" and is_different_material:
@@ -655,16 +567,8 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         }
         prompt_type = type_mapping.get(target, target)
 
-        # 카테고리가 같으면 이전 답변을 컨텍스트로 전달
-        context_answer = None
-        if not is_first_question and last_material_id:
-            last_cat_num = last_material_id[0] if isinstance(last_material_id, (list, tuple)) and len(last_material_id) >= 1 else None
-            current_cat_num = material_id[0]
-            if last_cat_num == current_cat_num:
-                context_answer = answer_text
-                print(f"[DEBUG] 같은 카테고리({current_cat_num}) - 이전 답변 전달")
-            else:
-                print(f"[DEBUG] 다른 카테고리({last_cat_num} → {current_cat_num}) - 이전 답변 미전달")
+        # 직전 답변을 항상 컨텍스트로 활용 (소재 전환 여부 무관)
+        context_answer = answer_text if not is_first_question else None
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
@@ -675,19 +579,12 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             engine.state.last_material_id = material_id
             engine.state.last_material_streak = 1
 
-        # material.name 직접 사용
-        material_name = material.name
-        
         next_question = {
             "id": f"q-{uuid4().hex[:8]}",
-            "material": {
-                "full_material_name": full_material_name,
-                "full_material_id": list(material_id),
-                "material_name": material_name,
-                "material_order": material.order
-            },
+            "material": material.name,
             "type": target,
-            "text": question_text
+            "text": question_text,
+            "material_id": material_id
         }
 
         def serialize_categories(categories):
@@ -743,8 +640,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             now = datetime.now(timezone.utc)
             prev_cats = {c["category_num"]: c for c in previous_categories}
             
-            logger.info(f"[DELTA_CHECK] previous_categories count: {len(previous_categories)}, updated_categories count: {len(updated_metrics['categories'])}")
-            
             for curr_cat in updated_metrics["categories"]:
                 cat_num = curr_cat["category_num"]
                 prev_cat = prev_cats.get(cat_num, {})
@@ -784,8 +679,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                                 count=count_delta, principle=principle_delta, timestamp=now
                             ))
                 
-                logger.info(f"[DELTA_CHECK] cat_num={cat_num}, chunks_deltas={len(chunks_deltas)}, materials_deltas={len(materials_deltas)}")
-                
                 if chunks_deltas or materials_deltas:
                     # AI cat_num을 DB 매핑으로 변환
                     theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
@@ -798,7 +691,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                         chunks=chunks_deltas, materials=materials_deltas
                     )
                     
-                    logger.info(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
+                    # print(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
                     
                     publish_categories_message(final_payload)
         except Exception as e:
@@ -809,8 +702,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "last_question": next_question,
             "updated_at": time.time()
         }
-        redis_client.set(session_key, json.dumps(session_update))
-        print(f"[DEBUG] Session saved (normal): {session_key}, has last_question: {bool(session_update.get('last_question'))}")
+        redis_client.setex(session_key, 3600, json.dumps(session_update))
 
         print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
         print(f"[DEBUG] 선택된 소재 ID: {material_id}, chunk_weight: {category.chunk_weight.get(chunk_num, 0)}, progress_score: {material.progress_score()}")

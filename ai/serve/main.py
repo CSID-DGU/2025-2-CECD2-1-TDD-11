@@ -74,10 +74,6 @@ app.include_router(interviews_request_interview_chat_v2_router, prefix="/api/v2/
 app.include_router(interviews_summary_router, prefix="/api/v2/interviews")
 app.include_router(images_router, prefix="/api/v2/images")
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
-
 if __name__ == "__main__":
     import uvicorn
 
