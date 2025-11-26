@@ -41,11 +41,18 @@ public class AutobiographyMergeConsumer {
 
         // PDF 생성 및 S3 업로드
         try {
-            String pdfUrl = autobiographyPublicationService.uploadPdfToS3(
-                    autobiography.getId(), 
-                    autobiography.getTitle()
-            );
-            log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
+            if (status.getStatus() == AutobiographyStatusType.FINISH) {
+                log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 시작 - autobiographyId: {}", autobiography.getId());
+                autobiographyPublicationService.uploadPdfToS3(
+                        autobiography.getId(),
+                        autobiography.getTitle()
+                );
+
+                log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
+            } else {
+                log.warn("[HANDLE_CYCLE_COMPLETION] PDF 생성 건너뜀 - 자서전 상태가 FINISH가 아님 - autobiographyId: {}, status: {}",
+                        autobiography.getId(), status.getStatus());
+            }
         } catch (Exception e) {
             log.error("[HANDLE_CYCLE_COMPLETION] PDF 생성 실패 - autobiographyId: {}", autobiography.getId(), e);
         }

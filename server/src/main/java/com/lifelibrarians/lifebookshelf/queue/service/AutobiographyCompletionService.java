@@ -255,16 +255,5 @@ public class AutobiographyCompletionService {
                 .forEach(autobiographyGeneratePublisher::publishGenerateAutobiographyRequest);
 
         log.info("[TRIGGER_PUBLICATION] 생성 요청 발행 완료 - requestsCount: {}", requests.size());
-
-        // 4. PDF 생성 및 S3 업로드
-        try {
-            String pdfUrl = autobiographyPublicationService.uploadPdfToS3(autobiography.getId(), name);
-            log.info("[TRIGGER_PUBLICATION] PDF 업로드 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
-        } catch (Exception e) {
-            log.error("[TRIGGER_PUBLICATION] PDF 생성 실패 - autobiographyId: {}", autobiography.getId(), e);
-        }
-
-        log.info("[TRIGGER_PUBLICATION] 출판 요청 완료 - autobiographyId: {}, cycleId: {}",
-                autobiography.getId(), cycleId);
     }
 }
