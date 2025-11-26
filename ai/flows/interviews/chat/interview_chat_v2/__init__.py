@@ -17,11 +17,17 @@ from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories
 from engine.generators import generate_first_question, generate_question_llm, generate_material_gate_question
 import redis
 
+from logs import get_logger
+
+logger = get_logger()
+
 # 실제 함수 구현
 def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk_deltas=None, material_deltas=None):
     """실제 변화량을 CategoriesPayload로 전송"""
     try:
-        # print(f"[DEBUG] publish_delta_change called with theme_id={theme_id}, category_id={category_id}")
+        from logs import get_logger
+        logger = get_logger()
+        logger.info(f"[PUBLISH_DELTA] Called with user_id={user_id}, autobiography_id={autobiography_id}, theme_id={theme_id}, category_id={category_id}")
         
         # serve 디렉토리 경로 추가
         serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
@@ -31,7 +37,7 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
         
         # None 값 체크
         if user_id is None or autobiography_id is None:
-            print("[DEBUG] Skipping publish_delta_change due to None values")
+            logger.info("[PUBLISH_DELTA] Skipping due to None values")
             return
             
         # 현재 시간
@@ -660,6 +666,8 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             now = datetime.now(timezone.utc)
             prev_cats = {c["category_num"]: c for c in previous_categories}
             
+            logger.info(f"[DELTA_CHECK] previous_categories count: {len(previous_categories)}, updated_categories count: {len(updated_metrics['categories'])}")
+            
             for curr_cat in updated_metrics["categories"]:
                 cat_num = curr_cat["category_num"]
                 prev_cat = prev_cats.get(cat_num, {})
@@ -699,6 +707,8 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                                 count=count_delta, principle=principle_delta, timestamp=now
                             ))
                 
+                logger.info(f"[DELTA_CHECK] cat_num={cat_num}, chunks_deltas={len(chunks_deltas)}, materials_deltas={len(materials_deltas)}")
+                
                 if chunks_deltas or materials_deltas:
                     # AI cat_num을 DB 매핑으로 변환
                     theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
@@ -711,7 +721,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                         chunks=chunks_deltas, materials=materials_deltas
                     )
                     
-                    print(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
+                    logger.info(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
                     
                     publish_categories_message(final_payload)
         except Exception as e:

@@ -142,7 +142,7 @@ public class AutobiographyCommandService {
         AutobiographyStatus autobiographyStatus = autobiographyStatusRepository
                 .findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(
                         memberId,
-                        List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING)
+                        List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING, AutobiographyStatusType.ENOUGH)
                 )
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
 

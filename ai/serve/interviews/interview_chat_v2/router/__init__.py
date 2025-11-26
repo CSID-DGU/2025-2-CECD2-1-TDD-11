@@ -288,7 +288,13 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # 최종 메트릭 준비
-        final_metrics = session_data.get("metrics")
+        final_metrics = session_data.get("metrics", {})
+        
+        # 필수 필드 추가
+        if "session_id" not in final_metrics:
+            final_metrics["session_id"] = session_key
+        if "categories" not in final_metrics:
+            final_metrics["categories"] = []
         
         # 세션 삭제
         session_manager.delete_session(session_key)

@@ -68,13 +68,17 @@ class InterviewEngine:
     def boost_theme(self, category_nums: Iterable[int], initial_weight: int = 10, *, force: bool = False) -> None:
         if self.theme_initialized and not force:
             return
-        for cnum in category_nums:
+        category_list = list(category_nums)
+        for idx, cnum in enumerate(category_list):
             cat = self.categories.get(cnum)
             if not cat:
                 continue
+            # 첫 번째 카테고리에 가장 높은 가중치 부여 (역순으로 감소)
+            weight = initial_weight + (len(category_list) - idx) * 5
+            print(f"[DEBUG] 카테고리 {cnum} 가중치: {weight}")
             for ch_num in cat.chunks.keys():
                 if force or cat.chunk_weight.get(ch_num, 0) == 0:
-                    cat.chunk_weight[ch_num] = initial_weight
+                    cat.chunk_weight[ch_num] = weight
         self.theme_initialized = True       
             
     #기존 알고리즘 - 소재 선택
@@ -134,6 +138,11 @@ class InterviewEngine:
 
         # 정렬: chunk_weight DESC, sumw ASC, category_num ASC
         candidates.sort(key=lambda x: (-x["cw"], x["sumwc"], x["id"][0]))
+
+        # 디버그: 상위 5개 후보 출력
+        print(f"[DEBUG] 상위 후보들:")
+        for c in candidates[:5]:
+            print(f"  {c['id']}: cw={c['cw']}, sumwc={c['sumwc']}")
 
         # 동률 처리
         best_group = [candidates[0]]
