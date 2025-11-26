@@ -19,20 +19,35 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
     private var recognizer: SpeechRecognizer? = null
     private var finalResult: String = ""
     private var partialCb: ((String) -> Unit)? = null
+    private var stopContinuation: ( (String) -> Unit )? = null
+
     override var isRunning: Boolean = false
         private set
 
     override suspend fun start(onPartial: (String) -> Unit) {
         withContext(Dispatchers.Main) {
             if (isRunning) return@withContext
+
             partialCb = onPartial
             finalResult = ""
+            stopContinuation = null
+
             val sr = SpeechRecognizer.createSpeechRecognizer(app)
             val intent =
                 Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                     putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
+
+                    // 침묵 허용 시간
+                    putExtra(
+                        RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                        10000L
+                    )
+                    putExtra(
+                        RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                        10000L
+                    )
                 }
             sr.setRecognitionListener(
                 object : RecognitionListener {
@@ -47,13 +62,16 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
                     override fun onEndOfSpeech() {}
 
                     override fun onError(error: Int) {
-                        isRunning = false
+//                        isRunning = false
+                        finish(finalResult)
                     }
 
                     override fun onResults(results: Bundle) {
                         val list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         finalResult = list?.firstOrNull().orEmpty()
-                        isRunning = false
+                        partialCb?.invoke(finalResult)
+//                        isRunning = false
+                        finish(finalResult)
                     }
 
                     override fun onPartialResults(partialResults: Bundle) {
@@ -73,19 +91,46 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
         }
     }
 
+//    override suspend fun stop(): String {
+//        return withContext(Dispatchers.Main) {
+//            if (!isRunning) return@withContext finalResult
+//            suspendCancellableCoroutine { cont ->
+//                val sr = recognizer
+//                recognizer = null
+//                try {
+//                    sr?.stopListening()
+//                } catch (_: Exception) {
+//                }
+//                cont.resume(finalResult)
+//            }
+//        }
+//    }
     override suspend fun stop(): String {
         return withContext(Dispatchers.Main) {
             if (!isRunning) return@withContext finalResult
             suspendCancellableCoroutine { cont ->
-                val sr = recognizer
-                recognizer = null
-                try {
-                    sr?.stopListening()
-                } catch (_: Exception) {
+                stopContinuation = { result ->
+                    if (cont.isActive) cont.resume(result)
                 }
-                cont.resume(finalResult)
+                try {
+                    recognizer?.stopListening()
+                } catch (_: Exception) {
+                    if (cont.isActive) cont.resume(finalResult)
+                    stopContinuation = null
+                }
             }
         }
+    }
+
+    private fun finish(result: String) {
+        isRunning = false
+
+        recognizer?.destroy()
+        recognizer = null
+
+        val cont = stopContinuation
+        stopContinuation = null
+        cont?.invoke(result)
     }
 }
 
