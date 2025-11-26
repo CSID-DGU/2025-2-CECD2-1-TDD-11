@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
@@ -42,6 +43,12 @@ import org.springframework.web.method.HandlerMethod;
 )
 public class SwaggerConfig {
 
+    @Value("${security.cors.domain}")
+    private String corsDomain;
+
+    @Value("${security.cors.ip}")
+    private String corsIp;
+
 	@Bean
 	public OpenAPI getOpenAPI() {
 		return new OpenAPI()
@@ -49,7 +56,18 @@ public class SwaggerConfig {
 						.addHeaders("Authorization",
 								new Header().description("Auth header")
 										.schema(new StringSchema()))
-				);
+				)
+				.servers(List.of(
+						new io.swagger.v3.oas.models.servers.Server()
+								.url("http://localhost:8080")
+								.description("Local Server"),
+						new io.swagger.v3.oas.models.servers.Server()
+								.url(corsIp)
+								.description("Dev Server"),
+						new io.swagger.v3.oas.models.servers.Server()
+								.url(corsDomain)
+								.description("Production Server")
+				));
 	}
 
 	/**
