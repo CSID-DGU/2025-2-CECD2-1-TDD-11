@@ -28,16 +28,23 @@ public class CategoriesPersistenceService {
 
     @Transactional
     public void receiveCategoriesPayload(CategoriesPayloadResponseDto payload) {
+        log.info("[RECEIVE_CATEGORIES_PAYLOAD] 카테고리 페이로드 수신 시작 - userId: {}, autobiographyId: {}, categoryId: {}", 
+                payload.getUserId(), payload.getAutobiographyId(), payload.getCategoryId());
+        
         // 사용자 권한 검증
         Autobiography autobiography = autobiographyRepository.findById(payload.getAutobiographyId())
             .orElseThrow(() -> new RuntimeException("자서전을 찾을 수 없습니다."));
         
         if (!autobiography.getMember().getId().equals(payload.getUserId())) {
+            log.warn("[RECEIVE_CATEGORIES_PAYLOAD] 자서전 소유자 불일치 - userId: {}, ownerId: {}", 
+                    payload.getUserId(), autobiography.getMember().getId());
             throw new RuntimeException("해당 자서전에 대한 권한이 없습니다.");
         }
 
         // Chunk 변화량 처리
         if (payload.getChunks() != null) {
+            log.info("[RECEIVE_CATEGORIES_PAYLOAD] Chunk 변화량 처리 시작 - chunksCount: {}", payload.getChunks().size());
+            
             payload.getChunks().forEach(chunkPayload -> {
                 var chunkOpt = chunkRepository.findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(autobiography.getId(), (long) payload.getThemeId(), payload.getCategoryId(), chunkPayload.getChunkOrder());
                 if (chunkOpt.isPresent()) {
@@ -45,19 +52,25 @@ public class CategoriesPersistenceService {
                     int oldWeight = chunk.getWeight();
                     chunk.updateWeight(oldWeight + chunkPayload.getWeight());
                     chunkRepository.save(chunk);
+                    log.info("[RECEIVE_CATEGORIES_PAYLOAD] Chunk 업데이트 완료 - chunkId: {}, oldWeight: {}, newWeight: {}", 
+                            chunk.getId(), oldWeight, chunk.getWeight());
                 } else {
-                    log.info("[SPRING_CHUNK_NOT_FOUND] No chunk found with parameters");
+                    log.warn("[RECEIVE_CATEGORIES_PAYLOAD] Chunk를 찾을 수 없음 - themeId: {}, categoryId: {}, chunkOrder: {}", 
+                            payload.getThemeId(), payload.getCategoryId(), chunkPayload.getChunkOrder());
                 }
             });
         }
 
         // Material 변화량 처리
         if (payload.getMaterials() != null) {
+            log.info("[RECEIVE_CATEGORIES_PAYLOAD] Material 변화량 처리 시작 - materialsCount: {}", payload.getMaterials().size());
+            
             payload.getMaterials().forEach(materialPayload -> {
                 materialRepository.findByAutobiographyAndThemeAndOrdersAndMaterialOrder(autobiography.getId(), Long.valueOf(payload.getThemeId()), payload.getCategoryId(), materialPayload.getChunkId(), materialPayload.getMaterialOrder())
                     .filter(material -> material.getChunk().getCategory().getAutobiography().getId().equals(autobiography.getId()))
                     .ifPresentOrElse(material -> {
                         // 변화량 적용
+                        int oldCount = material.getCount();
                         material.updateExample(material.getExample() + materialPayload.getExample());
                         material.updateSimilarEvent(material.getSimilarEvent() + materialPayload.getSimilarEvent());
                         material.updateCount(material.getCount() + materialPayload.getCount());
@@ -71,8 +84,11 @@ public class CategoriesPersistenceService {
                         material.updatePrinciple(Arrays.toString(currentPrinciple));
                         
                         materialRepository.save(material);
+                        log.info("[RECEIVE_CATEGORIES_PAYLOAD] Material 업데이트 완료 - materialId: {}, oldCount: {}, newCount: {}", 
+                                material.getId(), oldCount, material.getCount());
                     }, () -> {
-                        log.info("[SPRING_MATERIAL_NOT_FOUND] No material found with parameters");
+                        log.warn("[RECEIVE_CATEGORIES_PAYLOAD] Material을 찾을 수 없음 - themeId: {}, categoryId: {}, chunkId: {}, materialOrder: {}", 
+                                payload.getThemeId(), payload.getCategoryId(), materialPayload.getChunkId(), materialPayload.getMaterialOrder());
                     });
             });
         }
@@ -80,13 +96,17 @@ public class CategoriesPersistenceService {
         String coShowExampleName = "사용자"; // 기본 이름 설정
 
         // 자서전 완료 여부 체크 및 상태 업데이트
+        log.info("[RECEIVE_CATEGORIES_PAYLOAD] 자서전 완료 여부 체크 시작 - autobiographyId: {}", autobiography.getId());
         boolean isEnough = autobiographyCompletionService.checkCompletionAndTriggerPublication(autobiography, coShowExampleName);
         if (isEnough) {
             LocalDateTime now = LocalDateTime.now();
             AutobiographyStatus status = autobiography.getAutobiographyStatus();
             status.updateStatusType(AutobiographyStatusType.ENOUGH, now); // 상태 업데이트
-            log.info("[SPRING_AUTOBIOGRAPHY_ENOUGH] Autobiography {} marked as ENOUGH", autobiography.getId());
+            log.info("[RECEIVE_CATEGORIES_PAYLOAD] 자서전 상태 변경 - autobiographyId: {}, status: ENOUGH", autobiography.getId());
         }
+        
+        log.info("[RECEIVE_CATEGORIES_PAYLOAD] 카테고리 페이로드 처리 완료 - autobiographyId: {}, categoryId: {}", 
+                payload.getAutobiographyId(), payload.getCategoryId());
     }
 
     private int[] parsePrincipleArray(String principleStr) {

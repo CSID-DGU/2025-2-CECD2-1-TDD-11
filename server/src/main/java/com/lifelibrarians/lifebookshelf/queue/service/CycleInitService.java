@@ -24,10 +24,16 @@ public class CycleInitService {
 
     @Transactional
     public String initializeCycleProcess(Autobiography autobiography) {
+        log.info("[INITIALIZE_CYCLE_PROCESS] 사이클 초기화 시작 - autobiographyId: {}, userId: {}", 
+                autobiography.getId(), autobiography.getMember().getId());
+        
         String cycleId = UUID.randomUUID().toString();
+        log.info("[INITIALIZE_CYCLE_PROCESS] Cycle ID 생성 완료 - cycleId: {}", cycleId);
         
         // AutobiographyCompletionService와 동일한 로직으로 expected count 계산
         int expectedCount = calculateExpectedCount(autobiography);
+        log.info("[INITIALIZE_CYCLE_PROCESS] Expected count 계산 완료 - cycleId: {}, expectedCount: {}", 
+                cycleId, expectedCount);
         
         CycleInitRequestDto cycleInitRequest = CycleInitRequestDto.builder()
                 .cycleId(cycleId)
@@ -38,21 +44,28 @@ public class CycleInitService {
                 
         cycleInitPublisher.publishAutobiographyCycleInitRequest(cycleInitRequest);
         
-        log.info("Cycle initialized - cycleId: {}, expectedCount: {}, autobiographyId: {}", 
+        log.info("[INITIALIZE_CYCLE_PROCESS] 사이클 초기화 완료 - cycleId: {}, expectedCount: {}, autobiographyId: {}", 
                 cycleId, expectedCount, autobiography.getId());
                 
         return cycleId;
     }
     
     private int calculateExpectedCount(Autobiography autobiography) {
+        log.info("[CALCULATE_EXPECTED_COUNT] Expected count 계산 시작 - autobiographyId: {}", autobiography.getId());
+        
         // HUMAN 타입 conversations에서 카테고리별로 그룹핑하여 개수 계산
-        return (int) conversationRepository
+        int count = (int) conversationRepository
                 .findByAutobiographyId(autobiography.getId())
                 .stream()
                 .filter(conv -> ConversationType.HUMAN.equals(conv.getConversationType()))
                 .filter(conv -> conv.getMaterials() != null && !conv.getMaterials().isEmpty())
                 .collect(Collectors.groupingBy(conv -> extractCategoryOrder(conv.getMaterials())))
                 .size();
+        
+        log.info("[CALCULATE_EXPECTED_COUNT] Expected count 계산 완료 - autobiographyId: {}, count: {}", 
+                autobiography.getId(), count);
+        
+        return count;
     }
     
     private Integer extractCategoryOrder(String materials) {
@@ -65,7 +78,7 @@ public class CycleInitService {
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to extract category order from materials: {}", materials);
+            log.warn("[EXTRACT_CATEGORY_ORDER] 카테고리 순서 추출 실패 - materials: {}", materials);
         }
         return 0;
     }

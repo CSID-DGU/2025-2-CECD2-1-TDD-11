@@ -24,6 +24,9 @@ spring:
         format_sql: true
         show_sql: true
         dialect: org.hibernate.dialect.MariaDBDialect
+  redis:
+    host: localhost
+    port: 6381
   rabbitmq:
     host: localhost
     port: 5672
@@ -36,6 +39,8 @@ cloud:
       bucket: lifebookshelf-image-bucket
       endpoint: http://localhost:4566
       expiration: 3600000
+    ses:
+      sender-email: tdddgu45@gmail.com
     credentials:
       access-key: test
       secret-key: test

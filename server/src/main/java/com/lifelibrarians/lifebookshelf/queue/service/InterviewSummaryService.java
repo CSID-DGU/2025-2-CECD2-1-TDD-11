@@ -18,11 +18,13 @@ public class InterviewSummaryService {
 
     @Transactional
     public void saveInterviewSummary(InterviewSummaryResponseDto payload) {
+        log.info("[SAVE_INTERVIEW_SUMMARY] 인터뷰 요약 저장 시작 - interviewId: {}", payload.getInterviewId());
+        
         // Implementation to save the interview summary
         Optional<Interview> optionalInterview = interviewRepository.findById(payload.getInterviewId());
 
         if (optionalInterview.isEmpty()) {
-            log.warn("[InterviewSummaryService] Interview not found with id: {}", payload.getInterviewId());
+            log.warn("[SAVE_INTERVIEW_SUMMARY] 인터뷰를 찾을 수 없음 - interviewId: {}", payload.getInterviewId());
             return;
         }
 
@@ -31,5 +33,7 @@ public class InterviewSummaryService {
         interview.updateSummary(payload.getSummary());
 
         interviewRepository.save(interview);
+        log.info("[SAVE_INTERVIEW_SUMMARY] 인터뷰 요약 저장 완료 - interviewId: {}, summaryLength: {}", 
+                payload.getInterviewId(), payload.getSummary() != null ? payload.getSummary().length() : 0);
     }
 }

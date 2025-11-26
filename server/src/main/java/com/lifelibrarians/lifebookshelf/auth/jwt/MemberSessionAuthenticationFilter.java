@@ -73,6 +73,7 @@ public class MemberSessionAuthenticationFilter extends OncePerRequestFilter {
 
 	private MemberSessionDto convertPrincipal(Jwt jwt) {
 		Long userId = jwt.getClaim(JwtProperties.MEMBER_ID);
+        log.info("Jwt Member ID: {}", userId);
 		List<MemberRole> roles = jwt.getClaim(JwtProperties.ROLES);
 		if (userId == null || roles == null) {
 			throw new JwtAuthenticationTokenException("Jwt에 필요한 정보가 없습니다.");
