@@ -2,6 +2,7 @@ package com.tdd.talktobook.data.repositoryImpl
 
 import com.tdd.talktobook.data.dataSource.AutobiographyDataSource
 import com.tdd.talktobook.data.dataStore.LocalDataStore
+import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateRequestDto
 import com.tdd.talktobook.data.mapper.autobiograph.AllAutobiographyMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographiesDetailMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographyChapterMapper
@@ -18,6 +19,7 @@ import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiograph
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.GetCoShowGenerateRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
@@ -151,4 +153,8 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun patchChangeStatus(body: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.patchChangeStatus(body.autobiographyId, body.status.type) })
+
+    override suspend fun getCoShowGenerate(body: GetCoShowGenerateRequestModel): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.getCoShowGenerate(body.autobiographyId, GetCoShowGenerateRequestDto(body.name)) })
+
 }

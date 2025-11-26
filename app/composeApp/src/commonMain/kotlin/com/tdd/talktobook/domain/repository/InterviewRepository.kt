@@ -1,7 +1,9 @@
 package com.tdd.talktobook.domain.repository
 
+import com.tdd.talktobook.domain.entity.request.interview.CoShowAnswerRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.InterviewConversationRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
+import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesListModel
@@ -23,4 +25,6 @@ interface InterviewRepository {
     suspend fun saveInterviewId(request: Int): Flow<Result<Boolean>>
 
     suspend fun getInterviewId(): Flow<Result<Int>>
+
+    suspend fun postCoShowAnswer(request: CoShowAnswerRequestModel): Flow<Result<CoShowAnswerModel>>
 }

@@ -22,4 +22,9 @@ interface InterviewDataSource {
         year: Int,
         month: Int,
     ): HttpResponse
+
+    suspend fun postCoShowInterviewAnswer(
+        interviewId: Int,
+        answerText: String
+    ): HttpResponse
 }

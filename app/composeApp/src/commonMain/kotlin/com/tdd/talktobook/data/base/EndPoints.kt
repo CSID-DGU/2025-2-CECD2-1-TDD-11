@@ -43,7 +43,7 @@ object EndPoints {
         const val INTERVIEWQUESTIONLIST = "$INTERVIEWID/questions"
         const val INTERVIEW_SUMMARY = "$INTERVIEW/{autobiographyId}/interviews/summaries"
 
-        const val COSHOW_INTERVIEW_ANSWER = "$INTERVIEWID/co-show/questions"
+        const val COSHOW_INTERVIEW_QUESTION = "$INTERVIEWID/co-show/questions"
         const val COSHOW_INTERVIEW_CONVERSATIONS = "$INTERVIEWID/co-show/conversations"
     }
 

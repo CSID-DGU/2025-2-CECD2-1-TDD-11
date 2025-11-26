@@ -1,6 +1,7 @@
 package com.tdd.talktobook.data.dataSource.dataSourceImpl
 
 import com.tdd.talktobook.data.dataSource.AutobiographyDataSource
+import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyChapterRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiographyRequestDto
@@ -65,4 +66,7 @@ class AutobiographyDataSourceImpl(
 
     override suspend fun patchChangeStatus(autobiographyId: Int, status: String): HttpResponse=
         autobiographyService.patchChangeStatus(autobiographyId, status)
+
+    override suspend fun getCoShowGenerate(autobiographyId: Int, request: GetCoShowGenerateRequestDto): HttpResponse =
+        autobiographyService.getCoShowGenerate(autobiographyId, request)
 }

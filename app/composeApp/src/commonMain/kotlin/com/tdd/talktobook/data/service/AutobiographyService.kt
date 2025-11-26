@@ -1,6 +1,7 @@
 package com.tdd.talktobook.data.service
 
 import com.tdd.talktobook.data.base.EndPoints
+import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyChapterRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiographyRequestDto
@@ -66,6 +67,12 @@ interface AutobiographyService {
     suspend fun postCoShowInit(
         @Part("theme") theme: String,
         @Part("reason") reason: String,
+    ): HttpResponse
+
+    @GET(EndPoints.Autobiography.COSHOW_CREATE_AUTOBIOGRAPHY)
+    suspend fun getCoShowGenerate(
+        @Path("autobiographyId") autobiographyId: Int,
+        @Query("requestDto") request: GetCoShowGenerateRequestDto
     ): HttpResponse
 
     @GET(EndPoints.Autobiography.COUNT_MATERIALS)

@@ -5,6 +5,7 @@ import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiograph
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.GetCoShowGenerateRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
@@ -54,4 +55,6 @@ interface AutobiographyRepository {
     suspend fun getAutobiographyStatus(): Flow<Result<AutobiographyStatusType>>
 
     suspend fun patchChangeStatus(body: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>>
+
+    suspend fun getCoShowGenerate(body: GetCoShowGenerateRequestModel): Flow<Result<Boolean>>
 }

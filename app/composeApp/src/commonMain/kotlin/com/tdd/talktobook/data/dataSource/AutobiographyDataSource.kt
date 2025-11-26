@@ -1,5 +1,6 @@
 package com.tdd.talktobook.data.dataSource
 
+import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyChapterRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiographyRequestDto
@@ -46,4 +47,6 @@ interface AutobiographyDataSource {
     suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse
 
     suspend fun patchChangeStatus(autobiographyId: Int, status: String): HttpResponse
+
+    suspend fun getCoShowGenerate(autobiographyId: Int, request: GetCoShowGenerateRequestDto): HttpResponse
 }

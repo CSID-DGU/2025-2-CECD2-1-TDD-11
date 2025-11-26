@@ -6,10 +6,13 @@ import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.data.mapper.interview.GetInterviewConversationMapper
 import com.tdd.talktobook.data.mapper.interview.GetInterviewQuestionListMapper
 import com.tdd.talktobook.data.mapper.interview.GetInterviewSummariesMapper
+import com.tdd.talktobook.data.mapper.interview.PostCoShowAnswerMapper
 import com.tdd.talktobook.data.mapper.interview.PostInterviewConversationMapper
 import com.tdd.talktobook.data.mapper.interview.PostInterviewConversationMapper.toDto
+import com.tdd.talktobook.domain.entity.request.interview.CoShowAnswerRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.InterviewConversationRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
+import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewQuestionListModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesListModel
@@ -68,4 +71,9 @@ class InterviewRepositoryImpl(
                 }
             }
         }
+
+    override suspend fun postCoShowAnswer(request: CoShowAnswerRequestModel): Flow<Result<CoShowAnswerModel>> =
+        PostCoShowAnswerMapper.responseToModel(apiCall = {
+            interviewDataSource.postCoShowInterviewAnswer(request.interviewId, request.answerText)
+        })
 }

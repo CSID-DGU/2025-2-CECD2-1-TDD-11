@@ -18,6 +18,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterL
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesDetailUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
@@ -35,6 +36,7 @@ import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCa
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
+import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewRenewalUseCase
 import com.tdd.talktobook.domain.usecase.interview.SaveInterviewIdUseCase
@@ -66,6 +68,8 @@ val useCaseModule =
         factory { ReissueTokenUseCase(get()) }
         factory { GetAccessTokenUseCase(get()) }
         factory { GetRefreshTokenUseCase(get()) }
+        factory { DeleteLocalAllDataUseCase(get()) }
+        factory { DeleteLocalTokenUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }
@@ -86,11 +90,8 @@ val useCaseModule =
         factory { SaveAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyStatusUseCase(get()) }
-        factory { SaveInterviewIdUseCase(get()) }
-        factory { GetInterviewIdUseCase(get()) }
-        factory { DeleteLocalAllDataUseCase(get()) }
-        factory { DeleteLocalTokenUseCase(get()) }
         factory { ChangeAutobiographyStatusUseCase(get()) }
+        factory { GetCoShowGenerateUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }
@@ -109,6 +110,9 @@ val useCaseModule =
         factory { PostInterviewConversationUseCase(get()) }
         factory { GetInterviewQuestionListUseCase(get()) }
         factory { GetInterviewSummariesUseCase(get()) }
+        factory { SaveInterviewIdUseCase(get()) }
+        factory { GetInterviewIdUseCase(get()) }
+        factory { PostCoShowAnswerUseCase(get()) }
 
         // AI
         // Interview
