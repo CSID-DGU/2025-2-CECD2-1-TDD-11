@@ -387,8 +387,16 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         }
         prompt_type = type_mapping.get(target, target)
 
-        # 직전 답변을 항상 컨텍스트로 활용 (소재 전환 여부 무관)
-        context_answer = answer_text if not is_first_question else None
+        # 카테고리가 같으면 이전 답변을 컨텍스트로 전달
+        context_answer = None
+        if not is_first_question and last_material_id:
+            last_cat_num = last_material_id[0] if isinstance(last_material_id, (list, tuple)) and len(last_material_id) >= 1 else None
+            current_cat_num = material_id[0]
+            if last_cat_num == current_cat_num:
+                context_answer = answer_text
+                print(f"[DEBUG] 같은 카테고리({current_cat_num}) - 이전 답변 전달")
+            else:
+                print(f"[DEBUG] 다른 카테고리({last_cat_num} → {current_cat_num}) - 이전 답변 미전달")
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
