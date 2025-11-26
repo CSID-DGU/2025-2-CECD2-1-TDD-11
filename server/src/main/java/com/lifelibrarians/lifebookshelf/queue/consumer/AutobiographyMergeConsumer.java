@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -20,12 +21,22 @@ import java.time.LocalDateTime;
 public class AutobiographyMergeConsumer {
     private final AutobiographyRepository autobiographyRepository;
     private final AutobiographyPublicationService autobiographyPublicationService;
+    
+    // 이미 처리된 cycleId 추적
+    private final ConcurrentHashMap<String, Boolean> processedCycles = new ConcurrentHashMap<>();
 
     @RabbitListener(queues = "autobiography.trigger.cycle.merge.queue")
     @Transactional
     public void handleCycleCompletion(AutobiographyMergeResponseDto dto) {
         log.info("[HANDLE_CYCLE_COMPLETION] 사이클 완료 수신 - cycleId: {}, autobiographyId: {}, userId: {}, action: {}",
                 dto.getCycleId(), dto.getAutobiographyId(), dto.getUserId(), dto.getAction());
+        
+        // 중복 처리 방지
+        if (processedCycles.putIfAbsent(dto.getCycleId(), true) != null) {
+            log.warn("[HANDLE_CYCLE_COMPLETION] 이미 처리된 cycleId - cycleId: {}, autobiographyId: {}", 
+                    dto.getCycleId(), dto.getAutobiographyId());
+            return;
+        }
         
         LocalDateTime now = LocalDateTime.now();
 
@@ -41,19 +52,13 @@ public class AutobiographyMergeConsumer {
 
         // PDF 생성 및 S3 업로드
         try {
-            String pdfUrl = null;
-            if (status.getStatus() == AutobiographyStatusType.FINISH) {
-                log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 시작 - autobiographyId: {}", autobiography.getId());
-                pdfUrl = autobiographyPublicationService.uploadPdfToS3(
-                        autobiography.getId(),
-                        autobiography.getTitle()
-                );
+            log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 시작 - autobiographyId: {}", autobiography.getId());
+            String pdfUrl = autobiographyPublicationService.uploadPdfToS3(
+                    autobiography.getId(),
+                    autobiography.getTitle()
+            );
 
-                log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
-            } else {
-                log.warn("[HANDLE_CYCLE_COMPLETION] PDF 생성 건너뜀 - 자서전 상태가 FINISH가 아님 - autobiographyId: {}, status: {}",
-                        autobiography.getId(), status.getStatus());
-            }
+            log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
         } catch (Exception e) {
             log.error("[HANDLE_CYCLE_COMPLETION] PDF 생성 실패 - autobiographyId: {}", autobiography.getId(), e);
         }

@@ -25,8 +25,8 @@ import com.lifelibrarians.lifebookshelf.interview.repository.InterviewQuestionRe
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewRepository;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.lifelibrarians.lifebookshelf.member.domain.*;
@@ -358,16 +358,26 @@ public class AutobiographyCommandService {
         log.info("[COSHOW_INIT_AUTOBIOGRAPHY] 인터뷰 저장 완료 - interviewId: {}", savedInterview.getId());
 
         // interview question을 dummy로 5개 주입
-        log.info("[COSHOW_INIT_AUTOBIOGRAPHY] 더미 질문 생성 시작 - count: {}", DUMMY_QUESTIONS.size());
+        log.info("[COSHOW_INIT_AUTOBIOGRAPHY] 인터뷰 저장 완료 - interviewId: {}", savedInterview.getId());
 
-        for (int i = 1; i <= 5; i++) {
-            String questionText = DUMMY_QUESTIONS.get(i - 1);
-            String materials = DUMMY_MATERIALS.get(i - 1);
+        // theme 읽기
+        String theme = requestDto.getTheme();
+
+        // theme별 override
+        List<String> questions = THEME_QUESTIONS.get(theme);
+        List<String> materials = THEME_MATERIALS.get(theme);
+
+        log.info("[COSHOW_INIT_AUTOBIOGRAPHY] 더미 질문 생성 시작 - theme: {}, count: {}", theme, questions.size());
+
+        // 질문 생성
+        for (int i = 1; i <= questions.size(); i++) {
+            String questionText = questions.get(i - 1);
+            String materialText = materials.get(i - 1);
 
             InterviewQuestion interviewQuestion = InterviewQuestion.ofV2(
                     i,
                     questionText,
-                    materials,
+                    materialText,
                     now,
                     savedInterview
             );
@@ -411,20 +421,30 @@ public class AutobiographyCommandService {
     }
 
     // CoShow용 - 더미 질문 리스트 반환
-    private static final List<String> DUMMY_QUESTIONS = List.of(
-            "요즘 가장 큰 고민이나 걱정은 무엇인가요?",
-            "가장 기억에 남는 어린 시절 에피소드는 무엇인가요?",
-            "당신에게 가장 큰 영향을 준 사람은 누구인가요?",
-            "최근에 스스로 뿌듯함을 느낀 순간은 언제인가요?",
-            "앞으로 꼭 이루고 싶은 목표가 있다면 무엇인가요?"
+    private static final Map<String, List<String>> THEME_QUESTIONS = Map.of(
+            "career", List.of(
+                    "요즘 마음이 지친 순간은?",
+                    "당신에게 위로가 되었던 순간은?",
+                    "스스로에게 해준 작은 친절은?",
+                    "편안함을 느끼는 공간은?",
+                    "지금 가장 필요한 위로는?"
+            ),
+            "vision", List.of(
+                    "앞으로 이루고 싶은 가장 큰 목표는?",
+                    "당신이 원하는 미래의 모습은?",
+                    "중요하게 생각하는 가치는?",
+                    "집중하고 있는 일은?",
+                    "미래와 현재의 가장 큰 차이는?"
+            )
     );
 
     // CoShow용 - 더미 자료 리스트 반환
-    private static final List<String> DUMMY_MATERIALS = List.of(
-            "[[1, 2, 3]]",
-            "[[1, 2, 3]]",
-            "[[1, 2, 3]]",
-            "[[1, 2, 3]]",
-            "[[1, 2, 3]]"
+    private static final Map<String, List<String>> THEME_MATERIALS = Map.of(
+            "career", List.of(
+                    "[[1,2,3]]", "[[1,2,3]]", "[[1,2,3]]", "[[1,2,3]]", "[[1,2,3]]"
+            ),
+            "vision", List.of(
+                    "[[1,2,3]]", "[[1,2,3]]", "[[1,2,3]]", "[[1,2,3]]", "[[1,2,3]]"
+            )
     );
 }
