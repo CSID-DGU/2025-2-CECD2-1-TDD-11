@@ -105,6 +105,7 @@ const val ParentContent = "부모 이야기 집중"
 const val LogInText = "로그인"
 const val EmailHintText = "이메일을 입력해 주세요."
 const val PasswordHintText = "비밀번호를 입력해 주세요."
+const val StartWithoutLogIn = "체험하기"
 
 // SignUp
 const val SignUpText = "회원가입"

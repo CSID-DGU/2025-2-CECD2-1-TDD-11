@@ -30,8 +30,10 @@ import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
 import com.tdd.talktobook.core.ui.common.textfield.ExplainTextFieldBox
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.enums.MaterialType
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -39,6 +41,7 @@ internal fun StartProgressScreen(
     goToInterviewPage: (String) -> Unit,
     goBackToHome: () -> Unit,
     setUserNickName: (String) -> Unit,
+    flowType: StateFlow<FlowType>,
 ) {
     val viewModel: StartProgressViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,12 +58,18 @@ internal fun StartProgressScreen(
         }
     }
 
+    LaunchedEffect(flowType) {
+        flowType.collect {
+            viewModel.setFlowType(it)
+        }
+    }
+
     StartProgressContent(
         pageType = uiState.pageType,
         onClickNext = { viewModel.setPageType(it) },
         onClickStartProgress = {
             setUserNickName(uiState.nickNameInput)
-            viewModel.postStartProgress()
+            viewModel.checkStartProgress()
         },
         selectedMaterial = uiState.material,
         onSelectMaterial = { viewModel.setMaterial(it) },

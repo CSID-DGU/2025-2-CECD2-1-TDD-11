@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
+    setScreenFlow: (FlowType) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.LogInScreen.route,
@@ -32,6 +34,10 @@ fun NavGraphBuilder.loginNavGraph(
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
                 goToHome = { navController.navigate(NavRoutes.HomeScreen.route) { popUpTo(0) } },
                 goToOnboarding = { navController.navigate(NavRoutes.OnboardingScreen.route) },
+                goToStartProgress = {
+                    setScreenFlow(FlowType.COSHOW)
+                    navController.navigate(NavRoutes.StartProgressScreen.route)
+                }
             )
         }
     }
@@ -171,6 +177,7 @@ fun NavGraphBuilder.interviewNavGraph(
 fun NavGraphBuilder.startProgressNavGraph(
     navController: NavController,
     setUserNickName: (String) -> Unit,
+    flowType: StateFlow<FlowType>
 ) {
     navigation(
         startDestination = NavRoutes.StartProgressScreen.route,
@@ -180,7 +187,8 @@ fun NavGraphBuilder.startProgressNavGraph(
             StartProgressScreen(
                 goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
                 goBackToHome = { navController.popBackStack() },
-                setUserNickName = setUserNickName
+                setUserNickName = setUserNickName,
+                flowType = flowType
             )
         }
     }

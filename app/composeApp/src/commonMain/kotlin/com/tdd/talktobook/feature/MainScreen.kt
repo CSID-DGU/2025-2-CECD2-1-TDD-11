@@ -37,6 +37,7 @@ import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
 import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.common.dialog.TwoBtnDialog
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -61,6 +62,11 @@ fun MainScreen() {
     val showTwoBtnDialog: (TwoBtnDialogModel) -> Unit = {
         viewModel.onSetTwoBtnDialog(it)
         isShowTwoBtnDialog.value = true
+    }
+    val settingFlowType: (FlowType) -> Unit = {
+        scope.launch {
+            viewModel.screenFlowType.value = it
+        }
     }
     val settingUserNickName: (String) -> Unit = {
         scope.launch {
@@ -157,6 +163,7 @@ fun MainScreen() {
             ) {
                 loginNavGraph(
                     navController = navController,
+                    setScreenFlow = settingFlowType
                 )
                 signupNavGraph(
                     navController = navController,
