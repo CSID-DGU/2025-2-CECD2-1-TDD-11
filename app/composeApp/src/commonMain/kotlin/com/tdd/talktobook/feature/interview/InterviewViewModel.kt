@@ -42,6 +42,10 @@ class InterviewViewModel(
 ) {
     private val viewModelCreatedAt: Long = Clock.System.now().toEpochMilliseconds()
 
+    init {
+        initGetAutobiographyStatus()
+    }
+
 
     fun setUserNickName(name: String) {
         updateState(
@@ -52,14 +56,17 @@ class InterviewViewModel(
     }
 
     fun getFirstQuestion(question: String) {
+        d("[test] interview -> 4 get first question")
         if (question.isNotEmpty()) {
             addInterviewConversation(question, ChatType.BOT)
         } else {
-            initGetAutobiographyStatus()
+//            initGetAutobiographyStatus()
+            getInterviewConversation()
         }
     }
 
     private fun initGetAutobiographyStatus() {
+        d("[test] interview -> 1 get auto status")
         viewModelScope.launch {
             getAutobiographyStatusUseCase(Unit).collect { resultResponse(it, ::onSuccessGetStatus) }
         }
@@ -87,6 +94,7 @@ class InterviewViewModel(
     }
 
     private fun onSuccessGetAutobiographyId(id: Int) {
+        d("[test] interview -> 2 get auto id")
         updateState(
             uiState.value.copy(
                 autobiographyId = id,
@@ -101,24 +109,27 @@ class InterviewViewModel(
     }
 
     private fun onSuccessGetInterviewId(id: Int) {
+        d("[test] interview -> 3 get interview id")
         updateState(
             uiState.value.copy(
                 interviewId = id,
             ),
         )
 
-        changeAutobiographyStatus()  // TODO 제거
-//        initGetInterviewConversation(id) // TODO 복구
+//        initGetInterviewConversation(id)
     }
 
-    private fun initGetInterviewConversation(id: Int) {
+    private fun getInterviewConversation() {
         viewModelScope.launch {
-            getInterviewConversationUseCase(id).collect { resultResponse(it, ::onSuccessGetConversation) }
+            getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
         }
+
+        d("[test] interview -> 5 get conversation (test)")
     }
 
     private fun onSuccessGetConversation(data: InterviewConversationListModel) {
         d("[ktor] interview -> ${data.results}")
+        d("[test] interview -> 5 get conversation")
 
         updateState(
             uiState.value.copy(
@@ -204,7 +215,7 @@ class InterviewViewModel(
     }
 
     fun createCurrentAutobiography() {
-        d("[ktor] interview -> 자서전 생성 요청")
+        d("[ktor] interview -> 자서전 생성 요청 name: ${uiState.value.nickName}")
         viewModelScope.launch {
             createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
         }

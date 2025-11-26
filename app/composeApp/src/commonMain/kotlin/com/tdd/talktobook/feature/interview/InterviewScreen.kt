@@ -80,8 +80,10 @@ internal fun InterviewScreen(
             }
         }
 
-    LaunchedEffect(Unit) {
-        viewModel.getFirstQuestion(startQuestion)
+    LaunchedEffect(uiState.interviewId) {
+        if (uiState.interviewId != 0) {
+            viewModel.getFirstQuestion(startQuestion)
+        }
     }
 
     LaunchedEffect(nickName) {
