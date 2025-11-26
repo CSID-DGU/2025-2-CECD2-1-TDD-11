@@ -6,6 +6,10 @@ import sys
 import os
 import time
 from uuid import uuid4
+import logging
+
+# Logger 설정
+logger = logging.getLogger("interview_flow")
 
 # engine 모듈 import 경로 추가
 current_dir = os.path.dirname(__file__)
@@ -22,7 +26,6 @@ import redis
 def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk_deltas=None, material_deltas=None):
     """실제 변화량을 CategoriesPayload로 전송"""
     try:
-        # print(f"[DEBUG] publish_delta_change called with theme_id={theme_id}, category_id={category_id}")
         
         # serve 디렉토리 경로 추가
         serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
@@ -32,7 +35,7 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
         
         # None 값 체크
         if user_id is None or autobiography_id is None:
-            print("[DEBUG] Skipping publish_delta_change due to None values")
+            logger.debug("Skipping publish_delta_change due to None values")
             return
             
         # 현재 시간
@@ -74,13 +77,11 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
             materials=materials
         )
         
-        # print(f"[AI_SEND] CategoriesPayload: autobiographyId={payload.autobiographyId}, userId={payload.userId}, themeId={payload.themeId}, categoryId={payload.categoryId}, chunks={len(payload.chunks)}, materials={len(payload.materials)}")
         
         publish_categories_message(payload)
-        # print(f"[DEBUG] Published delta change: category={category_id}, {len(chunks)} chunks, {len(materials)} materials")
         
     except Exception as e:
-        print(f"[WARN] Delta 발행 실패: {e}")
+        logger.warning(f"Delta 발행 실패: {e}")
         pass
 
 
@@ -97,7 +98,7 @@ def _build_materials_list_from_mapping(mapping_path: str) -> dict:
         with open(mapping_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
-        print(f"[ERROR] material_id_mapping.json 로드 실패: {e}")
+        logger.error(f"material_id_mapping.json 로드 실패: {e}")
         return {}
 
 
@@ -112,7 +113,6 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: dict, c
         res = flow(answer_text=answer_text, materials_list=materials_list, current_material=current_material, current_material_id=current_material_id)
         items = res.get("analysis_result", [])
         
-        print(f"[DEBUG] LLM raw response: {items}")
         
         # 문자열이면 JSON 파싱
         if isinstance(items, str):
@@ -127,7 +127,7 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: dict, c
         
         return items if isinstance(items, list) else []
     except Exception as e:
-        print(f"[ERROR] LLM 플로우 호출 실패: {e}")
+        logger.error(f"LLM 플로우 호출 실패: {e}")
         return []
     
 # AI cat_num을 DB의 theme_id, category_order로 변환하는 함수
@@ -178,11 +178,8 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
     session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None
-    print(f"[DEBUG] Session loaded: session_data={session_data is not None}")
     if session_data:
-        print(f"[DEBUG] last_question exists: {session_data.get('last_question') is not None}")
         if session_data.get('last_question'):
-            print(f"[DEBUG] last_question: {session_data.get('last_question')}")
 
     # 첫 질문 분기
     if not session_data or not session_data.get("last_question"):
@@ -198,7 +195,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         # 테마 부스팅 적용
         if preferred_categories:
             engine.boost_theme(preferred_categories, initial_weight=10)
-            print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
             
             # preferred_categories가 있으면 material gate 질문 생성
             material_id = engine.select_material()
@@ -267,7 +263,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             }
             redis_client.setex(session_key, 3600, json.dumps(session_update))
             
-            print(f"\n🚧 [첫 질문 - Material Gate] {full_material_name}")
+            logger.info(f"🚧 [첫 질문 - Material Gate] {full_material_name}")
             return {"next_question": next_question, "last_answer_materials_id": []}
         else:
             # preferred_categories가 없으면 자유 질문
@@ -304,7 +300,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         engine.theme_initialized = engine_state.get("theme_initialized", False)
 
     except Exception as e:
-        print(f"[ERROR] 엔진 초기화 실패: {e}")
+        logger.error(f"엔진 초기화 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}
 
     # 답변 분석
@@ -355,42 +351,34 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full, list(current_material_id) if current_material_id else [])
 
         # 소재 매칭
-        print(f"[DEBUG] LLM items count: {len(llm_items)}")
         for item in llm_items:
             if not isinstance(item, dict) or not item.get("material"):
-                print(f"[DEBUG] Skipping invalid item: {item}")
                 continue
             
             material_id = item["material"]
-            print(f"[DEBUG] material_id type: {type(material_id)}, value: {material_id}")
             
             # material_id는 [cat, chunk, mat] 형태여야 함
             if not isinstance(material_id, list) or len(material_id) != 3:
-                print(f"[DEBUG] Invalid material_id format: {material_id}")
                 continue
             
             # 소재 이름 찾기
             cat_num, chunk_num, mat_num = material_id
             temp_cat = engine.categories.get(cat_num)
             if not temp_cat:
-                print(f"[DEBUG] Category {cat_num} not found")
                 continue
             
             temp_chunk = temp_cat.chunks.get(chunk_num)
             if not temp_chunk:
-                print(f"[DEBUG] Chunk {chunk_num} not found in category {cat_num}")
                 continue
             
             temp_mat = temp_chunk.materials.get(mat_num)
             if not temp_mat:
-                print(f"[DEBUG] Material {mat_num} not found in chunk {chunk_num}")
                 continue
             
             material_name = f"{temp_cat.category_name} {temp_chunk.chunk_name} {temp_mat.name}"
             matched_materials.append(material_name)
             axes_analysis_by_material[material_name] = item.get("axes", {})
             mapped_ids.append(material_id)
-            print(f"[DEBUG] Mapped to ID: {material_id}, name: {material_name}")
 
         # LLM 분석 결과 반영
         for i, material_id in enumerate(mapped_ids):
@@ -407,7 +395,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 material.principle = [1, 1, 1, 1, 1, 1]
                 material.example, material.similar_event = 1, 1
                 material.count = 1
-                print(f"[INFO] 회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
+                logger.info(f"회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
             else:
                 # 정상 응답 - principle (6W)
                 principle = axes_data.get("principle", [])
@@ -428,7 +416,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             category.chunk_weight[chunk_num] = category.chunk_weight.get(chunk_num, 0) + 1
             material.mark_filled_if_ready()
 
-        print(f"\n🔍 [소재 매칭] {current_material} → {matched_materials}")
+        logger.info(f"🔍 [소재 매칭] {current_material} → {matched_materials}")
     # ------------------ 다음 질문 생성 ------------------
 
     try:
@@ -456,9 +444,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         is_material_empty = (material.progress_score() == 0 and material.count == 0)
         is_different_material = (last_material_id != material_id)
         
-        print(f"[DEBUG] Gate 체크: material_id={material_id}, progress_score={material.progress_score()}, count={material.count}, last_type={last_question_type}")
-        print(f"[DEBUG] is_material_empty={is_material_empty}, principle={material.principle}, ex={material.example}, con={material.similar_event}")
-        print(f"[DEBUG] last_material_id={last_material_id}, is_different_material={is_different_material}")
         
         if is_material_empty and (last_question_type != "material_gate" or is_different_material):
             gate_question_text = generate_material_gate_question(full_material_name)
@@ -525,10 +510,9 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             }
             redis_client.setex(session_key, 3600, json.dumps(session_update))
             
-            print(f"\n🚧 [Material Gate] {full_material_name} - 진입 확인 질문 생성")
+            logger.info(f"🚧 [Material Gate] {full_material_name} - 진입 확인 질문 생성")
             if last_question_type == "material_gate" and is_different_material:
-                print(f"   (직전도 gate였지만 소재 변경: {last_material_id} → {material_id})")
-            print("=" * 50)
+                logger.debug(f"직전도 gate였지만 소재 변경: {last_material_id} → {material_id}")
             
             return {"next_question": next_question, "last_answer_materials_id": mapped_ids if mapped_ids else []}
 
@@ -536,11 +520,9 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         if not target:
             return {"next_question": None, "last_answer_materials_id": []}
         
-        print(f"[DEBUG] select_question_in_material 후: material_id={material_id}, target={target}")
         
         # 소재가 변경되었는지 확인
         if material_id != (cat_num, chunk_num, mat_num):
-            print(f"[DEBUG] 소재 변경됨: {(cat_num, chunk_num, mat_num)} -> {material_id}")
             # 변경된 소재 다시 가져오기
             cat_num, chunk_num, mat_num = material_id
             material = engine._get_material(cat_num, chunk_num, mat_num)
@@ -568,9 +550,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             current_cat_num = material_id[0]
             if last_cat_num == current_cat_num:
                 context_answer = answer_text
-                print(f"[DEBUG] 같은 카테고리({current_cat_num}) - 이전 답변 전달")
             else:
-                print(f"[DEBUG] 다른 카테고리({last_cat_num} → {current_cat_num}) - 이전 답변 미전달")
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
@@ -700,11 +680,10 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                         chunks=chunks_deltas, materials=materials_deltas
                     )
                     
-                    # print(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
                     
                     publish_categories_message(final_payload)
         except Exception as e:
-            print(f"[WARN] Delta 발행 실패: {e}")
+            logger.warning(f"Delta 발행 실패: {e}")
 
         session_update = {
             "metrics": updated_metrics,
@@ -713,13 +692,11 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         }
         redis_client.setex(session_key, 3600, json.dumps(session_update))
 
-        print(f"\n🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
-        print(f"[DEBUG] 선택된 소재 ID: {material_id}, chunk_weight: {category.chunk_weight.get(chunk_num, 0)}, progress_score: {material.progress_score()}")
-        print("=" * 50)
+        logger.info(f"🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
 
         last_answer_materials_id = mapped_ids if mapped_ids else []
         return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
 
     except Exception as e:
-        print(f"[ERROR] 질문 생성 실패: {e}")
+        logger.error(f"질문 생성 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}

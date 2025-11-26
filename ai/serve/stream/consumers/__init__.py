@@ -9,32 +9,32 @@ def start_all_consumers():
 
     def start_interview_summary_consumer():
         try:
+            logger.info("[CONSUMER_MANAGER] Initializing interview summary consumer")
             from .interview_summary_consumer import InterviewSummaryConsumer
             consumer = InterviewSummaryConsumer()
-            logger.info("Starting interview summary consumer...")
             consumer.start_consuming()
         except Exception as e:
-            logger.error(f"Interview summary consumer error: {e}")
+            logger.error(f"[CONSUMER_MANAGER] Interview summary consumer error: {e}", exc_info=True)
 
     def start_autobiography_consumer():
         try:
+            logger.info("[CONSUMER_MANAGER] Initializing autobiography consumer")
             from .autobiography_consumer import AutobiographyConsumer
             consumer = AutobiographyConsumer()
-            logger.info("Starting autobiography consumer...")
             consumer.start_consuming()
         except Exception as e:
-            logger.error(f"Autobiography consumer error: {e}")
+            logger.error(f"[CONSUMER_MANAGER] Autobiography consumer error: {e}", exc_info=True)
 
-    # 환경변수 체크
     if not all([
         os.environ.get("RABBITMQ_HOST"),
         os.environ.get("RABBITMQ_USER"),
         os.environ.get("RABBITMQ_PASSWORD")
     ]):
-        logger.warning("RabbitMQ environment variables not set, skipping consumers")
+        logger.warning("[CONSUMER_MANAGER] RabbitMQ environment variables not set, skipping consumers")
         return
 
-    # 각 consumer를 별도 스레드에서 실행
+    logger.info("[CONSUMER_MANAGER] Starting all RabbitMQ consumers")
+    
     threads = []
     
     interview_summary_thread = threading.Thread(
@@ -53,9 +53,8 @@ def start_all_consumers():
     
     for thread in threads:
         thread.start()
-        logger.info(f"Started {thread.name}")
+        logger.info(f"[CONSUMER_MANAGER] Started thread={thread.name}")
     
-    logger.info("All RabbitMQ consumers started successfully")
+    logger.info("[CONSUMER_MANAGER] All RabbitMQ consumers started successfully")
 
-# 모듈 import 시 자동으로 consumers 시작
 start_all_consumers()

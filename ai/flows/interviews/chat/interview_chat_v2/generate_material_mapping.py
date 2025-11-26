@@ -1,4 +1,7 @@
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 def generate_material_id_mapping():
     """material.json을 기반으로 material_id 매핑을 생성"""
@@ -36,16 +39,17 @@ def generate_material_id_mapping():
     with open('data/material_id_mapping.json', 'w', encoding='utf-8') as f:
         json.dump(mapping, f, ensure_ascii=False, indent=2)
     
-    print(f"Generated {len(mapping)} material mappings")
+    logger.info(f"Generated {len(mapping)} material mappings")
     return mapping
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     mapping = generate_material_id_mapping()
     
     # 샘플 출력
-    print("\n=== Sample mappings ===")
+    logger.info("Sample mappings:")
     for i, (material, id_) in enumerate(mapping.items()):
         if i < 5:  # 처음 5개만 출력
-            print(f"{material} -> {id_}")
+            logger.info(f"{material} -> {id_}")
         else:
             break

@@ -47,6 +47,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         
         # UUID 기반 session_id 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
+        logger.info(f"[SESSION] Starting new session session_key={session_key} user_id={user_id} autobiography_id={autobiography_id}")
         
         # 세션 생성
         session_manager.create_session(
@@ -57,6 +58,10 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
             request.previous_metrics.dict() if request.previous_metrics else None
         )
         
+        if request.preferred_categories:
+            logger.info(f"[SESSION] Preferred categories: {request.preferred_categories}")
+        
+        logger.info(f"[FLOW] Executing flow for first question session_key={session_key}")
         result = flow(
             sessionId=session_key,
             answer_text="",
@@ -65,7 +70,11 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         )
         
         first_question = result.get("next_question")
-        logger.info(f"[INFO] 첫 질문 생성 결과: {first_question}")
+        if first_question:
+            material_info = first_question.get('material', {})
+            logger.info(f"[QUESTION] Generated first question type={first_question.get('type')} material={material_info.get('material_name', 'N/A')} session_key={session_key}")
+        else:
+            logger.error(f"[ERROR] Failed to generate first question session_key={session_key}")
         
         # 세션 저장 (첫 질문 포함)
         if first_question:
@@ -74,6 +83,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
                 metrics = session_data.get("metrics", {})
                 metrics["asked_total"] = metrics.get("asked_total", 0) + 1
                 session_manager.save_session(session_key, metrics, first_question)
+                logger.debug(f"[SESSION] Updated session with first question asked_total={metrics['asked_total']}")
             else:
                 session_manager.save_session(
                     session_key,
@@ -115,6 +125,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         )
         
         # queue에 메시지 발행
+        logger.info(f"[QUEUE] Publishing persistence message session_key={session_key}")
         publish_persistence_message(payload)
         
         return SessionStartResponseDto(
@@ -122,9 +133,7 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         )
         
     except Exception as e:
-        import traceback
-        print(f"[ERROR] 세션 시작 실패: {str(e)}")
-        print(f"[ERROR] 스택트레이스: {traceback.format_exc()}")
+        logger.error(f"[ERROR] Session start failed session_key={session_key if 'session_key' in locals() else 'unknown'}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"세션 시작 실패: {str(e)}")
 
 @router.post("/chat/{autobiography_id}", 
@@ -144,13 +153,16 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         # 세션 키 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
+        logger.info(f"[CHAT] Processing answer session_key={session_key} answer_length={len(request.answer_text)}")
         
         # 세션 로드
         session_data = session_manager.load_session(session_key)
         if not session_data:
+            logger.error(f"[ERROR] Session not found session_key={session_key}")
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # 다음 질문 생성
+        logger.info(f"[FLOW] Executing flow for next question session_key={session_key}")
         result = flow(
             sessionId=session_key,
             answer_text=request.answer_text,
@@ -158,10 +170,16 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
             autobiography_id=autobiography_id
         )
         
-        logger.info(f"[INFO] 다음 질문 생성 결과: {result}")
-        
         next_question = result.get("next_question")
         last_answer_materials_id = result.get("last_answer_materials_id", [])
+        
+        if next_question:
+            material_info = next_question.get('material', {})
+            logger.info(f"[QUESTION] Generated next question type={next_question.get('type')} material={material_info.get('material_name', 'N/A')} session_key={session_key}")
+            if last_answer_materials_id:
+                logger.info(f"[MATERIAL] Matched materials from answer: {last_answer_materials_id}")
+        else:
+            logger.warning(f"[WARN] No next question generated session_key={session_key}")
         
         # Flow에서 Redis에 직접 업데이트하므로 별도 저장 불필요
         
@@ -170,7 +188,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         material = next_question.get("material", {})
         full_material_id = material.get("full_material_id", [])
         
-        print(f"[INFO] result: {result}")
+        logger.debug(f"[DEBUG] Flow result session_key={session_key} material_id={full_material_id}")
         next_question_text = next_question.get("text") if isinstance(next_question, dict) else next_question
         
         # queue publish 용 데이터 세팅
@@ -200,6 +218,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         )
         
         # queue에 메시지 발행
+        logger.info(f"[QUEUE] Publishing persistence message session_key={session_key}")
         publish_persistence_message(payload)
         
         return InterviewChatV2ResponseDto(next_question=next_question, last_answer_materials_id=last_answer_materials_id)
@@ -207,9 +226,7 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        print(f"[ERROR] 질문 생성 실패: {str(e)}")
-        print(f"[ERROR] 스택트레이스: {traceback.format_exc()}")
+        logger.error(f"[ERROR] Chat failed session_key={session_key if 'session_key' in locals() else 'unknown'}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"질문 생성 실패: {str(e)}")
 
 @router.post("/end/{autobiography_id}", 
@@ -227,20 +244,28 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
         
         # 세션 키 생성
         session_key = session_manager.generate_session_key(user_id, autobiography_id)
+        logger.info(f"[SESSION] Ending session session_key={session_key}")
         
         # 세션 로드
         session_data = session_manager.load_session(session_key)
         if not session_data:
+            logger.error(f"[ERROR] Session not found for end session_key={session_key}")
             raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다")
         
         # 최종 메트릭 준비
         metrics_data = session_data.get("metrics")
-        if metrics_data and "categories" not in metrics_data:
-            # Redis의 metrics 구조를 DTO 형식으로 변환
-            metrics_data["categories"] = []
+        if metrics_data:
+            asked_total = metrics_data.get("asked_total", 0)
+            logger.info(f"[METRICS] Final metrics session_key={session_key} asked_total={asked_total}")
+            if "categories" not in metrics_data:
+                # Redis의 metrics 구조를 DTO 형식으로 변환
+                metrics_data["categories"] = []
+        else:
+            logger.warning(f"[WARN] No metrics found in session session_key={session_key}")
         
         # 세션 삭제
         session_manager.delete_session(session_key)
+        logger.info(f"[SESSION] Session ended successfully session_key={session_key}")
         
         return SessionEndResponseDto(
             session_id=session_key,
@@ -251,8 +276,6 @@ async def end_session(http_request: Request, autobiography_id: int, request: Ses
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        print(f"[ERROR] 세션 종료 실패: {str(e)}")
-        print(f"[ERROR] 스택트레이스: {traceback.format_exc()}")
+        logger.error(f"[ERROR] End session failed session_key={session_key if 'session_key' in locals() else 'unknown'}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"세션 종료 실패: {str(e)}")
 

@@ -2,6 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Tuple, List, Optional, Iterable
 import random
+import logging
+
+logger = logging.getLogger("interview_engine")
 
 MaterialId = Tuple[int, int, int]  # (category_num, chunk_num, order)
 
@@ -79,37 +82,25 @@ class InterviewEngine:
             
     #기존 알고리즘 - 소재 선택
     def select_material(self) -> MaterialId:
-        print(f"\n[STREAK DEBUG] select_material 호출")
-        print(f"  last_material_id: {self.state.last_material_id}")
-        print(f"  last_material_streak: {self.state.last_material_streak}")
-        
         # 1) 직전 소재 유지
         if self.state.last_material_id: 
             cat, ch, m = self.state.last_material_id
             mat = self._get_material(cat, ch, m)
             if mat:
-                print(f"  직전 소재 확인: {self.state.last_material_id}")
-                print(f"    mat.count: {mat.count}")
-                print(f"    streak < 3: {self.state.last_material_streak < 3}")
-                print(f"    mat.count < 1: {mat.count < 1}")
-                
                 if self.state.last_material_streak < 3 and mat.count < 1:
-                    print(f"  → 직전 소재 유지: {self.state.last_material_id}")
+                    logger.debug(f"직전 소재 유지: {self.state.last_material_id} (streak={self.state.last_material_streak})")
                     return self.state.last_material_id
-                else:
-                    print(f"  → 직전 소재 변경 필요 (streak={self.state.last_material_streak}, count={mat.count})")
 
         # 2) ε-greedy 탐색
         rand_val = random.random()
-        print(f"  ε-greedy: rand={rand_val:.4f}, epsilon={self.state.epsilon}")
         if rand_val < self.state.epsilon:
             result = self._random_material_id()
-            print(f"  → 랜덤 선택: {result}")
+            logger.debug(f"랜덤 선택: {result}")
             return result
 
         # 3) 우선순위 선택
         result = self._select_priority_material()
-        print(f"  → 우선순위 선택: {result}")
+        logger.info(f"소재 선택: {result}")
         return result
     
     def _select_priority_material(self) -> MaterialId:
