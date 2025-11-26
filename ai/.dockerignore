@@ -20,7 +20,7 @@ env/
 
 # Logs (but keep __init__.py)
 *.log
-!serve/logs/__init__.py
+# !serve/logs/__init__.py
 
 # Environment files
 .env
