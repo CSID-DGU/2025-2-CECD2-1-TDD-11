@@ -41,6 +41,7 @@ class SettingViewModel(
 
     fun logOut() {
         viewModelScope.launch {
+            d("[ktor] setting -> logout")
             logOutUseCase(Unit).collect {
                 resultResponse(it, {})
             }
@@ -61,6 +62,7 @@ class SettingViewModel(
 
     private fun clearAllData() {
         viewModelScope.launch {
+            d("[ktor] setting -> clear data")
             deleteLocalAllDataUseCase(Unit).collect {
                 resultResponse(it, {})
             }

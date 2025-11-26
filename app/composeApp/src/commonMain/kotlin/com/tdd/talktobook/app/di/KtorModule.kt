@@ -22,6 +22,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -44,6 +45,7 @@ object KtorModule {
     fun provideHttpClient(
         json: Json,
         localDataStore: LocalDataStore,
+        tokenProvider: TokenProvider
     ): HttpClient =
         HttpClient {
             install(ContentNegotiation) {
@@ -75,7 +77,8 @@ object KtorModule {
 
                 bearer {
                     loadTokens {
-                        val token = localDataStore.accessToken.firstOrNull()
+//                        val token = localDataStore.accessToken.firstOrNull()
+                        val token = runBlocking { tokenProvider.getAccessToken() }
 
                         token?.let {
                             BearerTokens(

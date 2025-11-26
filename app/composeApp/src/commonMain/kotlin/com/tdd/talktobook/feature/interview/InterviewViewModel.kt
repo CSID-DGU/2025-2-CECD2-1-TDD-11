@@ -107,7 +107,8 @@ class InterviewViewModel(
             ),
         )
 
-        initGetInterviewConversation(id)
+        changeAutobiographyStatus()  // TODO 제거
+//        initGetInterviewConversation(id) // TODO 복구
     }
 
     private fun initGetInterviewConversation(id: Int) {
