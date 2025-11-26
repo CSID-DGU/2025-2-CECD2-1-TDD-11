@@ -60,10 +60,14 @@ class SessionStartResponseDto(BaseModel):
             "example": {
                 "first_question": {
                     "id": "q-fcf8ea8c",
-                    "material": "좋아했던 과목",
+                    "material": {
+                        "full_material_name": "생애주기 청소년기(13-19) 학교 생활",
+                        "material_name": "학교 생활",
+                        "material_order": 1
+                    },
                     "type": "w1",
-                    "text": "좋아했던 과목에 대해 '언제' 측면에서 더 구체적으로 들려주세요. 어느 시기에 그 과목을 좋아하게 되셨나요?",
-                    "material_id": [1, 1, 1]
+                    "text": "학교 생활에 대해 '언제' 측면에서 더 구체적으로 들려주세요. 어느 시기에 그 과목을 좋아하게 되셨나요?",
+                    "material_id": [14, 2, 1]
                 }
             }
         }
@@ -90,12 +94,16 @@ class InterviewChatV2ResponseDto(BaseModel):
             "example": {
                 "next_question": {
                     "id": "q-def456",
-                    "material": "좋아했던 과목",
+                    "material": {
+                        "full_material_name": "생애주기 청소년기(13-19) 학교 생활",
+                        "material_name": "학교 생활",
+                        "material_order": 1
+                    },
                     "type": "ex",
                     "text": "프로그래밍 수업과 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요. 어떤 프로젝트나 과제가 특히 기억에 남나요?",
-                    "material_id": [1, 1, 1]
+                    "material_id": [14, 2, 1]
                 },
-                "last_answer_materials_id": [[1, 1, 1], [1, 2, 3], [2, 1, 1]]
+                "last_answer_materials_id": [[14, 2, 1], [14, 2, 3], [15, 1, 1]]
             }
         }
 

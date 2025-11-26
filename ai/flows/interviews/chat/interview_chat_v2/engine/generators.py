@@ -38,7 +38,11 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
         return {
             "next_question": {
                 "id": f"q-{uuid4().hex[:8]}",
-                "material": "첫 질문(material 없음)",
+                "material": {
+                    "full_material_name": "",
+                    "material_name": "첫 질문",
+                    "material_order": 0
+                },
                 "type": "category_intro",
                 "text": question_text,
                 "material_id": []
