@@ -72,8 +72,8 @@ class InterviewEngine:
             cat = self.categories.get(cnum)
             if not cat:
                 continue
-            for ch_num in cat.chunks.keys(): 
-                if cat.chunk_weight.get(ch_num, 0) == 0:
+            for ch_num in cat.chunks.keys():
+                if force or cat.chunk_weight.get(ch_num, 0) == 0:
                     cat.chunk_weight[ch_num] = initial_weight
         self.theme_initialized = True       
             

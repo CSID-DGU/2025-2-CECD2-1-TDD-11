@@ -19,6 +19,7 @@ import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewRepository;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
@@ -133,31 +134,52 @@ public class AutobiographyCommandService {
     }
 
     public void requestAutobiographyGenerate(Long memberId, Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
+        /*
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
-        if (!autobiography.getMember().getId().equals(memberId)) {
+         */
+
+        AutobiographyStatus autobiographyStatus = autobiographyStatusRepository
+                .findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(
+                        memberId,
+                        List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING)
+                )
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
+
+
+        if (!autobiographyStatus.getCurrentAutobiography().getMember().getId().equals(memberId)) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
 
-        if (autobiography.getAutobiographyStatus().getStatus() != AutobiographyStatusType.ENOUGH) {
+        if (autobiographyStatus.getCurrentAutobiography().getAutobiographyStatus().getStatus() != AutobiographyStatusType.ENOUGH) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND.toServiceException();
         }
 
         // 자서전 생성 요청
-        autobiographyCompletionService.triggerPublicationRequest(autobiography, requestDto.getName());
+        autobiographyCompletionService.triggerPublicationRequest(autobiographyStatus.getCurrentAutobiography(), requestDto.getName());
     }
 
     public void patchAutobiographyStatus(Long memberId, Long autobiographyId, String status) {
+        /*
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
-        if (!autobiography.getMember().getId().equals(memberId)) {
+         */
+
+        AutobiographyStatus autobiographyStatus = autobiographyStatusRepository
+                .findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(
+                        memberId,
+                        List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING)
+                )
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
+
+        if (!autobiographyStatus.getCurrentAutobiography().getMember().getId().equals(memberId)) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
         // TODO: FINISH, CREATING인 경우, 상태 변경이 불가능합니다.
 
         AutobiographyStatusType newStatus = AutobiographyStatusType.valueOf(status);
 
-        autobiography.getAutobiographyStatus().updateStatusType(
+        autobiographyStatus.getCurrentAutobiography().getAutobiographyStatus().updateStatusType(
                 newStatus,
                 LocalDateTime.now()
         );

@@ -224,7 +224,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         
         # 테마 부스팅 적용
         if preferred_categories:
-            engine.boost_theme(preferred_categories, initial_weight=10)
+            engine.boost_theme(preferred_categories, initial_weight=10, force=True)
             print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
 
         metrics = {"preferred_categories": preferred_categories}
@@ -270,7 +270,12 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         engine_state = metrics.get("engine_state", {})
         engine.state.last_material_id = engine_state.get("last_material_id")
         engine.state.last_material_streak = engine_state.get("last_material_streak", 0)
-        engine.theme_initialized = engine_state.get("theme_initialized", False)
+        
+        # preferred_categories 부스팅 (매번 적용)
+        preferred_categories = metrics.get("preferred_categories", [])
+        if preferred_categories:
+            engine.boost_theme(preferred_categories, initial_weight=10, force=True)
+            print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
 
     except Exception as e:
         print(f"[ERROR] 엔진 초기화 실패: {e}")
@@ -706,7 +711,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                         chunks=chunks_deltas, materials=materials_deltas
                     )
                     
-                    # print(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
+                    print(f"[AI_SEND_FINAL] CategoriesPayload: autobiographyId={final_payload.autobiographyId}, userId={final_payload.userId}, themeId={final_payload.themeId}, categoryId={final_payload.categoryId}, chunks={len(final_payload.chunks)}, materials={len(final_payload.materials)}")
                     
                     publish_categories_message(final_payload)
         except Exception as e:
