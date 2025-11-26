@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY ai/serve/ /app/serve/
 COPY ai/flows/ /app/flows/
-COPY deploy/ai/promtail-config.yaml /etc/promtail-config.yaml
+COPY deploy/ai/promtail-config.yml /etc/promtail-config.yml
 
 # Python 모듈 경로 설정
 ENV PYTHONPATH=/app/serve

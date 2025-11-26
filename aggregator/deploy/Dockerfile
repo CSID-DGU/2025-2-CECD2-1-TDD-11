@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY aggregator/ .
-COPY deploy/stream/promtail-config.yaml /etc/promtail-config.yaml
+COPY deploy/stream/promtail-config.yml /etc/promtail-config.yml
 
 # Expose port
 EXPOSE 8001
