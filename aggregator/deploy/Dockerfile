@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+COPY ../deploy/stream/promtail-config.yaml /etc/promtail-config.yaml
 
 # Expose port
 EXPOSE 8001
