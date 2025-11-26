@@ -37,6 +37,7 @@ import com.lifelibrarians.lifebookshelf.queue.service.AutobiographyCompletionSer
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -170,8 +171,9 @@ public class AutobiographyCommandService {
         log.info("[PATCH_REASON_AUTOBIOGRAPHY] 자서전 이유 수정 완료 - autobiographyId: {}", autobiographyId);
     }
 
+    @Async
     public void requestAutobiographyGenerate(Long memberId, Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
-        log.info("[REQUEST_AUTOBIOGRAPHY_GENERATE] 자서전 생성 요청 시작 - memberId: {}, autobiographyId: {}, name: {}", memberId, autobiographyId, requestDto.getName());
+        log.info("[REQUEST_AUTOBIOGRAPHY_GENERATE] 자서전 생성 요청 시작 (비동기) - memberId: {}, autobiographyId: {}, name: {}", memberId, autobiographyId, requestDto.getName());
         
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
@@ -250,8 +252,9 @@ public class AutobiographyCommandService {
 
     // ------------------------------------------------------------------
     // CoShow용 서비스 메서드
+    @Async
     public void coShowRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
-        log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] CoShow 자서전 생성 요청 시작 - autobiographyId: {}, name: {}", autobiographyId, requestDto.getName());
+        log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] CoShow 자서전 생성 요청 시작 (비동기) - autobiographyId: {}, name: {}", autobiographyId, requestDto.getName());
 
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
