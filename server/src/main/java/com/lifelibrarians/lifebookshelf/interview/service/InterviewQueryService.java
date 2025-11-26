@@ -217,7 +217,7 @@ public class InterviewQueryService {
 
                 interview.setCurrentQuestion(currentQuestion);
 
-                if (nextOrder < interview.getQuestions().size()) {
+                if (nextOrder >= interview.getQuestions().size()) {
                     isLast = true;
                 }
 
