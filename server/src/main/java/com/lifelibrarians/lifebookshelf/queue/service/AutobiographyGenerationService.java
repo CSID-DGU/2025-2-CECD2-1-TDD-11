@@ -69,7 +69,7 @@ public class AutobiographyGenerationService {
         List<Conversation> conversations = conversationRepository.findAll()
             .stream()
             .filter(c -> c.getInterview().getAutobiography().getId().equals(autobiographyId))
-            .filter(c -> c.getConversationType() == ConversationType.HUMAN)
+//            .filter(c -> c.getConversationType() == ConversationType.HUMAN)
             .collect(Collectors.toList());
         
         log.info("[GET_ALL_HUMAN_CONVERSATIONS] HUMAN 대화 조회 완료 - autobiographyId: {}, count: {}", 
