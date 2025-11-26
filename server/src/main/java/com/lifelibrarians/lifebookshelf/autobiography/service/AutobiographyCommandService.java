@@ -19,17 +19,18 @@ import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
 import com.lifelibrarians.lifebookshelf.interview.repository.InterviewRepository;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import com.lifelibrarians.lifebookshelf.member.repository.MemberRepository;
 import com.lifelibrarians.lifebookshelf.queue.service.AutobiographyCompletionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -134,52 +135,52 @@ public class AutobiographyCommandService {
     }
 
     public void requestAutobiographyGenerate(Long memberId, Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
-        /*
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
-         */
 
+        /*
         AutobiographyStatus autobiographyStatus = autobiographyStatusRepository
                 .findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(
                         memberId,
                         List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING, AutobiographyStatusType.ENOUGH)
                 )
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
+*/
 
-
-        if (!autobiographyStatus.getCurrentAutobiography().getMember().getId().equals(memberId)) {
+        if (!autobiography.getMember().getId().equals(memberId)) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
 
-        if (autobiographyStatus.getCurrentAutobiography().getAutobiographyStatus().getStatus() != AutobiographyStatusType.ENOUGH) {
+        if (autobiography.getAutobiographyStatus().getStatus() != AutobiographyStatusType.ENOUGH) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_ENOUTH_STATUS_NOT_FOUND.toServiceException();
         }
 
         // 자서전 생성 요청
-        autobiographyCompletionService.triggerPublicationRequest(autobiographyStatus.getCurrentAutobiography(), requestDto.getName());
+        autobiographyCompletionService.triggerPublicationRequest(autobiography, requestDto.getName());
     }
 
     public void patchAutobiographyStatus(Long memberId, Long autobiographyId, String status) {
-        /*
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
-         */
 
+        /*
         AutobiographyStatus autobiographyStatus = autobiographyStatusRepository
                 .findTopByMemberIdAndStatusInOrderByUpdatedAtDesc(
                         memberId,
                         List.of(AutobiographyStatusType.EMPTY, AutobiographyStatusType.PROGRESSING)
                 )
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND::toServiceException);
+*/
 
-        if (!autobiographyStatus.getCurrentAutobiography().getMember().getId().equals(memberId)) {
+        log.info("Patching autobiography status for memberId {}: current status {}, requested status {}", memberId, autobiography.getAutobiographyStatus().getStatus(), status);
+        if (!autobiography.getMember().getId().equals(memberId)) {
             throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
         }
         // TODO: FINISH, CREATING인 경우, 상태 변경이 불가능합니다.
 
         AutobiographyStatusType newStatus = AutobiographyStatusType.valueOf(status);
 
-        autobiographyStatus.getCurrentAutobiography().getAutobiographyStatus().updateStatusType(
+        autobiography.getAutobiographyStatus().updateStatusType(
                 newStatus,
                 LocalDateTime.now()
         );
