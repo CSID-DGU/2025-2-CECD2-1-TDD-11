@@ -16,6 +16,9 @@ $RECYCLE.BIN/
 # Visual Studio cache directory
 .vs/
 
+# IntelliJ IDEA
+.idea/
+
 # Gradle cache directory
 .gradle/
 
