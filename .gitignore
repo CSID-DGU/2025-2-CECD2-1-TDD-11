@@ -16,15 +16,56 @@ $RECYCLE.BIN/
 # Visual Studio cache directory
 .vs/
 .vscode/
+
+# IntelliJ IDEA
+.idea/
+
 # Gradle cache directory
 .gradle/
-.idea/
-# Local 환경에서는 사용해야 하거나, Build시 생기는 "임시 파일"인 경우 git ignore에 추가해주세요.
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.venv_new/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+*.log
+logs/
 
 # To test functions locally
 ai/serve/flow_code
 ai/serve/run_test.bat
 ai/serve/test_advanced_scenarios.py
-ai/serve/TEST_README.md 
+ai/serve/TEST_README.md
+
 ##############################################################
