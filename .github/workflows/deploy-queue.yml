@@ -35,7 +35,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -f aggregator/deploy/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AGGREGATOR }}:${{ github.sha }} ./aggregator
+          docker build -f aggregator/deploy/Dockerfile -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AGGREGATOR }}:${{ github.sha }} .
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_AGGREGATOR }}:${{ github.sha }}
 
       - name: Upload Docker Compose to S3

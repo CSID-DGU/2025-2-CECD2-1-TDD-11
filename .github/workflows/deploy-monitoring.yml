@@ -1,4 +1,4 @@
-name: Deploy Server
+name: Deploy Monitoring
 
 on:
   push:
@@ -35,6 +35,7 @@ jobs:
       - name: Upload Docker Compose to S3
         run: |
           aws s3 cp deploy/monitoring/docker-compose.monitoring.prod.yml s3://talktobook-deploy/
+          aws s3 cp deploy/monitoring/loki-config.yml s3://talktobook-deploy/
 
       - name: Deploy to EC2 via SSM
         run: |
@@ -43,6 +44,7 @@ jobs:
             --parameters 'commands=[
               "cd /opt/deploy",
               "aws s3 cp s3://talktobook-deploy/docker-compose.monitoring.prod.yml .",
+              "aws s3 cp s3://talktobook-deploy/loki-config.yml .",
               "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
               "cat > .env << EOF",
               "AWS_REGION=${{ env.AWS_REGION }}",
