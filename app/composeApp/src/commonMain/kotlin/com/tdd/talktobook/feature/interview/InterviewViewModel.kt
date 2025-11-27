@@ -29,6 +29,7 @@ import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import com.tdd.talktobook.feature.interview.type.SkipQuestionType
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.koin.android.annotation.KoinViewModel
@@ -57,21 +58,21 @@ class InterviewViewModel(
     }
 
     fun setFlowType(type: FlowType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 flowType = type
             )
-        )
+        }
     }
 
 
     fun setUserNickName(name: String) {
         d("[test] interview -> name: $name")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 nickName = name
             )
-        )
+        }
     }
 
     fun getFirstQuestion(question: String) {
@@ -113,11 +114,11 @@ class InterviewViewModel(
 
     private fun onSuccessGetAutobiographyId(id: Int) {
         d("[test] interview -> 2 get auto id")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 autobiographyId = id,
-            ),
-        )
+            )
+        }
     }
 
     private fun initGetInterviewId() {
@@ -128,11 +129,11 @@ class InterviewViewModel(
 
     private fun onSuccessGetInterviewId(id: Int) {
         d("[test] interview -> 3 get interview id")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewId = id,
-            ),
-        )
+            )
+        }
     }
 
     private fun getInterviewConversation() {
@@ -157,28 +158,28 @@ class InterviewViewModel(
         d("[ktor] interview -> ${data.results}")
         d("[test] interview -> 5 get conversation")
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewChatList = data.results,
-            ),
-        )
+                answerInputs = emptyList()
+            )
+        }
     }
 
     private fun addInterviewConversation(
         chatContent: String,
         chatType: ChatType,
-        isLast: Boolean = false,
     ) {
         d("[ktor] interview (add) -> $chatContent")
 
         val currentConversation = InterviewChatItem(content = chatContent, chatType = chatType)
         val updatedChatList = uiState.value.interviewChatList + currentConversation
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewChatList = updatedChatList,
-            ),
-        )
+            )
+        }
 
         when (uiState.value.flowType) {
             FlowType.DEFAULT -> {
@@ -186,29 +187,29 @@ class InterviewViewModel(
             }
 
             FlowType.COSHOW -> {
-                checkIsAutobiographyEnoughInCoShow(chatType, isLast)
+                checkIsAutobiographyEnoughInCoShow(chatType)
             }
         }
     }
 
     fun beginInterview() {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewProgressType = ConversationType.ING,
-            ),
-        )
+            )
+        }
     }
 
     fun setInterviewAnswer(chat: String) {
         val originalAnswer = uiState.value.answerInputs
         addInterviewConversation(chat, ChatType.HUMAN)
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewProgressType = ConversationType.FINISH,
                 answerInputs = originalAnswer + chat
-            ),
-        )
+            )
+        }
     }
 
     fun setInterviewReAnswer() {
@@ -218,21 +219,21 @@ class InterviewViewModel(
         val updatedAnswers = originalAnswers.dropLast(1)
         val updatedList = currentList.dropLast(1)
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 answerInputs = updatedAnswers,
                 interviewChatList = updatedList,
                 interviewProgressType = ConversationType.BEFORE,
             )
-        )
+        }
     }
 
     fun setInterviewContinuous() {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewProgressType = ConversationType.BEFORE,
-            ),
-        )
+            )
+        }
     }
 
     fun setInterviewRequestNextQuestion() {
@@ -240,13 +241,13 @@ class InterviewViewModel(
         val finalAnswer = answers.joinToString(separator = " ")
         val updatedList = deleteTemporaryLastAnswers() + InterviewChatItem(content = finalAnswer, chatType = ChatType.HUMAN)
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewProgressType = ConversationType.BEFORE,
                 interviewChatList = updatedList,
                 isStartAnswerBtnActivated = false
-            ),
-        )
+            )
+        }
 
         postInterviewAnswer(finalAnswer)
     }
@@ -293,12 +294,12 @@ class InterviewViewModel(
     private fun onSuccessInterviewAnswer(data: ChatInterviewResponseModel) {
         addInterviewConversation(data.text, ChatType.BOT)
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 answerInputs = emptyList(),
                 isStartAnswerBtnActivated = true
             )
-        )
+        }
     }
 
     private fun coShowInterviewAnswer(chat: String) {
@@ -311,23 +312,15 @@ class InterviewViewModel(
     private fun onSuccessCoShowInterviewAnswer(data: CoShowAnswerModel) {
         d("[ktor] interview answer -> $data")
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 answerInputs = emptyList(),
                 isLast = data.isLast,
                 isStartAnswerBtnActivated = true
             )
-        )
-//
-//        updateState { state ->
-//            state.copy(
-//                answerInputs = emptyList(),
-//                isLast = data.isLast,
-//                isStartAnswerBtnActivated = true
-//            )
-//        }
+        }
 
-        addInterviewConversation(data.question, ChatType.BOT, data.isLast)
+        addInterviewConversation(data.question, ChatType.BOT)
     }
 
     private fun checkIsAutobiographyEnough() {
@@ -372,10 +365,9 @@ class InterviewViewModel(
 //        }
 //    }
 
-    private fun checkIsAutobiographyEnoughInCoShow(type: ChatType, isLast: Boolean) {
-        d("[ktor] interview -> check auto enough: $isLast, $type")
-//        if (isLast && (type == ChatType.HUMAN)) {
-        if (isLast) {
+    private fun checkIsAutobiographyEnoughInCoShow(type: ChatType) {
+        d("[ktor] interview -> check auto enough: ${uiState.value.isLast}, $type")
+        if (uiState.value.isLast && type == ChatType.HUMAN) {
             emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
         }
     }
@@ -421,11 +413,11 @@ class InterviewViewModel(
         //TODO 질문 넘기는 이유 이벤트 설정
         d("[ktor] interview -> 질문 넘기기: $skipType")
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewProgressType = ConversationType.BEFORE,
-            ),
-        )
+            )
+        }
 
         addInterviewConversation(SkipQuestionReason, ChatType.HUMAN)
         postInterviewAnswer(SkipQuestionReason)

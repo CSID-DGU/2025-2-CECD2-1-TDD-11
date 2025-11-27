@@ -255,7 +255,7 @@ private fun InterviewContent(
                 ConversationType.getConversationBtnText(
                     interviewProgressType,
                 ),
-            isBtnActivated = true, // TODO isStartAnswerBtnActivated
+            isBtnActivated = isStartAnswerBtnActivated,
             onClickAction = {
                 when (interviewProgressType) {
                     ConversationType.BEFORE -> { onStartInterview() }

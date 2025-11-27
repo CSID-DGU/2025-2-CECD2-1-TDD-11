@@ -15,19 +15,19 @@ class SignUpViewModel(
         SignUpPageState(),
     ) {
     fun onEmailValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 emailInput = newValue,
-            ),
-        )
+            )
+        }
     }
 
     fun onPasswordValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 passwordInput = newValue,
-            ),
-        )
+            )
+        }
     }
 
     fun postEmailSignUp() {

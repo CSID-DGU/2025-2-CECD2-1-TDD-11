@@ -35,47 +35,47 @@ class StartProgressViewModel(
         StartProgressPageState(),
     ) {
     fun setFlowType(type: FlowType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 flowType = type
             )
-        )
+        }
     }
 
     fun setPageType(type: StartProgressPageType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 pageType = type,
                 isBtnActivated = false,
-            ),
-        )
+            )
+        }
     }
 
     fun setMaterial(type: MaterialType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 material = type,
                 isBtnActivated = true,
-            ),
-        )
+            )
+        }
     }
 
     fun onNickNameValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 nickNameInput = newValue,
                 isBtnActivated = newValue.isNotEmpty()
             )
-        )
+        }
     }
 
     fun onReasonValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 reasonInput = newValue,
                 isBtnActivated = newValue.isNotEmpty(),
-            ),
-        )
+            )
+        }
     }
 
     fun checkStartProgress() {
@@ -100,12 +100,12 @@ class StartProgressViewModel(
     }
 
     private fun onSuccessCoShowStartProgress(data: InterviewAutobiographyModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewId = data.interviewId,
                 autobiographyId = data.autobiographyId,
-            ),
-        )
+            )
+        }
 
         changeAutobiographyStatus()
         saveCurrentAutobiographyId(data.autobiographyId)
@@ -121,12 +121,12 @@ class StartProgressViewModel(
     }
 
     private fun onSuccessStartProgress(data: InterviewAutobiographyModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewId = data.interviewId,
                 autobiographyId = data.autobiographyId,
-            ),
-        )
+            )
+        }
 
         changeAutobiographyStatus()
         saveCurrentAutobiographyId(data.autobiographyId)
@@ -178,11 +178,11 @@ class StartProgressViewModel(
     }
 
     private fun onSuccessGetInterviewQuestion(data: StartInterviewResponseModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 firstQuestion = data.text,
-            ),
-        )
+            )
+        }
 
         emitEventFlow(StartProgressEvent.GoToInterviewPage)
     }

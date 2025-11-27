@@ -32,11 +32,11 @@ class SettingViewModel(
 
     private fun onSuccessGetMemberInfo(data: MemberInfoResponseModel) {
         d("[ktor] settingViewmodel -> $data")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 memberInfo = data,
-            ),
-        )
+            )
+        }
     }
 
     fun logOut() {

@@ -20,19 +20,19 @@ class LogInViewModel(
         LogInPageState(),
     ) {
     fun onEmailValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 emailInput = newValue,
-            ),
-        )
+            )
+        }
     }
 
     fun onPasswordValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 passwordInput = newValue,
-            ),
-        )
+            )
+        }
     }
 
     fun postEmailLogIn() {

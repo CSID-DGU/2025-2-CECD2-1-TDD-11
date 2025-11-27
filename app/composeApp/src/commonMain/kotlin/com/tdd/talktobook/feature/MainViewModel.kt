@@ -39,26 +39,26 @@ class MainViewModel : BaseViewModel<MainPageState>(
     }
 
     private fun updateBottomNav(type: BottomNavType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 bottomNavType = type,
-            ),
-        )
+            )
+        }
     }
 
     fun onSetOneBtnDialog(data: OneBtnDialogModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 oneBtnDialogModel = data,
-            ),
-        )
+            )
+        }
     }
 
     fun onSetTwoBtnDialog(data: TwoBtnDialogModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 twoBtnDialogModel = data,
-            ),
-        )
+            )
+        }
     }
 }
