@@ -83,7 +83,8 @@ internal fun StartProgressScreen(
         interactionSource = interactionSource,
         onClickBack = { goBackToHome() },
         nickNameInput = uiState.nickNameInput,
-        onNickNameValueChange = { viewModel.onNickNameValueChange(it) }
+        onNickNameValueChange = { viewModel.onNickNameValueChange(it) },
+        flowType = uiState.flowType
     )
 }
 
@@ -101,6 +102,7 @@ private fun StartProgressContent(
     onClickBack: () -> Unit,
     nickNameInput: String,
     onNickNameValueChange: (String) -> Unit,
+    flowType: FlowType
 ) {
     Column(
         modifier =
@@ -145,6 +147,7 @@ private fun StartProgressContent(
                     SelectMaterial(
                         selectedMaterial = selectedMaterial,
                         onSelectMaterial = onSelectMaterial,
+                        flowType = flowType
                     )
                 }
 
@@ -179,14 +182,10 @@ private fun StartProgressContent(
 }
 
 @Composable
-private fun WriteNickname() {
-    //
-}
-
-@Composable
 private fun SelectMaterial(
     selectedMaterial: MaterialType,
     onSelectMaterial: (MaterialType) -> Unit,
+    flowType: FlowType = FlowType.DEFAULT
 ) {
     Spacer(modifier = Modifier.padding(top = 48.dp))
 
@@ -196,7 +195,7 @@ private fun SelectMaterial(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
     ) {
-        MaterialType.entries
+        if (flowType == FlowType.DEFAULT) MaterialType.entries else MaterialType.getCoShowMaterials()
             .dropLast(1)
             .chunked(3)
             .forEachIndexed { index, rowItems ->
