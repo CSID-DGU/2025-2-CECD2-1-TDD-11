@@ -52,9 +52,13 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
          />
 
           {rightIcon && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <button
+              type="button"
+              onClick={onRightIconClick}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
               {rightIcon}
-            </div>
+            </button>
           )}
         </div>
 

@@ -18,7 +18,7 @@ import Layout from '@/components/layout/Layout'
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/web',
     element: <Layout />,
     errorElement: <NotFoundPage />,
     children: [
