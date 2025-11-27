@@ -55,8 +55,10 @@ def get_logger():
         _logger.addHandler(console_handler)
         
         # 2. 파일 핸들러 (백업용) - 텍스트 포맷
+        log_dir = os.environ.get("LOG_DIR", "/var/log/ai-server")
+        os.makedirs(log_dir, exist_ok=True)
         file_handler = handlers.RotatingFileHandler(
-            os.path.join(os.path.dirname(__file__), "app.log"),
+            os.path.join(log_dir, "app.log"),
             maxBytes=10 * 1024 * 1024,  # 10MB
             backupCount=5
         )

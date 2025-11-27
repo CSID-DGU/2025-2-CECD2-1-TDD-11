@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     volumes:
-      - /var/log/ai-server:/app/serve/logs
+      - /var/log/ai-server:/var/log/ai-server
     networks:
       - talktobook-ai-network
 
