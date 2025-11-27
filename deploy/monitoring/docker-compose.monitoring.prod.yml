@@ -5,9 +5,9 @@ services:
     container_name: "talktobook-loki"
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yml
     volumes:
-      - ./loki-config.yml:/etc/loki/local-config.yaml
+      - ./loki-config.yml:/etc/loki/local-config.yml
       - loki_data:/var/loki
     networks:
       - talktobook-monitoring-network
