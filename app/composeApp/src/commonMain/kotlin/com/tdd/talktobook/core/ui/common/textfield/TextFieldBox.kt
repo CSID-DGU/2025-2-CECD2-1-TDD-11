@@ -1,8 +1,10 @@
 package com.tdd.talktobook.core.ui.common.textfield
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextFieldBox(
@@ -20,6 +22,6 @@ fun TextFieldBox(
         isError = isError,
         modifier =
             Modifier
-                .wrapContentHeight(),
+                .height(55.dp),
     )
 }
