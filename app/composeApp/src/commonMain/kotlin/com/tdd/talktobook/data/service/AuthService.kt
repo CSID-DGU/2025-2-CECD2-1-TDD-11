@@ -50,7 +50,8 @@ interface AuthService {
     @GET(EndPoints.Autobiography.COSHOW_CREATE_AUTOBIOGRAPHY)
     suspend fun getCoShowGenerate(
         @Path("autobiographyId") autobiographyId: Int,
-        @Query("requestDto") request: GetCoShowGenerateRequestDto
+//        @Query("requestDto") request: GetCoShowGenerateRequestDto
+        @Query("name") name: String
     ): HttpResponse
 
 

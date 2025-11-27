@@ -48,5 +48,5 @@ interface AutobiographyDataSource {
 
     suspend fun patchChangeStatus(autobiographyId: Int, status: String): HttpResponse
 
-    suspend fun getCoShowGenerate(autobiographyId: Int, request: GetCoShowGenerateRequestDto): HttpResponse
+    suspend fun getCoShowGenerate(autobiographyId: Int, request: String): HttpResponse
 }

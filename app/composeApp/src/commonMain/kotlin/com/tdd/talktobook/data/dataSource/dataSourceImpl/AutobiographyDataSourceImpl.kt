@@ -69,6 +69,6 @@ class AutobiographyDataSourceImpl(
     override suspend fun patchChangeStatus(autobiographyId: Int, status: String): HttpResponse=
         autobiographyService.patchChangeStatus(autobiographyId, status)
 
-    override suspend fun getCoShowGenerate(autobiographyId: Int, request: GetCoShowGenerateRequestDto): HttpResponse =
+    override suspend fun getCoShowGenerate(autobiographyId: Int, request: String): HttpResponse =
         authService.getCoShowGenerate(autobiographyId, request)
 }
