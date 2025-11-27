@@ -21,6 +21,20 @@ services:
     networks:
       - talktobook-ai-network
 
+  promtail:
+    image: grafana/promtail:latest
+    container_name: "talktobook-promtail"
+    env_file:
+      - .env.promtail
+    volumes:
+      - /opt/deploy/promtail-config.yml:/promtail-config.yml
+      - /var/log/ai-server:/var/log/ai-server
+    command: 
+      - -config.file=/promtail-config.yml
+      - -config.expand-env=true  # 환경 변수 확장 활성화
+    networks:
+      - talktobook-ai-network
+
 networks:
   talktobook-ai-network:
     driver: bridge

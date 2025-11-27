@@ -42,6 +42,7 @@ jobs:
         run: |
           aws s3 cp deploy/stream/docker-compose.stream.prod.yml s3://talktobook-deploy/
           aws s3 cp deploy/stream/rabbitmq-definitions.json s3://talktobook-deploy/
+          aws s3 cp deploy/stream/promtail-config.yml s3://talktobook-deploy/stream-promtail-config.yml
 
       - name: Deploy to EC2 via SSM
         run: |
@@ -51,6 +52,7 @@ jobs:
               "cd /opt/deploy",
               "aws s3 cp s3://talktobook-deploy/docker-compose.stream.prod.yml .",
               "aws s3 cp s3://talktobook-deploy/rabbitmq-definitions.json .",
+              "aws s3 cp s3://talktobook-deploy/stream-promtail-config.yml ./promtail-config.yml",
               "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
               "cat > .env << EOF",
               "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}",

@@ -27,7 +27,7 @@ services:
     env_file:
       - .env.promtail
     volumes:
-      - /etc/promtail-config.yml:/promtail-config.yml
+      - /opt/deploy/promtail-config.yml:/promtail-config.yml
       - /var/log/spring-boot:/var/log/spring-boot
     command: 
       - -config.file=/promtail-config.yml
