@@ -16,12 +16,10 @@ import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.ChatInterviewResponseModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PatchCreateAutobiographyUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetCoShowInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
@@ -29,9 +27,7 @@ import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import com.tdd.talktobook.feature.interview.type.SkipQuestionType
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -41,8 +37,6 @@ class InterviewViewModel(
     private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase,
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
-    private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
-    private val saveAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
     private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
     private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
     private val getCoShowInterviewConversationUseCase: GetCoShowInterviewConversationUseCase,
@@ -51,7 +45,6 @@ class InterviewViewModel(
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
-    private val viewModelCreatedAt: Long = Clock.System.now().toEpochMilliseconds()
 
     init {
         initGetAutobiographyStatus()
@@ -324,17 +317,6 @@ class InterviewViewModel(
     }
 
     private fun checkIsAutobiographyEnough() {
-
-
-//        val nowMillis = Clock.System.now().toEpochMilliseconds()
-//        val elapsedMillis = nowMillis - viewModelCreatedAt
-//        val threeMinutesMillis = 3 * 60 * 1000L
-//
-//        if (elapsedMillis >= threeMinutesMillis) {
-//            d("[ktor] interview -> 3분 경과, 자서전 상태 변경")
-//
-//            changeAutobiographyStatus()
-//        }
         viewModelScope.launch {
             getAutobiographyStatusUseCase(Unit).collect {
                 resultResponse(it, ::onSuccessCheckAutobiographyStatus)
@@ -347,23 +329,6 @@ class InterviewViewModel(
             emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
         }
     }
-
-//    private fun changeAutobiographyStatus() {
-//        viewModelScope.launch {
-//            changeAutobiographyStatusUseCase(ChangeAutobiographyStatusRequestModel(uiState.value.autobiographyId, AutobiographyStatusType.ENOUGH)).collect {
-//                resultResponse(it, {})
-//            }
-//        }
-//
-//        saveAutobiographyStatus()
-//        emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
-//    }
-
-//    private fun saveAutobiographyStatus() {
-//        viewModelScope.launch {
-//            saveAutobiographyStatusUseCase(AutobiographyStatusType.ENOUGH).collect { resultResponse(it, {}) }
-//        }
-//    }
 
     private fun checkIsAutobiographyEnoughInCoShow(type: ChatType) {
         d("[ktor] interview -> check auto enough: ${uiState.value.isLast}, $type")
