@@ -132,21 +132,23 @@ fun MainScreen() {
                 enter = fadeIn() + slideIn { IntOffset(0, 0) },
                 exit = fadeOut() + slideOut { IntOffset(0, 0) },
             ) {
-                BottomNavBar(
-                    modifier = Modifier.navigationBarsPadding(),
-                    interactionSource = interactionSource,
-                    type = uiState.bottomNavType,
-                    onClick = { route: String ->
-                        if (navController.currentDestination?.route != route) {
-                            navController.navigate(route) {
-                                popUpTo(navController.currentDestination?.route!!) {
-                                    inclusive = true
+                if (viewModel.screenFlowType.value == FlowType.DEFAULT) {
+                    BottomNavBar(
+                        modifier = Modifier.navigationBarsPadding(),
+                        interactionSource = interactionSource,
+                        type = uiState.bottomNavType,
+                        onClick = { route: String ->
+                            if (navController.currentDestination?.route != route) {
+                                navController.navigate(route) {
+                                    popUpTo(navController.currentDestination?.route!!) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
                                 }
-                                launchSingleTop = true
                             }
-                        }
-                    },
-                )
+                        },
+                    )
+                }
             }
         },
         snackbarHost = {},

@@ -44,6 +44,7 @@ import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.type.FlowType
+import com.tdd.talktobook.core.ui.util.rememberMicPermissionRequester
 import com.tdd.talktobook.core.ui.util.rememberSpeechToText
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
@@ -89,6 +90,19 @@ internal fun InterviewScreen(
                 uiState.interviewChatList
             }
         }
+
+    val requestMicPermission = rememberMicPermissionRequester(
+        onPermissionGranted = {
+            scope.launch {
+                partial = ""
+                viewModel.beginInterview()
+                stt.start { p -> partial = p }
+            }
+        },
+        onPermissionDeniedPermanently = {
+            d("[test] interview 권한 거부")
+        }
+    )
 
     LaunchedEffect(flowType) {
         flowType.collect {
@@ -152,11 +166,7 @@ internal fun InterviewScreen(
         interviewProgressType = uiState.interviewProgressType,
         isInterviewProgressIng = (uiState.interviewProgressType == ConversationType.ING),
         onStartInterview = {
-            scope.launch {
-                partial = ""
-                viewModel.beginInterview()
-                stt.start { p -> partial = p }
-            }
+            requestMicPermission()
         },
         onSetInterview = {
             scope.launch {
@@ -267,7 +277,7 @@ private fun InterviewContent(
             },
         )
 
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(60.dp))
     }
 }
 
