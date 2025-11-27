@@ -367,6 +367,11 @@ public class AutobiographyCommandService {
         List<String> questions = THEME_QUESTIONS.get(theme);
         List<String> materials = THEME_MATERIALS.get(theme);
 
+        if (questions == null || materials == null) {
+            log.error("[COSHOW_INIT_AUTOBIOGRAPHY] 테마에 해당하는 질문 또는 자료가 없음 - theme: {}", theme);
+            throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND.toServiceException();
+        }
+
         log.info("[COSHOW_INIT_AUTOBIOGRAPHY] 더미 질문 생성 시작 - theme: {}, count: {}", theme, questions.size());
 
         // 질문 생성
