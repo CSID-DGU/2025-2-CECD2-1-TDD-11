@@ -41,19 +41,19 @@ jobs:
         run: |
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=[
+            --parameters '{"commands":[
               "cd /opt/deploy",
               "aws s3 cp s3://talktobook-deploy/docker-compose.monitoring.prod.yml .",
               "aws s3 cp s3://talktobook-deploy/loki-config.yml .",
-              "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-              "cat > .env << EOF",
-              "AWS_REGION=${{ env.AWS_REGION }}",
-              "GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}",
+              "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin '${{ secrets.ECR_REGISTRY }}'",
+              "cat > .env << 'EOF'",
+              "AWS_REGION='${{ env.AWS_REGION }}'",
+              "GRAFANA_ADMIN_PASSWORD='${{ secrets.GRAFANA_ADMIN_PASSWORD }}'",
               "EOF",
               "docker-compose -f docker-compose.monitoring.prod.yml pull",
               "docker-compose -f docker-compose.monitoring.prod.yml down",
               "docker-compose -f docker-compose.monitoring.prod.yml up -d",
               "docker image prune -f"
-            ]' \
+            ]}' \
             --instance-ids ${{ secrets.MONITORING_INSTANCE_ID }} \
             --region ${{ env.AWS_REGION }}
