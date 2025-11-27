@@ -184,7 +184,8 @@ internal fun InterviewScreen(
                     )
                 )
             }
-        }
+        },
+        isStartAnswerBtnActivated = uiState.isStartAnswerBtnActivated
     )
 }
 
@@ -201,6 +202,7 @@ private fun InterviewContent(
     onSetInterviewContinuous: () -> Unit = {},
     onSetInterviewRequestNextQuestion: () -> Unit = {},
     onItemLongClick: (InterviewChatItem) -> Unit = {},
+    isStartAnswerBtnActivated: Boolean = false
 ) {
     Column(
         modifier =
@@ -253,7 +255,7 @@ private fun InterviewContent(
                 ConversationType.getConversationBtnText(
                     interviewProgressType,
                 ),
-            isBtnActivated = true,
+            isBtnActivated = true, // TODO isStartAnswerBtnActivated
             onClickAction = {
                 when (interviewProgressType) {
                     ConversationType.BEFORE -> { onStartInterview() }
@@ -262,12 +264,6 @@ private fun InterviewContent(
 
                     ConversationType.FINISH -> { onSetInterviewRequestNextQuestion() }
                 }
-
-//                if (isInterviewProgressIng) {
-//                    onSetInterview()
-//                } else {
-//                    onStartInterview()
-//                }
             },
         )
 

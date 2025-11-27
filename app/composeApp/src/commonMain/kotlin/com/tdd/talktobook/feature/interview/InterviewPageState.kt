@@ -18,5 +18,6 @@ data class InterviewPageState(
     val interviewProgressType: ConversationType = ConversationType.BEFORE,
     val nickName: String = "",
     val answerInputs: List<String> = emptyList(),
-    val isLast: Boolean = false
+    val isLast: Boolean = false,
+    val isStartAnswerBtnActivated: Boolean = true
 ) : PageState

@@ -189,7 +189,7 @@ fun NavGraphBuilder.startProgressNavGraph(
         composable(route = NavRoutes.StartProgressScreen.route) {
             StartProgressScreen(
                 goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
-                goToCoShowInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.route) },
+                goToCoShowInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel("")) },
                 goBackToHome = { navController.popBackStack() },
                 setUserNickName = setUserNickName,
                 flowType = flowType

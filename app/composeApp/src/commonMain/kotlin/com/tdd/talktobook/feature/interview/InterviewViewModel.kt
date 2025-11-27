@@ -7,7 +7,6 @@ import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.ChatType
-import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.GetCoShowGenerateRequestModel
 import com.tdd.talktobook.domain.entity.request.interview.CoShowAnswerRequestModel
@@ -15,6 +14,7 @@ import com.tdd.talktobook.domain.entity.request.interview.ai.ChatInterviewReques
 import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
+import com.tdd.talktobook.domain.entity.response.interview.ai.ChatInterviewResponseModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
@@ -46,7 +46,7 @@ class InterviewViewModel(
     private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
     private val getCoShowInterviewConversationUseCase: GetCoShowInterviewConversationUseCase,
     private val postCoShowAnswerUseCase: PostCoShowAnswerUseCase,
-    private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase
+    private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase,
 ) : BaseViewModel<InterviewPageState>(
     InterviewPageState(),
 ) {
@@ -142,6 +142,7 @@ class InterviewViewModel(
                     getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
                 }
             }
+
             FlowType.COSHOW -> {
                 viewModelScope.launch {
                     getCoShowInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
@@ -166,8 +167,9 @@ class InterviewViewModel(
     private fun addInterviewConversation(
         chatContent: String,
         chatType: ChatType,
+        isLast: Boolean = false,
     ) {
-        d("[ktor] interview -> $chatContent")
+        d("[ktor] interview (add) -> $chatContent")
 
         val currentConversation = InterviewChatItem(content = chatContent, chatType = chatType)
         val updatedChatList = uiState.value.interviewChatList + currentConversation
@@ -179,8 +181,13 @@ class InterviewViewModel(
         )
 
         when (uiState.value.flowType) {
-            FlowType.DEFAULT -> { checkIsAutobiographyEnough() }
-            FlowType.COSHOW -> { checkIsAutobiographyEnoughInCoShow(chatType) }
+            FlowType.DEFAULT -> {
+                checkIsAutobiographyEnough()
+            }
+
+            FlowType.COSHOW -> {
+                checkIsAutobiographyEnoughInCoShow(chatType, isLast)
+            }
         }
     }
 
@@ -236,7 +243,8 @@ class InterviewViewModel(
         updateState(
             uiState.value.copy(
                 interviewProgressType = ConversationType.BEFORE,
-                interviewChatList = updatedList
+                interviewChatList = updatedList,
+                isStartAnswerBtnActivated = false
             ),
         )
 
@@ -265,40 +273,61 @@ class InterviewViewModel(
 
     private fun postInterviewAnswer(chat: String) {
         when (uiState.value.flowType) {
-            FlowType.DEFAULT -> { defaultInterviewAnswer(chat) }
-            FlowType.COSHOW -> { coShowInterviewAnswer(chat) }
+            FlowType.DEFAULT -> {
+                defaultInterviewAnswer(chat)
+            }
+
+            FlowType.COSHOW -> {
+                coShowInterviewAnswer(chat)
+            }
         }
     }
 
     private fun defaultInterviewAnswer(chat: String) {
         viewModelScope.launch {
             postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
-                .collect { resultResponse(it, { data -> addInterviewConversation(data.text, ChatType.BOT) }) }
+                .collect { resultResponse(it, ::onSuccessInterviewAnswer) }
         }
+    }
+
+    private fun onSuccessInterviewAnswer(data: ChatInterviewResponseModel) {
+        addInterviewConversation(data.text, ChatType.BOT)
 
         updateState(
             uiState.value.copy(
-                answerInputs = emptyList()
+                answerInputs = emptyList(),
+                isStartAnswerBtnActivated = true
             )
         )
     }
 
     private fun coShowInterviewAnswer(chat: String) {
         viewModelScope.launch {
-            postCoShowAnswerUseCase(CoShowAnswerRequestModel(uiState.value.autobiographyId, chat))
-                .collect { resultResponse(it,  ::onSuccessCoShowInterviewAnswer) }
+            postCoShowAnswerUseCase(CoShowAnswerRequestModel(uiState.value.interviewId, chat))
+                .collect { resultResponse(it, ::onSuccessCoShowInterviewAnswer) }
         }
     }
 
     private fun onSuccessCoShowInterviewAnswer(data: CoShowAnswerModel) {
-        addInterviewConversation(data.question, ChatType.BOT)
+        d("[ktor] interview answer -> $data")
 
         updateState(
             uiState.value.copy(
                 answerInputs = emptyList(),
-                isLast = data.isLast
+                isLast = data.isLast,
+                isStartAnswerBtnActivated = true
             )
         )
+//
+//        updateState { state ->
+//            state.copy(
+//                answerInputs = emptyList(),
+//                isLast = data.isLast,
+//                isStartAnswerBtnActivated = true
+//            )
+//        }
+
+        addInterviewConversation(data.question, ChatType.BOT, data.isLast)
     }
 
     private fun checkIsAutobiographyEnough() {
@@ -343,16 +372,23 @@ class InterviewViewModel(
 //        }
 //    }
 
-    private fun checkIsAutobiographyEnoughInCoShow(type: ChatType) {
-        if (uiState.value.isLast && (type == ChatType.HUMAN)) {
+    private fun checkIsAutobiographyEnoughInCoShow(type: ChatType, isLast: Boolean) {
+        d("[ktor] interview -> check auto enough: $isLast, $type")
+//        if (isLast && (type == ChatType.HUMAN)) {
+        if (isLast) {
             emitEventFlow(InterviewEvent.ShowCreateAutobiographyDialog)
         }
     }
 
     fun createCurrentAutobiography() {
         when (uiState.value.flowType) {
-            FlowType.DEFAULT ->  { createAutobiographyDefault() }
-            FlowType.COSHOW -> { createAutobiographyInCoShow() }
+            FlowType.DEFAULT -> {
+                createAutobiographyDefault()
+            }
+
+            FlowType.COSHOW -> {
+                createAutobiographyInCoShow()
+            }
         }
     }
 
