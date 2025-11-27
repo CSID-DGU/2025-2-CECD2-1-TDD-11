@@ -1,5 +1,5 @@
 // AWS TTS/STT API 클라이언트
-const API_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000'
+const API_BASE_URL = import.meta.env.VITE_API_AI_URL || 'http://localhost:3000'
 
 export class AWSTextToSpeechService {
   async speak(text: string, voiceId: string = 'Seoyeon'): Promise<Blob> {

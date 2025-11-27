@@ -1,38 +1,15 @@
-// TTS (Text-to-Speech) 모듈
+import { speechApi } from '@/lib/api/speech'
+
+// TTS (Text-to-Speech) 모듈 - 서버 API 사용
 export class TextToSpeechService {
-  private synthesis: SpeechSynthesis | null = null
-  private voices: SpeechSynthesisVoice[] = []
-  private currentUtterance: SpeechSynthesisUtterance | null = null
+  private currentAudio: HTMLAudioElement | null = null
   private isSpeaking = false
 
-  constructor() {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      this.synthesis = window.speechSynthesis
-      this.loadVoices()
-      
-      // 음성 목록이 로드될 때까지 기다림
-      if (this.synthesis.onvoiceschanged !== undefined) {
-        this.synthesis.onvoiceschanged = () => this.loadVoices()
-      }
-    }
-  }
+  constructor() {}
 
-  private loadVoices() {
-    if (!this.synthesis) return
-    
-    this.voices = this.synthesis.getVoices()
-  }
 
-  private getKoreanVoice(): SpeechSynthesisVoice | null {
-    // 한국어 음성 우선 선택
-    const koreanVoice = this.voices.find(voice => 
-      voice.lang.startsWith('ko') || voice.name.includes('Korean')
-    )
-    
-    return koreanVoice || this.voices[0] || null
-  }
 
-  public speak(text: string, options?: {
+  public async speak(text: string, options?: {
     rate?: number
     pitch?: number
     volume?: number
@@ -40,64 +17,56 @@ export class TextToSpeechService {
     onEnd?: () => void
     onError?: (error: string) => void
   }) {
-    if (!this.synthesis) {
-      options?.onError?.('음성 합성이 지원되지 않는 브라우저입니다.')
-      return
-    }
-
     // 이전 음성 중지
     this.stop()
 
-    const utterance = new SpeechSynthesisUtterance(text)
-    const voice = this.getKoreanVoice()
-    
-    if (voice) {
-      utterance.voice = voice
-    }
-    
-    utterance.rate = options?.rate || 1.0
-    utterance.pitch = options?.pitch || 1.0
-    utterance.volume = options?.volume || 1.0
-    utterance.lang = 'ko-KR'
-
-    utterance.onstart = () => {
+    try {
       this.isSpeaking = true
       options?.onStart?.()
-    }
 
-    utterance.onend = () => {
+      const response = await speechApi.textToSpeech(text)
+      
+      // base64 오디오를 Audio 요소로 재생
+      this.currentAudio = new Audio(`data:audio/mpeg;base64,${response.audio}`)
+      this.currentAudio.volume = options?.volume || 1.0
+      
+      this.currentAudio.onended = () => {
+        this.isSpeaking = false
+        this.currentAudio = null
+        options?.onEnd?.()
+      }
+
+      this.currentAudio.onerror = () => {
+        this.isSpeaking = false
+        this.currentAudio = null
+        options?.onError?.('음성 재생에 실패했습니다.')
+      }
+
+      await this.currentAudio.play()
+    } catch (error) {
+      console.error('TTS error:', error)
       this.isSpeaking = false
-      this.currentUtterance = null
-      options?.onEnd?.()
+      options?.onError?.('음성 합성에 실패했습니다.')
     }
-
-    utterance.onerror = (event) => {
-      this.isSpeaking = false
-      this.currentUtterance = null
-      options?.onError?.(event.error)
-    }
-
-    this.currentUtterance = utterance
-    this.synthesis.speak(utterance)
   }
 
   public stop() {
-    if (this.synthesis && this.isSpeaking) {
-      this.synthesis.cancel()
+    if (this.currentAudio) {
+      this.currentAudio.pause()
+      this.currentAudio = null
       this.isSpeaking = false
-      this.currentUtterance = null
     }
   }
 
   public pause() {
-    if (this.synthesis && this.isSpeaking) {
-      this.synthesis.pause()
+    if (this.currentAudio) {
+      this.currentAudio.pause()
     }
   }
 
   public resume() {
-    if (this.synthesis) {
-      this.synthesis.resume()
+    if (this.currentAudio) {
+      this.currentAudio.play()
     }
   }
 
@@ -106,11 +75,7 @@ export class TextToSpeechService {
   }
 
   public get supported() {
-    return !!this.synthesis
-  }
-
-  public get availableVoices() {
-    return this.voices
+    return true
   }
 }
 

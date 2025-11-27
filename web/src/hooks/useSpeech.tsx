@@ -32,13 +32,20 @@ export function useSpeechRecognition() {
     })
 
     speechRecognition.onError(error => {
+      console.error('Speech recognition error:', error)
       setError(error)
       setIsListening(false)
       setInterimTranscript('')
+      
+      // Alert 표시
+      if (typeof window !== 'undefined' && error) {
+        alert(error)
+      }
     })
   }, [])
 
   const startListening = useCallback(() => {
+    console.log('startListening called, supported:', speechRecognition.supported)
     setTranscript('')
     setInterimTranscript('')
     setError(null)

@@ -46,12 +46,14 @@ export function useVoiceRecording(): [VoiceRecordingState, VoiceRecordingActions
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const startRecording = useCallback(() => {
+    console.log('startRecording called')
     setShowConfirmation(false)
     resetTranscript()
     startListening()
   }, [startListening, resetTranscript])
 
   const stopRecording = useCallback(() => {
+    console.log('stopRecording called, transcript:', transcript)
     stopListening()
     if (transcript) {
       setShowConfirmation(true)

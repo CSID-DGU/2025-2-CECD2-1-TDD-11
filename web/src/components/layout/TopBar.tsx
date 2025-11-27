@@ -15,7 +15,6 @@ export default function TopBar() {
   const [isLoading, setIsLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -61,7 +60,7 @@ export default function TopBar() {
         <div className="flex items-center justify-between">
           <button
             className="text-subheading-24 text-gray-900 cursor-pointer font-sans bg-transparent border-none p-0"
-            onClick={() => navigate('/web'))
+            onClick={() => navigate('/web')}
             aria-label="Navigate to home"
           >
             대화로책
@@ -77,7 +76,6 @@ export default function TopBar() {
                 aria-label="설정"
               />
 
-              {/* 드롭다운 메뉴 */}
               {showDropdown && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <button
@@ -107,7 +105,6 @@ export default function TopBar() {
         </div>
       </header>
 
-      {/* 로그아웃 확인 모달 */}
       <Modal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
@@ -136,7 +133,6 @@ export default function TopBar() {
         </div>
       </Modal>
 
-      {/* 회원탈퇴 확인 모달 */}
       <Modal
         isOpen={showUnregisterModal}
         onClose={() => setShowUnregisterModal(false)}
