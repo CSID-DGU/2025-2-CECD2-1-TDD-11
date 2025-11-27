@@ -22,4 +22,4 @@ COPY ai/flows/ /app/flows/
 COPY deploy/ai/promtail-config.yml /etc/promtail-config.yml
 
 # FastAPI 실행 - PYTHONPATH 명시적 설정
-CMD ["sh", "-c", "PYTHONPATH=/app/serve:$PYTHONPATH uvicorn main:app --host 0.0.0.0 --port 3000"]
+CMD ["sh", "-c", "cd /app/serve && PYTHONPATH=/app/serve:$PYTHONPATH uvicorn main:app --host 0.0.0.0 --port 3000"]
