@@ -128,13 +128,5 @@
     <!-- 페이지 번호: 표지 제외, 2페이지부터 시작 -->
     <div class="footer-page-number" th:text="${idx.index + 2}"></div>
 </div>
-
-<!-- ===========================
-     (빈 페이지 로고 - 책자 4의 배수 맞추기에서 서버에서 동적으로 추가)
-=========================== -->
-<div th:each="i : ${emptyPages}" class="page empty-page">
-    <img th:src="${logoBase64}" class="empty-logo" alt="대화로책 로고"/>
-</div>
-
 </body>
 </html>

@@ -30,7 +30,7 @@ public class AutobiographyMergeConsumer {
     public void handleCycleCompletion(AutobiographyMergeResponseDto dto) {
         log.info("[HANDLE_CYCLE_COMPLETION] 사이클 완료 수신 - cycleId: {}, autobiographyId: {}, userId: {}, action: {}",
                 dto.getCycleId(), dto.getAutobiographyId(), dto.getUserId(), dto.getAction());
-        
+
         LocalDateTime now = LocalDateTime.now();
 
         Autobiography autobiography = autobiographyRepository.findById(dto.getAutobiographyId())

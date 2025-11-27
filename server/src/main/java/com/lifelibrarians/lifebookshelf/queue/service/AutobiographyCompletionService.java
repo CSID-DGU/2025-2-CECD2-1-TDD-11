@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -216,11 +217,26 @@ public class AutobiographyCompletionService {
     }
 
     private String getCategoryName(Long autobiographyId, Integer categoryOrder) {
-        String categoryName = categoryRepository.findNameByOrder(autobiographyId, categoryOrder)
-                .orElse("default");
-        log.info("[GET_CATEGORY_NAME] 카테고리 이름 조회 - autobiographyId: {}, order: {}, name: {}", 
-                autobiographyId, categoryOrder, categoryName);
-        return categoryName;
+
+        // 1) autobiographyId + order 먼저 조회
+        if (autobiographyId != null) {
+            Optional<String> opt = categoryRepository
+                    .findNameByOrder(autobiographyId, categoryOrder);
+
+            if (opt.isPresent()) {
+                return opt.get();
+            }
+        }
+
+        // 2) autobiographyId 없거나, 데이터 없으면 → order 기반 단 1개 조회
+        List<String> fallbackList = categoryRepository.findAnyNameByOrder(categoryOrder);
+
+        if (!fallbackList.isEmpty()) {
+            return fallbackList.get(0); // 첫 번째 1개만 사용
+        }
+
+        // 3) 그래도 없으면 "default"
+        return "default";
     }
 
     // ----------------------------------------------------------------
