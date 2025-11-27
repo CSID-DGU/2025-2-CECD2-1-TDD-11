@@ -5,6 +5,7 @@ import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import org.koin.android.annotation.KoinViewModel
 class LogInViewModel(
     private val postEmailLogInUseCase: PostEmailLogInUseCase,
     private val saveTokenUseCase: SaveTokenUseCase,
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase
 ) : BaseViewModel<LogInPageState>(
         LogInPageState(),
     ) {
@@ -66,5 +68,15 @@ class LogInViewModel(
             true -> emitEventFlow(LogInEvent.GoToHomePage)
             false -> emitEventFlow(LogInEvent.GoToOnboardingPage)
         }
+    }
+
+    fun clearLocalData() {
+        viewModelScope.launch {
+            deleteLocalAllDataUseCase(Unit).collect {
+                resultResponse(it, {})
+            }
+        }
+
+        emitEventFlow(LogInEvent.GoToStartProgressPage)
     }
 }

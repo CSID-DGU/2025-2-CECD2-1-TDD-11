@@ -54,6 +54,10 @@ internal fun LogInScreen(
                 is LogInEvent.GoToOnboardingPage -> {
                     goToOnboarding()
                 }
+
+                is LogInEvent.GoToStartProgressPage -> {
+                    goToStartProgress()
+                }
             }
         }
     }
@@ -66,7 +70,7 @@ internal fun LogInScreen(
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickSignUp = { goToSignUp() },
-        onClickExperience = { goToStartProgress() }
+        onClickExperience = { viewModel.clearLocalData() }
     )
 }
 
