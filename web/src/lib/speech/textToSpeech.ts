@@ -1,19 +1,16 @@
-import { awsTextToSpeech } from './awsSpeech'
-
-// TTS (Text-to-Speech) 모듈 - AWS 우선, Web Speech API fallback
+// TTS (Text-to-Speech) 모듈
 export class TextToSpeechService {
   private synthesis: SpeechSynthesis | null = null
   private voices: SpeechSynthesisVoice[] = []
   private currentUtterance: SpeechSynthesisUtterance | null = null
   private isSpeaking = false
-  private currentAudio: HTMLAudioElement | null = null
-  private useAWS = true
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.synthesis = window.speechSynthesis
       this.loadVoices()
       
+      // 음성 목록이 로드될 때까지 기다림
       if (this.synthesis.onvoiceschanged !== undefined) {
         this.synthesis.onvoiceschanged = () => this.loadVoices()
       }
@@ -35,58 +32,7 @@ export class TextToSpeechService {
     return koreanVoice || this.voices[0] || null
   }
 
-  public async speak(text: string, options?: {
-    rate?: number
-    pitch?: number
-    volume?: number
-    onStart?: () => void
-    onEnd?: () => void
-    onError?: (error: string) => void
-  }) {
-    this.stop()
-
-    // AWS TTS 시도
-    if (this.useAWS) {
-      try {
-        const audioBlob = await awsTextToSpeech.speak(text)
-        const audioUrl = URL.createObjectURL(audioBlob)
-        const audio = new Audio(audioUrl)
-        
-        audio.onplay = () => {
-          this.isSpeaking = true
-          options?.onStart?.()
-        }
-        
-        audio.onended = () => {
-          this.isSpeaking = false
-          this.currentAudio = null
-          URL.revokeObjectURL(audioUrl)
-          options?.onEnd?.()
-        }
-        
-        audio.onerror = () => {
-          this.isSpeaking = false
-          this.currentAudio = null
-          URL.revokeObjectURL(audioUrl)
-          // AWS 실패 시 fallback
-          this.useAWS = false
-          this.speakWithWebAPI(text, options)
-        }
-        
-        this.currentAudio = audio
-        audio.play()
-        return
-      } catch (error) {
-        console.warn('AWS TTS 실패, Web Speech API로 fallback:', error)
-        this.useAWS = false
-      }
-    }
-
-    // Fallback: Web Speech API
-    this.speakWithWebAPI(text, options)
-  }
-
-  private speakWithWebAPI(text: string, options?: {
+  public speak(text: string, options?: {
     rate?: number
     pitch?: number
     volume?: number
@@ -99,10 +45,15 @@ export class TextToSpeechService {
       return
     }
 
+    // 이전 음성 중지
+    this.stop()
+
     const utterance = new SpeechSynthesisUtterance(text)
     const voice = this.getKoreanVoice()
     
-    if (voice) utterance.voice = voice
+    if (voice) {
+      utterance.voice = voice
+    }
     
     utterance.rate = options?.rate || 1.0
     utterance.pitch = options?.pitch || 1.0
@@ -131,19 +82,11 @@ export class TextToSpeechService {
   }
 
   public stop() {
-    // AWS Audio 중지
-    if (this.currentAudio) {
-      this.currentAudio.pause()
-      this.currentAudio = null
-    }
-    
-    // Web Speech API 중지
     if (this.synthesis && this.isSpeaking) {
       this.synthesis.cancel()
+      this.isSpeaking = false
       this.currentUtterance = null
     }
-    
-    this.isSpeaking = false
   }
 
   public pause() {

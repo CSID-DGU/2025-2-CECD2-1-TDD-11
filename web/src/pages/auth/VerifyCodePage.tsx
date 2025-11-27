@@ -23,7 +23,7 @@ export default function VerifyCodePage() {
   useEffect(() => {
     if (!email) {
       showAlert('잘못된 접근입니다. 회원가입을 다시 진행해주세요.', 'error')
-      navigate('/register')
+      navigate('/web/register')
     }
   }, [email, navigate, showAlert])
 
@@ -31,7 +31,7 @@ export default function VerifyCodePage() {
     mutationFn: authApi.verifyCode,
     onSuccess: () => {
       showAlert('이메일 인증이 완료되었습니다!', 'success')
-      navigate('/login')
+      navigate('/web/login')
     },
     onError: (error: any) => {
       setError(error.message || '인증에 실패했습니다.')
@@ -119,14 +119,14 @@ export default function VerifyCodePage() {
           
           <div className="space-y-2">
             <Link 
-              to="/register"
+              to="/web/register"
               className="block text-point-1 hover:text-pri-700 font-medium"
             >
               다시 회원가입하기
             </Link>
             
             <Link 
-              to="/login"
+              to="/web/login"
               className="block text-gray-600 hover:text-gray-700"
             >
               로그인으로 돌아가기

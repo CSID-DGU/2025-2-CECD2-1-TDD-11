@@ -32,14 +32,27 @@ export default function LoginPage() {
       
       // 메타데이터 성공 여부에 따라 라우팅
       if (data.metadataSuccessed) {
-        navigate('/')
+        navigate('/web')
       } else {
-        navigate('/onboarding')
+        navigate('/web/onboarding')
       }
       
       showAlert('로그인되었습니다.', 'success')
     },
     onError: (error: any) => {
+      // 네트워크 오류 또는 서버 연결 실패
+      if (!error.status || error.message?.includes('fetch') || error.message?.includes('network')) {
+        showAlert('서버와 통신할 수 없습니다. 네트워크 연결을 확인해주세요.', 'error')
+        return
+      }
+      
+      // 401 Unauthorized - 인증 실패
+      if (error.status === 401) {
+        showAlert('이메일 또는 비밀번호가 올바르지 않습니다.', 'error')
+        return
+      }
+      
+      // 기타 에러
       showAlert(error.message || '로그인에 실패했습니다.', 'error')
     }
   })
@@ -124,7 +137,7 @@ export default function LoginPage() {
         {/* 링크들 */}
         <div className="mt-6 text-center space-y-4">
           <Link 
-            to="/reset-password"
+            to="/web/reset-password"
             className="text-body-18-regular text-point-1 font-sans"
           >
             비밀번호를 잊으셨나요?
@@ -133,7 +146,7 @@ export default function LoginPage() {
           <div className="text-body-18-regular text-gray-600 font-sans">
             계정이 없으신가요?{' '}
             <Link 
-              to="/register"
+              to="/web/register"
               className="text-point-1 font-sans"
             >
               회원가입

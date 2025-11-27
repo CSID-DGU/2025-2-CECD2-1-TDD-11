@@ -32,7 +32,7 @@ export default function TopBar() {
     try {
       await authApi.logout()
       logout()
-      navigate('/auth/login')
+      navigate('/web/login')
     } catch (error) {
       console.error('로그아웃 실패:', error)
     } finally {
@@ -46,7 +46,7 @@ export default function TopBar() {
     try {
       await authApi.unregister()
       logout()
-      navigate('/auth/login')
+      navigate('/web/login')
     } catch (error) {
       console.error('회원탈퇴 실패:', error)
     } finally {
@@ -61,7 +61,7 @@ export default function TopBar() {
         <div className="flex items-center justify-between">
           <button
             className="text-subheading-24 text-gray-900 cursor-pointer font-sans bg-transparent border-none p-0"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/web'))
             aria-label="Navigate to home"
           >
             대화로책

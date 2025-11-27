@@ -172,7 +172,7 @@ export default function HomePage() {
                     size="md"
                     icon={<MessageCircle size={20} />}
                     onClick={() =>
-                      navigate(`/chat/review/${selectedInterviewId}`)
+                      navigate(`/web/chat/review/${selectedInterviewId}`)
                     }
                     className="w-full"
                   >

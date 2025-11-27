@@ -51,7 +51,7 @@ export default function OnboardingPage() {
     mutationFn: autobiographyApi.createAutobiographyMetadata,
     onSuccess: () => {
       showAlert('온보딩이 완료되었습니다!', 'success')
-      navigate('/')
+      navigate('/web')
     },
     onError: (error: any) => {
       showAlert(error.message || '테마 설정에 실패했습니다.', 'error')

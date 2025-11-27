@@ -10,9 +10,9 @@ export default function Navigation() {
   if (!isAuthenticated()) return null
 
   const navItems = [
-    { path: '/', label: '홈', icon: Home },
-    { path: '/chat', label: '인터뷰', icon: MessageCircle },
-    { path: '/autobiography', label: '자서전', icon: BookOpen },
+    { path: '/web', label: '홈', icon: Home },
+    { path: '/web/chat', label: '인터뷰', icon: MessageCircle },
+    { path: '/web/autobiography', label: '자서전', icon: BookOpen },
   ]
 
   return (

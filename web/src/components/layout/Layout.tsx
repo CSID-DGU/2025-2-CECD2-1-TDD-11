@@ -21,10 +21,10 @@ export default function Layout() {
   const [showNavigation, setShowNavigation] = useState(false)
   
   // 인증 페이지에서는 레이아웃 숨김
-  const hideLayout = ['/login', '/register', '/verify-code', '/reset-password'].includes(location.pathname)
+  const hideLayout = ['/web/login', '/web/register', '/web/verify-code', '/web/reset-password'].includes(location.pathname)
   
   // 인터뷰 페이지 확인 (chat 경로 포함)
-  const isInterviewPage = location.pathname.startsWith('/chat')
+  const isInterviewPage = location.pathname.startsWith('/web/chat')
   
   if (hideLayout) {
     return (

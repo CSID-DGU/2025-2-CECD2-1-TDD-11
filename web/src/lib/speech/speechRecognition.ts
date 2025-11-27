@@ -1,6 +1,4 @@
-import { awsSpeechRecognition } from './awsSpeech'
-
-// STT (Speech-to-Text) 모듈 - Web Speech API 우선 (AWS는 실시간 스트리밍 필요)
+// STT (Speech-to-Text) 모듈
 export class SpeechRecognitionService {
   private recognition: SpeechRecognition | null = null
   private isListening = false
@@ -9,7 +7,6 @@ export class SpeechRecognitionService {
   private onErrorCallback?: (error: string) => void
   private onStartCallback?: () => void
   private onEndCallback?: () => void
-  private useAWS = false // AWS 실시간 STT는 복잡하므로 기본적으로 Web API 사용
 
   constructor() {
     if (typeof window !== 'undefined') {

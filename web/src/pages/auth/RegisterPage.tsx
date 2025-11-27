@@ -27,7 +27,7 @@ export default function RegisterPage() {
     mutationFn: authApi.register,
     onSuccess: () => {
       showAlert('회원가입이 완료되었습니다. 이메일 인증을 진행해주세요.', 'success')
-      navigate('/verify-code', { 
+      navigate('/web/verify-code', { 
         state: { email: formData.email } 
       })
     },
@@ -149,7 +149,7 @@ export default function RegisterPage() {
           <div className="text-body-18-regular text-gray-600 font-sans">
             이미 계정이 있으신가요?{' '}
             <Link 
-              to="/login"
+              to="/web/login"
               className="text-point-1 hover:text-pri-700 font-medium"
             >
               로그인
