@@ -17,4 +17,4 @@ scrape_configs:
         - localhost
         labels:
           job: ai-server
-          __path__: /app/serve/logs/*.log
+          __path__: /var/log/ai-server/*.log
