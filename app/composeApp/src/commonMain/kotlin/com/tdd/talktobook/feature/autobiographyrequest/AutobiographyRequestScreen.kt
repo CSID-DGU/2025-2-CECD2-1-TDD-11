@@ -26,11 +26,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 internal fun AutobiographyRequestScreen(
     goToLogIn: () -> Unit,
 ) {
-
     val interactionSource = remember { MutableInteractionSource() }
 
     AutobiographyRequestContent(
-        onClickConfirmBtn = { goToLogIn() }
+        onClickConfirmBtn = { goToLogIn() },
     )
 }
 
@@ -44,30 +43,31 @@ fun AutobiographyRequestContent(
                 .fillMaxSize()
                 .background(BackGround2),
     ) {
-
         Text(
             text = CreateAutobiographyDialogTitle,
             color = Black1,
             style = BookShelfTypo.Head20,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 180.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 180.dp),
         )
 
         Text(
             text = RequestSuccessInCoShowFlow,
             color = Black1,
             style = BookShelfTypo.Head1,
-            modifier = Modifier
-                .padding(top = 30.dp)
-                .weight(1f)
-                .align(Alignment.CenterHorizontally)
+            modifier =
+                Modifier
+                    .padding(top = 30.dp)
+                    .weight(1f)
+                    .align(Alignment.CenterHorizontally),
         )
 
         RectangleBtn(
             btnContent = Confirm,
             isBtnActivated = true,
-            onClickAction = onClickConfirmBtn
+            onClickAction = onClickConfirmBtn,
         )
 
         Spacer(modifier = Modifier.height(60.dp))
@@ -78,6 +78,6 @@ fun AutobiographyRequestContent(
 @Composable
 private fun PreviewAutobiographyRequest() {
     AutobiographyRequestContent(
-        onClickConfirmBtn = {}
+        onClickConfirmBtn = {},
     )
 }

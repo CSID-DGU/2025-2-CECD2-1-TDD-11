@@ -196,7 +196,7 @@ fun MainScreen() {
                     flowType = viewModel.screenFlowType,
                 )
                 autobiographyRequestNavGraph(
-                    navController = navController
+                    navController = navController,
                 )
                 publicationNavGraph(
                     navController = navController,

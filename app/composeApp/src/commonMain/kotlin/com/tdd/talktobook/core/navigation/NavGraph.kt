@@ -173,7 +173,7 @@ fun NavGraphBuilder.interviewNavGraph(
                 navController = navController,
                 showSkipQuestionDialog = showTwoBtnDialogModel,
                 flowType = flowType,
-                goToSuccessPage = { navController.navigate(NavRoutes.AutobiographyRequestScreen.route) { popUpTo(0) } }
+                goToSuccessPage = { navController.navigate(NavRoutes.AutobiographyRequestScreen.route) { popUpTo(0) } },
             )
         }
     }
@@ -201,15 +201,15 @@ fun NavGraphBuilder.startProgressNavGraph(
 }
 
 fun NavGraphBuilder.autobiographyRequestNavGraph(
-    navController: NavController
+    navController: NavController,
 ) {
     navigation(
         startDestination = NavRoutes.AutobiographyRequestScreen.route,
-        route = NavRoutes.AutobiographyRequestGraph.route
+        route = NavRoutes.AutobiographyRequestGraph.route,
     ) {
         composable(route = NavRoutes.AutobiographyRequestScreen.route) {
             AutobiographyRequestScreen(
-                goToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } }
+                goToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
             )
         }
     }
