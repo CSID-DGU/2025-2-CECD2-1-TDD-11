@@ -224,6 +224,7 @@ public class InterviewQueryService {
                 }
 
             } else {
+                isLast = true;
                 log.info("[GET_COSHOW_INTERVIEW_QUESTIONS] 모든 질문 완료 - interviewId: {}", interviewId);
             }
         }
