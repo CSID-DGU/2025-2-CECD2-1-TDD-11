@@ -19,10 +19,6 @@ interface AuthDataSource {
         code: String,
     ): HttpResponse
 
-    suspend fun deleteUser(): HttpResponse
-
-    suspend fun logOut(): HttpResponse
-
     suspend fun reissue(
         refreshToken: String,
     ): HttpResponse

@@ -52,12 +52,12 @@ class HomeViewModel(
                 append(today.dayOfMonth.toString().padStart(2, '0'))
             }
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 selectedDate = todayDate,
                 selectedDay = today.dayOfMonth,
-            ),
-        )
+            )
+        }
     }
 
     private fun initGetCurrentProgress() {
@@ -74,20 +74,24 @@ class HomeViewModel(
             }
 
             false -> {
-                updateState(
-                    uiState.value.copy(isCurrentProgress = false),
-                )
+                updateState { state ->
+                    state.copy(
+                        isCurrentProgress = false,
+                    )
+                }
+
+                saveCurrentProgress(AutobiographyStatusType.EMPTY)
             }
         }
     }
 
     private fun setCurrentState(data: CurrentProgressAutobiographyModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 currentAutobiographyId = data.autobiographyId,
                 isCurrentProgress = true,
-            ),
-        )
+            )
+        }
 
         saveCurrentAutobiographyId(data.autobiographyId)
         initSetCreatedMaterials(data.autobiographyId)
@@ -111,11 +115,11 @@ class HomeViewModel(
 
     private fun onSuccessCountMaterials(data: CountMaterialsResponseModel) {
         d("[ktor] homeViewmodel -> $data")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 createdMaterialList = data.popularMaterials,
-            ),
-        )
+            )
+        }
     }
 
     private fun initSetInterviewProgress(autobiographyId: Int) {
@@ -128,12 +132,12 @@ class HomeViewModel(
 
     private fun onSuccessInterviewProgress(data: CurrentInterviewProgressModel) {
         d("[ktor] homeViewmodel -> $data")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 autobiographyProgress = data.progressPercentage,
                 currentAutobiographyStatus = data.status,
-            ),
-        )
+            )
+        }
 
         saveCurrentProgress(data.status)
     }
@@ -154,11 +158,11 @@ class HomeViewModel(
 
     private fun onSuccessGetMonthSummaries(interviews: InterviewSummariesListModel) {
         d("[ktor] homeViewmodel -> ${interviews.interviews}")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 monthInterviewList = interviews.interviews,
-            ),
-        )
+            )
+        }
 
         setTodayInterviewId(interviews)
     }
@@ -193,11 +197,11 @@ class HomeViewModel(
                 append(targetDate.dayOfMonth.toString().padStart(2, '0'))
             }
 
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 selectedDay = day,
                 selectedDate = selectedDate,
-            ),
-        )
+            )
+        }
     }
 }

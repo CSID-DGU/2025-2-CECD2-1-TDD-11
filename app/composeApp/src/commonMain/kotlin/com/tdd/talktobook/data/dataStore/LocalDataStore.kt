@@ -90,6 +90,7 @@ class LocalDataStore(
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+
         val CURRENT_AUTOBIOGRAPHY_STATUS = stringPreferencesKey("current_autobiography_status")
         val CURRENT_AUTOBIOGRAPHY_ID = intPreferencesKey("current_autobiography_id")
         val CURRENT_INTERVIEW_ID = intPreferencesKey("current_interview_id")

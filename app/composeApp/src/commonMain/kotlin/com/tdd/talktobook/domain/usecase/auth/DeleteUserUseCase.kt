@@ -1,13 +1,13 @@
 package com.tdd.talktobook.domain.usecase.auth
 
 import com.tdd.talktobook.domain.base.UseCase
-import com.tdd.talktobook.domain.repository.AuthRepository
+import com.tdd.talktobook.domain.repository.MemberRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Factory
 
 @Factory
 class DeleteUserUseCase(
-    private val repository: AuthRepository,
+    private val repository: MemberRepository,
 ) : UseCase<Unit, Result<Boolean>>() {
     override suspend fun invoke(request: Unit): Flow<Result<Boolean>> =
         repository.deleteUser()

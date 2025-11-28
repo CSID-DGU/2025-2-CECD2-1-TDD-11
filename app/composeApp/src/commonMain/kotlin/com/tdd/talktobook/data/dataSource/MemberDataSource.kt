@@ -12,4 +12,8 @@ interface MemberDataSource {
     ): HttpResponse
 
     suspend fun getMemberProfile(): HttpResponse
+
+    suspend fun deleteUser(): HttpResponse
+
+    suspend fun logOut(): HttpResponse
 }

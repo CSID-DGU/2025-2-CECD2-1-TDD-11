@@ -6,6 +6,7 @@ import org.koin.ksp.generated.module
 fun initKoin() {
     startKoin {
         modules(
+            tokenModule,
             iosDataStoreModule,
             dataStoreModule,
             KtorModule.module,

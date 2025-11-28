@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import com.tdd.talktobook.core.designsystem.LogInText
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.PasswordHintText
 import com.tdd.talktobook.core.designsystem.SignUpText
+import com.tdd.talktobook.core.designsystem.StartWithoutLogIn
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
@@ -35,6 +37,7 @@ internal fun LogInScreen(
     goToSignUp: () -> Unit,
     goToHome: () -> Unit,
     goToOnboarding: () -> Unit,
+    goToStartProgress: () -> Unit,
 ) {
     val viewModel: LogInViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,6 +54,10 @@ internal fun LogInScreen(
                 is LogInEvent.GoToOnboardingPage -> {
                     goToOnboarding()
                 }
+
+                is LogInEvent.GoToStartProgressPage -> {
+                    goToStartProgress()
+                }
             }
         }
     }
@@ -63,6 +70,7 @@ internal fun LogInScreen(
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickSignUp = { goToSignUp() },
+        onClickExperience = { viewModel.clearLocalData() },
     )
 }
 
@@ -75,6 +83,7 @@ private fun LogInContent(
     passwordInput: String = "",
     onPasswordValueChange: (String) -> Unit = {},
     onClickSignUp: () -> Unit = {},
+    onClickExperience: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -127,7 +136,15 @@ private fun LogInContent(
             onClickAction = onClickLogInBtn,
         )
 
-        Spacer(modifier = Modifier.padding(bottom = 80.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        RectangleBtn(
+            btnContent = StartWithoutLogIn,
+            isBtnActivated = true,
+            onClickAction = onClickExperience,
+        )
+
+        Spacer(modifier = Modifier.padding(bottom = 60.dp))
     }
 }
 

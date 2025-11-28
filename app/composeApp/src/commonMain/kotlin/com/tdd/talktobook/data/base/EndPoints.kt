@@ -22,6 +22,9 @@ object EndPoints {
         const val CURRENT_INTERVIEW_PROGRESS = "$AUTOBIOGRAPHIESDETAIL/progress"
         const val CREATE_AUTOBIOGRAPHY = "$AUTOBIOGRAPHIESDETAIL/generate"
         const val SELECTED_THEME = "$AUTOBIOGRAPHIESDETAIL/theme"
+        const val CHANGE_STATUS = "$AUTOBIOGRAPHIESDETAIL/status"
+        const val COSHOW_START_PROGRESS = "$AUTOBIOGRAPHIES/coshow/init"
+        const val COSHOW_CREATE_AUTOBIOGRAPHY = "$AUTOBIOGRAPHIESDETAIL/coshow/generate"
     }
 
     object Member {
@@ -39,6 +42,9 @@ object EndPoints {
         const val INTERVIEWRENEWAL = "$INTERVIEWID/questions/current-question"
         const val INTERVIEWQUESTIONLIST = "$INTERVIEWID/questions"
         const val INTERVIEW_SUMMARY = "$INTERVIEW/{autobiographyId}/interviews/summaries"
+
+        const val COSHOW_INTERVIEW_QUESTION = "$INTERVIEWID/co-show/questions"
+        const val COSHOW_INTERVIEW_CONVERSATIONS = "$INTERVIEWID/co-show/conversations"
     }
 
     object Publication {

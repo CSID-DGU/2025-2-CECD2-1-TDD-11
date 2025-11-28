@@ -24,4 +24,12 @@ class MemberRepositoryImpl(
                 request.ageGroup,
             )
         })
+
+    override suspend fun deleteUser(): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = {
+            memberDataSource.deleteUser()
+        })
+
+    override suspend fun logOut(): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { memberDataSource.logOut() })
 }

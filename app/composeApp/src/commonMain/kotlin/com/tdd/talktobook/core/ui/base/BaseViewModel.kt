@@ -19,10 +19,13 @@ abstract class BaseViewModel<STATE : PageState>(
     private val _eventFlow = MutableSharedFlow<Event>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    protected fun updateState(state: STATE) {
-        viewModelScope.launch {
-            _uiState.update { state }
-        }
+//    protected fun updateState(state: STATE) {
+//        viewModelScope.launch {
+//            _uiState.update { state }
+//        }
+//    }
+    protected fun updateState(reducer: (STATE) -> STATE) {
+        _uiState.update { current -> reducer(current) }
     }
 
     protected fun emitEventFlow(event: Event) {

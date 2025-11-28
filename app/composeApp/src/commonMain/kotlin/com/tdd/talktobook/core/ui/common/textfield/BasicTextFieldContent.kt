@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
@@ -84,7 +85,7 @@ fun BasicTextFieldBoxContent(
             },
             modifier =
                 Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(horizontal = 15.dp, vertical = 18.dp)
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused

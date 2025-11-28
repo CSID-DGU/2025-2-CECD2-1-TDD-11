@@ -17,14 +17,14 @@ import org.koin.dsl.module
 val viewModelModule =
     module {
         viewModel { MainViewModel() }
-        viewModel { LogInViewModel(get(), get()) }
+        viewModel { LogInViewModel(get(), get(), get()) }
         viewModel { SignUpViewModel(get()) }
         viewModel { EmailCheckViewModel(get()) }
         viewModel { OnboardingViewModel(get()) }
-        viewModel { StartProgressViewModel(get(), get(), get(), get(), get()) }
-        viewModel { InterviewViewModel(get(), get(), get(), get(), get()) }
+        viewModel { StartProgressViewModel(get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { InterviewViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { HomeViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { PastInterviewViewModel(get()) }
-        viewModel { SettingViewModel(get(), get(), get()) }
+        viewModel { SettingViewModel(get(), get(), get(), get()) }
         viewModel { PublicationViewModel(get()) }
     }

@@ -43,8 +43,8 @@ jobs:
         env:
           GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
         run: |
-          mkdir -p app/composeApp
-          echo "$GOOGLE_SERVICES" | base64 -d > app/composeApp/google-services.json
+          mkdir -p composeApp
+          echo "$GOOGLE_SERVICES" | base64 -d > composeApp/google-services.json
 
       - name: Lint (ktlint)
         run: ./gradlew ktlintCheck

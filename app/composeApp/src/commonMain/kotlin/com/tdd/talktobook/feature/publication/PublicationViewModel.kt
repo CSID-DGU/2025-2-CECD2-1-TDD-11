@@ -29,19 +29,19 @@ class PublicationViewModel(
 
     private fun onSuccessGetAutobiographies(data: AllAutobiographyListModel) {
         d("[ktor] publicationViewmodel -> $data")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 autobiographyList = data.results.filter { it.status == AutobiographyStatusType.FINISH.type },
                 selectedAutobiographyId = if (data.results.isNotEmpty()) data.results[0].autobiographyId else 0,
-            ),
-        )
+            )
+        }
     }
 
     fun setSelectedAutobiographyId(id: Int) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 selectedAutobiographyId = id,
-            ),
-        )
+            )
+        }
     }
 }
