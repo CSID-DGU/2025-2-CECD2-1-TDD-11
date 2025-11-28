@@ -41,7 +41,7 @@ jobs:
         env:
           GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
         run: |
-          mkdir -p app/composeApp
+          mkdir -p composeApp
           echo "$GOOGLE_SERVICES" | base64 -d > app/composeApp/google-services.json
 
       # --------- Android: Release APK 빌드 ----------
