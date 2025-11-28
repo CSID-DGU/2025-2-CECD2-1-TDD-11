@@ -114,7 +114,8 @@ class AutobiographyRepositoryImpl(
     override suspend fun patchCreateAutobiography(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             autobiographyDataSource.patchCreateAutobiography(
-                body.autobiographyId, body.name,
+                body.autobiographyId,
+                body.name,
             )
         })
 
@@ -155,5 +156,4 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun getCoShowGenerate(body: GetCoShowGenerateRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.getCoShowGenerate(body.autobiographyId, body.name) })
-
 }

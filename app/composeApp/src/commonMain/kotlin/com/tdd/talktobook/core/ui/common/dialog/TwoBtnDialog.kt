@@ -25,7 +25,6 @@ import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.White3
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 
-
 @Composable
 fun TwoBtnDialog(
     title: String,

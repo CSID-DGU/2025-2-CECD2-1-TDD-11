@@ -120,7 +120,7 @@ fun MainScreen() {
                 uiState.twoBtnDialogModel.onClickBottomText()
             },
             isBottomTextVisible = true,
-            onDismiss = { isShowTwoBtnDialog.value = false }
+            onDismiss = { isShowTwoBtnDialog.value = false },
         )
     }
 
@@ -165,7 +165,7 @@ fun MainScreen() {
             ) {
                 loginNavGraph(
                     navController = navController,
-                    setScreenFlow = settingFlowType
+                    setScreenFlow = settingFlowType,
                 )
                 signupNavGraph(
                     navController = navController,
@@ -187,12 +187,12 @@ fun MainScreen() {
                     showOneBtnDialogModel = showOneBtnDialog,
                     userNickName = viewModel.userNickName,
                     showTwoBtnDialogModel = showTwoBtnDialog,
-                    flowType = viewModel.screenFlowType
+                    flowType = viewModel.screenFlowType,
                 )
                 startProgressNavGraph(
                     navController = navController,
                     setUserNickName = settingUserNickName,
-                    flowType = viewModel.screenFlowType
+                    flowType = viewModel.screenFlowType,
                 )
                 publicationNavGraph(
                     navController = navController,

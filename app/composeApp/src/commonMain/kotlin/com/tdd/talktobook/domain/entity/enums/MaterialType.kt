@@ -57,7 +57,8 @@ enum class MaterialType(
     PHILOSOPHY(Philosophy, PhilosophyContent, true, PhilosophyContent),
     COMMUNITY(Community, CommunityContent),
     PARENT(Parent, ParentContent),
-    DEFAULT(Empty, Empty);
+    DEFAULT(Empty, Empty),
+    ;
 
     companion object {
         fun getCoShowMaterials(): List<MaterialType> =

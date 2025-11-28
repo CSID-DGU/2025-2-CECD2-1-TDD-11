@@ -43,9 +43,8 @@ class InterviewViewModel(
     private val postCoShowAnswerUseCase: PostCoShowAnswerUseCase,
     private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase,
 ) : BaseViewModel<InterviewPageState>(
-    InterviewPageState(),
-) {
-
+        InterviewPageState(),
+    ) {
     init {
         initGetAutobiographyStatus()
     }
@@ -53,17 +52,16 @@ class InterviewViewModel(
     fun setFlowType(type: FlowType) {
         updateState { state ->
             state.copy(
-                flowType = type
+                flowType = type,
             )
         }
     }
-
 
     fun setUserNickName(name: String) {
         d("[test] interview -> name: $name")
         updateState { state ->
             state.copy(
-                nickName = name
+                nickName = name,
             )
         }
     }
@@ -154,7 +152,7 @@ class InterviewViewModel(
         updateState { state ->
             state.copy(
                 interviewChatList = data.results,
-                answerInputs = emptyList()
+                answerInputs = emptyList(),
             )
         }
     }
@@ -200,7 +198,7 @@ class InterviewViewModel(
         updateState { state ->
             state.copy(
                 interviewProgressType = ConversationType.FINISH,
-                answerInputs = originalAnswer + chat
+                answerInputs = originalAnswer + chat,
             )
         }
     }
@@ -238,7 +236,7 @@ class InterviewViewModel(
             state.copy(
                 interviewProgressType = ConversationType.BEFORE,
                 interviewChatList = updatedList,
-                isStartAnswerBtnActivated = false
+                isStartAnswerBtnActivated = false,
             )
         }
 
@@ -290,7 +288,7 @@ class InterviewViewModel(
         updateState { state ->
             state.copy(
                 answerInputs = emptyList(),
-                isStartAnswerBtnActivated = true
+                isStartAnswerBtnActivated = true,
             )
         }
     }
@@ -309,7 +307,7 @@ class InterviewViewModel(
             state.copy(
                 answerInputs = emptyList(),
                 isLast = data.isLast,
-                isStartAnswerBtnActivated = true
+                isStartAnswerBtnActivated = true,
             )
         }
 
@@ -375,7 +373,7 @@ class InterviewViewModel(
     }
 
     fun setSkipQuestion(skipType: SkipQuestionType) {
-        //TODO 질문 넘기는 이유 이벤트 설정
+        // TODO 질문 넘기는 이유 이벤트 설정
         d("[ktor] interview -> 질문 넘기기: $skipType")
 
         updateState { state ->

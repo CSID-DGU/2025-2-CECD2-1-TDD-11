@@ -7,5 +7,5 @@ import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 data class MainPageState(
     val bottomNavType: BottomNavType = BottomNavType.DEFAULT,
     val oneBtnDialogModel: OneBtnDialogModel = OneBtnDialogModel(),
-    val twoBtnDialogModel: TwoBtnDialogModel = TwoBtnDialogModel()
+    val twoBtnDialogModel: TwoBtnDialogModel = TwoBtnDialogModel(),
 ) : PageState

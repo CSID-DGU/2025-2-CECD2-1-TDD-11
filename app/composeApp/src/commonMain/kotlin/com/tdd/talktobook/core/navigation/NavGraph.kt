@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
-    setScreenFlow: (FlowType) -> Unit
+    setScreenFlow: (FlowType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.LogInScreen.route,
@@ -37,7 +37,7 @@ fun NavGraphBuilder.loginNavGraph(
                 goToStartProgress = {
                     setScreenFlow(FlowType.COSHOW)
                     navController.navigate(NavRoutes.StartProgressScreen.route)
-                }
+                },
             )
         }
     }
@@ -171,7 +171,7 @@ fun NavGraphBuilder.interviewNavGraph(
                 navController = navController,
                 showSkipQuestionDialog = showTwoBtnDialogModel,
                 flowType = flowType,
-                goBackToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } }
+                goBackToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
             )
         }
     }
@@ -180,7 +180,7 @@ fun NavGraphBuilder.interviewNavGraph(
 fun NavGraphBuilder.startProgressNavGraph(
     navController: NavController,
     setUserNickName: (String) -> Unit,
-    flowType: StateFlow<FlowType>
+    flowType: StateFlow<FlowType>,
 ) {
     navigation(
         startDestination = NavRoutes.StartProgressScreen.route,
@@ -192,7 +192,7 @@ fun NavGraphBuilder.startProgressNavGraph(
                 goToCoShowInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel("")) },
                 goBackToHome = { navController.popBackStack() },
                 setUserNickName = setUserNickName,
-                flowType = flowType
+                flowType = flowType,
             )
         }
     }
@@ -221,7 +221,7 @@ fun NavGraphBuilder.settingNavGraph(
         composable(NavRoutes.SettingPageScreen.route) {
             SettingScreen(
                 goBackPage = { navController.popBackStack() },
-                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route )}
+                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
             )
         }
     }

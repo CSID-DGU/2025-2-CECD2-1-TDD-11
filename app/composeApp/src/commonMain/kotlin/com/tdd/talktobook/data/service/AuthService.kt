@@ -1,8 +1,6 @@
 package com.tdd.talktobook.data.service
 
 import com.tdd.talktobook.data.base.EndPoints
-import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateRequestDto
-import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Multipart
 import de.jensklingenberg.ktorfit.http.POST
@@ -51,9 +49,8 @@ interface AuthService {
     suspend fun getCoShowGenerate(
         @Path("autobiographyId") autobiographyId: Int,
 //        @Query("requestDto") request: GetCoShowGenerateRequestDto
-        @Query("name") name: String
+        @Query("name") name: String,
     ): HttpResponse
-
 
     @GET(EndPoints.Interview.COSHOW_INTERVIEW_CONVERSATIONS)
     suspend fun getCoShowInterviewConversation(
@@ -64,6 +61,6 @@ interface AuthService {
     @POST(EndPoints.Interview.COSHOW_INTERVIEW_QUESTION)
     suspend fun postCoShowInterviewAnswer(
         @Path("interviewId") interviewId: Int,
-        @Part("answerText") answerText: String
+        @Part("answerText") answerText: String,
     ): HttpResponse
 }

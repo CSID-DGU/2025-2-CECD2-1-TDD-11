@@ -25,6 +25,6 @@ interface InterviewDataSource {
 
     suspend fun postCoShowInterviewAnswer(
         interviewId: Int,
-        answerText: String
+        answerText: String,
     ): HttpResponse
 }

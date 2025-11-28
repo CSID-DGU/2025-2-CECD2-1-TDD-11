@@ -1,7 +1,6 @@
 package com.tdd.talktobook.data.service
 
 import com.tdd.talktobook.data.base.EndPoints
-import com.tdd.talktobook.data.entity.request.autobiography.GetCoShowGenerateRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyChapterRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiographyRequestDto
@@ -88,6 +87,6 @@ interface AutobiographyService {
     @PATCH(EndPoints.Autobiography.CHANGE_STATUS)
     suspend fun patchChangeStatus(
         @Path("autobiographyId") autobiographyId: Int,
-        @Query("status") status: String
+        @Query("status") status: String,
     ): HttpResponse
 }

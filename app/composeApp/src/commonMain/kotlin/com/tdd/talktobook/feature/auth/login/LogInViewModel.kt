@@ -15,7 +15,7 @@ import org.koin.android.annotation.KoinViewModel
 class LogInViewModel(
     private val postEmailLogInUseCase: PostEmailLogInUseCase,
     private val saveTokenUseCase: SaveTokenUseCase,
-    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
 ) : BaseViewModel<LogInPageState>(
         LogInPageState(),
     ) {

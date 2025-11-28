@@ -70,7 +70,7 @@ internal fun LogInScreen(
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickSignUp = { goToSignUp() },
-        onClickExperience = { viewModel.clearLocalData() }
+        onClickExperience = { viewModel.clearLocalData() },
     )
 }
 

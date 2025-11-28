@@ -10,7 +10,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class PostCoShowAnswerUseCase(
     private val repository: InterviewRepository,
-): UseCase<CoShowAnswerRequestModel, Result<CoShowAnswerModel>>() {
+) : UseCase<CoShowAnswerRequestModel, Result<CoShowAnswerModel>>() {
     override suspend fun invoke(request: CoShowAnswerRequestModel): Flow<Result<CoShowAnswerModel>> =
         repository.postCoShowAnswer(request)
 }

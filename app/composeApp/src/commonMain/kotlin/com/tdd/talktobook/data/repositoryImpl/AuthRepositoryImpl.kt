@@ -4,7 +4,6 @@ import com.tdd.talktobook.data.dataSource.AuthDataSource
 import com.tdd.talktobook.data.dataStore.LocalDataStore
 import com.tdd.talktobook.data.mapper.auth.EmailLogInMapper
 import com.tdd.talktobook.data.mapper.auth.ReissueMapper
-import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanNotJsonMapper
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel

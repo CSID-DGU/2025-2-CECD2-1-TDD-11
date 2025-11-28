@@ -1,6 +1,6 @@
 package com.tdd.talktobook.domain.entity.request.interview
 
-data class CoShowAnswerRequestModel (
+data class CoShowAnswerRequestModel(
     val interviewId: Int = 0,
-    val answerText: String = ""
+    val answerText: String = "",
 )

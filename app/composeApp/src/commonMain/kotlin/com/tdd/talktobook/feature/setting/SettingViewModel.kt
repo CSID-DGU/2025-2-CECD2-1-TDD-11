@@ -16,7 +16,7 @@ class SettingViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
     private val logOutUseCase: LogOutUseCase,
-    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
 ) : BaseViewModel<SettingPageState>(
         SettingPageState(),
     ) {

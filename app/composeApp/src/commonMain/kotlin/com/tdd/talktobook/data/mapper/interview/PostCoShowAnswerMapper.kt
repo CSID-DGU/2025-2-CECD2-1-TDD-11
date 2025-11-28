@@ -6,7 +6,7 @@ import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
 
-object PostCoShowAnswerMapper: BaseMapper() {
+object PostCoShowAnswerMapper : BaseMapper() {
     fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<CoShowAnswerModel>> {
         return baseMapper(
             apiCall = { apiCall() },
@@ -17,10 +17,10 @@ object PostCoShowAnswerMapper: BaseMapper() {
                         id = data.id,
                         order = data.order,
                         question = data.question,
-                        isLast = data.isLast
+                        isLast = data.isLast,
                     )
                 } ?: CoShowAnswerModel()
-            }
+            },
         )
     }
 }

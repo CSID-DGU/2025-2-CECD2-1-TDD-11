@@ -14,8 +14,8 @@ import org.koin.android.annotation.KoinViewModel
 class OnboardingViewModel(
     private val putEditMemberInfoUseCase: PutEditMemberInfoUseCase,
 ) : BaseViewModel<OnboardingPageState>(
-    OnboardingPageState(),
-) {
+        OnboardingPageState(),
+    ) {
     fun setPageType(type: OnboardingPageType) {
         updateState { state ->
             state.copy(

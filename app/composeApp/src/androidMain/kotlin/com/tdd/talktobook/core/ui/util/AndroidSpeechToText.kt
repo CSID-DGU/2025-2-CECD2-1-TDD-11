@@ -19,7 +19,7 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
     private var recognizer: SpeechRecognizer? = null
     private var finalResult: String = ""
     private var partialCb: ((String) -> Unit)? = null
-    private var stopContinuation: ( (String) -> Unit )? = null
+    private var stopContinuation: ((String) -> Unit)? = null
 
     override var isRunning: Boolean = false
         private set
@@ -42,11 +42,11 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
                     // 침묵 허용 시간
                     putExtra(
                         RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-                        10000L
+                        10000L,
                     )
                     putExtra(
                         RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
-                        10000L
+                        10000L,
                     )
                 }
             sr.setRecognitionListener(

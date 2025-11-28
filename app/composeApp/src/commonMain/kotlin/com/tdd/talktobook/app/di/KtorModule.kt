@@ -41,7 +41,7 @@ object KtorModule {
     fun provideHttpClient(
         json: Json,
         localDataStore: LocalDataStore,
-        tokenProvider: TokenProvider
+        tokenProvider: TokenProvider,
     ): HttpClient =
         HttpClient {
             install(ContentNegotiation) {

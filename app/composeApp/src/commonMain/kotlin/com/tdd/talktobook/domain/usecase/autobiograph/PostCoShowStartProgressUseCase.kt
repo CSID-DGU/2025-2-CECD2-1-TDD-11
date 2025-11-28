@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Factory
 
 @Factory
-class PostCoShowProgressUseCase(
+class PostCoShowStartProgressUseCase(
     private val repository: AutobiographyRepository,
 ) : UseCase<StartProgressRequestModel, Result<InterviewAutobiographyModel>>() {
     override suspend fun invoke(request: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>> =

@@ -19,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
-
 @Composable
 actual fun rememberMicPermissionRequester(
     onPermissionGranted: () -> Unit,
@@ -104,7 +103,7 @@ actual fun rememberMicPermissionRequester(
             text = {
                 Text(
                     "마이크 권한이 꺼져 있어 음성 기능을 사용할 수 없습니다.\n" +
-                            "설정 > 앱 정보에서 권한을 직접 허용해 주세요.",
+                        "설정 > 앱 정보에서 권한을 직접 허용해 주세요.",
                 )
             },
             confirmButton = {

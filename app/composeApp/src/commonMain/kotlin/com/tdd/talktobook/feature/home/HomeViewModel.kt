@@ -76,7 +76,7 @@ class HomeViewModel(
             false -> {
                 updateState { state ->
                     state.copy(
-                        isCurrentProgress = false
+                        isCurrentProgress = false,
                     )
                 }
 

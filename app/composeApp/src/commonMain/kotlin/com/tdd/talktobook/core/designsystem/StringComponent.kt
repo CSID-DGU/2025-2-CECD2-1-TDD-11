@@ -153,7 +153,6 @@ const val InterviewContinuous = "이어 말하기"
 const val InterviewReAnswer = "다시 말하기"
 const val InterviewNextQuestion = "다음 질문 넘어가기"
 
-
 // Dialog
 const val StartAutobiographyDialogTitle = "자서전 생성 시작하기"
 const val StartAutobiographyDialogContent = "지금 바로 대화 인터뷰를 통해\n나만의 자서전을 생성해 보세요!"

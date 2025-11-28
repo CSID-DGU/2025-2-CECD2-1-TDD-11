@@ -1,6 +1,6 @@
 package com.tdd.talktobook.domain.entity.request.page
 
-data class TwoBtnDialogModel (
+data class TwoBtnDialogModel(
     val title: String = "",
     val semiTitle: String = "",
     val firstBtnText: String = "",
@@ -8,5 +8,5 @@ data class TwoBtnDialogModel (
     val secondBtnText: String = "",
     val onClickBtnSecond: () -> Unit = {},
     val bottomBtnText: String = "",
-    val onClickBottomText: () -> Unit = {}
+    val onClickBottomText: () -> Unit = {},
 )

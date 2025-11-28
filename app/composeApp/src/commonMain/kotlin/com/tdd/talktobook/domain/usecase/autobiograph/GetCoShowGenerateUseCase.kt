@@ -10,7 +10,6 @@ import org.koin.core.annotation.Factory
 class GetCoShowGenerateUseCase(
     private val repository: AutobiographyRepository,
 ) : UseCase<GetCoShowGenerateRequestModel, Result<Boolean>>() {
-
     override suspend fun invoke(request: GetCoShowGenerateRequestModel): Flow<Result<Boolean>> =
         repository.getCoShowGenerate(request)
 }

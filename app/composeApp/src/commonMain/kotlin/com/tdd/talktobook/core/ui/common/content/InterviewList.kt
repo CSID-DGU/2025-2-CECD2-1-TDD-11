@@ -23,7 +23,7 @@ fun InterviewList(
     modifier: Modifier,
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     onItemLongClick: (InterviewChatItem) -> Unit = {},
-    onItemClick: () -> Unit = {}
+    onItemClick: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
 
@@ -37,7 +37,7 @@ fun InterviewList(
         scrollState,
         interactionSource = interactionSource,
         onItemClick = onItemClick,
-        onItemLongClick = onItemLongClick
+        onItemLongClick = onItemLongClick,
     )
 }
 
@@ -48,7 +48,7 @@ private fun InterviewListContent(
     scrollState: ScrollState,
     onItemLongClick: (InterviewChatItem) -> Unit,
     interactionSource: MutableInteractionSource,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
 ) {
     Column(
         modifier =
@@ -67,7 +67,7 @@ private fun InterviewListContent(
                         .align(if (item.chatType == ChatType.BOT) Alignment.Start else Alignment.End),
                 interactionSource = interactionSource,
                 onClick = onItemClick,
-                onLongPress = { onItemLongClick(item) }
+                onLongPress = { onItemLongClick(item) },
             )
         }
     }

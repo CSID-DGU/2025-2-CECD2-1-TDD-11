@@ -9,8 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class ChangeAutobiographyStatusUseCase(
     private val repository: AutobiographyRepository,
-): UseCase<ChangeAutobiographyStatusRequestModel, Result<Boolean>>() {
-
+) : UseCase<ChangeAutobiographyStatusRequestModel, Result<Boolean>>() {
     override suspend fun invoke(request: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>> =
         repository.patchChangeStatus(request)
 }

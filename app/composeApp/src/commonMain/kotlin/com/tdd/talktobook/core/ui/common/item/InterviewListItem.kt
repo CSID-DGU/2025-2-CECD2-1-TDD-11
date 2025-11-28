@@ -36,7 +36,7 @@ fun InterviewListItem(
                     onLongClick = onLongPress,
                     onClick = onClick,
                     indication = null,
-                    interactionSource = interactionSource
+                    interactionSource = interactionSource,
                 ),
     ) {
         Text(

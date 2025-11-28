@@ -18,8 +18,8 @@ object ChatInterviewMapper : BaseMapper() {
                         id = data.nextQuestion.id,
                         text = data.nextQuestion.text,
                         type = data.nextQuestion.type,
-                        materialId =  data.nextQuestion.materialId,
-                        material = data.nextQuestion.material
+                        materialId = data.nextQuestion.materialId,
+                        material = data.nextQuestion.material,
                     )
                 } ?: ChatInterviewResponseModel()
             },

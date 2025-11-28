@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -82,27 +81,28 @@ internal fun InterviewScreen(
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
                 d("[stt] 대화 -> $partial")
                 uiState.interviewChatList +
-                        InterviewChatItem(
-                            content = partial,
-                            chatType = ChatType.HUMAN,
-                        )
+                    InterviewChatItem(
+                        content = partial,
+                        chatType = ChatType.HUMAN,
+                    )
             } else {
                 uiState.interviewChatList
             }
         }
 
-    val requestMicPermission = rememberMicPermissionRequester(
-        onPermissionGranted = {
-            scope.launch {
-                partial = ""
-                viewModel.beginInterview()
-                stt.start { p -> partial = p }
-            }
-        },
-        onPermissionDeniedPermanently = {
-            d("[test] interview 권한 거부")
-        }
-    )
+    val requestMicPermission =
+        rememberMicPermissionRequester(
+            onPermissionGranted = {
+                scope.launch {
+                    partial = ""
+                    viewModel.beginInterview()
+                    stt.start { p -> partial = p }
+                }
+            },
+            onPermissionDeniedPermanently = {
+                d("[test] interview 권한 거부")
+            },
+        )
 
     LaunchedEffect(flowType) {
         flowType.collect {
@@ -134,7 +134,7 @@ internal fun InterviewScreen(
                             isBottomTextVisible = true,
                             bottomText = NextTime,
                             onClickBtn = { navController.navigate(NavRoutes.StartProgressScreen.route) },
-                            onClickBottomText = { navController.navigate(NavRoutes.HomeScreen.route) }
+                            onClickBottomText = { navController.navigate(NavRoutes.HomeScreen.route) },
                         ),
                     )
                 }
@@ -148,8 +148,8 @@ internal fun InterviewScreen(
                             isBottomTextVisible = true,
                             bottomText = NextTime,
                             onClickBtn = { viewModel.createCurrentAutobiography() },
-                            onClickBottomText = {}
-                        )
+                            onClickBottomText = {},
+                        ),
                     )
                 }
 
@@ -190,12 +190,12 @@ internal fun InterviewScreen(
                         secondBtnText = SkipQuestionSecondBtn,
                         onClickBtnSecond = { viewModel.setSkipQuestion(SkipQuestionType.B) },
                         bottomBtnText = SkipQuestionBottomHint,
-                        onClickBottomText = { viewModel.setSkipQuestion(SkipQuestionType.DEFAULT) }
-                    )
+                        onClickBottomText = { viewModel.setSkipQuestion(SkipQuestionType.DEFAULT) },
+                    ),
                 )
             }
         },
-        isStartAnswerBtnActivated = uiState.isStartAnswerBtnActivated
+        isStartAnswerBtnActivated = uiState.isStartAnswerBtnActivated,
     )
 }
 
@@ -212,7 +212,7 @@ private fun InterviewContent(
     onSetInterviewContinuous: () -> Unit = {},
     onSetInterviewRequestNextQuestion: () -> Unit = {},
     onItemLongClick: (InterviewChatItem) -> Unit = {},
-    isStartAnswerBtnActivated: Boolean = false
+    isStartAnswerBtnActivated: Boolean = false,
 ) {
     Column(
         modifier =
@@ -230,30 +230,31 @@ private fun InterviewContent(
             interviewList = interviewChatList,
             modifier = Modifier.weight(1f),
             interactionSource = interactionSource,
-            onItemLongClick = onItemLongClick
+            onItemLongClick = onItemLongClick,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         if (interviewProgressType.plusFirstBtn != null) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(15.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
             ) {
                 RectangleBtn(
                     btnContent = InterviewReAnswer,
                     isBtnActivated = true,
                     onClickAction = onSetInterviewReAnswer,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
 
                 RectangleBtn(
                     btnContent = InterviewContinuous,
                     isBtnActivated = true,
                     onClickAction = onSetInterviewContinuous,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -268,11 +269,17 @@ private fun InterviewContent(
             isBtnActivated = isStartAnswerBtnActivated,
             onClickAction = {
                 when (interviewProgressType) {
-                    ConversationType.BEFORE -> { onStartInterview() }
+                    ConversationType.BEFORE -> {
+                        onStartInterview()
+                    }
 
-                    ConversationType.ING -> { onSetInterview() }
+                    ConversationType.ING -> {
+                        onSetInterview()
+                    }
 
-                    ConversationType.FINISH -> { onSetInterviewRequestNextQuestion() }
+                    ConversationType.FINISH -> {
+                        onSetInterviewRequestNextQuestion()
+                    }
                 }
             },
         )

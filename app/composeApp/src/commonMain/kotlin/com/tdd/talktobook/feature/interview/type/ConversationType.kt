@@ -17,7 +17,7 @@ enum class ConversationType(
 ) {
     BEFORE(BeforeStart, InterviewStartBtn),
     ING(InterviewIng, InterviewFinishBtn),
-    FINISH(FinishRequest, InterviewNextQuestion, InterviewReAnswer, InterviewContinuous)
+    FINISH(FinishRequest, InterviewNextQuestion, InterviewReAnswer, InterviewContinuous),
     ;
 
     companion object {

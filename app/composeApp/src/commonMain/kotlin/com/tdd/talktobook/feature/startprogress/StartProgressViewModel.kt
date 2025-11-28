@@ -12,7 +12,7 @@ import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiog
 import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.StartInterviewResponseModel
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.PostCoShowProgressUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.PostCoShowStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
@@ -29,15 +29,15 @@ class StartProgressViewModel(
     private val getSelectedThemeUseCase: GetSelectedThemeUseCase,
     private val postStartInterviewUseCase: PostStartInterviewUseCase,
     private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
-    private val postCoShowProgressUseCase: PostCoShowProgressUseCase,
-    private val saveInterviewIdUseCase: SaveInterviewIdUseCase
+    private val postCoShowProgressUseCase: PostCoShowStartProgressUseCase,
+    private val saveInterviewIdUseCase: SaveInterviewIdUseCase,
 ) : BaseViewModel<StartProgressPageState>(
         StartProgressPageState(),
     ) {
     fun setFlowType(type: FlowType) {
         updateState { state ->
             state.copy(
-                flowType = type
+                flowType = type,
             )
         }
     }
@@ -64,7 +64,7 @@ class StartProgressViewModel(
         updateState { state ->
             state.copy(
                 nickNameInput = newValue,
-                isBtnActivated = newValue.isNotEmpty()
+                isBtnActivated = newValue.isNotEmpty(),
             )
         }
     }

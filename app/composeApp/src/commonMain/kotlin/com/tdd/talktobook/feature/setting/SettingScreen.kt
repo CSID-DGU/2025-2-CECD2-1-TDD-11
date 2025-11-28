@@ -49,7 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun SettingScreen(
     goBackPage: () -> Unit,
-    goToLogInPage: () -> Unit
+    goToLogInPage: () -> Unit,
 ) {
     val viewModel: SettingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

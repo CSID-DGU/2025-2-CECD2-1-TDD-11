@@ -84,7 +84,7 @@ internal fun StartProgressScreen(
         onClickBack = { goBackToHome() },
         nickNameInput = uiState.nickNameInput,
         onNickNameValueChange = { viewModel.onNickNameValueChange(it) },
-        flowType = uiState.flowType
+        flowType = uiState.flowType,
     )
 }
 
@@ -102,7 +102,7 @@ private fun StartProgressContent(
     onClickBack: () -> Unit,
     nickNameInput: String,
     onNickNameValueChange: (String) -> Unit,
-    flowType: FlowType
+    flowType: FlowType,
 ) {
     Column(
         modifier =
@@ -139,7 +139,7 @@ private fun StartProgressContent(
                     TextFieldBox(
                         textInput = nickNameInput,
                         onValueChange = onNickNameValueChange,
-                        hintText = NickNameInputHint
+                        hintText = NickNameInputHint,
                     )
                 }
 
@@ -147,7 +147,7 @@ private fun StartProgressContent(
                     SelectMaterial(
                         selectedMaterial = selectedMaterial,
                         onSelectMaterial = onSelectMaterial,
-                        flowType = flowType
+                        flowType = flowType,
                     )
                 }
 
@@ -185,7 +185,7 @@ private fun StartProgressContent(
 private fun SelectMaterial(
     selectedMaterial: MaterialType,
     onSelectMaterial: (MaterialType) -> Unit,
-    flowType: FlowType = FlowType.DEFAULT
+    flowType: FlowType = FlowType.DEFAULT,
 ) {
     Spacer(modifier = Modifier.padding(top = 48.dp))
 
@@ -195,39 +195,43 @@ private fun SelectMaterial(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
     ) {
-        if (flowType == FlowType.DEFAULT) MaterialType.entries else MaterialType.getCoShowMaterials()
-            .dropLast(1)
-            .chunked(3)
-            .forEachIndexed { index, rowItems ->
-                Row(
-                    modifier =
-                        Modifier
-                            .padding(horizontal = 30.dp)
-                            .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    rowItems.forEach { material ->
-                        Box(
-                            modifier =
-                                Modifier
-                                    .weight(1f),
-                        ) {
-                            SelectCircleListItem(
-                                itemText = material.content,
-                                isSelected = (material == selectedMaterial),
-                                onSelect = { onSelectMaterial(material) },
-                            )
+        if (flowType == FlowType.DEFAULT) {
+            MaterialType.entries
+        } else {
+            MaterialType.getCoShowMaterials()
+                .dropLast(1)
+                .chunked(3)
+                .forEachIndexed { index, rowItems ->
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 30.dp)
+                                .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        rowItems.forEach { material ->
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .weight(1f),
+                            ) {
+                                SelectCircleListItem(
+                                    itemText = material.content,
+                                    isSelected = (material == selectedMaterial),
+                                    onSelect = { onSelectMaterial(material) },
+                                )
+                            }
+                        }
+
+                        if (rowItems.size < 3) {
+                            repeat(3 - rowItems.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
                     }
 
-                    if (rowItems.size < 3) {
-                        repeat(3 - rowItems.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
+                    Spacer(modifier = Modifier.padding(top = 20.dp))
                 }
-
-                Spacer(modifier = Modifier.padding(top = 20.dp))
-            }
+        }
     }
 }

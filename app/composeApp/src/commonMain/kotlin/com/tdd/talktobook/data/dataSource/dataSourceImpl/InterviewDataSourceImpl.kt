@@ -10,7 +10,7 @@ import org.koin.core.annotation.Single
 @Single(binds = [InterviewDataSource::class])
 class InterviewDataSourceImpl(
     private val interviewService: InterviewService,
-    private val authService: AuthService
+    private val authService: AuthService,
 ) : InterviewDataSource {
     override suspend fun getInterviewConversation(interviewId: Int): HttpResponse =
         interviewService.getInterviewConversation(interviewId)
@@ -37,6 +37,9 @@ class InterviewDataSourceImpl(
     ): HttpResponse =
         interviewService.getInterviewSummaries(autobiographyId, year, month)
 
-    override suspend fun postCoShowInterviewAnswer(interviewId: Int, answerText: String): HttpResponse =
+    override suspend fun postCoShowInterviewAnswer(
+        interviewId: Int,
+        answerText: String,
+    ): HttpResponse =
         authService.postCoShowInterviewAnswer(interviewId, answerText)
 }
