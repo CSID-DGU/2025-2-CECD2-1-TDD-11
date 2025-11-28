@@ -62,7 +62,7 @@ internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showSkipQuestionDialog: (TwoBtnDialogModel) -> Unit,
-    goBackToLogIn: () -> Unit,
+    goToSuccessPage: () -> Unit,
     startQuestion: String = "",
     nickName: StateFlow<String>,
     navController: NavController,
@@ -145,7 +145,7 @@ internal fun InterviewScreen(
                             title = CreateAutobiographyDialogTitle,
                             semiTitle = CreateAutobiographyDialogContent,
                             btnText = CreateAutobiographyDialogBtn,
-                            isBottomTextVisible = true,
+                            isBottomTextVisible = (uiState.flowType == FlowType.DEFAULT),
                             bottomText = NextTime,
                             onClickBtn = { viewModel.createCurrentAutobiography() },
                             onClickBottomText = {},
@@ -154,7 +154,7 @@ internal fun InterviewScreen(
                 }
 
                 is InterviewEvent.GoBackToLogIn -> {
-                    goBackToLogIn()
+                    goToSuccessPage()
                 }
             }
         }

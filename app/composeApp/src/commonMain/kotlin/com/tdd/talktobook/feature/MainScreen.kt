@@ -25,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.tdd.talktobook.core.designsystem.White0
 import com.tdd.talktobook.core.navigation.NavRoutes
+import com.tdd.talktobook.core.navigation.autobiographyRequestNavGraph
 import com.tdd.talktobook.core.navigation.emailCheckNavGraph
 import com.tdd.talktobook.core.navigation.homeNavGraph
 import com.tdd.talktobook.core.navigation.interviewNavGraph
@@ -193,6 +194,9 @@ fun MainScreen() {
                     navController = navController,
                     setUserNickName = settingUserNickName,
                     flowType = viewModel.screenFlowType,
+                )
+                autobiographyRequestNavGraph(
+                    navController = navController
                 )
                 publicationNavGraph(
                     navController = navController,
