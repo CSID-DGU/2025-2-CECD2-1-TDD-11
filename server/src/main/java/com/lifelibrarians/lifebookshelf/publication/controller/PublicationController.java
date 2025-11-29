@@ -2,7 +2,6 @@ package com.lifelibrarians.lifebookshelf.publication.controller;
 
 import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
-import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.CommunityExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
 import com.lifelibrarians.lifebookshelf.log.Logging;
@@ -10,7 +9,9 @@ import com.lifelibrarians.lifebookshelf.publication.dto.request.PublicationCreat
 import com.lifelibrarians.lifebookshelf.publication.dto.response.PublicationListResponseDto;
 import com.lifelibrarians.lifebookshelf.publication.dto.response.PublicationProgressResponseDto;
 import com.lifelibrarians.lifebookshelf.exception.status.PublicationExceptionStatus;
+import com.lifelibrarians.lifebookshelf.publication.service.AutobiographyPublicationService;
 import com.lifelibrarians.lifebookshelf.publication.service.PublicationFacadeService;
+import com.lowagie.text.DocumentException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/publications")
@@ -39,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicationController {
 
 	private final PublicationFacadeService publicationFacadeService;
+	private final AutobiographyPublicationService autobiographyPublicationService;
 
 	@Operation(summary = "자신의 출판 목록 조회", description = "자신의 출판 목록을 조회합니다.")
 	@ApiResponses(value = {
@@ -111,5 +115,18 @@ public class PublicationController {
 			@PathVariable("bookId") @Parameter(description = "책 ID", example = "1") Long bookId
 	) {
 		publicationFacadeService.deleteBook(memberSessionDto.getMemberId(), bookId);
+	}
+
+	@Operation(summary = "자서전 PDF 생성 및 S3 업로드", description = "자서전 PDF를 생성하여 S3에 업로드하고 공개 URL을 반환합니다.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "ok")
+	})
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/autobiography/{autobiographyId}/pdf")
+	public String downloadAutobiographyPdf(
+			@PathVariable("autobiographyId") @Parameter(description = "자서전 ID", example = "1") Long autobiographyId,
+            @Valid @ModelAttribute String name
+	) throws IOException, DocumentException {
+		return autobiographyPublicationService.uploadPdfToS3(autobiographyId, name);
 	}
 }

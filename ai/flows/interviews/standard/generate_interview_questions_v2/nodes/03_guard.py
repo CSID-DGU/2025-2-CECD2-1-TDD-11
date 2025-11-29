@@ -3,7 +3,7 @@ from typing import Dict, List
 
 BANNED = ["성적", "혐오", "차별", "욕설"]  # 필요시 확장
 
-POLICY_VERSION = "v2.0.0"
+POLICY_VERSION = "v0.5.0"
 TEMPLATE_VERSION = "ask_question_v2.0"
 
 def _clean(text: str) -> str:

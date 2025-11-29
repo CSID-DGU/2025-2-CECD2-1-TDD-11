@@ -41,4 +41,8 @@ public class PasswordMember {
 	public boolean matchPassword(String password) {
 		return this.password.equals(password);
 	}
+
+	public void updatePassword(String password) {
+		this.password = password;
+	}
 }

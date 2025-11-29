@@ -1,0 +1,442 @@
+{
+  "bindings": [
+    {
+      "arguments": {},
+      "destination": "ai.persistence.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "ai.persistence.dead",
+      "source": "ai.persistence.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "ai.persistence.queue",
+      "destination_type": "queue",
+      "routing_key": "ai.persistence",
+      "source": "ai.request.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.cycle.init.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.cycle.init.dead",
+      "source": "autobiography.trigger.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.cycle.merge.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.cycle.merge.dead",
+      "source": "autobiography.trigger.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.cycle.result.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.cycle.result.dead",
+      "source": "autobiography.trigger.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.dead",
+      "source": "autobiography.trigger.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.result.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.result.dead",
+      "source": "autobiography.trigger.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger",
+      "source": "autobiography.trigger.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.cycle.init.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.cycle.init",
+      "source": "autobiography.trigger.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.cycle.merge.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.cycle.merge",
+      "source": "autobiography.trigger.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.cycle.result.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.cycle.result",
+      "source": "autobiography.trigger.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "autobiography.trigger.result.queue",
+      "destination_type": "queue",
+      "routing_key": "autobiography.trigger.result",
+      "source": "autobiography.trigger.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "interview.meta.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "interview.meta.dead",
+      "source": "interview.meta.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "interview.meta.queue",
+      "destination_type": "queue",
+      "routing_key": "interview.meta",
+      "source": "interview.meta.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "interview.summary.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "interview.summary.dead",
+      "source": "interview.summary.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "interview.summary.result.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "interview.summary.result.dead",
+      "source": "interview.summary.dlx",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "interview.summary.queue",
+      "destination_type": "queue",
+      "routing_key": "interview.summary",
+      "source": "interview.summary.exchange",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "destination": "interview.summary.result.queue",
+      "destination_type": "queue",
+      "routing_key": "interview.summary.result",
+      "source": "interview.summary.exchange",
+      "vhost": "/"
+    }
+  ],
+  "queues": [
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "autobiography.trigger.dlx",
+        "x-dead-letter-routing-key": "autobiography.trigger.cycle.result.dead",
+        "x-max-length": 10000,
+        "x-message-ttl": 3600000,
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.cycle.result.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.summary.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "autobiography.trigger.dlx",
+        "x-dead-letter-routing-key": "autobiography.trigger.cycle.init.dead",
+        "x-max-length": 10000,
+        "x-message-ttl": 3600000,
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.cycle.init.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "ai.persistence.dlx",
+        "x-dead-letter-routing-key": "ai.persistence.dead",
+        "x-delivery-limit": 5,
+        "x-queue-type": "quorum"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "ai.persistence.queue",
+      "type": "quorum",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "interview.summary.dlx",
+        "x-dead-letter-routing-key": "interview.summary.result.dead",
+        "x-delivery-limit": "5",
+        "x-queue-type": "quorum"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.summary.result.queue",
+      "type": "quorum",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.cycle.init.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.cycle.merge.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.summary.result.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "autobiography.trigger.dlx",
+        "x-dead-letter-routing-key": "autobiography.trigger.dead",
+        "x-delivery-limit": 3,
+        "x-queue-type": "quorum"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.queue",
+      "type": "quorum",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "autobiography.trigger.dlx",
+        "x-dead-letter-routing-key": "autobiography.trigger.cycle.merge.dead",
+        "x-max-length": 10000,
+        "x-message-ttl": 3600000,
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.cycle.merge.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.cycle.result.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "autobiography.trigger.dlx",
+        "x-dead-letter-routing-key": "autobiography.trigger.result.dead",
+        "x-delivery-limit": "5",
+        "x-queue-type": "quorum"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.result.queue",
+      "type": "quorum",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.result.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "ai.persistence.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-queue-type": "classic"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.meta.dead.queue",
+      "type": "classic",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "interview.meta.dlx",
+        "x-dead-letter-routing-key": "interview.meta.dead",
+        "x-delivery-limit": 5,
+        "x-queue-type": "quorum"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.meta.queue",
+      "type": "quorum",
+      "vhost": "/"
+    },
+    {
+      "arguments": {
+        "x-dead-letter-exchange": "interview.summary.dlx",
+        "x-dead-letter-routing-key": "interview.summary.dead",
+        "x-delivery-limit": 5,
+        "x-queue-type": "quorum"
+      },
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.summary.queue",
+      "type": "quorum",
+      "vhost": "/"
+    }
+  ],
+  "parameters": [],
+  "policies": [],
+  "rabbitmq_version": "3.13.7",
+  "rabbit_version": "3.13.7",
+  "exchanges": [
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "ai.request.exchange",
+      "type": "direct",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.meta.dlx",
+      "type": "direct",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.meta.exchange",
+      "type": "direct",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.summary.exchange",
+      "type": "direct",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "interview.summary.dlx",
+      "type": "direct",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.exchange",
+      "type": "fanout",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "autobiography.trigger.dlx",
+      "type": "direct",
+      "vhost": "/"
+    },
+    {
+      "arguments": {},
+      "auto_delete": false,
+      "durable": true,
+      "name": "ai.persistence.dlx",
+      "type": "direct",
+      "vhost": "/"
+    }
+  ],
+  "topic_permissions": [],
+  "vhosts": [
+    {
+      "limits": [],
+      "metadata": {
+        "description": "Default virtual host",
+        "tags": []
+      },
+      "name": "/"
+    }
+  ],
+  "global_parameters": []
+}

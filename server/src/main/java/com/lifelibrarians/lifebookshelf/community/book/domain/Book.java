@@ -1,7 +1,6 @@
 package com.lifelibrarians.lifebookshelf.community.book.domain;
 
 import com.lifelibrarians.lifebookshelf.community.comment.domain.Comment;
-import com.lifelibrarians.lifebookshelf.community.like.domain.Like;
 import com.lifelibrarians.lifebookshelf.member.domain.Member;
 import com.lifelibrarians.lifebookshelf.publication.domain.Publication;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "books")
 @Getter
-@ToString(callSuper = true, exclude = {"bookComments", "authorMemberComments", "bookLikes",
+@ToString(callSuper = true, exclude = {"bookComments", "authorMemberComments",
 		"bookPublications", "bookChapters"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Book {
@@ -59,9 +58,6 @@ public class Book {
 
 	@OneToMany(mappedBy = "authorMember")
 	private Set<Comment> authorMemberComments;
-
-	@OneToMany(mappedBy = "book")
-	private Set<Like> bookLikes;
 
 	@OneToMany(mappedBy = "book")
 	private Set<Publication> bookPublications;

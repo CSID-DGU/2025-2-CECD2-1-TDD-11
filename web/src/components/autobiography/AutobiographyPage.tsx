@@ -1,0 +1,1 @@
+// autobiography detail 페이지, 페이지 넘김이 가능함.

@@ -2,31 +2,35 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Tuple, List, Optional, Iterable
 import random
+import logging
 
-MaterialId = Tuple[int, int, int]  # (category_num, chunk_num, material_num)
+logger = logging.getLogger("interview_engine")
+
+MaterialId = Tuple[int, int, int]  # (category_num, chunk_num, order)
 
 #기존 알고리즘 - 모델
 @dataclass
 class Material:
-    material_num: int
-    material_name: str
-    w: List[int] = field(default_factory=lambda: [0, 0, 0, 0, 0, 0])  # w1..w6
-    ex: int = 0
-    con: int = 0
-    material_count: int = 0
+    order: int
+    name: str
+    principle: List[int] = field(default_factory=lambda: [0, 0, 0, 0, 0, 0])  # w1..w6
+    example: int = 0
+    similar_event: int = 0
+    count: int = 0
 
-    def sum_w(self) -> int:
-        return sum(self.w)
+    def sum_principle(self) -> int:
+        return sum(self.principle)
     
     def progress_score(self) -> int:
-        return self.sum_w() + self.ex + self.con
+        return self.sum_principle() + self.example + self.similar_event
 
     def mark_filled_if_ready(self) -> None:
-        if self.sum_w() >= 3 and self.ex == 1 and self.con == 1:
-            self.material_count = 1
+        w1, w2, w3, w4, w5, w6 = self.principle
+        if self.sum_principle() >= 3 and self.example == 1 and self.similar_event == 1 and (w5 == 1):
+            self.count = 1
     
     def is_fully_completed(self) -> bool:
-        return all(v == 1 for v in self.w) and self.ex == 1 and self.con == 1
+        return all(v == 1 for v in self.principle) and self.example == 1 and self.similar_event == 1
 
 @dataclass
 class Chunk:
@@ -49,7 +53,7 @@ class Category:
 class EngineState:
     last_material_id: Optional[MaterialId] = None
     last_material_streak: int = 0
-    epsilon: float = 0.10
+    epsilon: float = 0.05
 
 #기존 알고리즘 - 메인 엔진
 class InterviewEngine:
@@ -83,32 +87,46 @@ class InterviewEngine:
             cat, ch, m = self.state.last_material_id
             mat = self._get_material(cat, ch, m)
             if mat:
-                if self.state.last_material_streak < 3 and mat.material_count < 1: 
+                if self.state.last_material_streak < 3 and mat.count < 1:
+                    logger.debug(f"직전 소재 유지: {self.state.last_material_id} (streak={self.state.last_material_streak})")
                     return self.state.last_material_id
 
         # 2) ε-greedy 탐색
-        if random.random() < self.state.epsilon:
-            return self._random_material_id()
+        rand_val = random.random()
+        if rand_val < self.state.epsilon:
+            result = self._random_material_id()
+            logger.debug(f"랜덤 선택: {result}")
+            return result
 
-        # 3) 후보 목록 구축
+        # 3) 우선순위 선택
+        result = self._select_priority_material()
+        logger.info(f"소재 선택: {result}")
+        return result
+    
+    def _select_priority_material(self) -> MaterialId:
+        """우선순위 기반 소재 선택 (미완료 소재만)"""
+        # 후보 목록 구축 (미완료 소재만)
         candidates = [] 
         for cat in self.categories.values():
             for ch_num, ch in cat.chunks.items():
                 cw = cat.chunk_weight.get(ch_num, 0)
                 for m_num, mat in ch.materials.items():
-                    candidates.append({
-                        "id": (cat.category_num, ch_num, m_num),
-                        "chunk": ch_num,
-                        "cw": cw,
-                        "sumwc": mat.progress_score(),
-                    }) 
+                    if not mat.is_fully_completed():  # 미완료 소재만
+                        candidates.append({
+                            "id": (cat.category_num, ch_num, m_num),
+                            "chunk": ch_num,
+                            "cw": cw,
+                            "sumwc": mat.progress_score(),
+                        }) 
+        
         if not candidates:
-            raise RuntimeError("No materials present.")
+            # 모든 소재가 완료된 경우 - 무작위 선택
+            return self._random_material_id()
 
-        # 4) 정렬: chunk_weight DESC, sumw ASC
-        candidates.sort(key=lambda x: (-x["cw"], x["sumwc"]))
+        # 정렬: chunk_weight DESC, sumw ASC, category_num ASC
+        candidates.sort(key=lambda x: (-x["cw"], x["sumwc"], x["id"][0]))
 
-        # 5) 동률 처리
+        # 동률 처리
         best_group = [candidates[0]]
         for c in candidates[1:]:
             same_weight = (c["cw"] == best_group[0]["cw"])
@@ -120,24 +138,35 @@ class InterviewEngine:
                 break
         return random.choice(best_group)["id"]
 
-    #기존 알고리즘 - 질문 타입 선택
-    def select_question_in_material(self, material: Material) -> Optional[str]:
+    #기존 알고리즘 - 질문 타입 선택 (재선택 로직 포함)
+    def select_question_in_material(self, material_id: MaterialId) -> Tuple[MaterialId, str]:
+        """소재에서 질문 타입 선택, 완료시 재선택"""
+        material = self._get_material(*material_id)
+        if not material:
+            raise RuntimeError(f"Material not found: {material_id}")
+            
+        # 완료된 소재면 새 소재 선택
         if material.is_fully_completed():
-            return None
+            new_id = self._select_priority_material()
+            material = self._get_material(*new_id)
+            material_id = new_id
+            if not material or material.is_fully_completed():
+                # 모든 소재가 완료된 경우
+                return material_id, "general"
 
-        w1, w2, w3, w4, w5, w6 = material.w
+        w1, w2, w3, w4, w5, w6 = material.principle
         needs: List[str] = []
-        if w2 == 0: needs.append("w2")
-        if material.ex == 0: needs.append("ex")
-        if material.con == 0: needs.append("con")
-        for label, val in [("w1", w1), ("w3", w3), ("w4", w4), ("w5", w5), ("w6", w6)]:
+        if w5 == 0: needs.append("w5")
+        if material.example == 0: needs.append("ex")
+        if material.similar_event == 0: needs.append("con")
+        for label, val in [("w1", w1), ("w3", w3), ("w4", w4), ("w2", w2), ("w6", w6)]:
             if val == 0:
                 needs.append(label)
 
         if not needs:
-            return None
+            return material_id, "general"
 
-        return needs[0]  # 타입 코드만 반환 (w1, w2, ex, con 등)
+        return material_id, needs[0]  # (소재ID, 타입) 반환
 
     #기존 알고리즘 - 답변 후 업데이트
     def update_after_answer(self, mapped_ids: Iterable[MaterialId], current_id: MaterialId) -> None:
@@ -146,10 +175,9 @@ class InterviewEngine:
             if not mat:
                 continue
 
-            mat.w = [min(v + 1, 1) for v in mat.w]
-            mat.ex, mat.con = 1, 1
+            mat.principle = [min(v + 1, 1) for v in mat.principle]
+            mat.example, mat.similar_event = 1, 1
             mat.mark_filled_if_ready()
-
             cat = self.categories[cnum]
             cat.chunk_weight[chnum] = cat.chunk_weight.get(chnum, 0) + 1
 
@@ -180,7 +208,7 @@ class InterviewEngine:
         cat = random.choice(list(self.categories.values()))
         ch = random.choice(list(cat.chunks.values()))
         mat = random.choice(list(ch.materials.values()))
-        return (cat.category_num, ch.chunk_num, mat.material_num)
+        return (cat.category_num, ch.chunk_num, mat.order)
 
     def _count_filled_materials(self) -> int:
         return sum(
@@ -188,7 +216,7 @@ class InterviewEngine:
             for cat in self.categories.values()
             for ch in cat.chunks.values()
             for mat in ch.materials.values()
-            if mat.material_count == 1
+            if mat.count == 1
         )
 
     def _categories_meet_ratio(self, ratio: float) -> bool:
@@ -201,7 +229,7 @@ class InterviewEngine:
             if not mats:
                 continue
             
-            filled = sum(1 for m in mats if m.material_count == 1) 
+            filled = sum(1 for m in mats if m.count == 1) 
             coverage = filled / len(mats)
             
             if coverage < ratio:
@@ -216,16 +244,16 @@ class InterviewEngine:
     def generate_question(self, material: Material, target: str) -> str:
         """LLM 연동 지점 - 질문 생성"""
         six = {
-            "w1": "언제", "w2": "어떻게", "w3": "누가", 
-            "w4": "무엇을", "w5": "어떻게(절차/수단2)", "w6": "왜",
+            "w1": "언제/어디서", "w2": "어떻게(방법)", "w3": "누가", 
+            "w4": "무엇을", "w5": "어떻게(감정)", "w6": "왜",
         }
         if target in six:
-            return f"{material.material_name}에 대해 '{six[target]}' 측면에서 더 구체적으로 들려주세요."
+            return f"{material.name}에 대해 '{six[target]}' 측면에서 더 구체적으로 들려주세요."
         if target == "ex":
-            return f"{material.material_name}와 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요."
+            return f"{material.name}와 관련된 구체적인 '예시 한 가지'를 자세히 이야기해 주세요."
         if target == "con":
-            return f"{material.material_name}와 비슷한 '유사 사례'가 있었다면 비교해서 설명해 주세요."
-        return f"{material.material_name}에 대해 아직 다루지 못한 세부사항이나 감정, 맥락을 더 이야기해 주세요."
+            return f"{material.name}와 비슷한 '유사 사례'가 있었다면 비교해서 설명해 주세요."
+        return f"{material.name}에 대해 아직 다루지 못한 세부사항이나 감정, 맥락을 더 이야기해 주세요."
 
     #V2 추가 함수 - JSON에서 카테고리 빌드
     @staticmethod
@@ -243,10 +271,18 @@ class InterviewEngine:
                 materials: Dict[int, Material] = {}
                 m_num = 1
 
-                for mat_name in ch_entry.get("material", []):
-                    materials[m_num] = Material(
-                        material_num=m_num,
-                        material_name=str(mat_name)
+                for mat_entry in ch_entry.get("material", []):
+                    # mat_entry가 dict면 name 추출, 아니면 그대로 사용
+                    if isinstance(mat_entry, dict):
+                        mat_name = mat_entry.get("name", "")
+                        mat_order = mat_entry.get("order", m_num)
+                    else:
+                        mat_name = str(mat_entry)
+                        mat_order = m_num
+                    
+                    materials[mat_order] = Material(
+                        order=mat_order,
+                        name=mat_name
                     )
                     m_num += 1
 

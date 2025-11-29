@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from promptflow.connections import AzureOpenAIConnection, OpenAIConnection
 from promptflow.client import PFClient
 from dotenv import load_dotenv
@@ -8,23 +9,17 @@ from dotenv import load_dotenv
 from autobiographies.generate_autobiography.router import (
     router as autobiographies_generate_autobiography_router,
 )
-from autobiographies.generate_correction.router import (
-    router as autobiographies_generate_correction_router,
-)
-from chapters.generate_chapter.router import (
-    router as autobiographies_generate_chapter_router,
-)
-from interviews.generate_interview_question.router import (
-    router as interviews_generate_interview_question_router,
-)
-from interviews.interview_chat.router import (
-    router as interviews_request_interview_chat_router,
-)
 from interviews.interview_chat_v2.router import (
     router as interviews_request_interview_chat_v2_router,
 )
+from interviews.interview_summary.router import (
+    router as interviews_summary_router,
+)
+from images import router as images_router
+from voice.router import router as voice_router
 
 from logs import get_logger
+import stream.consumers  # 컨슈머 자동 시작
 
 load_dotenv()
 
@@ -58,19 +53,44 @@ def create_connection():
 
 create_connection()
 
-
 app = FastAPI(
     description="Life Bookshelf AI API",
     version="0.0.1",
 )
 
-app.include_router(autobiographies_generate_autobiography_router)
-app.include_router(autobiographies_generate_correction_router)
-app.include_router(autobiographies_generate_chapter_router)
-app.include_router(interviews_generate_interview_question_router)
-app.include_router(interviews_request_interview_chat_router)
-app.include_router(interviews_request_interview_chat_v2_router)
+web_url = os.environ.get("WEB_URL")
 
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", web_url],  # 개발용, 프로덕션에서는 특정 도메인으로 제한
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+web_url = os.environ.get("WEB_URL")
+# 유지되는 API들
+
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", web_url],  # 개발용, 프로덕션에서는 특정 도메인으로 제한
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 유지되는 API들
+app.include_router(autobiographies_generate_autobiography_router, prefix="/api/v2/autobiographies")
+app.include_router(interviews_request_interview_chat_v2_router, prefix="/api/v2/interviews")
+app.include_router(interviews_summary_router, prefix="/api/v2/interviews")
+app.include_router(images_router, prefix="/api/v2/images")
+app.include_router(voice_router, prefix="/api/v2/voice")
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn

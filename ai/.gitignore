@@ -171,5 +171,3 @@ mlruns/
 .index
 .pdfs
 
-# To test functions locally
-flow_code

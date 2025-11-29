@@ -1,0 +1,227 @@
+/* 반응형 개선 CSS */
+
+/* 전역 반응형 폰트 */
+body {
+  font-size: clamp(14px, 1.8vw, 16px);
+}
+
+h2, .h2 {
+  font-size: clamp(28px, 4vw, 43px);
+}
+
+/* Services 섹션 개선 */
+.colord {
+  padding: clamp(30px, 5vh, 60px) 15px;
+}
+
+.colord h3 {
+  font-size: clamp(18px, 2.5vw, 24px);
+}
+
+.colord .col-md-3 {
+  margin-bottom: 30px;
+}
+
+.circle {
+  margin: 0 auto 15px;
+}
+
+/* AboutUs 섹션 개선 */
+#aboutUs {
+  padding: clamp(35px, 5vh, 60px) 20px;
+}
+
+#aboutUs h2 {
+  font-size: clamp(28px, 5vw, 42px);
+  margin-bottom: 30px;
+}
+
+#aboutUs .twelve {
+  width: 100%;
+}
+
+/* ContactUs 섹션 개선 */
+#contactUs {
+  padding: clamp(40px, 6vh, 60px) 20px;
+}
+
+.why-title {
+  font-size: clamp(32px, 5vw, 50px);
+}
+
+.why-item h3 {
+  font-size: clamp(18px, 2.5vw, 22px);
+}
+
+.why-item p {
+  font-size: clamp(15px, 2vw, 17px);
+}
+
+/* QR 박스 반응형 */
+.qr-box {
+  position: absolute;
+  right: clamp(20px, 20vw, 400px);
+  top: clamp(100px, 15vh, 150px);
+}
+
+@media (max-width: 1200px) {
+  .qr-box {
+    right: 50px;
+    top: 120px;
+  }
+  
+  .qr-image {
+    width: 200px;
+  }
+}
+
+@media (max-width: 992px) {
+  .qr-box {
+    position: relative;
+    right: 0;
+    top: 0;
+    margin: 30px auto;
+  }
+  
+  .qr-image {
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Services 섹션 */
+  .colord .col-md-3 {
+    width: 100%;
+    margin-bottom: 40px;
+  }
+  
+  /* AboutUs 섹션 */
+  .step {
+    transform: scale(1);
+    flex-direction: column;
+  }
+  
+  #aboutUs .left,
+  #aboutUs .right {
+    padding-left: 15px;
+    padding-right: 15px;
+    float: none;
+  }
+  
+  /* ContactUs 섹션 */
+  #contactUs .container {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .why-title {
+    font-size: clamp(28px, 6vw, 36px);
+  }
+  
+  .why-item {
+    padding: 25px 20px;
+  }
+  
+  /* QR 박스 */
+  .qr-box {
+    margin: 25px auto;
+  }
+  
+  .qr-image {
+    width: 160px;
+  }
+  
+  .qr-text {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Hero 섹션 */
+  .hero-content {
+    margin-top: 60px;
+  }
+  
+  .store-buttons {
+    margin-top: 30px;
+  }
+  
+  .store-badge {
+    height: clamp(35px, 8vw, 45px);
+  }
+  
+  /* Services 섹션 */
+  .circle {
+    height: 60px;
+    width: 60px;
+    padding: 15px;
+  }
+  
+  .circle i {
+    font-size: 1.5em !important;
+  }
+  
+  /* AboutUs 섹션 */
+  .step-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  /* ContactUs 섹션 */
+  .why-item {
+    padding: 20px 15px;
+  }
+  
+  /* Footer */
+  .social a {
+    font-size: 24px;
+    margin: 0 8px;
+  }
+}
+
+/* 컨테이너 최대 너비 조정 */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+/* 네비게이션 반응형 개선 */
+@media (max-width: 991px) {
+  #mainNav {
+    right: -200px;
+  }
+  
+  #menuToggle {
+    display: block;
+  }
+}
+
+/* 텍스트 가독성 개선 */
+@media (max-width: 768px) {
+  p {
+    line-height: 1.6;
+  }
+  
+  .page-section {
+    padding: 25px 15px;
+  }
+}
+
+/* 이미지 반응형 */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 버튼 반응형 */
+.btn {
+  font-size: clamp(14px, 2vw, 18px);
+  padding: clamp(12px, 2vw, 16px) clamp(20px, 3vw, 30px) clamp(14px, 2vw, 20px);
+}
