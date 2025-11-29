@@ -13,6 +13,8 @@ services:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_management load_definitions "/etc/rabbitmq/definitions.json"
     env_file:
       - .env
+    networks:
+      - talktobook-stream-network
 
   lifebookshelf-aggregator:
     image: "${ECR_REGISTRY}/${ECR_REPOSITORY_AGGREGATOR}:${IMAGE_TAG}"
@@ -27,6 +29,8 @@ services:
     depends_on:
       - talktobook-stream
       - lifebookshelf-redis
+    networks:
+      - talktobook-stream-network
 
   lifebookshelf-redis:
     image: redis:7-alpine
@@ -36,6 +40,8 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    networks:
+      - talktobook-stream-network
 
   promtail:
     image: grafana/promtail:latest
@@ -54,3 +60,7 @@ services:
 
 volumes:
   redis_data:
+
+networks:
+  talktobook-stream-network:
+    driver: bridge
