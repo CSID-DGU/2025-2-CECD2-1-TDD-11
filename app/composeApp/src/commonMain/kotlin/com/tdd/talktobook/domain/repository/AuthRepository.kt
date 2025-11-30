@@ -17,13 +17,13 @@ interface AuthRepository {
 
     suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>>
 
-    suspend fun deleteUser(): Flow<Result<Boolean>>
-
-    suspend fun logOut(): Flow<Result<Boolean>>
-
     suspend fun reissue(refresh: String): Flow<Result<TokenModel>>
 
     suspend fun getStoredAccessToken(): Flow<Result<String>>
 
     suspend fun getStoredRefreshToken(): Flow<Result<String>>
+
+    suspend fun clearToken(): Flow<Result<Boolean>>
+
+    suspend fun clearAllData(): Flow<Result<Boolean>>
 }

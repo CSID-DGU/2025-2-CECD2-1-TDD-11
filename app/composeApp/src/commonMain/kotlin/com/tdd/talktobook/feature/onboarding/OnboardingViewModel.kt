@@ -17,39 +17,39 @@ class OnboardingViewModel(
         OnboardingPageState(),
     ) {
     fun setPageType(type: OnboardingPageType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 pageType = type,
                 isBtnActivated = false,
-            ),
-        )
+            )
+        }
     }
 
     fun setSelectedGender(gender: GenderType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 gender = gender,
                 isBtnActivated = true,
-            ),
-        )
+            )
+        }
     }
 
     fun setSelectedAgeGroup(age: AgeGroupType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 ageGroup = age,
                 isBtnActivated = true,
-            ),
-        )
+            )
+        }
     }
 
     fun onOccupationValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 occupationInput = newValue,
                 isBtnActivated = newValue.isNotEmpty(),
-            ),
-        )
+            )
+        }
     }
 
     fun putEditMemberInfo() {

@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.ktorfit)
     alias(libs.plugins.compose.hotreload)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.google.gms)
 }
 
 val properties =
@@ -48,6 +49,9 @@ kotlin {
             implementation(libs.koin.android)
 
             implementation(libs.ktor.client.okhttp)
+
+            implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+            implementation(libs.firebase.analytics)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

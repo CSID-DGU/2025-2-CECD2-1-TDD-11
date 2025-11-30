@@ -16,10 +16,10 @@ object ChatInterviewMapper : BaseMapper() {
                     ChatInterviewResponseModel(
                         lastAnswerMaterialsId = data.lastAnswerMaterialsId,
                         id = data.nextQuestion.id,
-                        material = data.nextQuestion.material,
-                        materialId = data.nextQuestion.materialId,
                         text = data.nextQuestion.text,
                         type = data.nextQuestion.type,
+                        materialId = data.nextQuestion.materialId,
+                        material = data.nextQuestion.material,
                     )
                 } ?: ChatInterviewResponseModel()
             },

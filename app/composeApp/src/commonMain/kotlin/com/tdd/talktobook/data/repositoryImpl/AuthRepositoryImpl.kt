@@ -4,7 +4,6 @@ import com.tdd.talktobook.data.dataSource.AuthDataSource
 import com.tdd.talktobook.data.dataStore.LocalDataStore
 import com.tdd.talktobook.data.mapper.auth.EmailLogInMapper
 import com.tdd.talktobook.data.mapper.auth.ReissueMapper
-import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanNotJsonMapper
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
@@ -53,14 +52,6 @@ class AuthRepositoryImpl(
             authDataSource.postEmailVerification(request.email, request.code)
         })
 
-    override suspend fun deleteUser(): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = {
-            authDataSource.deleteUser()
-        })
-
-    override suspend fun logOut(): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = { authDataSource.logOut() })
-
     override suspend fun reissue(refresh: String): Flow<Result<TokenModel>> =
         ReissueMapper.responseToModel(apiCall = { authDataSource.reissue(refresh) })
 
@@ -84,5 +75,15 @@ class AuthRepositoryImpl(
                     emit(Result.failure(Exception("[dataStore] refresh token is null")))
                 }
             }
+        }
+
+    override suspend fun clearToken(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearTokens()
+        }
+
+    override suspend fun clearAllData(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearAll()
         }
 }
