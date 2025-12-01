@@ -41,24 +41,7 @@ public class AutobiographyMergeConsumer {
         status.updateStatusType(AutobiographyStatusType.FINISH, now);
 
         autobiographyRepository.save(autobiography);
-        log.info("[HANDLE_CYCLE_COMPLETION] 자서전 상태 변경 완료 - autobiographyId: {}, status: FINISH", autobiography.getId());
-
-        // PDF 생성 및 S3 업로드
-        try {
-            // TODO: 임시로 5초 간격 처리, 추후 after commit 이벤트로 변경 필요
-            Thread.sleep(5000);
-            log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 시작 - autobiographyId: {}", autobiography.getId());
-            String pdfUrl = autobiographyPublicationService.uploadPdfToS3(
-                    autobiography.getId(),
-                    autobiography.getTitle()
-            );
-
-            log.info("[HANDLE_CYCLE_COMPLETION] PDF 생성 완료 - autobiographyId: {}, url: {}", autobiography.getId(), pdfUrl);
-        } catch (Exception e) {
-            log.error("[HANDLE_CYCLE_COMPLETION] PDF 생성 실패 - autobiographyId: {}", autobiography.getId(), e);
-        }
-
-        log.info("[HANDLE_CYCLE_COMPLETION] 자서전 생성 완료 - autobiographyId: {}, cycleId: {}",
-                autobiography.getId(), dto.getCycleId());
+        log.info("[HANDLE_CYCLE_COMPLETION] 자서전 병합 완료 - autobiographyId: {}, status: {}, cycleId: {}",
+                autobiography.getId(), autobiography.getAutobiographyStatus().getStatus(), dto.getCycleId());
     }
 }

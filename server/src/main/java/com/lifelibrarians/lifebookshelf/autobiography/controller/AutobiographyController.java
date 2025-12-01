@@ -278,7 +278,7 @@ public class AutobiographyController {
             }
     )
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{autobiographyId}/coshow/generate")
+    @PostMapping("/{autobiographyId}/coshow/generate")
     public void coShowRequestAutobiographyGenerate(
             @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
             @Valid @ModelAttribute CoShowAutobiographyGenerateRequestDto requestDto
