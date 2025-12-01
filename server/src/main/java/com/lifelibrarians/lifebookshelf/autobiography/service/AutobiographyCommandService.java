@@ -252,7 +252,7 @@ public class AutobiographyCommandService {
 
     // ------------------------------------------------------------------
     // CoShow용 서비스 메서드
-    @Async
+    // @Async
     public void coShowRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
         log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] CoShow 자서전 생성 요청 시작 (비동기) - autobiographyId: {}, name: {}", autobiographyId, requestDto.getName());
 
