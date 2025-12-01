@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
@@ -15,6 +16,7 @@ class SettingViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
     private val logOutUseCase: LogOutUseCase,
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
 ) : BaseViewModel<SettingPageState>(
         SettingPageState(),
     ) {
@@ -30,19 +32,22 @@ class SettingViewModel(
 
     private fun onSuccessGetMemberInfo(data: MemberInfoResponseModel) {
         d("[ktor] settingViewmodel -> $data")
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 memberInfo = data,
-            ),
-        )
+            )
+        }
     }
 
     fun logOut() {
         viewModelScope.launch {
+            d("[ktor] setting -> logout")
             logOutUseCase(Unit).collect {
                 resultResponse(it, {})
             }
         }
+
+        clearAllData()
     }
 
     fun deleteUser() {
@@ -51,5 +56,18 @@ class SettingViewModel(
                 resultResponse(it, {})
             }
         }
+
+        clearAllData()
+    }
+
+    private fun clearAllData() {
+        viewModelScope.launch {
+            d("[ktor] setting -> clear data")
+            deleteLocalAllDataUseCase(Unit).collect {
+                resultResponse(it, {})
+            }
+        }
+
+        emitEventFlow(SettingEvent.GoToLogInPage)
     }
 }

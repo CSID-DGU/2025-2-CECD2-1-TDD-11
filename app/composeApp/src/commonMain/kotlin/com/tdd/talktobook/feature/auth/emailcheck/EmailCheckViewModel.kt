@@ -15,19 +15,19 @@ class EmailCheckViewModel(
         EmailCheckPageState(),
     ) {
     fun setEmail(email: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 email = email,
-            ),
-        )
+            )
+        }
     }
 
     fun onCodeValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 codeInput = newValue,
-            ),
-        )
+            )
+        }
     }
 
     fun postCheckEmail() {
