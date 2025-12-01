@@ -3,6 +3,7 @@ package com.tdd.talktobook.feature.startprogress
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.enums.MaterialType
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
@@ -11,9 +12,11 @@ import com.tdd.talktobook.domain.entity.response.autobiography.InterviewAutobiog
 import com.tdd.talktobook.domain.entity.response.autobiography.SelectedThemeModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.StartInterviewResponseModel
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.PostCoShowStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.interview.SaveInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostStartInterviewUseCase
 import com.tdd.talktobook.feature.startprogress.type.StartProgressPageType
 import kotlinx.coroutines.launch
@@ -26,37 +29,90 @@ class StartProgressViewModel(
     private val getSelectedThemeUseCase: GetSelectedThemeUseCase,
     private val postStartInterviewUseCase: PostStartInterviewUseCase,
     private val saveCurrentAutobiographyStatusUseCase: SaveCurrentAutobiographyStatusUseCase,
+    private val postCoShowProgressUseCase: PostCoShowStartProgressUseCase,
+    private val saveInterviewIdUseCase: SaveInterviewIdUseCase,
 ) : BaseViewModel<StartProgressPageState>(
         StartProgressPageState(),
     ) {
+    fun setFlowType(type: FlowType) {
+        updateState { state ->
+            state.copy(
+                flowType = type,
+            )
+        }
+    }
+
     fun setPageType(type: StartProgressPageType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 pageType = type,
                 isBtnActivated = false,
-            ),
-        )
+            )
+        }
     }
 
     fun setMaterial(type: MaterialType) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 material = type,
                 isBtnActivated = true,
-            ),
-        )
+            )
+        }
+    }
+
+    fun onNickNameValueChange(newValue: String) {
+        updateState { state ->
+            state.copy(
+                nickNameInput = newValue,
+                isBtnActivated = newValue.isNotEmpty(),
+            )
+        }
     }
 
     fun onReasonValueChange(newValue: String) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 reasonInput = newValue,
                 isBtnActivated = newValue.isNotEmpty(),
-            ),
-        )
+            )
+        }
     }
 
-    fun postStartProgress() {
+    fun checkStartProgress() {
+        val type = uiState.value.flowType
+
+        when (type) {
+            FlowType.COSHOW -> {
+                postCoShowStartProgress()
+            }
+            FlowType.DEFAULT -> {
+                postStartProgress()
+            }
+        }
+    }
+
+    private fun postCoShowStartProgress() {
+        viewModelScope.launch {
+            postCoShowProgressUseCase(
+                StartProgressRequestModel(uiState.value.material.type, uiState.value.reasonInput),
+            ).collect { resultResponse(it, ::onSuccessCoShowStartProgress) }
+        }
+    }
+
+    private fun onSuccessCoShowStartProgress(data: InterviewAutobiographyModel) {
+        updateState { state ->
+            state.copy(
+                interviewId = data.interviewId,
+                autobiographyId = data.autobiographyId,
+            )
+        }
+
+        changeAutobiographyStatus()
+        saveCurrentAutobiographyId(data.autobiographyId)
+        saveInterviewId(data.interviewId)
+    }
+
+    private fun postStartProgress() {
         viewModelScope.launch {
             postStartProgressUseCase(
                 StartProgressRequestModel(uiState.value.material.type, uiState.value.reasonInput),
@@ -65,12 +121,12 @@ class StartProgressViewModel(
     }
 
     private fun onSuccessStartProgress(data: InterviewAutobiographyModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewId = data.interviewId,
                 autobiographyId = data.autobiographyId,
-            ),
-        )
+            )
+        }
 
         changeAutobiographyStatus()
         saveCurrentAutobiographyId(data.autobiographyId)
@@ -87,6 +143,14 @@ class StartProgressViewModel(
         viewModelScope.launch {
             saveAutobiographyIdUseCase(id).collect { resultResponse(it, {}) }
         }
+    }
+
+    private fun saveInterviewId(id: Int) {
+        viewModelScope.launch {
+            saveInterviewIdUseCase(id).collect { resultResponse(it, {}) }
+        }
+
+        emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
     }
 
     private fun initGetSelectedTheme(autobiographyId: Int) {
@@ -114,11 +178,11 @@ class StartProgressViewModel(
     }
 
     private fun onSuccessGetInterviewQuestion(data: StartInterviewResponseModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 firstQuestion = data.text,
-            ),
-        )
+            )
+        }
 
         emitEventFlow(StartProgressEvent.GoToInterviewPage)
     }

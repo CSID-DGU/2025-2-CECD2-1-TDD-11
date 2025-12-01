@@ -1,9 +1,11 @@
 package com.tdd.talktobook.domain.repository
 
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
+import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.GetCoShowGenerateRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
@@ -17,8 +19,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface AutobiographyRepository {
     suspend fun getAllAutobiographies(): Flow<Result<AllAutobiographyListModel>>
-
-    suspend fun postCreateAutobiographies(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>>
 
     suspend fun getAutobiographiesDetail(autobiographyId: Int): Flow<Result<AutobiographiesDetailModel>>
 
@@ -36,13 +36,15 @@ interface AutobiographyRepository {
 
     suspend fun postStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>>
 
+    suspend fun postCoShowStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>>
+
     suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>>
 
     suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>>
 
     suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>>
 
-    suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>>
+    suspend fun patchCreateAutobiography(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>>
 
     suspend fun getSelectedTheme(autobiographyId: Int): Flow<Result<SelectedThemeModel>>
 
@@ -51,4 +53,8 @@ interface AutobiographyRepository {
     suspend fun getAutobiographyId(): Flow<Result<Int>>
 
     suspend fun getAutobiographyStatus(): Flow<Result<AutobiographyStatusType>>
+
+    suspend fun patchChangeStatus(body: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>>
+
+    suspend fun getCoShowGenerate(body: GetCoShowGenerateRequestModel): Flow<Result<Boolean>>
 }

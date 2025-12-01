@@ -25,6 +25,7 @@ plugins {
     alias(libs.plugins.compose.hotreload) apply false
     alias(libs.plugins.kotest.multiplatform) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.google.gms) apply false
 }
 
 subprojects {

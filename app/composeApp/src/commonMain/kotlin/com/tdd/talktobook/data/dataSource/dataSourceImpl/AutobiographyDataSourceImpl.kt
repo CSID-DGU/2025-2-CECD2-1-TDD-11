@@ -4,6 +4,7 @@ import com.tdd.talktobook.data.dataSource.AutobiographyDataSource
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyChapterRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostCreateAutobiographyRequestDto
 import com.tdd.talktobook.data.entity.request.autobiography.PostEditAutobiographyRequestDto
+import com.tdd.talktobook.data.service.AuthService
 import com.tdd.talktobook.data.service.AutobiographyService
 import io.ktor.client.statement.HttpResponse
 import org.koin.core.annotation.Single
@@ -11,6 +12,7 @@ import org.koin.core.annotation.Single
 @Single(binds = [AutobiographyDataSource::class])
 class AutobiographyDataSourceImpl(
     private val autobiographyService: AutobiographyService,
+    private val authService: AuthService,
 ) : AutobiographyDataSource {
     override suspend fun getAllAutobiographies(): HttpResponse =
         autobiographyService.getAllAutobiographies()
@@ -48,15 +50,36 @@ class AutobiographyDataSourceImpl(
     ): HttpResponse =
         autobiographyService.postStartProgress(theme, reason)
 
+    override suspend fun postCoShowStartProgress(
+        theme: String,
+        reason: String,
+    ): HttpResponse =
+        authService.postCoShowInit(theme, reason)
+
     override suspend fun getCountMaterials(autobiographyId: Int): HttpResponse =
         autobiographyService.getCountMaterials(autobiographyId)
 
     override suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse =
         autobiographyService.getCurrentInterviewProgress(autobiographyId)
 
-    override suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse =
-        autobiographyService.patchCreateAutobiography(autobiographyId)
+    override suspend fun patchCreateAutobiography(
+        autobiographyId: Int,
+        name: String,
+    ): HttpResponse =
+        autobiographyService.patchCreateAutobiography(autobiographyId, name)
 
     override suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse =
         autobiographyService.getSelectedTheme(autobiographyId)
+
+    override suspend fun patchChangeStatus(
+        autobiographyId: Int,
+        status: String,
+    ): HttpResponse =
+        autobiographyService.patchChangeStatus(autobiographyId, status)
+
+    override suspend fun getCoShowGenerate(
+        autobiographyId: Int,
+        request: String,
+    ): HttpResponse =
+        authService.getCoShowGenerate(autobiographyId, request)
 }

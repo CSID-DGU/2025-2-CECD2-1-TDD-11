@@ -17,10 +17,10 @@ import org.koin.dsl.module
 val dataSourceModule =
     module {
         single<AuthDataSource> { AuthDataSourceImpl(get()) }
-        single<AutobiographyDataSource> { AutobiographyDataSourceImpl(get()) }
+        single<AutobiographyDataSource> { AutobiographyDataSourceImpl(get(), get()) }
         single<MemberDataSource> { MemberDataSourceImpl(get()) }
         single<PublicationDataSource> { PublicationDataSourceImpl(get()) }
-        single<InterviewDataSource> { InterviewDataSourceImpl(get()) }
+        single<InterviewDataSource> { InterviewDataSourceImpl(get(), get()) }
 
         single<InterviewAIDataSource> { InterviewAIDataSourceImpl(get()) }
     }

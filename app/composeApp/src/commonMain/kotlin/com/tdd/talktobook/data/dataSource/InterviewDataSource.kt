@@ -6,6 +6,8 @@ import io.ktor.client.statement.HttpResponse
 interface InterviewDataSource {
     suspend fun getInterviewConversation(interviewId: Int): HttpResponse
 
+    suspend fun getCoShowInterviewConversation(interviewId: Int): HttpResponse
+
     suspend fun postInterviewRenewal(interviewId: Int): HttpResponse
 
     suspend fun postInterviewConversation(
@@ -19,5 +21,10 @@ interface InterviewDataSource {
         autobiographyId: Int,
         year: Int,
         month: Int,
+    ): HttpResponse
+
+    suspend fun postCoShowInterviewAnswer(
+        interviewId: Int,
+        answerText: String,
     ): HttpResponse
 }
