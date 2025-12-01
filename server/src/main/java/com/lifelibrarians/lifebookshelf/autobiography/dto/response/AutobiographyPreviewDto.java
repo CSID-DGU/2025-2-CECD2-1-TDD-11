@@ -17,14 +17,11 @@ public class AutobiographyPreviewDto {
 	@Schema(description = "자서전 ID", example = "1")
 	private final Long autobiographyId;
 
-	@Schema(description = "인터뷰 ID", example = "1")
-	private final Long interviewId;
-
-	@Schema(description = "대응되는 챕터 ID", example = "1")
-	private final Long chapterId;
-
 	@Schema(description = "제목", example = "My Early Life")
 	private final String title;
+
+    @Schema(description = "현황", example = "Creating")
+    private String status;
 
 	@Schema(description = "미리보기 내용", example = "This is the story of my early life...")
 	private final String contentPreview;

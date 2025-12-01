@@ -24,6 +24,14 @@ spring:
         format_sql: true
         show_sql: true
         dialect: org.hibernate.dialect.MariaDBDialect
+  redis:
+    host: localhost
+    port: 6381
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: talktobook
+    password: talktobook_password
 
 cloud:
   aws:
@@ -31,6 +39,8 @@ cloud:
       bucket: lifebookshelf-image-bucket
       endpoint: http://localhost:4566
       expiration: 3600000
+    ses:
+      sender-email: tdddgu45@gmail.com
     credentials:
       access-key: test
       secret-key: test
@@ -65,8 +75,18 @@ management:
       prometheus:
         enabled: true
 
-swagger:
-  base-url: http://localhost:8080
+springdoc:
+  swagger-ui:
+    try-it-out-enabled: true
+    use-root-path: true
+
+security:
+  cors:
+    domain: http://localhost:8080
+    ip: http://8.8.8.8:8080
+    web: http://localhost:5173
+    android: myapp://callback
+    ios: myapp://callback
 
 images:
   path:

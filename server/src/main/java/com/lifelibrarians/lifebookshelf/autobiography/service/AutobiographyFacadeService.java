@@ -1,18 +1,15 @@
 package com.lifelibrarians.lifebookshelf.autobiography.service;
 
-import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyCreateRequestDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.request.ChapterCreateRequestDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyListResponseDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.ChapterListResponseDto;
-import com.lifelibrarians.lifebookshelf.chapter.domain.Chapter;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.request.CoShowAutobiographyGenerateRequestDto;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.log.Logging;
-import com.lifelibrarians.lifebookshelf.member.domain.Member;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,45 +19,61 @@ public class AutobiographyFacadeService {
 	private final AutobiographyQueryService autobiographyQueryService;
 	private final AutobiographyCommandService autobiographyCommandService;
 
+    public AutobiographyInitResponseDto initAutobiography(Long memberId, AutobiographyInitRequestDto requestDto) {
+        return autobiographyCommandService.initAutobiography(memberId, requestDto);
+    }
 
-	/*-----------------------------------------READ-----------------------------------------*/
-	public ChapterListResponseDto getChapters(Long memberId, Pageable pageable) {
-		return autobiographyQueryService.getChapters(memberId, pageable);
+	public AutobiographyListResponseDto getAutobiographies(Long memberId, List<String> statuses, Pageable pageable) {
+		return autobiographyQueryService.getAutobiographies(memberId, statuses, pageable);
 	}
 
-	public AutobiographyListResponseDto getAutobiographies(Long memberId) {
-		return autobiographyQueryService.getAutobiographies(memberId);
-	}
+    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(Long memberId, Long autobiographyId, String sort, Pageable pageable) {
+        return autobiographyQueryService.getAutobiographyMaterials(memberId, autobiographyId, sort, pageable);
+    }
 
 	public AutobiographyDetailResponseDto getAutobiography(Long memberId, Long autobiographyId) {
 		return autobiographyQueryService.getAutobiography(memberId, autobiographyId);
 	}
 
-	/*-----------------------------------------CUD-----------------------------------------*/
-	public void createChapters(Long memberId, ChapterCreateRequestDto requestDto) {
-		Member member = autobiographyQueryService.findMemberById(memberId);
-		autobiographyCommandService.createChapters(member, requestDto);
-	}
+    public AutobiographyCurrentResponseDto getCurrentAutobiography(Long memberId) {
+        return autobiographyQueryService.getCurrentAutobiography(memberId);
+    }
 
-	public void createAutobiography(Long memberId, AutobiographyCreateRequestDto requestDto) {
-		Member member = autobiographyQueryService.getMemberWithAutobiographiesById(memberId);
-		List<Chapter> chaptersNotRoot = autobiographyQueryService.findAllChaptersNotRoot(memberId);
-		autobiographyCommandService.createAutobiography(member, requestDto, chaptersNotRoot);
-	}
+    public AutobiographyProgressResponseDto getAutobiographyProgress(Long memberId, Long autobiographyId) {
+        return autobiographyQueryService.getAutobiographyProgress(memberId, autobiographyId);
+    }
 
-	public void patchAutobiography(Long memberId, Long autobiographyId,
-			AutobiographyUpdateRequestDto requestDto) {
+    public AutobiographyThemeResponseDto getAutobiographyTheme(Long memberId, Long autobiographyId) {
+        return autobiographyQueryService.getAutobiographyTheme(memberId, autobiographyId);
+    }
+
+	public void patchAutobiography(Long memberId, Long autobiographyId, AutobiographyUpdateRequestDto requestDto) {
 		autobiographyCommandService.patchAutobiography(memberId, autobiographyId, requestDto);
 	}
+
+    public void patchReasonAutobiography(Long memberId, Long autobiographyId, AutobiographyInitRequestDto requestDto) {
+        autobiographyCommandService.patchReasonAutobiography(memberId, autobiographyId, requestDto);
+    }
+
+    public void requestAutobiographyGenerate(Long memberId, Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
+        autobiographyCommandService.requestAutobiographyGenerate(memberId, autobiographyId, requestDto);
+    }
+
+    public void patchAutobiographyStatus(Long memberId, Long autobiographyId, String status) {
+        autobiographyCommandService.patchAutobiographyStatus(memberId, autobiographyId, status);
+    }
 
 	public void deleteAutobiography(Long memberId, Long autobiographyId) {
 		autobiographyCommandService.deleteAutobiography(memberId, autobiographyId);
 	}
 
-	public void updateCurrentChapter(Long memberId) {
-		Member member = autobiographyQueryService.findMemberById(memberId);
-		List<Chapter> chaptersNotRoot = autobiographyQueryService.findAllChaptersNotRoot(memberId);
+    // ----------------------------------------------------
+    // CoShow용
+    public void coShowRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
+        autobiographyCommandService.coShowRequestAutobiographyGenerate(autobiographyId, requestDto);
+    }
 
-		autobiographyCommandService.updateCurrentChapter(member, chaptersNotRoot);
-	}
+    public AutobiographyInitResponseDto coShowInitAutobiography(AutobiographyInitRequestDto requestDto) {
+        return autobiographyCommandService.coShowInitAutobiography(requestDto);
+    }
 }

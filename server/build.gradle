@@ -37,6 +37,9 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 
     // AWS
+    implementation platform("software.amazon.awssdk:bom:2.25.40")
+    implementation "software.amazon.awssdk:ses"
+    implementation "software.amazon.awssdk:s3"
     implementation platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.8")
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     // LocalStack 의존성: local, test 프로필에서만 추가
@@ -63,9 +66,21 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.junit.platform:junit-platform-suite-api:1.9.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-suite-engine:1.9.3'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly 'com.h2database:h2'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // queue
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // PDF generation
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.1.22'
 }
 
 test {

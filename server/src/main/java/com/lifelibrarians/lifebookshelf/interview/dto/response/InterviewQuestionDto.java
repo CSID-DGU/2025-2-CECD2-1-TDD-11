@@ -1,5 +1,6 @@
 package com.lifelibrarians.lifebookshelf.interview.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ public class InterviewQuestionDto {
 	private final Long questionId;
 
 	@Schema(description = "질문 순서", example = "1")
-	private final int order;
+	private final int questionOrder;
 
 	@Schema(description = "질문 내용", example = "What is your name?")
 	private final String questionText;

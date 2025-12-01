@@ -36,13 +36,13 @@
 ## 엔드포인트
 
 ### 1. 세션 시작 (Redis 세션 생성)
-`POST /api/v2/interviews/session/start`
+`POST /interviews/start`
 
 ### 2. 대화 진행 (Redis 기반 상태 관리)
-`POST /api/v2/interviews/interview-chat`
+`POST /interviews/chat`
 
 ### 3. 세션 종료 (최종 메트릭 수집)
-`POST /api/v2/interviews/session/end`
+`POST /interviews/end`
 
 ## 세션 시작 요청 예시
 

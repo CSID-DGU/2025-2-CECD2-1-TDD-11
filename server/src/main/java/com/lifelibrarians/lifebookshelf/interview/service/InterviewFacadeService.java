@@ -2,9 +2,12 @@ package com.lifelibrarians.lifebookshelf.interview.service;
 
 import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
 import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
-import com.lifelibrarians.lifebookshelf.interview.dto.request.InterviewConversationCreateRequestDto;
+
+import com.lifelibrarians.lifebookshelf.interview.dto.request.CoShowChatInterviewRequestDto;
+import com.lifelibrarians.lifebookshelf.interview.dto.response.CoShowChatInterviewResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionResponseDto;
+import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewSummaryOfMonthResponseDto;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -16,43 +19,27 @@ import org.springframework.stereotype.Service;
 public class InterviewFacadeService {
 
 	private final InterviewQueryService interviewQueryService;
-	private final InterviewCommandService interviewCommandService;
 
 
 	/*-----------------------------------------READ-----------------------------------------*/
 	public InterviewConversationResponseDto getConversations(Long memberId, Long interviewId,
 			Pageable pageable) {
-		Interview interview = interviewQueryService.getInterview(interviewId);
-		if (!interview.getMember().getId().equals(memberId)) {
-			throw InterviewExceptionStatus.INTERVIEW_NOT_OWNER.toServiceException();
-		}
-		return interviewQueryService.getConversations(interview, pageable);
+		return interviewQueryService.getConversations(memberId, interviewId, pageable);
 	}
 
 	public InterviewQuestionResponseDto getQuestions(Long memberId, Long interviewId) {
-		Interview interview = interviewQueryService.getInterview(interviewId);
-		if (!interview.getMember().getId().equals(memberId)) {
-			throw InterviewExceptionStatus.INTERVIEW_NOT_OWNER.toServiceException();
-		}
-		return interviewQueryService.getQuestions(interview.getQuestions(),
-				interview.getCurrentQuestion());
+		return interviewQueryService.getQuestions(memberId, interviewId);
 	}
 
-	/*-----------------------------------------CUD-----------------------------------------*/
-	public void createConversations(Long memberId, Long interviewId,
-			InterviewConversationCreateRequestDto requestDto) {
-		Interview interview = interviewQueryService.getInterview(interviewId);
-		if (!interview.getMember().getId().equals(memberId)) {
-			throw InterviewExceptionStatus.INTERVIEW_NOT_OWNER.toServiceException();
-		}
-		interviewCommandService.createConversations(interview, requestDto);
-	}
+    public InterviewSummaryOfMonthResponseDto getInterviewSummaries(Long memberId, Long autobiographyId, Integer year, Integer month) {
+        return interviewQueryService.getInterviewSummaries(memberId, autobiographyId, year, month);
+    }
 
-	public void updateCurrentQuestion(Long memberId, Long interviewId) {
-		Interview interview = interviewQueryService.getInterview(interviewId);
-		if (!interview.getMember().getId().equals(memberId)) {
-			throw InterviewExceptionStatus.INTERVIEW_NOT_OWNER.toServiceException();
-		}
-		interviewCommandService.updateCurrentQuestion(interview);
-	}
+    public CoShowChatInterviewResponseDto getCoShowInterviewQuestions(Long interviewId, CoShowChatInterviewRequestDto requestDto) {
+        return interviewQueryService.getCoShowInterviewQuestions(interviewId, requestDto);
+    }
+
+    public InterviewConversationResponseDto coShowGetConversations(Long interviewId, Pageable pageable) {
+        return interviewQueryService.coShowGetConversations(interviewId, pageable);
+    }
 }

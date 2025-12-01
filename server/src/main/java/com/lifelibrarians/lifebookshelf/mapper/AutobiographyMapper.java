@@ -1,13 +1,19 @@
 package com.lifelibrarians.lifebookshelf.mapper;
 
 import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyDetailResponseDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.AutobiographyPreviewDto;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyChapter;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
+import com.lifelibrarians.lifebookshelf.classification.domain.Category;
+import com.lifelibrarians.lifebookshelf.classification.domain.Material;
 import com.lifelibrarians.lifebookshelf.image.service.ImageService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public abstract class AutobiographyMapper {
@@ -20,26 +26,32 @@ public abstract class AutobiographyMapper {
 		return imageService.getImageUrl(profileImageUrl);
 	}
 
-	@Mapping(source = "autobiography.id", target = "autobiographyId")
-	@Mapping(source = "autobiography.content", target = "contentPreview", qualifiedByName = "truncate")
-	@Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
-	public abstract AutobiographyPreviewDto toAutobiographyPreviewDto(Autobiography autobiography,
-			Long chapterId,
-			Long interviewId
-	);
+    @Mapping(source = "autobiography.id", target = "autobiographyId")
+    @Mapping(source = "autobiography.content", target = "contentPreview", qualifiedByName = "truncate")
+    @Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
+    @Mapping(source = "autobiography.updatedAt", target = "updatedAt")
+    @Mapping(source = "autobiography.createdAt", target = "createdAt")
+    @Mapping(source = "status.status", target = "status")
+    public abstract AutobiographyPreviewDto toAutobiographyPreviewDto(Autobiography autobiography, AutobiographyStatus status);
 
-	@Mapping(source = "autobiography.id", target = "autobiographyId")
-	@Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
-	public abstract AutobiographyDetailResponseDto toAutobiographyDetailResponseDto(
-			Autobiography autobiography,
-			Long interviewId
-	);
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "order", target = "order")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "count", target = "count")
+    @Mapping(target = "rank", ignore = true) // rank는 나중에 계산
+    @Mapping(target = "imageUrl", ignore = true) // 이미지가 있다면 나중에 매핑
+    public abstract AutobiographyMaterialResponseDto toAutobiographyMaterialResponseDto(Material material);
 
-	// 오버로드된 메서드 - interviewId 없이 사용
 	@Mapping(source = "id", target = "autobiographyId")
-	@Mapping(source = "coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
-	@Mapping(target = "interviewId", expression = "java(autobiography.getAutobiographyInterviews() != null && !autobiography.getAutobiographyInterviews().isEmpty() ? autobiography.getAutobiographyInterviews().get(0).getId() : null)")
+	@Mapping(source = "autobiographyChapters", target = "chapters")
 	public abstract AutobiographyDetailResponseDto toAutobiographyDetailResponseDto(Autobiography autobiography);
+
+	@Mapping(source = "id", target = "chapterId")
+	@Mapping(source = "coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
+	public abstract AutobiographyDetailResponseDto.ChapterContent toChapterContent(AutobiographyChapter chapter);
+
+    @Mapping(source="id", target="autobiographyId")
+    public abstract AutobiographyCurrentResponseDto toAutobiographyCurrentResponseDto(Autobiography autobiography);
 
 	@Named("truncate")
 	String truncateContent(String content) {
