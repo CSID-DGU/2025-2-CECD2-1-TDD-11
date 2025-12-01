@@ -10,12 +10,12 @@ import json
 from ..aws_client import AWSVoiceClient
 from ..streaming_stt import stream_transcribe
 
-router = APIRouter(prefix="/voice", tags=["voice"])
+router = APIRouter(prefix="/api/v2/voice", tags=["voice"])
 aws_client = AWSVoiceClient()
 
 class TTSRequest(BaseModel):
     text: str
-    voice_id: Optional[str] = "Seoyeon"
+    voice_id: str = "Seoyeon"
 
 @router.post("/tts")
 async def text_to_speech(request: TTSRequest):
@@ -33,16 +33,16 @@ async def text_to_speech(request: TTSRequest):
 @router.post("/stt")
 async def speech_to_text(audio: UploadFile = File(...)):
     """음성을 텍스트로 변환 (STT) - 파일 업로드 방식"""
+    import tempfile
     try:
-        # 임시 파일로 저장
-        temp_path = f"/tmp/{audio.filename}"
-        with open(temp_path, "wb") as f:
-            f.write(await audio.read())
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(audio.filename)[1]) as temp_file:
+            temp_path = temp_file.name
+            temp_file.write(await audio.read())
         
-        # Transcribe 작업 시작
         job_name = f"stt-{os.urandom(8).hex()}"
-        # S3 업로드 및 Transcribe 호출 로직 필요
+        # TODO: S3 업로드 및 AWS Transcribe 호출 구현 필요
         
+        os.unlink(temp_path)
         return {"message": "STT 작업 시작", "job_name": job_name}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"STT 실패: {str(e)}")
