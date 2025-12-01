@@ -252,9 +252,23 @@ public class AutobiographyCommandService {
 
     // ------------------------------------------------------------------
     // CoShow용 서비스 메서드
-    // @Async
+    @Async
     public void coShowRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
         log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] CoShow 자서전 생성 요청 시작 (비동기) - autobiographyId: {}, name: {}", autobiographyId, requestDto.getName());
+
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+
+        log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] 자서전 조회 완료 - autobiographyId: {}", autobiographyId);
+
+        // 자서전 생성 요청
+        log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] 자서전 생성 큐 전송 시작 - autobiographyId: {}", autobiographyId);
+        autobiographyCompletionService.coShowTriggerPublicationRequest(autobiography, requestDto.getName());
+        log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] CoShow 자서전 생성 요청 완료 - autobiographyId: {}", autobiographyId);
+    }
+
+    public void coShowNewRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
+        log.info("[COSHOW_REQUEST_AUTOBIOGRAPHY_GENERATE] CoShow 자서전 생성 요청 시작 (동기) - autobiographyId: {}", autobiographyId);
 
         Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
                 .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);

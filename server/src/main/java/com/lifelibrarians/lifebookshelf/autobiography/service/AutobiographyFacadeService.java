@@ -73,6 +73,10 @@ public class AutobiographyFacadeService {
         autobiographyCommandService.coShowRequestAutobiographyGenerate(autobiographyId, requestDto);
     }
 
+    public void coShowNewRequestAutobiographyGenerate(Long autobiographyId, CoShowAutobiographyGenerateRequestDto requestDto) {
+        autobiographyCommandService.coShowNewRequestAutobiographyGenerate(autobiographyId, requestDto);
+    }
+
     public AutobiographyInitResponseDto coShowInitAutobiography(AutobiographyInitRequestDto requestDto) {
         return autobiographyCommandService.coShowInitAutobiography(requestDto);
     }
