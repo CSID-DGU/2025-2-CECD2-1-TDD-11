@@ -36,7 +36,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/publications")
+@RequestMapping("api/v2/publications")
 @Tag(name = "출판 (Publication)", description = "출판 관련 API")
 @Logging
 public class PublicationController {
