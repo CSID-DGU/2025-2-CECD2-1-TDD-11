@@ -166,6 +166,7 @@ const val SkipQuestionFirstBtn = "이전에 답변한 질문과 비슷해요"
 const val SkipQuestionSecondBtn = "뭐라고 답변해야 할 지 모르겠어요"
 const val SkipQuestionBottomHint = "기타 이유"
 const val SkipQuestionReason = "다른 얘기 하고 싶어"
+const val RequestSuccessInCoShowFlow = "자서전을 생성 요청했어요!"
 
 // Publication
 const val PublicationTitle = "생성된 자서전"

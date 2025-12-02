@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.core.ui.common.type.FlowType
@@ -12,6 +13,7 @@ import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
 import com.tdd.talktobook.feature.auth.login.LogInScreen
 import com.tdd.talktobook.feature.auth.signup.SignUpScreen
+import com.tdd.talktobook.feature.autobiographyrequest.AutobiographyRequestScreen
 import com.tdd.talktobook.feature.home.HomeScreen
 import com.tdd.talktobook.feature.home.interview.PastInterviewScreen
 import com.tdd.talktobook.feature.interview.InterviewScreen
@@ -171,7 +173,7 @@ fun NavGraphBuilder.interviewNavGraph(
                 navController = navController,
                 showSkipQuestionDialog = showTwoBtnDialogModel,
                 flowType = flowType,
-                goBackToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
+                goToSuccessPage = { navController.navigate(NavRoutes.AutobiographyRequestScreen.route) { popUpTo(0) } },
             )
         }
     }
@@ -193,6 +195,21 @@ fun NavGraphBuilder.startProgressNavGraph(
                 goBackToHome = { navController.popBackStack() },
                 setUserNickName = setUserNickName,
                 flowType = flowType,
+            )
+        }
+    }
+}
+
+fun NavGraphBuilder.autobiographyRequestNavGraph(
+    navController: NavController,
+) {
+    navigation(
+        startDestination = NavRoutes.AutobiographyRequestScreen.route,
+        route = NavRoutes.AutobiographyRequestGraph.route,
+    ) {
+        composable(route = NavRoutes.AutobiographyRequestScreen.route) {
+            AutobiographyRequestScreen(
+                goToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
             )
         }
     }
