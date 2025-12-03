@@ -3,10 +3,7 @@ package com.lifelibrarians.lifebookshelf.autobiography.controller;
 import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyInitRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.AutobiographyUpdateRequestDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.request.CoShowAutobiographyGenerateRequestDto;
-import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.request.CoShowAutobiographyGenerateRequestDto;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.autobiography.service.AutobiographyFacadeService;
@@ -27,13 +24,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v2/autobiographies")
 @RequestMapping("api/v2/autobiographies")
 @Tag(name = "자서전 (Autobiography)", description = "자서전 관련 API")
 @Logging
@@ -54,21 +47,7 @@ public class AutobiographyController {
     ) {
         return autobiographyFacadeService.initAutobiography(memberSessionDto.getMemberId(), requestDto);
     }
-    @Operation(summary = "테마와 자서전 생성 이유 등록 요청", description = "온보딩과 자서전을 최초 생성하는 시점에서, 자서전에 대한 테마와 생성 이유를 등록합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "created"),
-    })
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/init", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public AutobiographyInitResponseDto initAutobiography(
-            @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
-    ) {
-        return autobiographyFacadeService.initAutobiography(memberSessionDto.getMemberId(), requestDto);
-    }
 
-	@Operation(summary = "자서전 목록 조회", description = "유저가 보유한 전체 자서전 목록을 pagination으로 조회합니다.")
 	@Operation(summary = "자서전 목록 조회", description = "유저가 보유한 전체 자서전 목록을 pagination으로 조회합니다.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok"),
@@ -77,17 +56,11 @@ public class AutobiographyController {
 	@GetMapping
     @ResponseStatus(HttpStatus.OK)
 	public AutobiographyListResponseDto getAutobiographies(
-	@GetMapping
-    @ResponseStatus(HttpStatus.OK)
-	public AutobiographyListResponseDto getAutobiographies(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "statuses", defaultValue = "EMPTY,PROGRESSING,ENOUGH,CREATING,FINISH", required = false) List<String> statuses // ex.: ["PROGRESSING", "ENOUGH", "COMPLETED"]
-			@RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "statuses", defaultValue = "EMPTY,PROGRESSING,ENOUGH,CREATING,FINISH", required = false) List<String> statuses // ex.: ["PROGRESSING", "ENOUGH", "COMPLETED"]
 	) {
-		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), statuses, PageRequest.of(page, size));
 		return autobiographyFacadeService.getAutobiographies(memberSessionDto.getMemberId(), statuses, PageRequest.of(page, size));
 	}
 
@@ -107,25 +80,7 @@ public class AutobiographyController {
     ) {
         return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, sort, PageRequest.of(page, size));
     }
-    @Operation(summary = "특정 자서전에서 count된 소재를 오름차순으로 반환", description = "auto id에 맞는 자서전에서 count 된 모든 소재에서 가 해당 자서전에서 count 된 소재를 count(가중치) 기준 내림차순으로 반환한다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "ok"),
-    })
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/{autobiographyId}/materials")
-    @ResponseStatus(HttpStatus.OK)
-    public AutobiographyMaterialsResponseDto getAutobiographyMaterials(
-            @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sort", defaultValue = "asc", required = false) String sort
-    ) {
-        return autobiographyFacadeService.getAutobiographyMaterials(memberSessionDto.getMemberId(), autobiographyId, sort, PageRequest.of(page, size));
-    }
 
-
-    @Operation(summary = "특정 자서전 상세 조회", description = "자서전 id로 자서전의 상세 정보를 조회합니다.")
 
     @Operation(summary = "특정 자서전 상세 조회", description = "자서전 id로 자서전의 상세 정보를 조회합니다.")
 	@ApiResponses(value = {
@@ -140,16 +95,13 @@ public class AutobiographyController {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/{autobiographyId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseStatus(HttpStatus.OK)
 	public AutobiographyDetailResponseDto getAutobiography(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
 			@PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
 	) {
 		return autobiographyFacadeService.getAutobiography(memberSessionDto.getMemberId(), autobiographyId);
-		return autobiographyFacadeService.getAutobiography(memberSessionDto.getMemberId(), autobiographyId);
 	}
 
-	@Operation(summary = "특정 자서전 수정 요청", description = "자서전 id로 자서전의 title, content, image를 수정합니다.")
 	@Operation(summary = "특정 자서전 수정 요청", description = "자서전 id로 자서전의 title, content, image를 수정합니다.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok"),
@@ -164,10 +116,8 @@ public class AutobiographyController {
 	)
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping(value = "/{autobiographyChapterId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@PostMapping(value = "/{autobiographyChapterId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public void updateAutobiography(
 			@LoginMemberInfo MemberSessionDto memberSessionDto,
-			@PathVariable("autobiographyChapterId") @Parameter(description = "자서전 챕터 ID") Long autobiographyChapterId,
 			@PathVariable("autobiographyChapterId") @Parameter(description = "자서전 챕터 ID") Long autobiographyChapterId,
 			@Valid @ModelAttribute AutobiographyUpdateRequestDto requestDto
 	) {
@@ -256,93 +206,7 @@ public class AutobiographyController {
     ) {
         return autobiographyFacadeService.getCurrentAutobiography(memberSessionDto.getMemberId());
     }
-		autobiographyFacadeService.patchAutobiography(memberSessionDto.getMemberId(), autobiographyChapterId, requestDto);
-	}
 
-    @Operation(summary = "특정 자서전의 생성 이유 수정 요청", description = "자서전 id로 자서전의 reason를 수정합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "ok"),
-    })
-    @ApiErrorCodeExample(
-            autobiographyExceptionStatuses = {
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER,
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_REASON_LENGTH_EXCEEDED
-            }
-    )
-    @PreAuthorize("isAuthenticated()")
-    @PatchMapping(value = "/{autobiographyId}/reason", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public void updateReasonAutobiography(
-            @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
-            @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
-    ) {
-        autobiographyFacadeService.patchReasonAutobiography(memberSessionDto.getMemberId(), autobiographyId, requestDto);
-    }
-
-    @Operation(summary = "현재 진행중인 자서전 생성 요청", description = "status가 ENOUGH인 경우에만 가능합니다. 특정 자서전의 status를 CREATING으로 변경하고 자서전 생성을 실행합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "ok"),
-    })
-    @ApiErrorCodeExample(
-            autobiographyExceptionStatuses = {
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
-            }
-    )
-    @PreAuthorize("isAuthenticated()")
-    @PatchMapping(value = "/{autobiographyId}/generate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public void requestAutobiographyGenerate(
-            @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
-            @Valid @ModelAttribute CoShowAutobiographyGenerateRequestDto requestDto
-    ) {
-        autobiographyFacadeService.requestAutobiographyGenerate(memberSessionDto.getMemberId(), autobiographyId, requestDto);
-    }
-
-    @Operation(summary = "현재 진행중인 자서전 상태를 변경", description = "특정 자서전의 상태를 변경 합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "ok"),
-    })
-    @ApiErrorCodeExample(
-            autobiographyExceptionStatuses = {
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND,
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
-            }
-    )
-    @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{autobiographyId}/status")
-    @ResponseStatus(HttpStatus.OK)
-    public void patchAutobiographyReady(
-            @LoginMemberInfo MemberSessionDto memberSessionDto,
-            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
-            @RequestParam(value = "status", defaultValue = "ENOUGH") String status
-    ) {
-        autobiographyFacadeService.patchAutobiographyStatus(memberSessionDto.getMemberId(), autobiographyId, status);
-    }
-
-    @Operation(summary = "현재 진행중인 자서전 id 조회", description = "자서전 상태가 PROGRESSING인 자서전 중 updatedAt이 가장 최신인 자서전의 id를 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "ok"),
-    })
-    @ApiErrorCodeExample(
-            autobiographyExceptionStatuses = {
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_STATUS_NOT_FOUND,
-                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER
-            }
-    )
-    @PreAuthorize("isAuthenticated()")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/current")
-    public AutobiographyCurrentResponseDto getCurrentAutobiography(
-            @LoginMemberInfo MemberSessionDto memberSessionDto
-    ) {
-        return autobiographyFacadeService.getCurrentAutobiography(memberSessionDto.getMemberId());
-    }
-
-	@Operation(summary = "특정 자서전 삭제 요청", description = "자서전 id로 자서전을 삭제합니다.")
 	@Operation(summary = "특정 자서전 삭제 요청", description = "자서전 id로 자서전을 삭제합니다.")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok"),
