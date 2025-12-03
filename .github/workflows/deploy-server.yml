@@ -2,13 +2,13 @@ name: Deploy Server
 
 on:
   push:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'server/**'
       - 'deploy/server/docker-compose.server.prod.yml'
       - '.github/workflows/deploy-server.yml'
   pull_request:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'server/**'
       - 'deploy/server/docker-compose.server.prod.yml'

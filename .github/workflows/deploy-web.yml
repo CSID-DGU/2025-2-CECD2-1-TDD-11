@@ -2,12 +2,12 @@ name: Deploy Web to CDN
 
 on:
   push:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'web/**'
       - '.github/workflows/deploy-web.yml'
   pull_request:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'web/**'
       - '.github/workflows/deploy-web.yml'

@@ -2,12 +2,12 @@ name: Deploy Homepage to CDN
 
 on:
   push:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'homepage/**'
       - '.github/workflows/deploy-homepage.yml'
   pull_request:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'homepage/**'
       - '.github/workflows/deploy-homepage.yml'

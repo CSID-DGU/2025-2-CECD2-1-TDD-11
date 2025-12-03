@@ -2,11 +2,11 @@ name: Deploy Monitoring
 
 on:
   push:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'deploy/monitoring/**'
   pull_request:
-    branches: [devops, main]
+    branches: [main]
     paths:
       - 'deploy/monitoring/**'
   workflow_dispatch:
