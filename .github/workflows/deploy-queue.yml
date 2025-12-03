@@ -2,7 +2,13 @@ name: Deploy Stream (Queue)
 
 on:
   push:
-    branches: [devops]
+    branches: [devops, main]
+    paths:
+      - 'deploy/stream/docker-compose.stream.prod.yml'
+      - '.github/workflows/deploy-queue.yml'
+      - 'aggregator/**'
+  pull_request:
+    branches: [devops, main]
     paths:
       - 'deploy/stream/docker-compose.stream.prod.yml'
       - '.github/workflows/deploy-queue.yml'
