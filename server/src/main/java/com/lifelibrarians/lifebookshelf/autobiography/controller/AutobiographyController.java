@@ -326,7 +326,7 @@ public class AutobiographyController {
             }
     )
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("coshow/{autobiographyId}/progress")
+    @GetMapping("/{autobiographyId}/coshow/progress")
     public AutobiographyProgressResponseDto coShowGetAutobiographyProgress(
             @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
     ) {
