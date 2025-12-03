@@ -60,6 +60,8 @@ def publish_categories_message(payload: CategoriesPayload):
         rabbitmq_password = os.environ.get("RABBITMQ_PASSWORD")
         
         logger.info(f"[PUBLISH_CATEGORIES] Starting - autobiography_id={payload.autobiographyId} category_id={payload.categoryId} theme_id={payload.themeId}")
+        logger.info(f"[PUBLISH_CATEGORIES_DEBUG] chunks={payload.chunks}")
+        logger.info(f"[PUBLISH_CATEGORIES_DEBUG] materials={payload.materials}")
         
         credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
         connection = pika.BlockingConnection(
@@ -73,6 +75,7 @@ def publish_categories_message(payload: CategoriesPayload):
 
         body = payload.model_dump_json()
         logger.info(f"[PUBLISH_CATEGORIES] Publishing to exchange=interview.meta.exchange routing_key=interview.meta")
+        logger.info(f"[PUBLISH_CATEGORIES_DEBUG] body={body}")
         
         channel.basic_publish(
             exchange='interview.meta.exchange',

@@ -15,11 +15,11 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
             "JOIN ch.category c " +
             "JOIN c.themes t " +
             "WHERE c.autobiography.id = :autobiographyId " +
-            "AND t.id = :themeId " +
+            "AND t.order = :themeOrder " +
             "AND c.order = :categoryOrder " +
             "AND ch.order = :chunkOrder " +
             "AND m.order = :materialOrder")
-    Optional<Material> findByAutobiographyAndThemeAndOrdersAndMaterialOrder(@Param("autobiographyId") Long autobiographyId, @Param("themeId") Long themeId, @Param("categoryOrder") Integer categoryOrder, @Param("chunkOrder") Integer chunkOrder, @Param("materialOrder") Integer materialOrder);
+    Optional<Material> findByAutobiographyAndThemeAndOrdersAndMaterialOrder(@Param("autobiographyId") Long autobiographyId, @Param("themeOrder") Integer themeOrder, @Param("categoryOrder") Integer categoryOrder, @Param("chunkOrder") Integer chunkOrder, @Param("materialOrder") Integer materialOrder);
 
     @Query("SELECT m FROM Material m " +
             "JOIN FETCH m.chunk ch " +

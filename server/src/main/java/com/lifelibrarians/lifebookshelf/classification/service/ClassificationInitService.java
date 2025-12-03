@@ -34,7 +34,7 @@ public class ClassificationInitService {
             JsonNode materialData = mapper.readTree(new ClassPathResource("data/material.json").getInputStream());
 
             // 1. 모든 Category 먼저 생성 (중복 제거)
-            Map<String, Category> categoryMap = new HashMap<>();
+            Map<Integer, Category> categoryMap = new HashMap<>();
             JsonNode materialCategories = materialData.get("category");
             for (JsonNode categoryNode : materialCategories) {
                 String categoryName = categoryNode.get("name").asText();
@@ -42,7 +42,7 @@ public class ClassificationInitService {
                 
                 Category category = Category.of(categoryOrder, categoryName, autobiography);
                 categoryRepository.save(category);
-                categoryMap.put(categoryName, category);
+                categoryMap.put(categoryOrder, category);
                 
                 // Chunk & Material 생성
                 createChunksAndMaterials(categoryNode, category);
@@ -55,18 +55,19 @@ public class ClassificationInitService {
                 int themeOrder = themeNode.get("order").asInt();
 
                 Theme theme = Theme.of(themeOrder, ThemeNameType.fromKoreanName(themeName));
+                themeRepository.save(theme);  // Theme 먼저 저장
                 
                 // Theme에 Category들 연결
                 JsonNode categories = themeNode.get("category");
                 for (JsonNode categoryRef : categories) {
-                    String categoryName = categoryRef.get("name").asText();
-                    Category category = categoryMap.get(categoryName);
+                    int categoryOrder = categoryRef.get("order").asInt();
+                    Category category = categoryMap.get(categoryOrder);
                     if (category != null) {
                         theme.addCategory(category);
                     }
                 }
                 
-                themeRepository.save(theme);
+                themeRepository.save(theme);  // 연결 후 다시 저장
             }
         } catch (Exception e) {
             throw new RuntimeException("AI 데이터 초기화 실패", e);

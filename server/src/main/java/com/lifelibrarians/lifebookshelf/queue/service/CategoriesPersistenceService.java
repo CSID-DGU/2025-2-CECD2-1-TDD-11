@@ -46,7 +46,7 @@ public class CategoriesPersistenceService {
             log.info("[RECEIVE_CATEGORIES_PAYLOAD] Chunk 변화량 처리 시작 - chunksCount: {}", payload.getChunks().size());
             
             payload.getChunks().forEach(chunkPayload -> {
-                var chunkOpt = chunkRepository.findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(autobiography.getId(), (long) payload.getThemeId(), payload.getCategoryId(), chunkPayload.getChunkOrder());
+                var chunkOpt = chunkRepository.findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(autobiography.getId(), payload.getThemeId(), payload.getCategoryId(), chunkPayload.getChunkOrder());
                 if (chunkOpt.isPresent()) {
                     Chunk chunk = chunkOpt.get();
                     int oldWeight = chunk.getWeight();
@@ -66,7 +66,7 @@ public class CategoriesPersistenceService {
             log.info("[RECEIVE_CATEGORIES_PAYLOAD] Material 변화량 처리 시작 - materialsCount: {}", payload.getMaterials().size());
             
             payload.getMaterials().forEach(materialPayload -> {
-                materialRepository.findByAutobiographyAndThemeAndOrdersAndMaterialOrder(autobiography.getId(), Long.valueOf(payload.getThemeId()), payload.getCategoryId(), materialPayload.getChunkId(), materialPayload.getMaterialOrder())
+                materialRepository.findByAutobiographyAndThemeAndOrdersAndMaterialOrder(autobiography.getId(), payload.getThemeId(), payload.getCategoryId(), materialPayload.getChunkId(), materialPayload.getMaterialOrder())
                     .filter(material -> material.getChunk().getCategory().getAutobiography().getId().equals(autobiography.getId()))
                     .ifPresentOrElse(material -> {
                         // 변화량 적용

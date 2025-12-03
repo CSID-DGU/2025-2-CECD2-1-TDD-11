@@ -22,6 +22,117 @@ from engine.generators import generate_first_question, generate_question_llm, ge
 
 import redis
 
+# ------------------ 공통 함수: serialize_categories ------------------
+def serialize_categories(categories):
+    result = []
+    for cat in categories.values():
+        active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
+        if not active_chunks:
+            continue
+
+        chunks = []
+        for chunk in active_chunks.values():
+            materials = [
+                {"order": m.order, "name": m.name, "principle": m.principle,
+                 "example": m.example, "similar_event": m.similar_event, "count": m.count}
+                for m in chunk.materials.values()
+                if any(m.principle) or m.example or m.similar_event or m.count > 0
+            ]
+            if materials:
+                chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
+
+        if chunks:
+            result.append({
+                "category_num": cat.category_num,
+                "category_name": cat.category_name,
+                "chunks": chunks,
+                "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
+            })
+    return result
+
+# ------------------ 공통 함수: publish_delta ------------------
+def publish_delta(previous_categories, updated_metrics, user_id, autobiography_id):
+    try:
+        from datetime import datetime, timezone
+        serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
+        sys.path.insert(0, serve_dir)
+        from stream import publish_categories_message
+        from stream.dto import ChunksPayload, MaterialsPayload, CategoriesPayload
+        
+        now = datetime.now(timezone.utc)
+        prev_cats = {c["category_num"]: c for c in previous_categories}
+        
+        logger.info(f"[DELTA] Starting delta calculation prev_categories={len(previous_categories)} curr_categories={len(updated_metrics['categories'])}")
+        
+        for curr_cat in updated_metrics["categories"]:
+            cat_num = curr_cat["category_num"]
+            prev_cat = prev_cats.get(cat_num, {})
+            prev_chunks = {c["chunk_num"]: c for c in prev_cat.get("chunks", [])}
+            chunks_deltas = []
+            materials_deltas = []
+            
+            for curr_chunk in curr_cat["chunks"]:
+                chunk_num = curr_chunk["chunk_num"]
+                prev_chunk = prev_chunks.get(chunk_num, {})
+                
+                # chunk weight 변화
+                prev_weight = prev_cat.get("chunk_weight", {}).get(str(chunk_num), 0)
+                curr_weight = curr_cat["chunk_weight"].get(str(chunk_num), 0)
+                
+                if curr_weight > prev_weight:
+                    chunks_deltas.append(ChunksPayload(
+                        categoryId=cat_num, 
+                        chunkOrder=chunk_num,
+                        weight=curr_weight - prev_weight, 
+                        timestamp=now
+                    ))
+                    logger.debug(f"[DELTA] Chunk weight changed cat={cat_num} chunk={chunk_num} delta={curr_weight - prev_weight}")
+                
+                # material 변화
+                prev_materials = {m["order"]: m for m in prev_chunk.get("materials", [])}
+                for curr_mat in curr_chunk["materials"]:
+                    mat_order = curr_mat["order"]
+                    prev_mat = prev_materials.get(mat_order, {})
+                    
+                    principle_delta = [curr_mat["principle"][i] - prev_mat.get("principle", [0,0,0,0,0,0])[i] for i in range(6)]
+                    example_delta = curr_mat["example"] - prev_mat.get("example", 0)
+                    similar_event_delta = curr_mat["similar_event"] - prev_mat.get("similar_event", 0)
+                    count_delta = curr_mat["count"] - prev_mat.get("count", 0)
+                    
+                    if any(principle_delta) or example_delta or similar_event_delta or count_delta:
+                        materials_deltas.append(MaterialsPayload(
+                            chunkId=chunk_num, 
+                            materialOrder=mat_order,
+                            example=example_delta, 
+                            similarEvent=similar_event_delta,
+                            count=count_delta, 
+                            principle=principle_delta, 
+                            timestamp=now
+                        ))
+                        logger.debug(f"[DELTA] Material changed cat={cat_num} chunk={chunk_num} mat={mat_order} count_delta={count_delta}")
+            
+            if chunks_deltas or materials_deltas:
+                # AI cat_num을 DB 매핑으로 변환
+                theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
+                
+                final_payload = CategoriesPayload(
+                    autobiographyId=int(autobiography_id),
+                    userId=int(user_id),
+                    themeId=theme_id,
+                    categoryId=category_order,
+                    chunks=chunks_deltas, 
+                    materials=materials_deltas
+                )
+                
+                logger.info(f"[DELTA] Publishing categories message cat_num={cat_num} theme_id={theme_id} category_id={category_order} chunks={len(chunks_deltas)} materials={len(materials_deltas)}")
+                logger.info(f"[DELTA_DEBUG] chunks_deltas={chunks_deltas}")
+                logger.info(f"[DELTA_DEBUG] materials_deltas={materials_deltas}")
+                publish_categories_message(final_payload)
+            else:
+                logger.debug(f"[DELTA] No changes for category cat_num={cat_num}")
+    except Exception as e:
+        logger.warning(f"Delta 발행 실패: {e}", exc_info=True)
+
 # 실제 함수 구현
 def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk_deltas=None, material_deltas=None):
     """실제 변화량을 CategoriesPayload로 전송"""
@@ -37,10 +148,6 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
         if user_id is None or autobiography_id is None:
             logger.debug("Skipping publish_delta_change due to None values")
             return
-            
-        # 현재 시간
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc)
         
         # ChunksPayload 생성 (chunk_id를 chunkOrder로 매핑)
         chunks = []
@@ -50,7 +157,6 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
                     categoryId=category_id,
                     chunkOrder=chunk_data.get('chunk_id', 0),  # chunk_id → chunkOrder
                     weight=chunk_data.get('weight_delta', 0),   # 변화량
-                    timestamp=timestamp
                 ))
         
         # MaterialsPayload 생성 (material_id를 materialOrder로 매핑)
@@ -64,7 +170,6 @@ def publish_delta_change(user_id, autobiography_id, theme_id, category_id, chunk
                     similarEvent=material_data.get('similar_event_delta', 0), # 변화량
                     count=material_data.get('count_delta', 0),         # 변화량
                     principle=material_data.get('principle_delta', [0,0,0,0,0,0]), # 변화량 배열
-                    timestamp=timestamp
                 ))
         
         # CategoriesPayload 생성 및 전송
@@ -132,33 +237,30 @@ def _call_llm_map_flow(flow_path: str, answer_text: str, materials_list: dict, c
     
 # AI cat_num을 DB의 theme_id, category_order로 변환하는 함수
 def convert_cat_num_to_db_mapping(cat_num):
-    """AI의 cat_num(0-based)을 DB의 (theme_id, category_order)로 변환"""
-    # material.json의 category order와 DB의 theme-category 매핑
-    # material.json: order=1(부모), order=2(조부모), order=3(형제), order=4(자녀/육아), order=5(친척), order=6(가족사건), order=7(주거지), order=8(성격), order=9(결혼), order=10(배우자), order=11(친구), order=12(연인), order=13(반려동물), order=14(생애주기), order=15(직장), order=16(진로), order=17(문제해결), order=18(취미), order=19(금전), order=20(철학), order=21(생활)
-    
-    # DB 매핑 (theme_id, category_order) - material.json의 order 기준
+    """AI의 cat_num을 DB의 (theme_order, category_order)로 변환"""
+    # theme.json 기반 매핑
     mapping = {
-        1: (1, 1),   # 부모
-        2: (1, 2),   # 조부모  
-        3: (1, 3),   # 형제
-        4: (1, 4),   # 자녀/육아
-        5: (1, 5),   # 친척
-        6: (1, 6),   # 가족 사건
-        7: (4, 1),   # 주거지
-        8: (5, 1),   # 성격
-        9: (2, 2),   # 결혼
-        10: (2, 3),  # 배우자
-        11: (6, 1),  # 친구
-        12: (2, 1),  # 연인
-        13: (12, 1), # 반려동물
-        14: (8, 1),  # 생애주기
-        15: (7, 1),  # 직장
-        16: (7, 2),  # 진로
-        17: (7, 3),  # 문제해결(과정)
-        18: (11, 1), # 취미
-        19: (10, 1), # 금전
-        20: (13, 1), # 철학
-        21: (14, 1), # 생활
+        1: (1, 1),   # 부모 -> 가족사 전반
+        2: (1, 2),   # 조부모 -> 가족사 전반
+        3: (1, 3),   # 형제 -> 가족사 전반
+        4: (1, 4),   # 자녀/육아 -> 가족사 전반
+        5: (1, 5),   # 친척 -> 가족사 전반
+        6: (1, 6),   # 가족 사건 -> 가족사 전반
+        7: (4, 7),   # 주거지 -> 공간과 장소
+        8: (5, 8),   # 성격 -> 나의 성격과 특성
+        9: (2, 9),   # 결혼 -> 사랑과 결혼
+        10: (2, 10), # 배우자 -> 사랑과 결혼
+        11: (6, 11), # 친구 -> 관계
+        12: (2, 12), # 연인 -> 사랑과 결혼
+        13: (12, 13),# 반려동물 -> 반려동물과 함께한 삶
+        14: (8, 14), # 생애주기 -> 시간의 흐름
+        15: (7, 15), # 직장 -> 일과 성장
+        16: (7, 16), # 진로 -> 일과 성장
+        17: (7, 17), # 문제해결 -> 일과 성장
+        18: (11, 18),# 취미 -> 취미와 여가
+        19: (10, 19),# 금전 -> 경제생활
+        20: (13, 20),# 철학 -> 가치관과 철학
+        21: (14, 21),# 생활 -> 일상과 습관
     }
     
     return mapping.get(cat_num, (1, 1))  # 기본값
@@ -178,12 +280,16 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
     session_key = f"session:{sessionId}"
     session_data_raw = redis_client.get(session_key)
     session_data = json.loads(session_data_raw) if session_data_raw and isinstance(session_data_raw, str) else None
+    
     if session_data:
-        if session_data.get('last_question'):
+        logger.info(f"[SESSION] Loaded session data session_key={sessionId}")
+    else:
+        logger.info(f"[SESSION] No existing session data session_key={sessionId}")
 
     # 첫 질문 분기
     if not session_data or not session_data.get("last_question"):
         preferred_categories = session_data.get("metrics", {}).get("preferred_categories", []) if session_data else []
+        logger.info(f"[FIRST_QUESTION] Generating first question preferred_categories={preferred_categories}")
 
         material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
         with open(material_json_path, 'r', encoding='utf-8') as f:
@@ -217,31 +323,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "type": "material_gate",
                 "text": gate_question_text
             }
-            
-            def serialize_categories(categories):
-                result = []
-                for cat in categories.values():
-                    active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
-                    if not active_chunks:
-                        continue
-                    chunks = []
-                    for chunk in active_chunks.values():
-                        materials = [
-                            {"order": m.order, "name": m.name, "principle": m.principle,
-                             "example": m.example, "similar_event": m.similar_event, "count": m.count}
-                            for m in chunk.materials.values()
-                            if any(m.principle) or m.example or m.similar_event or m.count > 0
-                        ]
-                        if materials:
-                            chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
-                    if chunks:
-                        result.append({
-                            "category_num": cat.category_num,
-                            "category_name": cat.category_name,
-                            "chunks": chunks,
-                            "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
-                        })
-                return result
             
             updated_metrics = {
                 "session_id": sessionId,
@@ -410,6 +491,9 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 # example / similar_event
                 if axes_data.get("example") == 1 or ex_flag: material.example = 1
                 if axes_data.get("similar_event") == 1 or con_flag: material.similar_event = 1
+                
+                # count 증가 (정상 응답)
+                material.count += 1
 
             # 카테고리 가중치 갱신
             category = engine.categories[cat_num]
@@ -417,6 +501,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             material.mark_filled_if_ready()
 
         logger.info(f"🔍 [소재 매칭] {current_material} → {matched_materials}")
+    
     # ------------------ 다음 질문 생성 ------------------
 
     try:
@@ -464,33 +549,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             }
             
             # 메트릭 업데이트 (상태는 변경하지 않음)
-            def serialize_categories(categories):
-                result = []
-                for cat in categories.values():
-                    active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
-                    if not active_chunks:
-                        continue
-
-                    chunks = []
-                    for chunk in active_chunks.values():
-                        materials = [
-                            {"order": m.order, "name": m.name, "principle": m.principle,
-                             "example": m.example, "similar_event": m.similar_event, "count": m.count}
-                            for m in chunk.materials.values()
-                            if any(m.principle) or m.example or m.similar_event or m.count > 0
-                        ]
-                        if materials:
-                            chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
-
-                    if chunks:
-                        result.append({
-                            "category_num": cat.category_num,
-                            "category_name": cat.category_name,
-                            "chunks": chunks,
-                            "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
-                        })
-                return result
-            
             updated_metrics = {
                 "session_id": sessionId,
                 "categories": serialize_categories(engine.categories),
@@ -502,6 +560,10 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "asked_total": metrics.get("asked_total", 0) + 1,
                 "policy_version": "v0.5.0"
             }
+            
+            # Delta 계산 및 발행
+            previous_categories = metrics.get("categories", [])
+            publish_delta(previous_categories, updated_metrics, user_id, autobiography_id)
             
             session_update = {
                 "metrics": updated_metrics,
@@ -550,7 +612,9 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             current_cat_num = material_id[0]
             if last_cat_num == current_cat_num:
                 context_answer = answer_text
+                logger.info(f"[CONTEXT] Using previous answer as context cat_num={current_cat_num}")
             else:
+                logger.info(f"[CONTEXT] Category changed, no context cat_num={last_cat_num}->{current_cat_num}")
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
@@ -576,33 +640,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "text": question_text
         }
 
-        def serialize_categories(categories):
-            result = []
-            for cat in categories.values():
-                active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
-                if not active_chunks:
-                    continue
-
-                chunks = []
-                for chunk in active_chunks.values():
-                    materials = [
-                        {"order": m.order, "name": m.name, "principle": m.principle,
-                         "example": m.example, "similar_event": m.similar_event, "count": m.count}
-                        for m in chunk.materials.values()
-                        if any(m.principle) or m.example or m.similar_event or m.count > 0
-                    ]
-                    if materials:
-                        chunks.append({"chunk_num": chunk.chunk_num, "chunk_name": chunk.chunk_name, "materials": materials})
-
-                if chunks:
-                    result.append({
-                        "category_num": cat.category_num,
-                        "category_name": cat.category_name,
-                        "chunks": chunks,
-                        "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
-                    })
-            return result
-
         updated_metrics = {
             "session_id": sessionId,
             "categories": serialize_categories(engine.categories),
@@ -615,75 +652,9 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "policy_version": "v0.5.0"
         }
         
-        # 이전 상태 저장
-        previous_categories = metrics.get("categories", [])
-        
         # Delta 계산 및 발행
-        try:
-            from datetime import datetime, timezone
-            serve_dir = os.path.join(current_dir, '..', '..', '..', '..', 'serve')
-            sys.path.insert(0, serve_dir)
-            from stream import publish_categories_message
-            from stream.dto import ChunksPayload, MaterialsPayload, CategoriesPayload
-            
-            now = datetime.now(timezone.utc)
-            prev_cats = {c["category_num"]: c for c in previous_categories}
-            
-            for curr_cat in updated_metrics["categories"]:
-                cat_num = curr_cat["category_num"]
-                prev_cat = prev_cats.get(cat_num, {})
-                prev_chunks = {c["chunk_num"]: c for c in prev_cat.get("chunks", [])}
-                chunks_deltas = []
-                materials_deltas = []
-                
-                for curr_chunk in curr_cat["chunks"]:
-                    chunk_num = curr_chunk["chunk_num"]
-                    prev_chunk = prev_chunks.get(chunk_num, {})
-                    
-                    # chunk weight 변화
-                    prev_weight = prev_chunk.get("chunk_weight", {}).get(str(chunk_num), 0) if prev_chunk else 0
-                    curr_weight = curr_cat["chunk_weight"].get(str(chunk_num), 0)
-                    
-                    if curr_weight > prev_weight:
-                        chunks_deltas.append(ChunksPayload(
-                            categoryId=cat_num, chunkOrder=chunk_num,
-                            weight=curr_weight - prev_weight, timestamp=now
-                        ))
-                    
-                    # material 변화
-                    prev_materials = {m["order"]: m for m in prev_chunk.get("materials", [])}
-                    for curr_mat in curr_chunk["materials"]:
-                        mat_order = curr_mat["order"]
-                        prev_mat = prev_materials.get(mat_order, {})
-                        
-                        principle_delta = [curr_mat["principle"][i] - prev_mat.get("principle", [0,0,0,0,0,0])[i] for i in range(6)]
-                        example_delta = curr_mat["example"] - prev_mat.get("example", 0)
-                        similar_event_delta = curr_mat["similar_event"] - prev_mat.get("similar_event", 0)
-                        count_delta = curr_mat["count"] - prev_mat.get("count", 0)
-                        
-                        if any(principle_delta) or example_delta or similar_event_delta or count_delta:
-                            materials_deltas.append(MaterialsPayload(
-                                chunkId=chunk_num, materialOrder=mat_order,
-                                example=example_delta, similarEvent=similar_event_delta,
-                                count=count_delta, principle=principle_delta, timestamp=now
-                            ))
-                
-                if chunks_deltas or materials_deltas:
-                    # AI cat_num을 DB 매핑으로 변환
-                    theme_id, category_order = convert_cat_num_to_db_mapping(cat_num)
-                    
-                    final_payload = CategoriesPayload(
-                        autobiographyId=int(autobiography_id),  # str() 제거하고 int() 사용
-                        userId=int(user_id),  # str() 제거하고 int() 사용
-                        themeId=theme_id,  # 올바른 theme_id 사용
-                        categoryId=category_order,  # DB의 category_order 사용
-                        chunks=chunks_deltas, materials=materials_deltas
-                    )
-                    
-                    
-                    publish_categories_message(final_payload)
-        except Exception as e:
-            logger.warning(f"Delta 발행 실패: {e}")
+        previous_categories = metrics.get("categories", [])
+        publish_delta(previous_categories, updated_metrics, user_id, autobiography_id)
 
         session_update = {
             "metrics": updated_metrics,

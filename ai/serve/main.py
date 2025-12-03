@@ -20,10 +20,15 @@ from voice.router import router as voice_router
 
 from logs import get_logger
 import stream.consumers  # 컨슈머 자동 시작
+import logging
 
 load_dotenv()
 
 logger = get_logger()
+
+# promptflow 로그 레벨 조정
+logging.getLogger("flowinvoker").setLevel(logging.WARNING)
+logging.getLogger("execution.flow").setLevel(logging.WARNING)
 
 
 def create_connection():
