@@ -10,7 +10,9 @@ import com.lifelibrarians.lifebookshelf.publication.dto.response.PublicationList
 import com.lifelibrarians.lifebookshelf.publication.dto.response.PublicationProgressResponseDto;
 import com.lifelibrarians.lifebookshelf.exception.status.PublicationExceptionStatus;
 import com.lifelibrarians.lifebookshelf.publication.service.AutobiographyPublicationService;
+import com.lifelibrarians.lifebookshelf.publication.service.AutobiographyPublicationService;
 import com.lifelibrarians.lifebookshelf.publication.service.PublicationFacadeService;
+import com.lowagie.text.DocumentException;
 import com.lowagie.text.DocumentException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v2/publications")
@@ -42,6 +46,7 @@ import java.io.IOException;
 public class PublicationController {
 
 	private final PublicationFacadeService publicationFacadeService;
+	private final AutobiographyPublicationService autobiographyPublicationService;
 	private final AutobiographyPublicationService autobiographyPublicationService;
 
 	@Operation(summary = "자신의 출판 목록 조회", description = "자신의 출판 목록을 조회합니다.")

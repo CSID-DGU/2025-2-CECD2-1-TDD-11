@@ -16,11 +16,19 @@ data class ChatInterviewResponseDto(
         val id: String = "",
         @SerialName("material")
         val material: String = "",
-        @SerialName("material_id")
-        val materialId: List<Int> = emptyList(),
         @SerialName("text")
         val text: String = "",
         @SerialName("type")
         val type: String = "",
-    )
+        @SerialName("material_id")
+        val materialId: List<Int> = emptyList(),
+    ) {
+        @Serializable
+        data class Material(
+            @SerialName("name")
+            val materialName: String = "",
+            @SerialName("order")
+            val materialOrder: Int = 0,
+        )
+    }
 }

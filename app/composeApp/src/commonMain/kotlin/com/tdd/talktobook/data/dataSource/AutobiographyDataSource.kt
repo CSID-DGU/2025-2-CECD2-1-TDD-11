@@ -32,11 +32,29 @@ interface AutobiographyDataSource {
         reason: String,
     ): HttpResponse
 
+    suspend fun postCoShowStartProgress(
+        theme: String,
+        reason: String,
+    ): HttpResponse
+
     suspend fun getCountMaterials(autobiographyId: Int): HttpResponse
 
     suspend fun getCurrentInterviewProgress(autobiographyId: Int): HttpResponse
 
-    suspend fun patchCreateAutobiography(autobiographyId: Int): HttpResponse
+    suspend fun patchCreateAutobiography(
+        autobiographyId: Int,
+        name: String,
+    ): HttpResponse
 
     suspend fun getSelectedTheme(autobiographyId: Int): HttpResponse
+
+    suspend fun patchChangeStatus(
+        autobiographyId: Int,
+        status: String,
+    ): HttpResponse
+
+    suspend fun getCoShowGenerate(
+        autobiographyId: Int,
+        request: String,
+    ): HttpResponse
 }

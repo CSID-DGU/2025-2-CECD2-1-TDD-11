@@ -1,5 +1,6 @@
 from promptflow.core import tool
 from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple
 import json
 import re
 import sys
@@ -10,7 +11,13 @@ import logging
 
 # Logger 설정
 logger = logging.getLogger("interview_flow")
+import logging
 
+# Logger 설정
+logger = logging.getLogger("interview_flow")
+
+# engine 모듈 import 경로 추가
+current_dir = os.path.dirname(__file__)
 # engine 모듈 import 경로 추가
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
@@ -269,10 +276,18 @@ def convert_cat_num_to_db_mapping(cat_num):
 def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiography_id: int) -> Dict:
     """인터뷰 엔진 - Redis에서 세션 로드하여 다음 질문 생성"""
 
+def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiography_id: int) -> Dict:
+    """인터뷰 엔진 - Redis에서 세션 로드하여 다음 질문 생성"""
+
     # Redis에서 세션 로드
     import redis
     import os
+    import os
     
+    # 환경변수에서 Redis 설정 읽기
+    redis_host = os.getenv('REDIS_HOST')
+    redis_port = int(os.getenv('REDIS_PORT'))
+    redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
     # 환경변수에서 Redis 설정 읽기
     redis_host = os.getenv('REDIS_HOST')
     redis_port = int(os.getenv('REDIS_PORT'))
@@ -294,6 +309,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
         with open(material_json_path, 'r', encoding='utf-8') as f:
             material_data = json.load(f)
+
 
         categories = InterviewEngine.build_categories_from_category_json(material_data)
         engine = InterviewEngine(categories)
@@ -366,13 +382,17 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         with open(material_json_path, 'r', encoding='utf-8') as f:
             material_data = json.load(f)
 
+
         categories = InterviewEngine.build_categories_from_category_json(material_data)
+
 
         # 이전 메트릭이 있으면 상태 복원
         if metrics.get("categories"):
             restore_categories_state(categories, metrics["categories"])
 
+
         engine = InterviewEngine(categories)
+
 
         # 상태 복원
         engine_state = metrics.get("engine_state", {})
@@ -380,12 +400,22 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         engine.state.last_material_streak = engine_state.get("last_material_streak", 0)
         engine.theme_initialized = engine_state.get("theme_initialized", False)
 
+
     except Exception as e:
+        logger.error(f"엔진 초기화 실패: {e}")
+        return {"next_question": None, "last_answer_materials_id": []}
+
         logger.error(f"엔진 초기화 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}
 
     # 답변 분석
     current_material = question.get("material", "") if question else ""
+    # material_id는 material.full_material_id 또는 최상위 material_id에서 가져오기 (하위 호환)
+    current_material_id = None
+    if isinstance(current_material, dict):
+        current_material_id = current_material.get("full_material_id")
+    if not current_material_id:
+        current_material_id = question.get("material_id") if question else None
     # material_id는 material.full_material_id 또는 최상위 material_id에서 가져오기 (하위 호환)
     current_material_id = None
     if isinstance(current_material, dict):
@@ -416,13 +446,91 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
     axes_analysis_by_material: Dict[str, dict] = {}
     mapped_ids: List[List[int]] = []
 
+    
+    # 현재 질문 소재의 full_material_name 찾기 (LLM에 전달용)
+    current_material_full = ""
+    if isinstance(current_material, dict):
+        current_material_full = current_material.get("full_material_name", "")
+    elif isinstance(current_material, str):
+        current_material_full = current_material
+    
+    # full_material_name이 없으면 material_id로 역검색
+    if not current_material_full and current_material_id and isinstance(current_material_id, list) and len(current_material_id) == 3:
+        cat_num, chunk_num, mat_num = current_material_id
+        temp_cat = engine.categories.get(cat_num)
+        if temp_cat:
+            temp_chunk = temp_cat.chunks.get(chunk_num)
+            if temp_chunk:
+                temp_mat = temp_chunk.materials.get(mat_num)
+                if temp_mat:
+                    current_material_full = f"{temp_cat.category_name} {temp_chunk.chunk_name} {temp_mat.name}"
+
+    matched_materials: List[str] = []
+    axes_analysis_by_material: Dict[str, dict] = {}
+    mapped_ids: List[List[int]] = []
+
     if not is_first_question:
+        # 6W 축 감지(휴리스틱, LLM 반환에 값 없을 때 보조로 사용)
         # 6W 축 감지(휴리스틱, LLM 반환에 값 없을 때 보조로 사용)
         axes_evidence = {k: hit_any(answer_text, HINTS[k]) for k in HINTS.keys()}
         ex_flag = 1 if hit_any(answer_text, EX_HINTS) else 0
         con_flag = 1 if hit_any(answer_text, CON_HINTS) else 0
         if not con_flag and len(answer_text or "") >= 80:
             con_flag = 1
+
+        # 상대경로로 map flow 찾기
+        map_flow_path = os.path.normpath(os.path.join(current_dir, "..", "..", "standard", "map_answer_to_materials", "flow.dag.yaml"))
+        mapping_path = os.path.join(os.path.dirname(__file__), "data", "material_id_mapping.json")
+        materials_list = _build_materials_list_from_mapping(mapping_path)
+
+        llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full, list(current_material_id) if current_material_id else [])
+
+        # 소재 매칭
+        for item in llm_items:
+            if not isinstance(item, dict) or not item.get("material"):
+                continue
+            
+            material_id = item["material"]
+            
+            # material_id는 [cat, chunk, mat] 형태여야 함
+            if not isinstance(material_id, list) or len(material_id) != 3:
+                continue
+            
+            # 소재 이름 찾기
+            cat_num, chunk_num, mat_num = material_id
+            temp_cat = engine.categories.get(cat_num)
+            if not temp_cat:
+                continue
+            
+            temp_chunk = temp_cat.chunks.get(chunk_num)
+            if not temp_chunk:
+                continue
+            
+            temp_mat = temp_chunk.materials.get(mat_num)
+            if not temp_mat:
+                continue
+            
+            material_name = f"{temp_cat.category_name} {temp_chunk.chunk_name} {temp_mat.name}"
+            matched_materials.append(material_name)
+            axes_analysis_by_material[material_name] = item.get("axes", {})
+            mapped_ids.append(material_id)
+
+        # LLM 분석 결과 반영
+        for i, material_id in enumerate(mapped_ids):
+            cat_num, chunk_num, mat_num = material_id
+            material = engine._get_material(cat_num, chunk_num, mat_num)
+            if not material:
+                continue
+
+            axes_data = axes_analysis_by_material.get(matched_materials[i], {})
+            is_pass = axes_data.get("pass", 0) == 1
+
+            if is_pass:
+                # 회피/반감 응답: 소재 완료 처리
+                material.principle = [1, 1, 1, 1, 1, 1]
+                material.example, material.similar_event = 1, 1
+                material.count = 1
+                logger.info(f"회피/반감 감지: {matched_materials[i]} - 소재 완료 처리")
 
         # 상대경로로 map flow 찾기
         map_flow_path = os.path.normpath(os.path.join(current_dir, "..", "..", "standard", "map_answer_to_materials", "flow.dag.yaml"))
@@ -508,8 +616,12 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         material_id = engine.select_material()
         cat_num, chunk_num, mat_num = material_id
 
+
         material = engine._get_material(cat_num, chunk_num, mat_num)
         if not material:
+            return {"next_question": None, "last_answer_materials_id": []}
+
+        # Material Gate 체크: 소재에 기존 데이터가 없으면 gate 질문 먼저
             return {"next_question": None, "last_answer_materials_id": []}
 
         # Material Gate 체크: 소재에 기존 데이터가 없으면 gate 질문 먼저
@@ -602,8 +714,18 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "w6": "why",
             "ex": "ex",
             "con": "con"
+            "w1": "when_where",
+            "w2": "how1",
+            "w3": "who",
+            "w4": "what",
+            "w5": "how2",
+            "w6": "why",
+            "ex": "ex",
+            "con": "con"
         }
         prompt_type = type_mapping.get(target, target)
+
+        # 카테고리가 같으면 이전 답변을 컨텍스트로 전달
 
         # 카테고리가 같으면 이전 답변을 컨텍스트로 전달
         context_answer = None
@@ -618,12 +740,16 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
         question_text = generate_question_llm(full_material_name, prompt_type, context_answer)
 
+
         # streak 업데이트
         if engine.state.last_material_id == material_id:
             engine.state.last_material_streak += 1
         else:
             engine.state.last_material_id = material_id
             engine.state.last_material_streak = 1
+
+        # material.name 직접 사용
+        material_name = material.name
 
         # material.name 직접 사용
         material_name = material.name
@@ -636,11 +762,18 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "material_name": material_name,
                 "material_order": material.order
             },
+            "material": {
+                "full_material_name": full_material_name,
+                "full_material_id": list(material_id),
+                "material_name": material_name,
+                "material_order": material.order
+            },
             "type": target,
             "text": question_text
         }
 
         updated_metrics = {
+            "session_id": sessionId,
             "session_id": sessionId,
             "categories": serialize_categories(engine.categories),
             "engine_state": {
@@ -649,6 +782,7 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
                 "epsilon": engine.state.epsilon
             },
             "asked_total": metrics.get("asked_total", 0) + 1,
+            "policy_version": "v0.5.0"
             "policy_version": "v0.5.0"
         }
         
@@ -668,6 +802,14 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         last_answer_materials_id = mapped_ids if mapped_ids else []
         return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
 
+
+        logger.info(f"🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
+
+        last_answer_materials_id = mapped_ids if mapped_ids else []
+        return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
+
     except Exception as e:
+        logger.error(f"질문 생성 실패: {e}")
+        return {"next_question": None, "last_answer_materials_id": []}
         logger.error(f"질문 생성 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}

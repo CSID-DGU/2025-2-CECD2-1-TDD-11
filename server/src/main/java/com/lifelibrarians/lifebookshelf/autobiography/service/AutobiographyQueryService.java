@@ -4,7 +4,16 @@ import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
 import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatus;
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
+import com.lifelibrarians.lifebookshelf.autobiography.dto.response.*;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyRepository;
+import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
+import com.lifelibrarians.lifebookshelf.classification.domain.Category;
+import com.lifelibrarians.lifebookshelf.classification.domain.Material;
+import com.lifelibrarians.lifebookshelf.classification.domain.Theme;
+import com.lifelibrarians.lifebookshelf.classification.repository.MaterialRepository;
+import com.lifelibrarians.lifebookshelf.classification.repository.ThemeRepository;
 import com.lifelibrarians.lifebookshelf.autobiography.repository.AutobiographyStatusRepository;
 import com.lifelibrarians.lifebookshelf.classification.domain.Category;
 import com.lifelibrarians.lifebookshelf.classification.domain.Material;
@@ -17,17 +26,24 @@ import com.lifelibrarians.lifebookshelf.mapper.AutobiographyMapper;
 
 import java.util.Collections;
 import java.util.Comparator;
+
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,8 +55,17 @@ public class AutobiographyQueryService {
     private final AutobiographyStatusRepository autobiographyStatusRepository;
     private final MaterialRepository materialRepository;
     private final ThemeRepository themeRepository;
+    private final AutobiographyStatusRepository autobiographyStatusRepository;
+    private final MaterialRepository materialRepository;
+    private final ThemeRepository themeRepository;
 	private final AutobiographyMapper autobiographyMapper;
 
+    public AutobiographyListResponseDto getAutobiographies(Long memberId, List<String> statuses, Pageable pageable) {
+        log.info("[GET_AUTOBIOGRAPHIES] 자서전 목록 조회 시작 - memberId: {}, statuses: {}, page: {}", memberId, statuses, pageable.getPageNumber());
+
+        List<AutobiographyStatusType> statusTypes = statuses.stream()
+                .map(AutobiographyStatusType::valueOf)
+                .collect(Collectors.toList());
     public AutobiographyListResponseDto getAutobiographies(Long memberId, List<String> statuses, Pageable pageable) {
         log.info("[GET_AUTOBIOGRAPHIES] 자서전 목록 조회 시작 - memberId: {}, statuses: {}, page: {}", memberId, statuses, pageable.getPageNumber());
 
@@ -65,15 +90,36 @@ public class AutobiographyQueryService {
                 .results(dtoList)
                 .build();
     }
+        Page<Autobiography> autobiographyPage =
+                autobiographyRepository.findByMemberIdAndStatusesPaged(memberId, statusTypes, pageable);
+
+        log.info("[GET_AUTOBIOGRAPHIES] 자서전 조회 완료 - memberId: {}, totalElements: {}", memberId, autobiographyPage.getTotalElements());
+
+        List<AutobiographyPreviewDto> dtoList =
+                autobiographyPage.getContent().stream()
+                        .map(a -> autobiographyMapper.toAutobiographyPreviewDto(
+                                a,
+                                a.getAutobiographyStatus()   // 그냥 이거 한 줄이면 됨
+                        ))
+                        .collect(Collectors.toList());
+
+        return AutobiographyListResponseDto.builder()
+                .results(dtoList)
+                .build();
+    }
 
 	public AutobiographyDetailResponseDto getAutobiography(Long memberId, Long autobiographyId) {
+		log.info("[GET_AUTOBIOGRAPHY] 자서전 상세 조회 시작 - memberId: {}, autobiographyId: {}", memberId, autobiographyId);
+		
 		log.info("[GET_AUTOBIOGRAPHY] 자서전 상세 조회 시작 - memberId: {}, autobiographyId: {}", memberId, autobiographyId);
 		
 		Autobiography autobiography = autobiographyRepository.findWithInterviewById(autobiographyId)
 				.orElseThrow(
 						AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
 		
+		
 		if (!autobiography.getMember().getId().equals(memberId)) {
+			log.warn("[GET_AUTOBIOGRAPHY] 자서전 소유자 불일치 - memberId: {}, ownerId: {}", memberId, autobiography.getMember().getId());
 			log.warn("[GET_AUTOBIOGRAPHY] 자서전 소유자 불일치 - memberId: {}, ownerId: {}", memberId, autobiography.getMember().getId());
 			throw AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_OWNER.toServiceException();
 		}
