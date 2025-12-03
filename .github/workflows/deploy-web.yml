@@ -2,10 +2,16 @@ name: Deploy Web to CDN
 
 on:
   push:
-    branches: [devops]
+    branches: [main]
     paths:
       - 'web/**'
       - '.github/workflows/deploy-web.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy-web.yml'
+  workflow_dispatch:
 env:
   AWS_REGION: ap-northeast-2
 

@@ -268,6 +268,24 @@ public class AutobiographyController {
 
     // ----------------------------------------------------
     // CoShow용
+    @Operation(summary = "4. CoShow - 최종 자서전 생성 요청 (New Version)", description = "CoShow용 - 자서전 ID로 최종 자서전 생성을 요청합니다. 상태가 CREATING으로 전환됩니다. 완성되면 상태가 FINISH로 전환되고, 곧 PDF로 확인할 수 있습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "created"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND
+            }
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "/{autobiographyId}/coshow/generate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void coShowNewRequestAutobiographyGenerate(
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId,
+            @Valid @ModelAttribute CoShowAutobiographyGenerateRequestDto requestDto
+    ) {
+        autobiographyFacadeService.coShowNewRequestAutobiographyGenerate(autobiographyId, requestDto);
+    }
+
     @Operation(summary = "4. CoShow - 최종 자서전 생성 요청", description = "CoShow용 - 자서전 ID로 최종 자서전 생성을 요청합니다. 상태가 CREATING으로 전환됩니다. 완성되면 상태가 FINISH로 전환되고, 곧 PDF로 확인할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "ok"),
@@ -296,6 +314,23 @@ public class AutobiographyController {
             @Valid @ModelAttribute AutobiographyInitRequestDto requestDto
     ) {
         return autobiographyFacadeService.coShowInitAutobiography(requestDto);
+    }
+
+    @Operation(summary = "5. CoShow - 현재 진행 중인 자서전 인터뷰 진행률 조회", description = "auto id를 서버에서 찾아서 진행률 퍼센트를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND
+            }
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{autobiographyId}/coshow/progress")
+    public AutobiographyProgressResponseDto coShowGetAutobiographyProgress(
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+    ) {
+        return autobiographyFacadeService.coShowGetAutobiographyProgress(autobiographyId);
     }
 }
 

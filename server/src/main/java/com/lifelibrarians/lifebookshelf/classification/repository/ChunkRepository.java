@@ -13,8 +13,8 @@ public interface ChunkRepository extends JpaRepository<Chunk, Long> {
            "JOIN c.category cat " +
            "JOIN cat.themes t " +
            "WHERE cat.autobiography.id = :autobiographyId " +
-           "AND t.id = :themeId " +
+           "AND t.order = :themeOrder " +
            "AND cat.order = :categoryOrder " +
            "AND c.order = :chunkOrder")
-    Optional<Chunk> findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(@Param("autobiographyId") Long autobiographyId, @Param("themeId") Long themeId, @Param("categoryOrder") Integer categoryOrder, @Param("chunkOrder") Integer chunkOrder);
+    Optional<Chunk> findByAutobiographyAndThemeAndCategoryOrderAndChunkOrder(@Param("autobiographyId") Long autobiographyId, @Param("themeOrder") Integer themeOrder, @Param("categoryOrder") Integer categoryOrder, @Param("chunkOrder") Integer chunkOrder);
 }

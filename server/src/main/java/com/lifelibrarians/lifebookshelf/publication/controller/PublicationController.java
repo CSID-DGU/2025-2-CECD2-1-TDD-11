@@ -36,7 +36,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/publications")
+@RequestMapping("api/v2/publications")
 @Tag(name = "출판 (Publication)", description = "출판 관련 API")
 @Logging
 public class PublicationController {
@@ -121,7 +121,7 @@ public class PublicationController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "ok")
 	})
-	@GetMapping("/autobiography/{autobiographyId}/pdf")
+	@PostMapping("/autobiography/{autobiographyId}/pdf")
 	public String downloadAutobiographyPdf(
 			@PathVariable("autobiographyId") @Parameter(description = "자서전 ID", example = "1") Long autobiographyId,
             @Valid @ModelAttribute String name

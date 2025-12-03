@@ -2,10 +2,16 @@ name: Deploy Homepage to CDN
 
 on:
   push:
-    branches: [devops]
+    branches: [main]
     paths:
       - 'homepage/**'
       - '.github/workflows/deploy-homepage.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'homepage/**'
+      - '.github/workflows/deploy-homepage.yml'
+  workflow_dispatch:
 env:
   AWS_REGION: ap-northeast-2
 

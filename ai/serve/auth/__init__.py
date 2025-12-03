@@ -29,7 +29,7 @@ class AuthRequired(HTTPBearer):
 
     async def __call__(self, request: Request):
         auth_header = request.headers.get("Authorization")
-        logger.debug(f"Authorization header: {auth_header}")
+        # logger.debug(f"Authorization header: {auth_header}")
 
         if not auth_header:
             raise HTTPException(
