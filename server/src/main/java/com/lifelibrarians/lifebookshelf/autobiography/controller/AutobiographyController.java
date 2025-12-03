@@ -315,5 +315,22 @@ public class AutobiographyController {
     ) {
         return autobiographyFacadeService.coShowInitAutobiography(requestDto);
     }
+
+    @Operation(summary = "5. CoShow - 현재 진행 중인 자서전 인터뷰 진행률 조회", description = "auto id를 서버에서 찾아서 진행률 퍼센트를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            autobiographyExceptionStatuses = {
+                    AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND
+            }
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("coshow/{autobiographyId}/progress")
+    public AutobiographyProgressResponseDto coShowGetAutobiographyProgress(
+            @PathVariable("autobiographyId") @Parameter(description = "자서전 ID") Long autobiographyId
+    ) {
+        return autobiographyFacadeService.coShowGetAutobiographyProgress(autobiographyId);
+    }
 }
 

@@ -80,4 +80,8 @@ public class AutobiographyFacadeService {
     public AutobiographyInitResponseDto coShowInitAutobiography(AutobiographyInitRequestDto requestDto) {
         return autobiographyCommandService.coShowInitAutobiography(requestDto);
     }
+
+    public AutobiographyProgressResponseDto coShowGetAutobiographyProgress(Long autobiographyId) {
+        return autobiographyQueryService.coShowGetAutobiographyProgress(autobiographyId);
+    }
 }

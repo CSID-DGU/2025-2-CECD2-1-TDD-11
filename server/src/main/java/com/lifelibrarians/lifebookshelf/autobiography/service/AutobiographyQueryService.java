@@ -219,4 +219,24 @@ public class AutobiographyQueryService {
                 .categories(Collections.emptyList())
                 .build();
     }
+
+    // CoShow용 Query Services
+    // =====================================================================================
+    public AutobiographyProgressResponseDto coShowGetAutobiographyProgress(Long autobiographyId) {
+        log.info("[GET_AUTOBIOGRAPHY_PROGRESS] 자서전 진행률 조회 시작 - autobiographyId: {}", autobiographyId);
+
+        Autobiography autobiography = autobiographyRepository.findById(autobiographyId)
+                .orElseThrow(AutobiographyExceptionStatus.AUTOBIOGRAPHY_NOT_FOUND::toServiceException);
+
+        // 자서전 진행 상태 progress를 임시로 반환
+        float progress = 0.0f;
+
+        log.info("[GET_AUTOBIOGRAPHY_PROGRESS] 자서전 진행률 조회 완료 - autobiographyId: {}, progress: {}, status: {}",
+                autobiographyId, progress, autobiography.getAutobiographyStatus().getStatus());
+
+        return AutobiographyProgressResponseDto.builder()
+                .progressPercentage(progress)
+                .status(autobiography.getAutobiographyStatus().getStatus().name())
+                .build();
+    }
 }
