@@ -25,4 +25,10 @@ class MemberDataSourceImpl(
 
     override suspend fun getMemberProfile(): HttpResponse =
         memberService.getMemberProfile()
+
+    override suspend fun deleteUser(): HttpResponse =
+        memberService.deleteUser()
+
+    override suspend fun logOut(): HttpResponse =
+        memberService.logOut()
 }

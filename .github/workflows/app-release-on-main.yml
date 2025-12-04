@@ -37,6 +37,13 @@ jobs:
           POLICY_URL=${{ secrets.POLICY_URL }}
           EOF
 
+      - name: Decode google-services.json
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+        run: |
+          mkdir -p composeApp
+          echo "$GOOGLE_SERVICES" | base64 -d > composeApp/google-services.json
+
       # --------- Android: Release APK 빌드 ----------
       - name: Build Android Release APK
         run: ./gradlew :composeApp:assembleRelease --stacktrace

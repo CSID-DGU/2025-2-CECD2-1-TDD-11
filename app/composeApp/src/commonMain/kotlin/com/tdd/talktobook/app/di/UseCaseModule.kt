@@ -11,28 +11,32 @@ import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
 import com.tdd.talktobook.domain.usecase.auth.ReissueTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.DeleteAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesChapterListUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographiesDetailUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PatchCreateAutobiographyUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.PostCoShowStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyChaptersUseCase
-import com.tdd.talktobook.domain.usecase.autobiograph.PostCreateAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostEditAutobiographyDetailUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.interview.GetCoShowInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewQuestionListUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
+import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.PostInterviewRenewalUseCase
 import com.tdd.talktobook.domain.usecase.interview.SaveInterviewIdUseCase
@@ -64,10 +68,11 @@ val useCaseModule =
         factory { ReissueTokenUseCase(get()) }
         factory { GetAccessTokenUseCase(get()) }
         factory { GetRefreshTokenUseCase(get()) }
+        factory { DeleteLocalAllDataUseCase(get()) }
+        factory { DeleteLocalTokenUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }
-        factory { PostCreateAutobiographyUseCase(get()) }
         factory { GetAutobiographiesDetailUseCase(get()) }
         factory { PostEditAutobiographyDetailUseCase(get()) }
         factory { DeleteAutobiographyUseCase(get()) }
@@ -76,6 +81,7 @@ val useCaseModule =
         factory { PostUpdateCurrentChapterUseCase(get()) }
         factory { GetCurrentProgressAutobiographyUseCase(get()) }
         factory { PostStartProgressUseCase(get()) }
+        factory { PostCoShowStartProgressUseCase(get()) }
         factory { GetCountMaterialsUseCase(get()) }
         factory { GetCurrentInterviewProgressUseCase(get()) }
         factory { SaveCurrentAutobiographyStatusUseCase(get()) }
@@ -84,10 +90,8 @@ val useCaseModule =
         factory { SaveAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyIdUseCase(get()) }
         factory { GetAutobiographyStatusUseCase(get()) }
-        factory { SaveInterviewIdUseCase(get()) }
-        factory { GetInterviewIdUseCase(get()) }
-        factory { DeleteLocalAllDataUseCase(get()) }
-        factory { DeleteLocalTokenUseCase(get()) }
+        factory { ChangeAutobiographyStatusUseCase(get()) }
+        factory { GetCoShowGenerateUseCase(get()) }
 
         // Member
         factory { GetMemberInfoUseCase(get()) }
@@ -101,10 +105,14 @@ val useCaseModule =
 
         // Interview
         factory { GetInterviewConversationUseCase(get()) }
+        factory { GetCoShowInterviewConversationUseCase(get()) }
         factory { PostInterviewRenewalUseCase(get()) }
         factory { PostInterviewConversationUseCase(get()) }
         factory { GetInterviewQuestionListUseCase(get()) }
         factory { GetInterviewSummariesUseCase(get()) }
+        factory { SaveInterviewIdUseCase(get()) }
+        factory { GetInterviewIdUseCase(get()) }
+        factory { PostCoShowAnswerUseCase(get()) }
 
         // AI
         // Interview

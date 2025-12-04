@@ -6,7 +6,6 @@ import com.tdd.talktobook.data.mapper.autobiograph.AllAutobiographyMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographiesDetailMapper
 import com.tdd.talktobook.data.mapper.autobiograph.AutobiographyChapterMapper
 import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyChaptersMapper.toDto
-import com.tdd.talktobook.data.mapper.autobiograph.CreateAutobiographyMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.EditAutobiographyDetailMapper.toDto
 import com.tdd.talktobook.data.mapper.autobiograph.GetCountMaterialsMapper
 import com.tdd.talktobook.data.mapper.autobiograph.GetCurrentInterviewProgressMapper
@@ -15,9 +14,11 @@ import com.tdd.talktobook.data.mapper.autobiograph.GetSelectedThemeMapper
 import com.tdd.talktobook.data.mapper.autobiograph.PostStartProgressMapper
 import com.tdd.talktobook.data.mapper.base.DefaultBooleanMapper
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
+import com.tdd.talktobook.domain.entity.request.autobiography.ChangeAutobiographyStatusRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyChaptersRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.EditAutobiographyDetailRequestModel
+import com.tdd.talktobook.domain.entity.request.autobiography.GetCoShowGenerateRequestModel
 import com.tdd.talktobook.domain.entity.request.autobiography.StartProgressRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AutobiographiesDetailModel
@@ -39,13 +40,6 @@ class AutobiographyRepositoryImpl(
 ) : AutobiographyRepository {
     override suspend fun getAllAutobiographies(): Flow<Result<AllAutobiographyListModel>> =
         AllAutobiographyMapper.responseToModel(apiCall = { autobiographyDataSource.getAllAutobiographies() })
-
-    override suspend fun postCreateAutobiographies(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>> =
-        DefaultBooleanMapper.responseToModel(apiCall = {
-            autobiographyDataSource.postCreateAutobiographies(
-                body.toDto(),
-            )
-        })
 
     override suspend fun getAutobiographiesDetail(autobiographyId: Int): Flow<Result<AutobiographiesDetailModel>> =
         AutobiographiesDetailMapper.responseToModel(apiCall = {
@@ -95,6 +89,11 @@ class AutobiographyRepositoryImpl(
             )
         })
 
+    override suspend fun postCoShowStartProgress(body: StartProgressRequestModel): Flow<Result<InterviewAutobiographyModel>> =
+        PostStartProgressMapper.responseToModel(apiCall = {
+            autobiographyDataSource.postCoShowStartProgress(body.theme, body.reason)
+        })
+
     override suspend fun getCountMaterials(autobiographyId: Int): Flow<Result<CountMaterialsResponseModel>> =
         GetCountMaterialsMapper.responseToModel(apiCall = {
             autobiographyDataSource.getCountMaterials(
@@ -112,10 +111,11 @@ class AutobiographyRepositoryImpl(
     override suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>> =
         flow { localDataStore.saveCurrentAutobiographyStatus(currentStatue.type) }
 
-    override suspend fun patchCreateAutobiography(autobiographyId: Int): Flow<Result<Boolean>> =
+    override suspend fun patchCreateAutobiography(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             autobiographyDataSource.patchCreateAutobiography(
-                autobiographyId,
+                body.autobiographyId,
+                body.name,
             )
         })
 
@@ -150,4 +150,10 @@ class AutobiographyRepositoryImpl(
                 }
             }
         }
+
+    override suspend fun patchChangeStatus(body: ChangeAutobiographyStatusRequestModel): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.patchChangeStatus(body.autobiographyId, body.status.type) })
+
+    override suspend fun getCoShowGenerate(body: GetCoShowGenerateRequestModel): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = { autobiographyDataSource.getCoShowGenerate(body.autobiographyId, body.name) })
 }

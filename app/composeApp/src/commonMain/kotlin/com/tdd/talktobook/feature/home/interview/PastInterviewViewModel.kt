@@ -17,12 +17,12 @@ class PastInterviewViewModel(
         date: String,
         interviewId: Int,
     ) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 selectedDate = date,
                 interviewId = interviewId,
-            ),
-        )
+            )
+        }
 
         initGetInterviewList(interviewId)
     }
@@ -36,10 +36,10 @@ class PastInterviewViewModel(
     }
 
     private fun onSuccessGetInterview(data: InterviewConversationListModel) {
-        updateState(
-            uiState.value.copy(
+        updateState { state ->
+            state.copy(
                 interviewList = data.results,
-            ),
-        )
+            )
+        }
     }
 }

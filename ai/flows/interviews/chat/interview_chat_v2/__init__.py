@@ -529,7 +529,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         is_material_empty = (material.progress_score() == 0 and material.count == 0)
         is_different_material = (last_material_id != material_id)
         
-        
         if is_material_empty and (last_question_type != "material_gate" or is_different_material):
             gate_question_text = generate_material_gate_question(full_material_name)
             
@@ -667,7 +666,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
         last_answer_materials_id = mapped_ids if mapped_ids else []
         return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
-
     except Exception as e:
         logger.error(f"질문 생성 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}

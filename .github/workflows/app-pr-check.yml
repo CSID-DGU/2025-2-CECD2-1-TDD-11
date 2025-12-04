@@ -39,6 +39,13 @@ jobs:
           POLICY_URL=${{ secrets.POLICY_URL }}
           EOF
 
+      - name: Decode google-services.json
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+        run: |
+          mkdir -p composeApp
+          echo "$GOOGLE_SERVICES" | base64 -d > composeApp/google-services.json
+
       - name: Lint (ktlint)
         run: ./gradlew ktlintCheck
 
