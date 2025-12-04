@@ -8,7 +8,7 @@ on:
       - 'deploy/ai/docker-compose.ai.prod.yml'
       - '.github/workflows/deploy-ai.yml'
   pull_request:
-    branches: [main]
+    branches: [ai/fix/70]
     paths:
       - 'ai/**'
       - 'deploy/ai/docker-compose.ai.prod.yml'
