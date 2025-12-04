@@ -13,29 +13,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.tdd.talktobook.core.designsystem.AutobiographyPdfName
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
-import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
+import com.tdd.talktobook.core.designsystem.DownLoadPdf
+import com.tdd.talktobook.core.designsystem.GoToHome
+import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.RequestSuccessInCoShowFlow
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
+import com.tdd.talktobook.core.ui.util.rememberPdfDownloader
 
 @Composable
 internal fun AutobiographyRequestScreen(
     goToLogIn: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val pdfDownloader = rememberPdfDownloader()
 
     AutobiographyRequestContent(
-        onClickConfirmBtn = { goToLogIn() },
+        onClickConfirmBtn = {
+            pdfDownloader.download(
+                url = "https://s3.ap-northeast-2.amazonaws.com/lifebookshelf-image-bucket/publications/autobiography_335_20251205_052137.pdf",
+                suggestedFileName = AutobiographyPdfName
+            )
+            goToLogIn()
+        },
+        onClickGoLogIn = { goToLogIn() },
+        interactionSource = interactionSource
     )
 }
 
 @Composable
 fun AutobiographyRequestContent(
     onClickConfirmBtn: () -> Unit,
+    onClickGoLogIn: () -> Unit,
+    interactionSource: MutableInteractionSource,
 ) {
     Column(
         modifier =
@@ -65,19 +80,21 @@ fun AutobiographyRequestContent(
         )
 
         RectangleBtn(
-            btnContent = Confirm,
+            btnContent = DownLoadPdf,
             isBtnActivated = true,
             onClickAction = onClickConfirmBtn,
         )
 
+        Spacer(modifier = Modifier.height(20.dp))
+
+        UnderLineTextBtn(
+            interactionSource = interactionSource,
+            textContent = GoToHome,
+            textColor = Gray5,
+            onClick = onClickGoLogIn,
+            paddingEnd = 20
+        )
+
         Spacer(modifier = Modifier.height(60.dp))
     }
-}
-
-@Preview()
-@Composable
-private fun PreviewAutobiographyRequest() {
-    AutobiographyRequestContent(
-        onClickConfirmBtn = {},
-    )
 }
