@@ -92,3 +92,14 @@ new StreamStack(app, "TalkToBook-Stream", {
   },
   config,
 });
+
+new MonitoringStack(app, "TalkToBook-Monitoring", {
+  vpc: baseStack.vpc,
+  role: baseStack.role,
+  deployBucket: baseStack.deployBucket,
+  env: {
+    account: config.account,
+    region: config.region,
+  },
+  config,
+});
