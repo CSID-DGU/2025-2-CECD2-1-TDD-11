@@ -2,6 +2,9 @@ inputs:
   material:
     type: string
     default: 부모 프로필 name
+  previous_answer:
+    type: string
+    default: ""
   model:
     type: string
     default: gpt-4o-mini
@@ -22,6 +25,7 @@ nodes:
     model: ${inputs.model}
     temperature: ${inputs.temperature}
     material: ${inputs.material}
+    previous_answer: ${inputs.previous_answer}
   connection: open_ai_connection
   api: chat
 - name: format_output

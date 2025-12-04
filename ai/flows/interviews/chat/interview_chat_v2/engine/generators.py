@@ -92,7 +92,7 @@ def generate_question_llm(material: str, target: str, context_answer: Optional[s
         return f"{material}에 대해 더 자세히 이야기해 주세요."
 
 #V2 추가 함수 - Material Gate 질문 생성
-def generate_material_gate_question(full_material_name: str) -> str:
+def generate_material_gate_question(full_material_name: str, previous_answer: Optional[str] = None) -> str:
     """소재 진입 전 확인 질문 생성 (LLM)"""
     try:
         current_dir = Path(__file__).parent.parent
@@ -107,6 +107,7 @@ def generate_material_gate_question(full_material_name: str) -> str:
         
         result = flow(
             material=full_material_name,
+            previous_answer=previous_answer or "",
             model="gpt-4o-mini",
             temperature=0.7
         )

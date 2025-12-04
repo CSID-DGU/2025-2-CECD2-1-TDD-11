@@ -104,7 +104,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             chunk = category.chunks[chunk_num]
             full_material_name = f"{category.category_name} {chunk.chunk_name} {material.name}"
             
-            gate_question_text = generate_material_gate_question(full_material_name)
+            gate_question_text = generate_material_gate_question(full_material_name, previous_answer=None)
             
             next_question = {
                 "id": f"q-{uuid4().hex[:8]}",
@@ -357,7 +357,16 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         print(f"[DEBUG] last_material_id={last_material_id}, is_different_material={is_different_material}")
         
         if is_material_empty and (last_question_type != "material_gate" or is_different_material):
-            gate_question_text = generate_material_gate_question(full_material_name)
+            # 같은 카테고리면 이전 답변 전달
+            context_answer = None
+            if not is_first_question and last_material_id:
+                last_cat_num = last_material_id[0] if isinstance(last_material_id, (list, tuple)) and len(last_material_id) >= 1 else None
+                current_cat_num = material_id[0]
+                if last_cat_num == current_cat_num:
+                    context_answer = answer_text
+                    print(f"[DEBUG] Gate 질문 - 같은 카테고리({current_cat_num}) 이전 답변 전달")
+            
+            gate_question_text = generate_material_gate_question(full_material_name, previous_answer=context_answer)
             
             # material.name 직접 사용
             material_name = material.name
