@@ -714,6 +714,8 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "w6": "why",
             "ex": "ex",
             "con": "con"
+        },
+        {
             "w1": "when_where",
             "w2": "how1",
             "w3": "who",
