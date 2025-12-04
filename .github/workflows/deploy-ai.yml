@@ -2,7 +2,7 @@ name: Deploy AI
 
 on:
   push:
-    branches: [devops]
+    branches: [merge/test/20251204]
     paths:
       - 'ai/**'
       - 'deploy/docker-compose.ai.prod.yml'
