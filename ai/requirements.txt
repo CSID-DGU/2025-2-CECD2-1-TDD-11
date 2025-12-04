@@ -5,6 +5,11 @@ promptflow-azure==1.18.1
 marshmallow==3.19.0
 promptflow-tools
 
+# OpenTelemetry 버전 고정 (promptflow 1.18.1 호환)
+opentelemetry-api==1.24.0
+opentelemetry-sdk==1.24.0
+azure-monitor-opentelemetry-exporter==1.0.0b27
+
 # 아래는 그대로 유지
 python-dotenv
 fastapi
