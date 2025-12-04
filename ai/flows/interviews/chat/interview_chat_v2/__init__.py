@@ -268,19 +268,11 @@ def convert_cat_num_to_db_mapping(cat_num):
 @tool
 def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiography_id: int) -> Dict:
     """인터뷰 엔진 - Redis에서 세션 로드하여 다음 질문 생성"""
-
-def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiography_id: int) -> Dict:
-    """인터뷰 엔진 - Redis에서 세션 로드하여 다음 질문 생성"""
-
     # Redis에서 세션 로드
     import redis
     import os
     import os
     
-    # 환경변수에서 Redis 설정 읽기
-    redis_host = os.getenv('REDIS_HOST')
-    redis_port = int(os.getenv('REDIS_PORT'))
-    redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
     # 환경변수에서 Redis 설정 읽기
     redis_host = os.getenv('REDIS_HOST')
     redis_port = int(os.getenv('REDIS_PORT'))
@@ -395,9 +387,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
 
     except Exception as e:
-        logger.error(f"엔진 초기화 실패: {e}")
-        return {"next_question": None, "last_answer_materials_id": []}
-
         logger.error(f"엔진 초기화 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}
 
@@ -707,16 +696,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
             "w6": "why",
             "ex": "ex",
             "con": "con"
-        },
-        {
-            "w1": "when_where",
-            "w2": "how1",
-            "w3": "who",
-            "w4": "what",
-            "w5": "how2",
-            "w6": "why",
-            "ex": "ex",
-            "con": "con"
         }
         prompt_type = type_mapping.get(target, target)
 
@@ -742,9 +721,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
         else:
             engine.state.last_material_id = material_id
             engine.state.last_material_streak = 1
-
-        # material.name 직접 사용
-        material_name = material.name
 
         # material.name 직접 사용
         material_name = material.name
@@ -795,15 +771,6 @@ def interview_engine(sessionId: str, answer_text: str, user_id: int, autobiograp
 
         last_answer_materials_id = mapped_ids if mapped_ids else []
         return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
-
-
-        logger.info(f"🎯 [질문 생성] {category.category_name}-{chunk.chunk_name}-{material.name} ({target})")
-
-        last_answer_materials_id = mapped_ids if mapped_ids else []
-        return {"next_question": next_question, "last_answer_materials_id": last_answer_materials_id}
-
     except Exception as e:
-        logger.error(f"질문 생성 실패: {e}")
-        return {"next_question": None, "last_answer_materials_id": []}
         logger.error(f"질문 생성 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}
