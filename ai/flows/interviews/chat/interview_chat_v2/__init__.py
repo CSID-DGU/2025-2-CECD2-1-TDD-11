@@ -1,6 +1,5 @@
 from promptflow.core import tool
 from typing import Dict, List, Tuple
-from typing import Dict, List, Tuple
 import json
 import re
 import sys
@@ -11,13 +10,7 @@ import logging
 
 # Logger 설정
 logger = logging.getLogger("interview_flow")
-import logging
 
-# Logger 설정
-logger = logging.getLogger("interview_flow")
-
-# engine 모듈 import 경로 추가
-current_dir = os.path.dirname(__file__)
 # engine 모듈 import 경로 추가
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
