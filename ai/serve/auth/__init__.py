@@ -29,7 +29,6 @@ class AuthRequired(HTTPBearer):
 
     async def __call__(self, request: Request):
         auth_header = request.headers.get("Authorization")
-        logger.debug(f"Authorization header: {auth_header}")
 
         if not auth_header:
             raise HTTPException(
@@ -59,12 +58,9 @@ class AuthRequired(HTTPBearer):
 
 def verify_token(token: str) -> MemberSessionDto:
     try:
-        logger.debug(f"Verifying token: {token}")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        logger.debug(f"Decoded token payload: {payload}")
         member_id: int = payload.get("memberId")
         roles: List[MemberRole] = payload.get("roles") or []
-        logger.debug(f"Member ID: {member_id}, Roles: {roles}")
 
         if member_id is None:
             raise HTTPException(

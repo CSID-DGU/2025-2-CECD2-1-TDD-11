@@ -23,7 +23,8 @@ class Material:
 
     def mark_filled_if_ready(self) -> None:
         w1, w2, w3, w4, w5, w6 = self.principle
-        if self.sum_principle() >= 3 and self.example == 1 and self.similar_event == 1 and (w5 == 1):
+        # 더 엄격한 조건: 6W 중 최소 4개 + example + similar_event + w5 필수
+        if self.sum_principle() >= 4 and self.example == 1 and self.similar_event == 1 and w5 == 1:
             self.count = 1
     
     def is_fully_completed(self) -> bool:
@@ -73,47 +74,32 @@ class InterviewEngine:
             if not cat:
                 continue
             for ch_num in cat.chunks.keys(): 
-                if cat.chunk_weight.get(ch_num, 0) == 0:
+                # 기존 weight보다 낮으면 initial_weight로 설정
+                current_weight = cat.chunk_weight.get(ch_num, 0)
+                if current_weight < initial_weight:
                     cat.chunk_weight[ch_num] = initial_weight
         self.theme_initialized = True       
             
     #기존 알고리즘 - 소재 선택
     def select_material(self) -> MaterialId:
-        print(f"\n[STREAK DEBUG] select_material 호출")
-        print(f"  last_material_id: {self.state.last_material_id}")
-        print(f"  last_material_streak: {self.state.last_material_streak}")
-        
         # 1) 직전 소재 유지
         if self.state.last_material_id: 
             cat, ch, m = self.state.last_material_id
             mat = self._get_material(cat, ch, m)
-            if mat:
-                print(f"  직전 소재 확인: {self.state.last_material_id}")
-                print(f"    mat.count: {mat.count}")
-                print(f"    streak < 3: {self.state.last_material_streak < 3}")
-                print(f"    mat.count < 1: {mat.count < 1}")
-                
-                if self.state.last_material_streak < 3 and mat.count < 1:
-                    print(f"  → 직전 소재 유지: {self.state.last_material_id}")
-                    return self.state.last_material_id
-                else:
-                    print(f"  → 직전 소재 변경 필요 (streak={self.state.last_material_streak}, count={mat.count})")
+            if mat and self.state.last_material_streak < 3 and mat.count < 1:
+                return self.state.last_material_id
 
         # 2) ε-greedy 탐색
-        rand_val = random.random()
-        print(f"  ε-greedy: rand={rand_val:.4f}, epsilon={self.state.epsilon}")
-        if rand_val < self.state.epsilon:
-            result = self._random_material_id()
-            print(f"  → 랜덤 선택: {result}")
-            return result
+        if random.random() < self.state.epsilon:
+            return self._random_material_id()
 
         # 3) 우선순위 선택
-        result = self._select_priority_material()
-        print(f"  → 우선순위 선택: {result}")
-        return result
+        return self._select_priority_material()
     
     def _select_priority_material(self) -> MaterialId:
         """우선순위 기반 소재 선택 (미완료 소재만)"""
+        current_cat = self.state.last_material_id[0] if self.state.last_material_id else None
+        
         # 후보 목록 구축 (미완료 소재만)
         candidates = [] 
         for cat in self.categories.values():
@@ -134,18 +120,23 @@ class InterviewEngine:
 
         # 정렬: chunk_weight DESC, sumw ASC, category_num ASC
         candidates.sort(key=lambda x: (-x["cw"], x["sumwc"], x["id"][0]))
+        
+        print(f"[DEBUG] 우선순위 선택: current_cat={current_cat}, 후보={len(candidates)}개")
+        print(f"[DEBUG] Top 5 후보: {candidates[:5]}")
 
-        # 동률 처리
+        # 동률 처리 (chunk_weight와 progress_score만 비교)
         best_group = [candidates[0]]
         for c in candidates[1:]:
             same_weight = (c["cw"] == best_group[0]["cw"])
-            same_chunk  = (c["chunk"] == best_group[0]["chunk"])
             same_sumwc   = (c["sumwc"] == best_group[0]["sumwc"])
-            if same_weight and same_chunk and same_sumwc:
+            if same_weight and same_sumwc:
                 best_group.append(c)
             else:
                 break
-        return random.choice(best_group)["id"]
+        
+        selected = random.choice(best_group)["id"]
+        print(f"[DEBUG] 우선순위 선택 결과: {selected}, best_group 크기={len(best_group)}")
+        return selected
 
     #기존 알고리즘 - 질문 타입 선택 (재선택 로직 포함)
     def select_question_in_material(self, material_id: MaterialId) -> Tuple[MaterialId, str]:
@@ -214,7 +205,36 @@ class InterviewEngine:
         return ch.materials.get(mnum)
 
     def _random_material_id(self) -> MaterialId:
-        cat = random.choice(list(self.categories.values()))
+        """chunk_weight > 0인 청크에서 랜덤 선택 (현재 카테고리 제외)"""
+        current_cat = self.state.last_material_id[0] if self.state.last_material_id else None
+        
+        # chunk_weight > 0이고 현재 카테고리가 아닌 미완료 소재 수집
+        candidates = []
+        for cat in self.categories.values():
+            if cat.category_num == current_cat:
+                continue
+            for ch_num, ch in cat.chunks.items():
+                cw = cat.chunk_weight.get(ch_num, 0)
+                if cw > 0:
+                    for mat in ch.materials.values():
+                        if not mat.is_fully_completed():
+                            candidates.append((cat.category_num, ch_num, mat.order))
+        
+        print(f"[DEBUG] 랜덤 선택: current_cat={current_cat}, candidates={len(candidates)}개")
+        if candidates and len(candidates) <= 10:
+            print(f"[DEBUG] 후보 소재: {candidates}")
+        
+        if candidates:
+            selected = random.choice(candidates)
+            print(f"[DEBUG] 랜덤 선택 결과: {selected}")
+            return selected
+        
+        # 폴백: 모든 소재 완료시 완전 랜덤 (현재 카테고리 제외)
+        print(f"[DEBUG] 폴백: chunk_weight > 0 후보 없음, 완전 랜덤 선택")
+        other_cats = [c for c in self.categories.values() if c.category_num != current_cat]
+        if not other_cats:
+            other_cats = list(self.categories.values())
+        cat = random.choice(other_cats)
         ch = random.choice(list(cat.chunks.values()))
         mat = random.choice(list(ch.materials.values()))
         return (cat.category_num, ch.chunk_num, mat.order)

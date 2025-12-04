@@ -72,9 +72,10 @@ def restore_categories_state(categories: Dict[int, Category], metrics_categories
                 
             category = categories[cat_num]
             
-            # chunk_weight 복원
+            # chunk_weight 복원 (문자열 키를 정수로 변환)
             if "chunk_weight" in cat_data:
-                category.chunk_weight.update(cat_data["chunk_weight"])
+                for k, v in cat_data["chunk_weight"].items():
+                    category.chunk_weight[int(k)] = int(v)
             
             # chunks 상태 복원 (배열)
             for chunk_data in cat_data.get("chunks", []):
@@ -105,9 +106,10 @@ def restore_categories_state(categories: Dict[int, Category], metrics_categories
                 
             category = categories[cat_num]
             
-            # chunk_weight 복원
+            # chunk_weight 복원 (문자열 키를 정수로 변환)
             if "chunk_weight" in cat_data:
-                category.chunk_weight.update(cat_data["chunk_weight"])
+                for k, v in cat_data["chunk_weight"].items():
+                    category.chunk_weight[int(k)] = int(v)
             
             # materials 상태 복원
             for chunk_key, chunk_data in cat_data.get("chunks", {}).items():

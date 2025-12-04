@@ -16,6 +16,9 @@ from engine.core import InterviewEngine
 from engine.utils import HINTS, EX_HINTS, CON_HINTS, hit_any, restore_categories_state
 from engine.generators import generate_first_question, generate_question_llm, generate_material_gate_question
 
+# ------------------------ 캐시 ------------------------
+_material_data_cache = None
+_material_mapping_cache = None
 
 # ------------------------ 간단 헬퍼 ------------------------
 
@@ -24,11 +27,25 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", "", (s or "").strip())
 
 
+def _load_material_data() -> dict:
+    """material.json 로드 (캐시)"""
+    global _material_data_cache
+    if _material_data_cache is None:
+        material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
+        with open(material_json_path, 'r', encoding='utf-8') as f:
+            _material_data_cache = json.load(f)
+    return _material_data_cache
+
 def _build_materials_list_from_mapping(mapping_path: str) -> dict:
-    """material_id_mapping.json에서 {name: [cat, chunk, mat]} dict 반환"""
+    """material_id_mapping.json에서 {name: [cat, chunk, mat]} dict 반환 (캐시)"""
+    global _material_mapping_cache
+    if _material_mapping_cache is not None:
+        return _material_mapping_cache
+    
     try:
         with open(mapping_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            _material_mapping_cache = json.load(f)
+            return _material_mapping_cache
     except Exception as e:
         print(f"[ERROR] material_id_mapping.json 로드 실패: {e}")
         return {}
@@ -84,10 +101,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
     if not session_data or not session_data.get("last_question"):
         preferred_categories = session_data.get("metrics", {}).get("preferred_categories", []) if session_data else []
 
-        material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
-        with open(material_json_path, 'r', encoding='utf-8') as f:
-            material_data = json.load(f)
-
+        material_data = _load_material_data()
         categories = InterviewEngine.build_categories_from_category_json(material_data)
         engine = InterviewEngine(categories)
         
@@ -121,6 +135,20 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             def serialize_categories(categories):
                 result = []
                 for cat in categories.values():
+                    # chunk_weight > 0인 것만 저장
+                    chunk_weights = {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
+                    
+                    # chunk_weight가 있는 카테고리는 무조건 저장
+                    if chunk_weights:
+                        result.append({
+                            "category_num": cat.category_num,
+                            "category_name": cat.category_name,
+                            "chunks": [],  # 빈 배열로 저장 (소재 데이터는 나중에 추가)
+                            "chunk_weight": chunk_weights
+                        })
+                        continue
+                    
+                    # chunk_weight가 없으면 소재 데이터가 있는 경우만 저장
                     active_chunks = {ck: cv for ck, cv in cat.chunks.items() if cat.chunk_weight.get(ck, 0) > 0}
                     if not active_chunks:
                         continue
@@ -139,7 +167,7 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                             "category_num": cat.category_num,
                             "category_name": cat.category_name,
                             "chunks": chunks,
-                            "chunk_weight": {str(ck): w for ck, w in cat.chunk_weight.items() if w > 0}
+                            "chunk_weight": chunk_weights
                         })
                 return result
             
@@ -179,25 +207,28 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
     question = session_data.get("last_question", {})
     metrics = session_data.get("metrics", {})
     
-    # material.json 로드 및 엔진 초기화
-    material_json_path = os.path.join(os.path.dirname(__file__), "data", "material.json")
+    # material.json 로드 및 엔진 초기화 (캐시)
     try:
-        with open(material_json_path, 'r', encoding='utf-8') as f:
-            material_data = json.load(f)
-
+        material_data = _load_material_data()
         categories = InterviewEngine.build_categories_from_category_json(material_data)
 
-        # 이전 메트릭이 있으면 상태 복원
+        engine = InterviewEngine(categories)
+        
+        # 테마 부스팅 먼저 적용 (상태 복원 전)
+        preferred_categories = metrics.get("preferred_categories", [])
+        if preferred_categories:
+            engine.boost_theme(preferred_categories, initial_weight=10)
+            print(f"[DEBUG] 테마 부스팅 적용: {preferred_categories}")
+        
+        # 이전 메트릭이 있으면 상태 복원 (chunk_weight는 유지)
         if metrics.get("categories"):
             restore_categories_state(categories, metrics["categories"])
-
-        engine = InterviewEngine(categories)
 
         # 상태 복원
         engine_state = metrics.get("engine_state", {})
         engine.state.last_material_id = engine_state.get("last_material_id")
         engine.state.last_material_streak = engine_state.get("last_material_streak", 0)
-        engine.theme_initialized = engine_state.get("theme_initialized", False)
+        engine.theme_initialized = True  # 테마 부스팅 완료 표시
 
     except Exception as e:
         print(f"[ERROR] 엔진 초기화 실패: {e}")
@@ -246,23 +277,47 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         # 상대경로로 map flow 찾기
         map_flow_path = os.path.normpath(os.path.join(current_dir, "..", "..", "standard", "map_answer_to_materials", "flow.dag.yaml"))
         mapping_path = os.path.join(os.path.dirname(__file__), "data", "material_id_mapping.json")
-        materials_list = _build_materials_list_from_mapping(mapping_path)
+        materials_list_full = _build_materials_list_from_mapping(mapping_path)
+        
+        # 답변 기반 유사도 검색으로 관련 소재 필터링 (top 3)
+        from engine.retrieval import search_related_materials
+        start_time = time.time()
+        materials_list = search_related_materials(
+            answer_text, 
+            materials_list_full, 
+            list(current_material_id) if current_material_id else [],
+            top_k=3
+        )
+        retrieval_time = time.time() - start_time
+        print(f"[DEBUG] 유사도 검색: {len(materials_list_full)}개 → {len(materials_list)}개 필터링 ({retrieval_time:.2f}s)")
 
+        llm_start = time.time()
         llm_items = _call_llm_map_flow(map_flow_path, answer_text, materials_list, current_material_full, list(current_material_id) if current_material_id else [])
+        llm_time = time.time() - llm_start
+        print(f"[DEBUG] LLM 분석 시간: {llm_time:.2f}s")
 
-        # 소재 매칭
-        print(f"[DEBUG] LLM items count: {len(llm_items)}")
+        # 소재 매칭 (모든 축이 0인 소재는 제외)
+        print(f"[DEBUG] LLM 분석 결과: {len(llm_items)}개 소재 (입력: {len(materials_list)}개)")
         for item in llm_items:
             if not isinstance(item, dict) or not item.get("material"):
-                print(f"[DEBUG] Skipping invalid item: {item}")
+                continue
+            
+            # 모든 축이 0이면 관련 없는 소재로 판단하여 스킵
+            axes_data = item.get("axes", {})
+            principle = axes_data.get("principle", [])
+            example = axes_data.get("example", 0)
+            similar_event = axes_data.get("similar_event", 0)
+            is_pass = axes_data.get("pass", 0)
+            
+            # principle 모두 0 AND example=0 AND similar_event=0 AND pass=0 → 관련 없음
+            if (isinstance(principle, list) and all(v == 0 for v in principle) and 
+                example == 0 and similar_event == 0 and is_pass == 0):
+                print(f"[DEBUG] 모든 축이 0인 소재 제외: {item.get('material')}")
                 continue
             
             material_id = item["material"]
-            print(f"[DEBUG] material_id type: {type(material_id)}, value: {material_id}")
             
-            # material_id는 [cat, chunk, mat] 형태여야 함
             if not isinstance(material_id, list) or len(material_id) != 3:
-                print(f"[DEBUG] Invalid material_id format: {material_id}")
                 continue
             
             # 소재 이름 찾기
@@ -325,6 +380,8 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             material.mark_filled_if_ready()
 
         print(f"\n🔍 [소재 매칭] {current_material} → {matched_materials}")
+    print(f"\n📊 [매칭 완료] 총 {len(matched_materials)}개 소재 업데이트: {matched_materials}")
+    
     # ------------------ 다음 질문 생성 ------------------
 
     try:
@@ -367,6 +424,13 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                     print(f"[DEBUG] Gate 질문 - 같은 카테고리({current_cat_num}) 이전 답변 전달")
             
             gate_question_text = generate_material_gate_question(full_material_name, previous_answer=context_answer)
+            
+            # streak 업데이트 (Gate 질문도 소재 선택으로 간주)
+            if engine.state.last_material_id == material_id:
+                engine.state.last_material_streak += 1
+            else:
+                engine.state.last_material_id = material_id
+                engine.state.last_material_streak = 1
             
             # material.name 직접 사용
             material_name = material.name
@@ -417,9 +481,11 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
                 "engine_state": {
                     "last_material_id": list(engine.state.last_material_id) if engine.state.last_material_id else [],
                     "last_material_streak": engine.state.last_material_streak,
-                    "epsilon": engine.state.epsilon
+                    "epsilon": engine.state.epsilon,
+                    "theme_initialized": engine.theme_initialized
                 },
                 "asked_total": metrics.get("asked_total", 0) + 1,
+                "preferred_categories": metrics.get("preferred_categories", []),
                 "policy_version": "v0.5.0"
             }
             
@@ -443,11 +509,14 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
         
         print(f"[DEBUG] select_question_in_material 후: material_id={material_id}, target={target}")
         
-        # 소재가 변경되었는지 확인
-        if material_id != (cat_num, chunk_num, mat_num):
-            print(f"[DEBUG] 소재 변경됨: {(cat_num, chunk_num, mat_num)} -> {material_id}")
+        # 소재가 변경되었는지 확인 (tuple 변환 후 비교)
+        original_id = (cat_num, chunk_num, mat_num)
+        new_id = tuple(material_id) if isinstance(material_id, list) else material_id
+        
+        if new_id != original_id:
+            print(f"[DEBUG] 소재 변경됨: {original_id} -> {new_id}")
             # 변경된 소재 다시 가져오기
-            cat_num, chunk_num, mat_num = material_id
+            cat_num, chunk_num, mat_num = new_id
             material = engine._get_material(cat_num, chunk_num, mat_num)
             category = engine.categories[cat_num]
             chunk = category.chunks[chunk_num]
@@ -534,9 +603,11 @@ def interview_engine(sessionId: str, answer_text: str) -> Dict:
             "engine_state": {
                 "last_material_id": list(engine.state.last_material_id) if engine.state.last_material_id else [],
                 "last_material_streak": engine.state.last_material_streak,
-                "epsilon": engine.state.epsilon
+                "epsilon": engine.state.epsilon,
+                "theme_initialized": engine.theme_initialized
             },
             "asked_total": metrics.get("asked_total", 0) + 1,
+            "preferred_categories": metrics.get("preferred_categories", []),
             "policy_version": "v0.5.0"
         }
 

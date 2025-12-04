@@ -23,6 +23,21 @@ load_dotenv()
 
 logger = get_logger()
 
+# 임베딩 모델 사전 로딩 (서버 시작 시)
+def preload_embedding_model():
+    """서버 시작 시 임베딩 모델 미리 로딩하여 첫 요청 속도 개선"""
+    try:
+        import sys
+        sys.path.append(os.path.join(os.path.dirname(__file__), "..", "flows", "interviews", "chat", "interview_chat_v2"))
+        from engine.retrieval import get_embedding_model
+        logger.info("임베딩 모델 로딩 중...")
+        model = get_embedding_model()
+        logger.info(f"임베딩 모델 로딩 완료: {type(model).__name__}")
+    except Exception as e:
+        logger.warning(f"임베딩 모델 로딩 실패 (첫 요청 시 로딩됨): {e}")
+
+preload_embedding_model()
+
 
 def create_connection():
     api_key = os.environ.get("AZURE_OPENAI_API_KEY")
@@ -50,7 +65,6 @@ def create_connection():
 
 
 create_connection()
-
 
 app = FastAPI(
     description="Life Bookshelf AI API",
