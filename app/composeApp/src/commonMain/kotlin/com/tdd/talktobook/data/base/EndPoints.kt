@@ -25,6 +25,7 @@ object EndPoints {
         const val CHANGE_STATUS = "$AUTOBIOGRAPHIESDETAIL/status"
         const val COSHOW_START_PROGRESS = "$AUTOBIOGRAPHIES/coshow/init"
         const val COSHOW_CREATE_AUTOBIOGRAPHY = "$AUTOBIOGRAPHIESDETAIL/coshow/generate"
+        const val COSHOW_PROGRESS = "$AUTOBIOGRAPHIESDETAIL/coshow/progress"
     }
 
     object Member {

@@ -71,6 +71,11 @@ interface AutobiographyService {
         @Path("autobiographyId") autobiographyId: Int,
     ): HttpResponse
 
+    @GET(EndPoints.Autobiography.COSHOW_PROGRESS)
+    suspend fun getCurrentCoShowProgress(
+        @Path("autobiographyId") autobiographyId: Int,
+    ): HttpResponse
+
     @Multipart
     @PATCH(EndPoints.Autobiography.CREATE_AUTOBIOGRAPHY)
     suspend fun patchCreateAutobiography(
