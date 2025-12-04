@@ -27,4 +27,7 @@ class PublicationDataSourceImpl(
 
     override suspend fun deletePublicationBook(bookId: Int): HttpResponse =
         publicationService.deletePublicationBook(bookId)
+
+    override suspend fun postPublicationPdf(autobiographyId: Int): HttpResponse =
+        publicationService.postPublicationPdf(autobiographyId)
 }

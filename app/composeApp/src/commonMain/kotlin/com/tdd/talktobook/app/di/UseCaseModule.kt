@@ -48,6 +48,7 @@ import com.tdd.talktobook.domain.usecase.member.PutEditMemberInfoUseCase
 import com.tdd.talktobook.domain.usecase.publication.DeletePublicationBookUseCase
 import com.tdd.talktobook.domain.usecase.publication.GetMyPublicationUseCase
 import com.tdd.talktobook.domain.usecase.publication.GetPublicationProgressUseCase
+import com.tdd.talktobook.domain.usecase.publication.PostPublicationPdfUseCase
 import com.tdd.talktobook.domain.usecase.publication.PostPublicationUseCase
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -104,6 +105,7 @@ val useCaseModule =
         factory { GetMyPublicationUseCase(get()) }
         factory { GetPublicationProgressUseCase(get()) }
         factory { DeletePublicationBookUseCase(get()) }
+        factory { PostPublicationPdfUseCase(get()) }
 
         // Interview
         factory { GetInterviewConversationUseCase(get()) }

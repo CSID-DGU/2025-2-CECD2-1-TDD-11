@@ -1,6 +1,7 @@
 package com.tdd.talktobook.data.service
 
 import com.tdd.talktobook.data.base.EndPoints
+import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Multipart
@@ -33,5 +34,11 @@ interface PublicationService {
     @DELETE(EndPoints.Publication.DELETE)
     suspend fun deletePublicationBook(
         @Path("bookId") bookId: Int,
+    ): HttpResponse
+
+    @POST(EndPoints.Publication.PUBLICATION_PDF)
+    suspend fun postPublicationPdf(
+        @Path("autobiographyId") autobiographyId: Int,
+        @Body body: String = ""
     ): HttpResponse
 }

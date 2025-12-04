@@ -49,9 +49,10 @@ object EndPoints {
     }
 
     object Publication {
-        const val PUBLICATIONS = "api/v1/publications"
+        const val PUBLICATIONS = "api/v2/publications"
         const val MYPUBLICATIONS = "$PUBLICATIONS/me"
         const val PROGRESS = "$PUBLICATIONS/{publicationId}/progress"
         const val DELETE = "$PUBLICATIONS/{bookId}"
+        const val PUBLICATION_PDF = "$PUBLICATIONS/autobiography/{autobiographyId}/pdf"
     }
 }
