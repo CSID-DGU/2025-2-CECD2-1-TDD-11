@@ -164,7 +164,7 @@ public class AutobiographyQueryService {
 
         // 자서전 진행 상태 progress 반환
         // TODO: 실제 진행 상태 계산 로직 구현 필요
-        float progress = 0.0f;
+        float progress = 21.7f;
 
         log.info("[GET_AUTOBIOGRAPHY_PROGRESS] 자서전 진행률 조회 완료 - autobiographyId: {}, progress: {}, status: {}", 
                 autobiographyId, progress, autobiography.getAutobiographyStatus().getStatus());
