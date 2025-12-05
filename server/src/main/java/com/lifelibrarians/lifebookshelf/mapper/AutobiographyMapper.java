@@ -27,7 +27,7 @@ public abstract class AutobiographyMapper {
 	}
 
     @Mapping(source = "autobiography.id", target = "autobiographyId")
-    @Mapping(source = "autobiography.content", target = "contentPreview", qualifiedByName = "truncate")
+    @Mapping(source = "autobiography.autobiographyChapters", target = "contentPreview", qualifiedByName = "chaptersToPreview")
     @Mapping(source = "autobiography.coverImageUrl", target = "coverImageUrl", qualifiedByName = "mapImageUrl")
     @Mapping(source = "autobiography.updatedAt", target = "updatedAt")
     @Mapping(source = "autobiography.createdAt", target = "createdAt")
@@ -57,5 +57,17 @@ public abstract class AutobiographyMapper {
 	String truncateContent(String content) {
 		return content != null && content.length() > 16 ? content.substring(0, 16).concat("...")
 				: content;
+	}
+
+	@Named("chaptersToPreview")
+	String chaptersToPreview(Set<AutobiographyChapter> chapters) {
+		if (chapters == null || chapters.isEmpty()) {
+			return "";
+		}
+		return chapters.stream()
+				.sorted((c1, c2) -> c1.getCreatedAt().compareTo(c2.getCreatedAt()))
+				.map(chapter -> chapter.getTitle() + "\n" + chapter.getContent())
+				.reduce((a, b) -> a + "\n" + b)
+				.orElse("");
 	}
 }
