@@ -28,5 +28,5 @@ val viewModelModule =
         viewModel { PastInterviewViewModel(get()) }
         viewModel { SettingViewModel(get(), get(), get(), get()) }
         viewModel { PublicationViewModel(get()) }
-        viewModel { AutobiographyRequestViewModel() }
+        viewModel { AutobiographyRequestViewModel(get(), get()) }
     }

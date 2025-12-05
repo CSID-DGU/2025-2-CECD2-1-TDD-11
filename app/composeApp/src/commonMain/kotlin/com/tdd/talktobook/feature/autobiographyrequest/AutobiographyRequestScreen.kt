@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun AutobiographyRequestScreen(
     goToLogIn: () -> Unit,
+    autobiographyId: Int
 ) {
     val viewModel: AutobiographyRequestViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -40,6 +42,17 @@ internal fun AutobiographyRequestScreen(
     val interactionSource = remember { MutableInteractionSource() }
     val pdfDownloader = rememberPdfDownloader()
 
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is AutobiographyRequestEvent.GoToLogIn -> { goToLogIn() }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.initSetId(autobiographyId)
+    }
 
     AutobiographyRequestContent(
         onClickConfirmBtn = {

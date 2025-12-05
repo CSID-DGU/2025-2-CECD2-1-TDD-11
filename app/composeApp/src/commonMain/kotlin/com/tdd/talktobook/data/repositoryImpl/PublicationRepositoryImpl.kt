@@ -49,6 +49,6 @@ class PublicationRepositoryImpl(
         })
 
     override suspend fun postPublicationPdf(autobiographyId: Int): Flow<Result<String>> = flow {
-        publicationDataSource.postPublicationPdf(autobiographyId)
+        emit(Result.success(publicationDataSource.postPublicationPdf(autobiographyId)))
     }
 }

@@ -173,7 +173,7 @@ fun NavGraphBuilder.interviewNavGraph(
                 navController = navController,
                 showSkipQuestionDialog = showTwoBtnDialogModel,
                 flowType = flowType,
-                goToSuccessPage = { navController.navigate(NavRoutes.AutobiographyRequestScreen.route) { popUpTo(0) } },
+                goToSuccessPage = { id -> navController.navigate(NavRoutes.AutobiographyRequestScreen.setRouteModel(id)) { popUpTo(0) } },
             )
         }
     }
@@ -207,9 +207,16 @@ fun NavGraphBuilder.autobiographyRequestNavGraph(
         startDestination = NavRoutes.AutobiographyRequestScreen.route,
         route = NavRoutes.AutobiographyRequestGraph.route,
     ) {
-        composable(route = NavRoutes.AutobiographyRequestScreen.route) {
+        composable(
+            route = NavRoutes.AutobiographyRequestScreen.route,
+            arguments = listOf(navArgument("autobiographyId") { type = NavType.IntType }),
+            ) {
+
+            val autobiographyId = it.arguments?.getInt("autobiographyId") ?: 0
+
             AutobiographyRequestScreen(
                 goToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
+                autobiographyId = autobiographyId
             )
         }
     }

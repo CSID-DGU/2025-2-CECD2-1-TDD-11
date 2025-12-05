@@ -53,7 +53,9 @@ sealed class NavRoutes(val route: String) {
     // Request Create Graph
     data object AutobiographyRequestGraph : NavRoutes("autobiography_request_graph")
 
-    data object AutobiographyRequestScreen : NavRoutes("autobiography_request")
+    data object AutobiographyRequestScreen : NavRoutes("autobiography_request/{autobiographyId}") {
+        fun setRouteModel(autobiographyId: Int): String = "autobiography_request/$autobiographyId"
+    }
 
     // StartProgress Graph
     data object StartProgressGraph : NavRoutes("start_progress_graph")

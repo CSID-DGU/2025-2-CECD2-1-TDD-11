@@ -40,5 +40,5 @@ interface PublicationService {
     suspend fun postPublicationPdf(
         @Path("autobiographyId") autobiographyId: Int,
         @Body body: String = ""
-    ): HttpResponse
+    ): String
 }

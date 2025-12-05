@@ -110,7 +110,7 @@ class AutobiographyRepositoryImpl(
 
     override suspend fun getCurrentCoShowProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>> =
         GetCurrentInterviewProgressMapper.responseToModel(apiCall = {
-            autobiographyDataSource.getCurrentInterviewProgress(
+            autobiographyDataSource.getCurrentCoShowProgress(
                 autobiographyId,
             )
         })
