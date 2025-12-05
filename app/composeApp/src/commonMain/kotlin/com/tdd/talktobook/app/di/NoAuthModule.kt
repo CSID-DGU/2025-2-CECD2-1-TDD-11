@@ -47,9 +47,9 @@ object NoAuthModule {
             }
 
             install(HttpTimeout) {
-                connectTimeoutMillis = 10_000
-                socketTimeoutMillis = 10_000
-                requestTimeoutMillis = 10_000
+                connectTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+                requestTimeoutMillis = 30_000
             }
 
             install(Logging) {
