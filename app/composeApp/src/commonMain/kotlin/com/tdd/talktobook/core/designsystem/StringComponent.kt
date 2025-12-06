@@ -7,6 +7,7 @@ const val Blank = " "
 const val Confirm = "확인"
 const val Next = "다음"
 const val NextTime = "나중에"
+const val GoToHome = "홈으로"
 
 // Day
 const val Mon = "월"
@@ -173,6 +174,10 @@ const val PublicationTitle = "생성된 자서전"
 const val PublicationBookWholeContent = "전체 보기"
 const val PublicationBookDelete = "자서전 삭제하기"
 const val PublicationNotCreatedAutobiography = "아직 생성된 자서전이 없어요!"
+
+// Autobiography Request
+const val DownLoadPdf = "자서전 다운받기"
+const val AutobiographyPdfName = "대화로책 자서전.pdf"
 
 // Setting
 const val SettingTitle = "프로필"

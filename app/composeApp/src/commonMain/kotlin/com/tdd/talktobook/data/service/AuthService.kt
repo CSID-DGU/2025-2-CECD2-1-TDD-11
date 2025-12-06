@@ -6,7 +6,6 @@ import de.jensklingenberg.ktorfit.http.Multipart
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Part
 import de.jensklingenberg.ktorfit.http.Path
-import de.jensklingenberg.ktorfit.http.Query
 import io.ktor.client.statement.HttpResponse
 
 interface AuthService {
@@ -45,11 +44,12 @@ interface AuthService {
         @Part("reason") reason: String,
     ): HttpResponse
 
-    @GET(EndPoints.Autobiography.COSHOW_CREATE_AUTOBIOGRAPHY)
+    @Multipart
+    @POST(EndPoints.Autobiography.COSHOW_CREATE_AUTOBIOGRAPHY)
     suspend fun getCoShowGenerate(
         @Path("autobiographyId") autobiographyId: Int,
-//        @Query("requestDto") request: GetCoShowGenerateRequestDto
-        @Query("name") name: String,
+//        @Query("name") name: String,
+        @Part("name") name: String,
     ): HttpResponse
 
     @GET(EndPoints.Interview.COSHOW_INTERVIEW_CONVERSATIONS)

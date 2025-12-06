@@ -14,4 +14,6 @@ interface PublicationRepository {
     suspend fun getPublicationProgress(request: Int): Flow<Result<PublicationProgressModel>>
 
     suspend fun deletePublicationBook(bookId: Int): Flow<Result<Boolean>>
+
+    suspend fun postPublicationPdf(autobiographyId: Int): Flow<Result<String>>
 }
