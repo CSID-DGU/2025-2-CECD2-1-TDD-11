@@ -20,6 +20,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCountMaterialsUseCase
+import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentCoShowProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentInterviewProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCurrentProgressAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetSelectedThemeUseCase
@@ -47,6 +48,7 @@ import com.tdd.talktobook.domain.usecase.member.PutEditMemberInfoUseCase
 import com.tdd.talktobook.domain.usecase.publication.DeletePublicationBookUseCase
 import com.tdd.talktobook.domain.usecase.publication.GetMyPublicationUseCase
 import com.tdd.talktobook.domain.usecase.publication.GetPublicationProgressUseCase
+import com.tdd.talktobook.domain.usecase.publication.PostPublicationPdfUseCase
 import com.tdd.talktobook.domain.usecase.publication.PostPublicationUseCase
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -84,6 +86,7 @@ val useCaseModule =
         factory { PostCoShowStartProgressUseCase(get()) }
         factory { GetCountMaterialsUseCase(get()) }
         factory { GetCurrentInterviewProgressUseCase(get()) }
+        factory { GetCurrentCoShowProgressUseCase(get()) }
         factory { SaveCurrentAutobiographyStatusUseCase(get()) }
         factory { PatchCreateAutobiographyUseCase(get()) }
         factory { GetSelectedThemeUseCase(get()) }
@@ -102,6 +105,7 @@ val useCaseModule =
         factory { GetMyPublicationUseCase(get()) }
         factory { GetPublicationProgressUseCase(get()) }
         factory { DeletePublicationBookUseCase(get()) }
+        factory { PostPublicationPdfUseCase(get()) }
 
         // Interview
         factory { GetInterviewConversationUseCase(get()) }

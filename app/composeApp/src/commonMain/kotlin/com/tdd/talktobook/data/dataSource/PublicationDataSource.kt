@@ -17,4 +17,6 @@ interface PublicationDataSource {
     suspend fun getPublicationProgress(publicationId: Int): HttpResponse
 
     suspend fun deletePublicationBook(bookId: Int): HttpResponse
+
+    suspend fun postPublicationPdf(autobiographyId: Int): String
 }

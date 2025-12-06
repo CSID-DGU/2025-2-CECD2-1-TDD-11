@@ -9,33 +9,77 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tdd.talktobook.core.designsystem.AutobiographyPdfName
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
-import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
+import com.tdd.talktobook.core.designsystem.DownLoadPdf
+import com.tdd.talktobook.core.designsystem.GoToHome
+import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.RequestSuccessInCoShowFlow
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
+import com.tdd.talktobook.core.ui.common.content.LoadingContent
+import com.tdd.talktobook.core.ui.util.rememberPdfDownloader
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun AutobiographyRequestScreen(
     goToLogIn: () -> Unit,
+    autobiographyId: Int,
 ) {
+    val viewModel: AutobiographyRequestViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     val interactionSource = remember { MutableInteractionSource() }
+    val pdfDownloader = rememberPdfDownloader()
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is AutobiographyRequestEvent.GoToLogIn -> {
+                    goToLogIn()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.initSetId(autobiographyId)
+    }
 
     AutobiographyRequestContent(
-        onClickConfirmBtn = { goToLogIn() },
+        onClickConfirmBtn = {
+            pdfDownloader.download(
+                url = uiState.pdfUrl,
+                suggestedFileName = AutobiographyPdfName,
+            )
+            goToLogIn()
+        },
+        onClickGoLogIn = { goToLogIn() },
+        isSuccessDownload = uiState.isSuccessDownload,
+        interactionSource = interactionSource,
     )
+
+    if (!uiState.isSuccessDownload) {
+        LoadingContent()
+    }
 }
 
 @Composable
 fun AutobiographyRequestContent(
     onClickConfirmBtn: () -> Unit,
+    onClickGoLogIn: () -> Unit,
+    interactionSource: MutableInteractionSource,
+    isSuccessDownload: Boolean,
 ) {
     Column(
         modifier =
@@ -65,19 +109,21 @@ fun AutobiographyRequestContent(
         )
 
         RectangleBtn(
-            btnContent = Confirm,
-            isBtnActivated = true,
+            btnContent = DownLoadPdf,
+            isBtnActivated = isSuccessDownload,
             onClickAction = onClickConfirmBtn,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        UnderLineTextBtn(
+            interactionSource = interactionSource,
+            textContent = GoToHome,
+            textColor = Gray5,
+            onClick = onClickGoLogIn,
+            paddingEnd = 20,
         )
 
         Spacer(modifier = Modifier.height(60.dp))
     }
-}
-
-@Preview()
-@Composable
-private fun PreviewAutobiographyRequest() {
-    AutobiographyRequestContent(
-        onClickConfirmBtn = {},
-    )
 }

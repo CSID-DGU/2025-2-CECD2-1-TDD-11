@@ -25,6 +25,7 @@ object EndPoints {
         const val CHANGE_STATUS = "$AUTOBIOGRAPHIESDETAIL/status"
         const val COSHOW_START_PROGRESS = "$AUTOBIOGRAPHIES/coshow/init"
         const val COSHOW_CREATE_AUTOBIOGRAPHY = "$AUTOBIOGRAPHIESDETAIL/coshow/generate"
+        const val COSHOW_PROGRESS = "$AUTOBIOGRAPHIESDETAIL/coshow/progress"
     }
 
     object Member {
@@ -48,9 +49,10 @@ object EndPoints {
     }
 
     object Publication {
-        const val PUBLICATIONS = "api/v1/publications"
+        const val PUBLICATIONS = "api/v2/publications"
         const val MYPUBLICATIONS = "$PUBLICATIONS/me"
         const val PROGRESS = "$PUBLICATIONS/{publicationId}/progress"
         const val DELETE = "$PUBLICATIONS/{bookId}"
+        const val PUBLICATION_PDF = "$PUBLICATIONS/autobiography/{autobiographyId}/pdf"
     }
 }

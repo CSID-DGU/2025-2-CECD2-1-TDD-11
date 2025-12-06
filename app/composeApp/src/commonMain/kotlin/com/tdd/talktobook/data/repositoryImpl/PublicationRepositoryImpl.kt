@@ -10,6 +10,7 @@ import com.tdd.talktobook.domain.entity.response.publication.PublicationProgress
 import com.tdd.talktobook.domain.entity.response.publication.PublishMyListModel
 import com.tdd.talktobook.domain.repository.PublicationRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
 
 @Single(binds = [PublicationRepository::class])
@@ -46,4 +47,9 @@ class PublicationRepositoryImpl(
                 bookId,
             )
         })
+
+    override suspend fun postPublicationPdf(autobiographyId: Int): Flow<Result<String>> =
+        flow {
+            emit(Result.success(publicationDataSource.postPublicationPdf(autobiographyId)))
+        }
 }
