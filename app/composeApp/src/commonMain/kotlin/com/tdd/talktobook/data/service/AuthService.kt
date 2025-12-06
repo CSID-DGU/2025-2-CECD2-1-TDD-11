@@ -6,7 +6,6 @@ import de.jensklingenberg.ktorfit.http.Multipart
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Part
 import de.jensklingenberg.ktorfit.http.Path
-import de.jensklingenberg.ktorfit.http.Query
 import io.ktor.client.statement.HttpResponse
 
 interface AuthService {

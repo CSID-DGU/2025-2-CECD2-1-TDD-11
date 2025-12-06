@@ -210,13 +210,12 @@ fun NavGraphBuilder.autobiographyRequestNavGraph(
         composable(
             route = NavRoutes.AutobiographyRequestScreen.route,
             arguments = listOf(navArgument("autobiographyId") { type = NavType.IntType }),
-            ) {
-
+        ) {
             val autobiographyId = it.arguments?.getInt("autobiographyId") ?: 0
 
             AutobiographyRequestScreen(
                 goToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
-                autobiographyId = autobiographyId
+                autobiographyId = autobiographyId,
             )
         }
     }

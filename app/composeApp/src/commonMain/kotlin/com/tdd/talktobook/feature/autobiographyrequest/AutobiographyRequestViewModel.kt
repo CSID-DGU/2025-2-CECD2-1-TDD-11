@@ -14,15 +14,14 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class AutobiographyRequestViewModel(
     private val getCurrentCoShowProgressUseCase: GetCurrentCoShowProgressUseCase,
-    private val postPublicationPdfUseCase: PostPublicationPdfUseCase
-): BaseViewModel<AutobiographyRequestPageState>(
-    AutobiographyRequestPageState()
-) {
-
+    private val postPublicationPdfUseCase: PostPublicationPdfUseCase,
+) : BaseViewModel<AutobiographyRequestPageState>(
+        AutobiographyRequestPageState(),
+    ) {
     fun initSetId(autobiographyId: Int) {
         updateState { state ->
             state.copy(
-                autobiographyId = autobiographyId
+                autobiographyId = autobiographyId,
             )
         }
 
@@ -60,7 +59,7 @@ class AutobiographyRequestViewModel(
         updateState { state ->
             state.copy(
                 pdfUrl = pdf,
-                isSuccessDownload = true
+                isSuccessDownload = true,
             )
         }
     }

@@ -34,7 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun AutobiographyRequestScreen(
     goToLogIn: () -> Unit,
-    autobiographyId: Int
+    autobiographyId: Int,
 ) {
     val viewModel: AutobiographyRequestViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,7 +45,9 @@ internal fun AutobiographyRequestScreen(
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
             when (event) {
-                is AutobiographyRequestEvent.GoToLogIn -> { goToLogIn() }
+                is AutobiographyRequestEvent.GoToLogIn -> {
+                    goToLogIn()
+                }
             }
         }
     }
@@ -58,13 +60,13 @@ internal fun AutobiographyRequestScreen(
         onClickConfirmBtn = {
             pdfDownloader.download(
                 url = uiState.pdfUrl,
-                suggestedFileName = AutobiographyPdfName
+                suggestedFileName = AutobiographyPdfName,
             )
             goToLogIn()
         },
         onClickGoLogIn = { goToLogIn() },
         isSuccessDownload = uiState.isSuccessDownload,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 
     if (!uiState.isSuccessDownload) {
@@ -119,7 +121,7 @@ fun AutobiographyRequestContent(
             textContent = GoToHome,
             textColor = Gray5,
             onClick = onClickGoLogIn,
-            paddingEnd = 20
+            paddingEnd = 20,
         )
 
         Spacer(modifier = Modifier.height(60.dp))

@@ -39,6 +39,6 @@ interface PublicationService {
     @POST(EndPoints.Publication.PUBLICATION_PDF)
     suspend fun postPublicationPdf(
         @Path("autobiographyId") autobiographyId: Int,
-        @Body body: String = ""
+        @Body body: String = "",
     ): String
 }

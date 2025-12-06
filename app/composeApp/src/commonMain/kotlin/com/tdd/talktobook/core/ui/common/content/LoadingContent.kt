@@ -12,10 +12,11 @@ import com.tdd.talktobook.core.designsystem.Black1
 @Composable
 fun LoadingContent() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Black1.copy(alpha = 0.3f)),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Black1.copy(alpha = 0.3f)),
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator()
     }

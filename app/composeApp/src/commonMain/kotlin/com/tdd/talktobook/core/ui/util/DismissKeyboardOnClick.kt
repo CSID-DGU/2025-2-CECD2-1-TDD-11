@@ -17,16 +17,17 @@ fun DismissKeyboardOnClick(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        focusManager.clearFocus(force = true)
-                        keyboardController?.hide()
-                    },
-                )
-            },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            focusManager.clearFocus(force = true)
+                            keyboardController?.hide()
+                        },
+                    )
+                },
     ) {
         content()
     }

@@ -8,7 +8,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class PostPublicationPdfUseCase(
     private val repository: PublicationRepository,
-): UseCase<Int, Result<String>>() {
+) : UseCase<Int, Result<String>>() {
     override suspend fun invoke(request: Int): Flow<Result<String>> =
         repository.postPublicationPdf(request)
 }

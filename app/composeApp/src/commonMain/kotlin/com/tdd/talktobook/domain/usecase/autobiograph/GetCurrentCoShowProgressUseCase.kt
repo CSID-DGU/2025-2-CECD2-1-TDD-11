@@ -9,7 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class GetCurrentCoShowProgressUseCase(
     private val repository: AutobiographyRepository,
-): UseCase<Int, Result<CurrentInterviewProgressModel>>() {
+) : UseCase<Int, Result<CurrentInterviewProgressModel>>() {
     override suspend fun invoke(request: Int): Flow<Result<CurrentInterviewProgressModel>> =
         repository.getCurrentCoShowProgress(request)
 }
