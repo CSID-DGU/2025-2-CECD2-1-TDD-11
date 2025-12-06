@@ -108,6 +108,13 @@ class AutobiographyRepositoryImpl(
             )
         })
 
+    override suspend fun getCurrentCoShowProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>> =
+        GetCurrentInterviewProgressMapper.responseToModel(apiCall = {
+            autobiographyDataSource.getCurrentCoShowProgress(
+                autobiographyId,
+            )
+        })
+
     override suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>> =
         flow { localDataStore.saveCurrentAutobiographyStatus(currentStatue.type) }
 

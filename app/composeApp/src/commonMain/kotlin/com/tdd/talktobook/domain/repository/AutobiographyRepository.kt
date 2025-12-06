@@ -42,6 +42,8 @@ interface AutobiographyRepository {
 
     suspend fun getCurrentInterviewProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>>
 
+    suspend fun getCurrentCoShowProgress(autobiographyId: Int): Flow<Result<CurrentInterviewProgressModel>>
+
     suspend fun saveCurrentAutobiographyStatus(currentStatue: AutobiographyStatusType): Flow<Result<Unit>>
 
     suspend fun patchCreateAutobiography(body: CreateAutobiographyRequestModel): Flow<Result<Boolean>>

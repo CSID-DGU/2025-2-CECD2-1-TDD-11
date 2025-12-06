@@ -62,7 +62,7 @@ internal fun InterviewScreen(
     showStartAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
     showSkipQuestionDialog: (TwoBtnDialogModel) -> Unit,
-    goToSuccessPage: () -> Unit,
+    goToSuccessPage: (Int) -> Unit,
     startQuestion: String = "",
     nickName: StateFlow<String>,
     navController: NavController,
@@ -154,7 +154,7 @@ internal fun InterviewScreen(
                 }
 
                 is InterviewEvent.GoBackToLogIn -> {
-                    goToSuccessPage()
+                    goToSuccessPage(uiState.autobiographyId)
                 }
             }
         }
