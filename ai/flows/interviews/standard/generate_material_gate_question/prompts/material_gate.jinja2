@@ -18,12 +18,14 @@ Generate a natural, warm Korean question to check if the interviewee has somethi
 [Context Continuity]
 {% if previous_answer %}
 - Previous answer from the same category is provided below.
-- Use it to create a natural flow and smooth transition to the new material.
-- Build on the previous answer naturally to maintain conversation continuity.
+- MUST reference specific keywords or themes from the previous answer to create natural flow.
+- Start with a warm acknowledgment or response to what they shared (2-3 sentences).
+- Then naturally transition to the new material topic with a question.
+- Extract meaningful words/phrases from previous_answer and incorporate them into your transition.
 {% endif %}
 
 [Rules]
-1. Output ONLY ONE Korean question (no explanations, no multiple questions).
+1. {% if previous_answer %}Output format: [호응 문장 1개] + [새로운 소재 질문]{% else %}Output ONLY ONE Korean question{% endif %}
 2. 질문은 반드시 **material_name의 의미를 직접 반영**해야 합니다.
    - material_name이 "함께 자란 곳/환경(있다면)"이면,
      질문 안에 "함께 자란 곳/환경"에 해당하는 표현이 꼭 포함되어야 합니다.
@@ -33,14 +35,15 @@ Generate a natural, warm Korean question to check if the interviewee has somethi
    (예: "~에 대해 말씀해 주실 수 있을까요?",
         "~를 들려주실래요?",
         "~를 나눠주실 수 있을까요?" 등).
-4. 50-80자 정도를 유지하세요.
+4. {% if previous_answer %}전체 길이 100-150자 (호응 + 질문){% else %}50-80자 정도를 유지하세요{% endif %}
 5. Material이 문자열 형식인 경우:
    - 형식: "카테고리 청크 MaterialName"
    - 이 중 마지막 MaterialName 부분을 자연스럽게 한국어로 풀어
      질문의 핵심 주제로 사용하세요.
+6. {% if previous_answer %}이전 응답의 핵심 단어를 반드시 1개 이상 호응 문장에 포함하세요.{% endif %}
 
 [Output Format]
-- Output ONLY the Korean question.
+- Output ONLY the Korean text (acknowledgment + question or just question).
 - 따옴표, 접두어, 설명 텍스트는 절대 넣지 마세요.
 
 user:
