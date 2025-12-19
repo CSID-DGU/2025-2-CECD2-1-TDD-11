@@ -2,6 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Tuple, List, Optional, Iterable
 import random
+import logging
+
+logger = logging.getLogger("life-bookshelf-ai")
 
 MaterialId = Tuple[int, int, int]  # (category_num, chunk_num, order)
 
@@ -121,8 +124,8 @@ class InterviewEngine:
         # 정렬: chunk_weight DESC, sumw ASC, category_num ASC
         candidates.sort(key=lambda x: (-x["cw"], x["sumwc"], x["id"][0]))
         
-        print(f"[DEBUG] 우선순위 선택: current_cat={current_cat}, 후보={len(candidates)}개")
-        print(f"[DEBUG] Top 5 후보: {candidates[:5]}")
+        logger.debug(f"[ENGINE] 우선순위 선택: current_cat={current_cat}, 후보={len(candidates)}개")
+        logger.debug(f"[ENGINE] Top 5 후보: {candidates[:5]}")
 
         # 동률 처리 (chunk_weight와 progress_score만 비교)
         best_group = [candidates[0]]
@@ -135,7 +138,7 @@ class InterviewEngine:
                 break
         
         selected = random.choice(best_group)["id"]
-        print(f"[DEBUG] 우선순위 선택 결과: {selected}, best_group 크기={len(best_group)}")
+        logger.debug(f"[ENGINE] 우선순위 선택 결과: {selected}, best_group 크기={len(best_group)}")
         return selected
 
     #기존 알고리즘 - 질문 타입 선택 (재선택 로직 포함)
@@ -220,17 +223,17 @@ class InterviewEngine:
                         if not mat.is_fully_completed():
                             candidates.append((cat.category_num, ch_num, mat.order))
         
-        print(f"[DEBUG] 랜덤 선택: current_cat={current_cat}, candidates={len(candidates)}개")
+        logger.debug(f"[ENGINE] 랜덤 선택: current_cat={current_cat}, candidates={len(candidates)}개")
         if candidates and len(candidates) <= 10:
-            print(f"[DEBUG] 후보 소재: {candidates}")
+            logger.debug(f"[ENGINE] 후보 소재: {candidates}")
         
         if candidates:
             selected = random.choice(candidates)
-            print(f"[DEBUG] 랜덤 선택 결과: {selected}")
+            logger.debug(f"[ENGINE] 랜덤 선택 결과: {selected}")
             return selected
         
         # 폴백: 모든 소재 완료시 완전 랜덤 (현재 카테고리 제외)
-        print(f"[DEBUG] 폴백: chunk_weight > 0 후보 없음, 완전 랜덤 선택")
+        logger.debug(f"[ENGINE] 폴백: chunk_weight > 0 후보 없음, 완전 랜덤 선택")
         other_cats = [c for c in self.categories.values() if c.category_num != current_cat]
         if not other_cats:
             other_cats = list(self.categories.values())
