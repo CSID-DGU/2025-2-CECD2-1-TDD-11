@@ -16,6 +16,7 @@ from interviews.interview_summary.router import (
 )
 from images import router as images_router
 from voice.router import router as voice_router
+from stream.router import router as stream_router
 
 from logs import get_logger
 
@@ -77,6 +78,7 @@ app.include_router(interviews_request_interview_chat_v2_router)
 app.include_router(interviews_summary_router)
 app.include_router(images_router)
 app.include_router(voice_router)
+app.include_router(stream_router)
 
 
 if __name__ == "__main__":

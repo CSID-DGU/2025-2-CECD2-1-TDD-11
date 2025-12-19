@@ -18,9 +18,18 @@
 
 ## 유지되는 엔드포인트들
 
-1. **인터뷰 진행** - `POST /interviews/chat` (v2)
-2. **대화 세션 시작** - `POST /interviews/start` (v2)  
-3. **자서전 내용 생성** - `POST /autobiographies/generate` (수정됨)
+### 인터뷰 API (v2)
+1. **세션 시작** - `POST /api/v2/interviews/start/{autobiography_id}`
+2. **대화 진행** - `POST /api/v2/interviews/chat/{autobiography_id}`
+3. **세션 종료** - `POST /api/v2/interviews/end/{autobiography_id}`
+
+### 자서전 API
+4. **자서전 생성** - `POST /api/v2/autobiographies/generate/{autobiography_id}`
+
+### Stream API (Queue/Cycle 관리)
+5. **Cycle 초기화** - `POST /api/v2/cycle/init`
+6. **인터뷰 요약** - `POST /api/v2/summary/generate`
+7. **자서전 생성 (함수)** - `POST /api/v2/autobiography/generate`
 
 ## 폐기된 디렉토리들
 

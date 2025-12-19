@@ -4,22 +4,35 @@
 
 ## 프로젝트 구조
 
-- **flows** (AI 로직)
-  - autobiographies
-    - standard
-      - **generate_autobiography** (유지)
-  - interviews
-    - chat
-      - **interview_chat_v2** (Redis 세션 + 신규 알고리즘)
-    - standard
-      - **generate_interview_questions_v2** (질문 생성 유틸)
-
-- **serve** (API 서버)
-  - **session_manager.py** (Redis 세션 관리)
-  - autobiographies
-    - **generate_autobiography** (유지)
-  - interviews
-    - **interview_chat_v2** (Redis 기반 세션 관리)
+```
+ai/
+├── flows/                          # AI 로직 (Prompt Flow)
+│   ├── autobiographies/
+│   │   └── standard/
+│   │       └── generate_autobiography/    # 자서전 생성
+│   ├── interview_summary/
+│   │   └── standard/
+│   │       └── summarize_interview/       # 인터뷰 요약
+│   └── interviews/
+│       └── chat/
+│           └── interview_chat_v2/         # 지능형 인터뷰 (Redis 세션)
+│
+├── serve/                          # FastAPI 서버
+│   ├── main.py                     # 서버 진입점
+│   ├── session_manager.py          # Redis 세션 관리
+│   ├── auth/                       # JWT 인증
+│   ├── logs/                       # 로깅 (JSON 포맷)
+│   ├── autobiographies/            # 자서전 API
+│   ├── interviews/                 # 인터뷰 API
+│   ├── stream/                     # Queue/Cycle 관리
+│   │   ├── cycle_manager.py        # Cycle 추적
+│   │   ├── summary_service.py      # 요약 서비스
+│   │   └── autobiography_service.py # 자서전 생성 서비스
+│   ├── voice/                      # TTS/STT (AWS Polly)
+│   └── images/                     # 이미지 생성
+│
+└── aws_lambda/                     # Lambda 함수
+```
 
 ### 폐기된 API (v2.0.0)
 - **generate_correction** (교정/교열 기능 불필요)
@@ -28,23 +41,42 @@
 - **interview_chat_v1** (현재 사용 알고리즘 아님)
 
 ### 주요 기능 (v2.0.0)
-- **지능형 인터뷰**: AI가 사용자의 답변을 분석하여 맞춤형 질문 생성
-- **세션 기반 대화**: Redis를 활용한 지속적인 대화 상태 관리
-- **자동 자서전 생성**: 인터뷰 내용을 바탕으로 완성된 자서전 작성
-- **다양한 주제 지원**: 가족, 학업, 직업, 취미 등 다양한 삶의 영역 커버
-- **6W 분석**: 누가/언제/어디서/무엇을/왜/어떻게 축으로 체계적 질문 구성
 
-### 기술적 특징
-- **모듈화된 아키텍처**: Flows(로직) + Serve(API) 분리 구조
-- **비동기 처리**: FastAPI + async/await로 동시 요청 처리
-- **지능형 매칭**: LLM 기반 소재 자동 매칭 및 분석
+#### 1. 지능형 인터뷰 시스템
+- LLM 기반 답변 분석 및 소재 자동 매칭
+- 6W 축(Who/When/Where/What/Why/How) 기반 체계적 질문
+- Redis 세션으로 대화 상태 지속 관리
+- 동일 소재 3회 연속 후 자동 전환
+
+#### 2. 자서전 생성
+- 인터뷰 내용 기반 자동 자서전 작성
+- Cycle 기반 다중 챕터 생성 추적
+- 테마/카테고리별 맞춤 생성
+
+#### 3. Queue/Cycle 관리
+- Redis 기반 자서전 생성 Cycle 추적
+- 다중 챕터 생성 완료 여부 자동 판단
+- 인터뷰 요약 함수 호출 지원
+
+#### 4. 음성 처리
+- AWS Polly TTS (한국어 음성 합성)
+- AWS Transcribe STT (음성 인식)
+
+### 기술 스택
+- **Framework**: FastAPI, Prompt Flow
+- **LLM**: OpenAI GPT-4o-mini
+- **Database**: Redis (세션/Cycle 관리)
+- **Cloud**: AWS (Polly, Transcribe, S3)
+- **Logging**: JSON 포맷 (Promtail/Loki 연동)
+- **Auth**: JWT (HS256)
 
 ## 개발 환경 설정
 
 ### 전체 시스템 요구사항
 - Python 3.9 이상
-- Redis Server (6.0 이상)
-- OpenAI API Key 또는 Azure OpenAI API Key
+- Redis Server (6.0 이상, 포트 6379)
+- OpenAI API Key
+- AWS Credentials (TTS/STT 사용 시)
 
 ## Flows 개발 환경 (AI 로직 개발)
 
@@ -198,14 +230,21 @@ cp .env.example .env.development
 DEBUG=True
 LOG_LEVEL=DEBUG
 
-# Azure OpenAI의 API Key를 사용하는 경우
-# AZURE_OPENAI_API_KEY=your-api-key
-# AZURE_OPENAI_API_BASE=https://your-api-base.openai.azure.com
-# AZURE_OPENAI_API_TYPE=azure
-
-# OpenAI의 API Key를 사용하는 경우
+# OpenAI API Key
 AZURE_OPENAI_API_KEY=sk-your-api-key
 LIFE_BOOKSHELF_AI_JWT_SECRET_KEY=0190ab45-7e42-7a3f-9dec-726ddf778076
+
+# AWS Credentials (TTS/STT)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=ap-northeast-2
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# Web URL
+WEB_URL=http://localhost:5173
 ```
 
 자신의 API Key를 입력합니다.
@@ -235,12 +274,35 @@ docker run -d -p 6379:6379 redis:alpine
 
 ### API 테스트
 
-Swagger UI에서 다음 주요 엔드포인트들을 테스트할 수 있습니다:
+```bash
+# JWT 토큰 생성
+python generate_test_token.py
 
-- `POST /interviews/start` - 인터뷰 세션 시작
-- `POST /interviews/chat` - 인터뷰 대화 진행
-- `POST /interviews/end` - 인터뷰 세션 종료
-- `POST /autobiographies/generate/{autobiography_id}` - 자서전 생성
+# Redis 연결 테스트
+python test_redis_connection.py
+
+# Stream API 테스트
+python test_stream_api.py
+```
+
+Swagger UI (http://localhost:3000/docs)에서 다음 엔드포인트들을 테스트할 수 있습니다:
+
+**인터뷰 API**
+- `POST /api/v2/interviews/start/{autobiography_id}` - 세션 시작
+- `POST /api/v2/interviews/chat/{autobiography_id}` - 대화 진행
+- `POST /api/v2/interviews/end/{autobiography_id}` - 세션 종료
+
+**자서전 API**
+- `POST /api/v2/autobiographies/generate/{autobiography_id}` - 자서전 생성
+
+**Stream API (Queue/Cycle)**
+- `POST /api/v2/cycle/init` - Cycle 초기화
+- `POST /api/v2/summary/generate` - 인터뷰 요약
+- `POST /api/v2/autobiography/generate` - 자서전 생성 (함수 호출)
+
+**음성 API**
+- `POST /api/v2/voice/tts` - 텍스트 → 음성
+- `POST /api/v2/voice/stt` - 음성 → 텍스트
 
 ## 핵심 기능 상세
 
@@ -286,12 +348,17 @@ serve/
 
 ### API 엔드포인트 개요
 
-| 기능 | 엔드포인트 | 설명 |
-|------|------------|------|
-| 인터뷰 시작 | `POST /interviews/start` | 새로운 인터뷰 세션 시작 |
-| 인터뷰 대화 | `POST /interviews/chat` | 사용자 답변 처리 및 다음 질문 생성 |
-| 인터뷰 종료 | `POST /interviews/end` | 세션 종료 및 최종 데이터 반환 |
-| 자서전 생성 | `POST /autobiographies/generate/{id}` | 인터뷰 기반 자서전 생성 |
+| 카테고리 | 엔드포인트 | 설명 |
+|---------|-----------|------|
+| **인터뷰** | `POST /api/v2/interviews/start/{id}` | 세션 시작 |
+| | `POST /api/v2/interviews/chat/{id}` | 대화 진행 |
+| | `POST /api/v2/interviews/end/{id}` | 세션 종료 |
+| **자서전** | `POST /api/v2/autobiographies/generate/{id}` | 자서전 생성 |
+| **Stream** | `POST /api/v2/cycle/init` | Cycle 초기화 |
+| | `POST /api/v2/summary/generate` | 요약 생성 |
+| | `POST /api/v2/autobiography/generate` | 자서전 생성 (함수) |
+| **음성** | `POST /api/v2/voice/tts` | TTS |
+| | `POST /api/v2/voice/stt` | STT |
 
 자세한 API 사용법 및 명세는 [TEST_GUIDE.md](serve/TEST_GUIDE.md) 참고
 
@@ -304,10 +371,12 @@ serve/
 
 ## 기여 및 개발 참여
 
-### 개발 환경 설정
+### 개발 워크플로우
 1. 위의 "개발 환경 설정" 섹션 따라 환경 구성
 2. `ai/dev` 브랜치에서 작업 시작
-3. 기능 개발 후 `ai/prod`로 PR 생성
+3. 기능 개발 및 테스트 완료
+4. `ai/prod`로 PR 생성
+5. 리뷰 후 `main` 브랜치로 자동 병합 (GitHub Actions)
 
 ### 코드 기여 가이드라인
 - **코드 스타일**: PEP 8 파이썬 코딩 컨벤션 준수

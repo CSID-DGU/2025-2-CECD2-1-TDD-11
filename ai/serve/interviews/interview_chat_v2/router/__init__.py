@@ -1,14 +1,20 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from ..dto import InterviewChatV2RequestDto, InterviewChatV2ResponseDto, SessionStartRequestDto, SessionStartResponseDto, SessionEndRequestDto, SessionEndResponseDto
 import sys
+import json
 from pathlib import Path
+from datetime import datetime
 
 # serve 폴더를 sys.path에 추가 (session_manager, auth import용)
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from session_manager import SessionManager
 from auth import AuthRequired
+from stream.dto import Conversation, InterviewQuestion, InterviewPayload, CategoriesPayload, ChunksPayload, MaterialsPayload
+from logs import get_logger
 
 from promptflow import load_flow
+
+logger = get_logger()
 
 # flow 경로 (상대경로)
 current_dir = Path(__file__).parent.parent.parent.parent.parent
@@ -53,6 +59,31 @@ async def start_session(http_request: Request, autobiography_id: int, request: S
         )
         
         first_question = result.get("next_question")
+        
+        # DTO 매핑: 첫 질문
+        if first_question:
+            material = first_question.get("material", {})
+            full_material_id = material.get("full_material_id", [])
+            
+            ai_conversation = Conversation(
+                content=first_question.get("text", ""),
+                conversationType="BOT",
+                materials=json.dumps(full_material_id)
+            )
+            
+            question = InterviewQuestion(
+                questionText=first_question.get("text", ""),
+                questionOrder=0,
+                materials=json.dumps(full_material_id)
+            )
+            
+            payload = InterviewPayload(
+                autobiographyId=autobiography_id,
+                userId=user_id,
+                conversation=[ai_conversation],
+                interviewQuestion=question
+            )
+            logger.info(f"[QUEUE] Interview start payload ready autobiography_id={autobiography_id}")
         
         # 세션 저장 (첫 질문 포함)
         if first_question:
@@ -113,6 +144,76 @@ async def interview_chat(http_request: Request, autobiography_id: int, request: 
         
         next_question = result.get("next_question")
         last_answer_materials_id = result.get("last_answer_materials_id", [])
+        
+        # DTO 매핑: 사용자 응답 + AI 질문
+        if next_question:
+            material = next_question.get("material", {})
+            full_material_id = material.get("full_material_id", [])
+            
+            human_conversation = Conversation(
+                content=request.answer_text,
+                conversationType="HUMAN",
+                materials=json.dumps(last_answer_materials_id)
+            )
+            
+            ai_conversation = Conversation(
+                content=next_question.get("text", ""),
+                conversationType="BOT",
+                materials=json.dumps(full_material_id)
+            )
+            
+            question = InterviewQuestion(
+                questionText=next_question.get("text", ""),
+                questionOrder=0,
+                materials=json.dumps(full_material_id)
+            )
+            
+            payload = InterviewPayload(
+                autobiographyId=autobiography_id,
+                userId=user_id,
+                conversation=[human_conversation, ai_conversation],
+                interviewQuestion=question
+            )
+            logger.info(f"[QUEUE] Interview chat payload ready autobiography_id={autobiography_id}")
+            
+            # CategoriesPayload 매핑 (사용자 응답에 대한 메타 데이터)
+            if last_answer_materials_id:
+                session_data_updated = session_manager.load_session(session_key)
+                metrics = session_data_updated.get("metrics", {})
+                categories = metrics.get("categories", [])
+                
+                for category in categories:
+                    chunks_payload = []
+                    materials_payload = []
+                    
+                    for chunk in category.get("chunks", []):
+                        chunks_payload.append(ChunksPayload(
+                            categoryId=category.get("category_num", 0),
+                            chunkOrder=chunk.get("chunk_num", 0),
+                            weight=chunk.get("weight", 0),
+                            timestamp=datetime.utcnow()
+                        ))
+                        
+                        for mat in chunk.get("materials", []):
+                            materials_payload.append(MaterialsPayload(
+                                chunkId=chunk.get("chunk_num", 0),
+                                materialOrder=mat.get("order", 0),
+                                example=mat.get("example", 0),
+                                similarEvent=mat.get("similar_event", 0),
+                                count=mat.get("count", 0),
+                                principle=mat.get("principle", [0,0,0,0,0,0]),
+                                timestamp=datetime.utcnow()
+                            ))
+                    
+                    categories_payload = CategoriesPayload(
+                        autobiographyId=autobiography_id,
+                        userId=user_id,
+                        themeId=metrics.get("theme_id", 0),
+                        categoryId=category.get("category_num", 0),
+                        chunks=chunks_payload,
+                        materials=materials_payload
+                    )
+                    logger.info(f"[QUEUE] Categories payload ready category_id={category.get('category_num')}")
         
         # Flow에서 Redis에 직접 업데이트하므로 별도 저장 불필요
         

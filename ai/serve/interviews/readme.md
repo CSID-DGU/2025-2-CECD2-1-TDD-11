@@ -686,6 +686,107 @@ class InterviewQuestionGenerateResponseDto(BaseModel):
 
 ---
 
+---
+
+## Stream API (Queue/Cycle 관리)
+
+### Cycle 관리
+
+**목적**: 하나의 자서전에 대한 여러 챕터 생성 요청을 추적하고 완료 여부를 판단
+
+**원리**:
+1. 서버가 `cycleId` 생성 요청 (`POST /api/v2/cycle/init`)
+2. AI 서버가 Redis에 cycle 저장 (expectedCount 포함)
+3. 각 자서전 생성 요청마다 completedCount 증가
+4. completedCount == expectedCount 일 때 `isLast: true` 반환
+5. Redis에서 cycle 자동 삭제
+
+**API 엔드포인트**:
+
+```python
+# 1. Cycle 초기화
+POST /api/v2/cycle/init
+{
+  "cycleId": "cycle-001",
+  "expectedCount": 3,
+  "autobiographyId": 1,
+  "userId": 1
+}
+
+# 2. 인터뷰 요약 (함수 호출)
+POST /api/v2/summary/generate
+{
+  "interviewId": 1,
+  "userId": 1,
+  "conversations": [
+    {"question": "...", "conversation": "..."}
+  ]
+}
+
+# 3. 자서전 생성 (함수 호출, Cycle 기반)
+POST /api/v2/autobiography/generate
+{
+  "cycleId": "cycle-001",
+  "step": 1,
+  "autobiographyId": 1,
+  "userId": 1,
+  "userInfo": {...},
+  "autobiographyInfo": {...},
+  "answers": [...]
+}
+# Response: {"isLast": false}  # Step 1/3
+# Response: {"isLast": true}   # Step 3/3 (마지막)
+```
+
+**DTO 구조**:
+
+```python
+class CycleInitMessage(BaseModel):
+    cycleId: str
+    expectedCount: int
+    autobiographyId: int
+    userId: int
+
+class InterviewSummaryRequestDto(BaseModel):
+    interviewId: int
+    userId: int
+    conversations: List[ConversationDto]
+
+class InterviewAnswersPayload(BaseModel):
+    cycleId: Optional[str] = None
+    step: Optional[int] = 1
+    autobiographyId: int
+    userId: int
+    userInfo: UserInfo
+    autobiographyInfo: AutobiographyInfo
+    answers: List[InterviewAnswer]
+
+class GeneratedAutobiographyPayload(BaseModel):
+    cycleId: Optional[str] = None
+    step: Optional[int] = None
+    autobiographyId: int
+    userId: int
+    title: str
+    content: str
+    isLast: bool  # Cycle 완료 여부
+```
+
+**Redis 구조**:
+
+```json
+{
+  "cycle:cycle-001": {
+    "cycleId": "cycle-001",
+    "expectedCount": 3,
+    "completedCount": 2,
+    "autobiographyId": 1,
+    "userId": 1
+  }
+}
+```
+
+---
+
 ## 왜 chat / standard 를 분리하나?
 
 - **관심사 분리**: 세션 상태·우선순위·정책(=chat) vs. 순수 텍스트 생성(=standard)  

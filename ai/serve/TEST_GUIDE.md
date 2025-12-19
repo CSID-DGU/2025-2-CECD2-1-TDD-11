@@ -296,6 +296,131 @@ http://localhost:3000/docs
 - ✅ final_metrics에 활성 데이터만 포함 (JSON 최적화)
 - ✅ LLM 분석 결과가 메트릭에 정확히 반영됨
 
+---
+
+## Stream API 테스트 (Queue/Cycle 관리)
+
+### Step 7: Cycle 초기화
+
+**엔드포인트**: `POST /api/v2/cycle/init`
+
+**Request Body**:
+```json
+{
+  "cycleId": "cycle-001",
+  "expectedCount": 3,
+  "autobiographyId": 1,
+  "userId": 1
+}
+```
+
+**예상 응답**:
+```json
+{
+  "status": "success",
+  "cycleId": "cycle-001"
+}
+```
+
+**확인 사항**:
+- ✅ 200 OK 응답
+- ✅ Redis에 cycle 정보 저장됨
+
+---
+
+### Step 8: 인터뷰 요약 생성 (함수 호출)
+
+**엔드포인트**: `POST /api/v2/summary/generate`
+
+**Request Body**:
+```json
+{
+  "interviewId": 1,
+  "userId": 1,
+  "conversations": [
+    {
+      "question": "어린 시절 가장 기억에 남는 일은 무엇인가요?",
+      "conversation": "초등학교 때 친구들과 함께 놀던 기억이 가장 생생합니다."
+    }
+  ]
+}
+```
+
+**예상 응답**:
+```json
+{
+  "interviewId": 1,
+  "userId": 1,
+  "summary": "사용자는 어린 시절 초등학교 때 친구들과 함께 놀던 기억을 가장 소중하게 여기고 있습니다..."
+}
+```
+
+---
+
+### Step 9: 자서전 생성 (Cycle 기반)
+
+**엔드포인트**: `POST /api/v2/autobiography/generate`
+
+**Request Body**:
+```json
+{
+  "cycleId": "cycle-001",
+  "step": 1,
+  "autobiographyId": 1,
+  "userId": 1,
+  "userInfo": {
+    "gender": "남성",
+    "occupation": "학생",
+    "ageGroup": "20대"
+  },
+  "autobiographyInfo": {
+    "theme": "성장",
+    "reason": "나의 성장 과정을 기록하고 싶어서",
+    "category": "학창시절"
+  },
+  "answers": [
+    {
+      "content": "초등학교 때 친구들과 함께 놀던 기억이 가장 생생합니다.",
+      "conversationType": "HUMAN"
+    }
+  ]
+}
+```
+
+**예상 응답** (Step 1/3):
+```json
+{
+  "cycleId": "cycle-001",
+  "step": 1,
+  "autobiographyId": 1,
+  "userId": 1,
+  "title": "성장 - 학창시절에 대한 나의 이야기",
+  "content": "초등학교 시절의 소중한 추억...",
+  "isLast": false
+}
+```
+
+**예상 응답** (Step 3/3 - 마지막):
+```json
+{
+  "cycleId": "cycle-001",
+  "step": 3,
+  "autobiographyId": 1,
+  "userId": 1,
+  "title": "성장 - 대학시절에 대한 나의 이야기",
+  "content": "대학 생활의 의미 있는 순간들...",
+  "isLast": true
+}
+```
+
+**확인 사항**:
+- ✅ 200 OK 응답
+- ✅ Step 1~2: isLast = false
+- ✅ Step 3 (마지막): isLast = true
+- ✅ Redis에서 cycle 자동 삭제됨
+
+---
+
 ## 수정된 사항 (v2.0.0)
 
 ✅ **API 경로 간소화**: `/api/v2/interviews/*` → `/interviews/*` 불필요한 prefix 제거
