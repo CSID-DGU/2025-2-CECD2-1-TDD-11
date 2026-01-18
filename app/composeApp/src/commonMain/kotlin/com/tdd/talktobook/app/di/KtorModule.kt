@@ -44,6 +44,8 @@ object KtorModule {
         tokenProvider: TokenProvider,
     ): HttpClient =
         HttpClient {
+            expectSuccess = false
+
             install(ContentNegotiation) {
                 json(json)
                 register(
