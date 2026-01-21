@@ -8,6 +8,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.core.ui.common.type.FlowType
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
@@ -47,6 +48,7 @@ fun NavGraphBuilder.loginNavGraph(
 
 fun NavGraphBuilder.signupNavGraph(
     navController: NavController,
+    showToastMsg: (String, ToastType) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.SignUpScreen.route,
@@ -56,6 +58,7 @@ fun NavGraphBuilder.signupNavGraph(
             SignUpScreen(
                 goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
                 goToPasswordChangePage = {},
+                showToastMsg = showToastMsg
             )
         }
     }

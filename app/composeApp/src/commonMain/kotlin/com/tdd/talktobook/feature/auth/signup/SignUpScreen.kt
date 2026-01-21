@@ -23,16 +23,20 @@ import com.tdd.talktobook.core.designsystem.ChangePasswordText
 import com.tdd.talktobook.core.designsystem.EmailHintText
 import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.PasswordHintText
+import com.tdd.talktobook.core.designsystem.ServerErrorToast
+import com.tdd.talktobook.core.designsystem.SignUpMemberExistAlready
 import com.tdd.talktobook.core.designsystem.SignUpText
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun SignUpScreen(
     goToEmailCheckPage: (String) -> Unit,
     goToPasswordChangePage: () -> Unit,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     val viewModel: SignUpViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -44,6 +48,14 @@ internal fun SignUpScreen(
             when (event) {
                 is SignUpEvent.GoToEmailCheckPage -> {
                     goToEmailCheckPage(uiState.emailInput)
+                }
+
+                is SignUpEvent.ShowMemberExistToast -> {
+                    showToastMsg(SignUpMemberExistAlready, ToastType.INFO)
+                }
+
+                is SignUpEvent.ShowServerErrorToast -> {
+                    showToastMsg(ServerErrorToast, ToastType.ERROR)
                 }
             }
         }

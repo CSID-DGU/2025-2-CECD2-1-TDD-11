@@ -8,6 +8,7 @@ const val Confirm = "확인"
 const val Next = "다음"
 const val NextTime = "나중에"
 const val GoToHome = "홈으로"
+const val ServerErrorToast = "네트워크 오류가 발생했습니다."
 
 // Day
 const val Mon = "월"
@@ -114,6 +115,7 @@ const val StartWithoutLogIn = "체험하기"
 
 // SignUp
 const val SignUpText = "회원가입"
+const val SignUpMemberExistAlready = "이미 존재하는 회원입니다. 바로 로그인하세요."
 
 // Email Check
 const val EmailCheckText = "이메일 인증"

@@ -3,6 +3,7 @@ package com.tdd.talktobook.feature.auth.signup
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.data.entity.response.api.ApiException
 import com.tdd.talktobook.domain.entity.request.auth.EmailSignUpRequestModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import kotlinx.coroutines.launch
@@ -40,10 +41,21 @@ class SignUpViewModel(
             ).collect {
                 resultResponse(it, { data ->
                     d("[ktor] sign up response -> $data")
+                }, { error ->
+                    when (error) {
+                        is ApiException -> {
+                            d("[ktor] sign up error -> code=${error.status}, msg=${error.msg}")
+                            emitEventFlow(SignUpEvent.ShowMemberExistToast)
+                        }
+                        else -> {
+                            d("[ktor] unknown error -> ${error.message}")
+                            emitEventFlow(SignUpEvent.ShowServerErrorToast)
+                        }
+                    }
                 })
             }
 
-            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
+//            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
         }
     }
 }
