@@ -216,6 +216,7 @@ fun MainScreen() {
                         )
                         settingNavGraph(
                             navController = navController,
+                            showOneBtnDialog = showOneBtnDialog
                         )
                     }
                 }

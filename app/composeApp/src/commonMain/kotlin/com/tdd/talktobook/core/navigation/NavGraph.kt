@@ -241,6 +241,7 @@ fun NavGraphBuilder.publicationNavGraph(
 
 fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
+    showOneBtnDialog: (OneBtnDialogModel) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
@@ -250,6 +251,7 @@ fun NavGraphBuilder.settingNavGraph(
             SettingScreen(
                 goBackPage = { navController.popBackStack() },
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                showDeleteUserDialog = showOneBtnDialog
             )
         }
     }
