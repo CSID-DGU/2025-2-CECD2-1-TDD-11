@@ -60,7 +60,8 @@ fun NavGraphBuilder.signupNavGraph(
             SignUpScreen(
                 goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
                 goToPasswordChangePage = {},
-                showToastMsg = showToastMsg
+                showToastMsg = showToastMsg,
+                onClickBackBtn = { navController.popBackStack() }
             )
         }
     }

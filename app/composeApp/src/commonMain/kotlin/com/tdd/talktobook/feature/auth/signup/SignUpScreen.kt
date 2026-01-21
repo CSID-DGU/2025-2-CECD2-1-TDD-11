@@ -1,11 +1,13 @@
 package com.tdd.talktobook.feature.auth.signup
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
@@ -30,6 +34,7 @@ import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
 import com.tdd.talktobook.core.ui.common.type.ToastType
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -37,6 +42,7 @@ internal fun SignUpScreen(
     goToEmailCheckPage: (String) -> Unit,
     goToPasswordChangePage: () -> Unit,
     showToastMsg: (String, ToastType) -> Unit,
+    onClickBackBtn: () -> Unit
 ) {
     val viewModel: SignUpViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -69,9 +75,11 @@ internal fun SignUpScreen(
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickChangePassword = { goToPasswordChangePage() },
+        onClickBackBtn = onClickBackBtn
     )
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun SignUpContent(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
@@ -81,6 +89,7 @@ private fun SignUpContent(
     passwordInput: String = "",
     onPasswordValueChange: (String) -> Unit = {},
     onClickChangePassword: () -> Unit,
+    onClickBackBtn: () -> Unit
 ) {
     Column(
         modifier =
@@ -88,6 +97,22 @@ private fun SignUpContent(
                 .fillMaxSize()
                 .background(BackGround2),
     ) {
+
+        AsyncImage(
+            model = Res.getUri("files/ic_back.svg"),
+            contentDescription = "back",
+            modifier =
+                Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 20.dp, top = 30.dp)
+                    .size(24.dp)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onClickBackBtn,
+                    ),
+        )
+
         Text(
             text = SignUpText,
             style = BookShelfTypo.Head20,
@@ -95,7 +120,7 @@ private fun SignUpContent(
             modifier =
                 Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(top = 180.dp),
+                    .padding(top = 100.dp),
             textAlign = TextAlign.Center,
         )
 
