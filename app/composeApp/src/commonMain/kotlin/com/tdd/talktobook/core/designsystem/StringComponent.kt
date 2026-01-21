@@ -120,6 +120,8 @@ const val LogInDeleteUser = "이미 탈퇴한 회원입니다."
 // SignUp
 const val SignUpText = "회원가입"
 const val SignUpMemberExistAlready = "이미 존재하는 회원입니다. 바로 로그인하세요."
+const val SignUpEmailError = "올바른 이메일 형식을 입력해주세요"
+const val SignUpPassWordError = "비밀번호는 8자 이상, 대문자/소문자/숫자/특수문자를 포함해야 합니다.\n연속된 동일 문자는 3회 이내만 가능합니다."
 
 // Email Check
 const val EmailCheckText = "이메일 인증"

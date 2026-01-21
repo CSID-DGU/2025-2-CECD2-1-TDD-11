@@ -28,7 +28,9 @@ import com.tdd.talktobook.core.designsystem.EmailHintText
 import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.PasswordHintText
 import com.tdd.talktobook.core.designsystem.ServerErrorToast
+import com.tdd.talktobook.core.designsystem.SignUpEmailError
 import com.tdd.talktobook.core.designsystem.SignUpMemberExistAlready
+import com.tdd.talktobook.core.designsystem.SignUpPassWordError
 import com.tdd.talktobook.core.designsystem.SignUpText
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
@@ -69,11 +71,13 @@ internal fun SignUpScreen(
 
     SignUpContent(
         interactionSource = interactionSource,
-        onClickSignUpBtn = { viewModel.postEmailSignUp() },
+        onClickSignUpBtn = { viewModel.checkEmailPWValid() },
         emailInput = uiState.emailInput,
         onEmailValueChange = { newValue -> viewModel.onEmailValueChange(newValue) },
+        isEmailValid = uiState.isEmailValid,
         passwordInput = uiState.passwordInput,
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
+        isPasswordValid = uiState.isPasswordValid,
         onClickChangePassword = { goToPasswordChangePage() },
         onClickBackBtn = onClickBackBtn
     )
@@ -86,10 +90,12 @@ private fun SignUpContent(
     onClickSignUpBtn: () -> Unit = {},
     emailInput: String = "",
     onEmailValueChange: (String) -> Unit = {},
+    isEmailValid: Boolean = true,
     passwordInput: String = "",
     onPasswordValueChange: (String) -> Unit = {},
+    isPasswordValid: Boolean = true,
     onClickChangePassword: () -> Unit,
-    onClickBackBtn: () -> Unit
+    onClickBackBtn: () -> Unit,
 ) {
     Column(
         modifier =
@@ -130,6 +136,8 @@ private fun SignUpContent(
             textInput = emailInput,
             onValueChange = onEmailValueChange,
             hintText = EmailHintText,
+            isError = !isEmailValid,
+            errorText = SignUpEmailError
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))
@@ -138,6 +146,8 @@ private fun SignUpContent(
             textInput = passwordInput,
             onValueChange = onPasswordValueChange,
             hintText = PasswordHintText,
+            isError = !isPasswordValid,
+            errorText = SignUpPassWordError
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))

@@ -31,7 +31,27 @@ class SignUpViewModel(
         }
     }
 
-    fun postEmailSignUp() {
+    fun checkEmailPWValid() {
+        val email = uiState.value.emailInput.trim()
+        val password = uiState.value.passwordInput.trim()
+
+        val isEmailValid = email.isNotEmpty() && EMAIL_REGEX.matches(email)
+        val isPasswordValid = password.isNotEmpty() && PASSWORD_REGEX.matches(password)
+
+        d("[test] email: $email, pw: $password")
+
+        if (isEmailValid && isPasswordValid) { postEmailSignUp() }
+        else {
+            updateState { state ->
+                state.copy(
+                    isEmailValid = isEmailValid,
+                    isPasswordValid = isPasswordValid
+                )
+            }
+        }
+    }
+
+    private fun postEmailSignUp() {
         viewModelScope.launch {
             postEmailSignUpUseCase(
                 EmailSignUpRequestModel(
@@ -56,5 +76,12 @@ class SignUpViewModel(
                 })
             }
         }
+    }
+
+    companion object {
+        private const val EMAIL_PATTERN = "^[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{2,253}\\.[A-Za-z]{2,}$"
+        private const val PASSWORD_PATTERN = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\\\\\$%^&])(?!.*(.)\\\\1\\\\1)[A-Za-z0-9!@#\\\\\$%^&]{8,64}\$"
+        private val EMAIL_REGEX = Regex(pattern = EMAIL_PATTERN)
+        private val PASSWORD_REGEX = Regex(pattern = PASSWORD_PATTERN)
     }
 }
