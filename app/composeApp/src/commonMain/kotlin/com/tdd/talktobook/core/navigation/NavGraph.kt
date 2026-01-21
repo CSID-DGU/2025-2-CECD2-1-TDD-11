@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
     setScreenFlow: (FlowType) -> Unit,
+    showToastMsg: (String, ToastType) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.LogInScreen.route,
@@ -41,6 +42,7 @@ fun NavGraphBuilder.loginNavGraph(
                     setScreenFlow(FlowType.COSHOW)
                     navController.navigate(NavRoutes.StartProgressScreen.route)
                 },
+                showToastMessage = showToastMsg
             )
         }
     }

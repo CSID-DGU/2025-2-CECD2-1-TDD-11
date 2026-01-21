@@ -112,6 +112,10 @@ const val LogInText = "로그인"
 const val EmailHintText = "이메일을 입력해 주세요."
 const val PasswordHintText = "비밀번호를 입력해 주세요."
 const val StartWithoutLogIn = "체험하기"
+const val LogInCheckEmailType = "이메일 형식이 올바른지 확인해주세요"
+const val LogInWrongEmailPW = "이메일 혹은 비밀번호가 일치하지 않습니다"
+const val LogInNoExistMember = "존재하지 않은 회원입니다."
+const val LogInDeleteUser = "이미 탈퇴한 회원입니다."
 
 // SignUp
 const val SignUpText = "회원가입"

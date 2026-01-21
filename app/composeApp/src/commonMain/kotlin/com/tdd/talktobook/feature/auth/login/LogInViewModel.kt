@@ -3,11 +3,13 @@ package com.tdd.talktobook.feature.auth.login
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.data.entity.response.api.ApiException
 import com.tdd.talktobook.domain.entity.request.auth.EmailLogInRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
+import com.tdd.talktobook.feature.auth.signup.SignUpEvent
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -43,8 +45,28 @@ class LogInViewModel(
                     password = uiState.value.passwordInput,
                 ),
             ).collect {
-                resultResponse(it, ::onSuccessPostEmailLogIn)
+                resultResponse(it, ::onSuccessPostEmailLogIn, { error ->
+                    when (error) {
+                        is ApiException -> {
+                            d("[ktor] login error -> code=${error.status}, msg=${error.msg}")
+                            setExceptionCase(error.status)
+                        }
+                        else -> {
+                            d("[ktor] unknown error -> ${error.message}")
+                            emitEventFlow(LogInEvent.ShowServerErrorToast)
+                        }
+                    }
+                })
             }
+        }
+    }
+
+    private fun setExceptionCase(code: Int) {
+        when (code) {
+            400 -> { emitEventFlow(LogInEvent.ShowCheckEmailValidToast) }
+            401 -> { emitEventFlow(LogInEvent.ShowWrongPWToast) }
+            404 -> { emitEventFlow(LogInEvent.ShowNoExistToast) }
+            409 -> { emitEventFlow(LogInEvent.ShowDeleteUserToast) }
         }
     }
 

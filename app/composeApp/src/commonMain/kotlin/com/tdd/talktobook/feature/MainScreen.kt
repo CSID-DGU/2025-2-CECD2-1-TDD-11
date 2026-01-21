@@ -178,6 +178,7 @@ fun MainScreen() {
                         loginNavGraph(
                             navController = navController,
                             setScreenFlow = settingFlowType,
+                            showToastMsg = showToastMessage
                         )
                         signupNavGraph(
                             navController = navController,
