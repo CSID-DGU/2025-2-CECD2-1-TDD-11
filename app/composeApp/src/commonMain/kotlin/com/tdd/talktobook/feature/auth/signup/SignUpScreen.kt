@@ -117,13 +117,14 @@ private fun SignUpContent(
 
         Spacer(modifier = Modifier.padding(top = 15.dp))
 
-        UnderLineTextBtn(
-            textContent = ChangePasswordText,
-            interactionSource = interactionSource,
-            textColor = Gray5,
-            paddingEnd = 25,
-            onClick = onClickChangePassword,
-        )
+        // TODO 비밀번호 초기화
+//        UnderLineTextBtn(
+//            textContent = ChangePasswordText,
+//            interactionSource = interactionSource,
+//            textColor = Gray5,
+//            paddingEnd = 25,
+//            onClick = onClickChangePassword,
+//        )
 
         Spacer(modifier = Modifier.weight(1f))
 

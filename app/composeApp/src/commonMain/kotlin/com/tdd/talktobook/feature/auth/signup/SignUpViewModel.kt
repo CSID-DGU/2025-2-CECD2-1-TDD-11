@@ -41,6 +41,7 @@ class SignUpViewModel(
             ).collect {
                 resultResponse(it, { data ->
                     d("[ktor] sign up response -> $data")
+                    emitEventFlow(SignUpEvent.GoToEmailCheckPage)
                 }, { error ->
                     when (error) {
                         is ApiException -> {
@@ -54,8 +55,6 @@ class SignUpViewModel(
                     }
                 })
             }
-
-//            emitEventFlow(SignUpEvent.GoToEmailCheckPage)
         }
     }
 }
