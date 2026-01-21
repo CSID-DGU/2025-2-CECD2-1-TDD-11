@@ -189,49 +189,49 @@ private fun SelectMaterial(
 ) {
     Spacer(modifier = Modifier.padding(top = 48.dp))
 
+    val materials =
+        if (flowType == FlowType.DEFAULT) {
+            MaterialType.entries
+        } else {
+            MaterialType.getCoShowMaterials().dropLast(1)
+        }
+
     Column(
         modifier =
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
     ) {
-        if (flowType == FlowType.DEFAULT) {
-            MaterialType.entries
-        } else {
-            MaterialType.getCoShowMaterials()
-                .dropLast(1)
-                .chunked(3)
-                .forEachIndexed { index, rowItems ->
-                    Row(
-                        modifier =
-                            Modifier
-                                .padding(horizontal = 30.dp)
-                                .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        rowItems.forEach { material ->
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .weight(1f),
-                            ) {
-                                SelectCircleListItem(
-                                    itemText = material.content,
-                                    isSelected = (material == selectedMaterial),
-                                    onSelect = { onSelectMaterial(material) },
-                                )
-                            }
-                        }
-
-                        if (rowItems.size < 3) {
-                            repeat(3 - rowItems.size) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
+        materials
+            .chunked(3)
+            .forEach { rowItems ->
+                Row(
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 30.dp)
+                            .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    rowItems.forEach { material ->
+                        Box(
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            SelectCircleListItem(
+                                itemText = material.content,
+                                isSelected = (material == selectedMaterial),
+                                onSelect = { onSelectMaterial(material) },
+                            )
                         }
                     }
 
-                    Spacer(modifier = Modifier.padding(top = 20.dp))
+                    if (rowItems.size < 3) {
+                        repeat(3 - rowItems.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
                 }
-        }
+
+                Spacer(modifier = Modifier.padding(top = 20.dp))
+            }
     }
 }
