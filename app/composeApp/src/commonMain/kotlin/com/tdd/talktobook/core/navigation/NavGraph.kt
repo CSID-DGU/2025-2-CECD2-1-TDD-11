@@ -4,7 +4,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.core.ui.common.type.FlowType
@@ -27,7 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
     setScreenFlow: (FlowType) -> Unit,
-    showToastMsg: (String, ToastType) -> Unit
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.LogInScreen.route,
@@ -50,7 +49,7 @@ fun NavGraphBuilder.loginNavGraph(
 
 fun NavGraphBuilder.signupNavGraph(
     navController: NavController,
-    showToastMsg: (String, ToastType) -> Unit
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.SignUpScreen.route,
@@ -83,6 +82,7 @@ fun NavGraphBuilder.emailCheckNavGraph(
             EmailCheckScreen(
                 email = email,
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                onClickBackBtn = { navController.popBackStack() }
             )
         }
     }
@@ -242,7 +242,7 @@ fun NavGraphBuilder.publicationNavGraph(
 
 fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
-    showOneBtnDialog: (OneBtnDialogModel) -> Unit
+    showOneBtnDialog: (OneBtnDialogModel) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
