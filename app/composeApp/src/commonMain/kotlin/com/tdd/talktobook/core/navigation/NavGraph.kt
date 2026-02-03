@@ -4,10 +4,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.tdd.talktobook.core.ui.common.type.FlowType
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 fun NavGraphBuilder.loginNavGraph(
     navController: NavController,
     setScreenFlow: (FlowType) -> Unit,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.LogInScreen.route,
@@ -40,6 +41,7 @@ fun NavGraphBuilder.loginNavGraph(
                     setScreenFlow(FlowType.COSHOW)
                     navController.navigate(NavRoutes.StartProgressScreen.route)
                 },
+                showToastMessage = showToastMsg,
             )
         }
     }
@@ -47,6 +49,7 @@ fun NavGraphBuilder.loginNavGraph(
 
 fun NavGraphBuilder.signupNavGraph(
     navController: NavController,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.SignUpScreen.route,
@@ -56,6 +59,8 @@ fun NavGraphBuilder.signupNavGraph(
             SignUpScreen(
                 goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
                 goToPasswordChangePage = {},
+                showToastMsg = showToastMsg,
+                onClickBackBtn = { navController.popBackStack() },
             )
         }
     }
@@ -77,6 +82,7 @@ fun NavGraphBuilder.emailCheckNavGraph(
             EmailCheckScreen(
                 email = email,
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                onClickBackBtn = { navController.popBackStack() },
             )
         }
     }
@@ -236,6 +242,7 @@ fun NavGraphBuilder.publicationNavGraph(
 
 fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
+    showOneBtnDialog: (OneBtnDialogModel) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
@@ -245,6 +252,7 @@ fun NavGraphBuilder.settingNavGraph(
             SettingScreen(
                 goBackPage = { navController.popBackStack() },
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                showDeleteUserDialog = showOneBtnDialog,
             )
         }
     }

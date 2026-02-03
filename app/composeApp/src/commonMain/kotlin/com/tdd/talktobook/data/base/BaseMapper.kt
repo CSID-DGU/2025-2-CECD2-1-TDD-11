@@ -1,6 +1,5 @@
 package com.tdd.talktobook.data.base
 
-import com.tdd.talktobook.data.entity.response.api.ApiError
 import com.tdd.talktobook.data.entity.response.api.ApiException
 import com.tdd.talktobook.data.entity.response.api.ApiStatusResponse
 import io.ktor.client.plugins.ResponseException
@@ -21,17 +20,12 @@ abstract class BaseMapper {
         responseToModel: (DTO?) -> MODEL,
     ): Flow<Result<MODEL>> =
         flow {
-            val response = apiCall()
-            val defaultModel = responseToModel(null)
-
             try {
+                val response = apiCall()
                 val httpStatus = response?.status
                 val responseBody = response?.bodyAsText() ?: ""
 
                 if (httpStatus != null && httpStatus.value in 200..299) {
-//                val dto = json.decodeFromString(successDeserializer, responseBody)
-//                val model = responseToModel(dto)
-
                     val model =
                         when {
                             httpStatus == HttpStatusCode.NoContent || responseBody.isEmpty() || successDeserializer == null -> {
@@ -57,14 +51,20 @@ abstract class BaseMapper {
                         }
                     val msg = error?.message ?: "[ktor] http error ${httpStatus?.value ?: "Unknown"}"
                     val code = error?.statusCode ?: httpStatus?.value ?: 0
-                    emit(Result.failure(ApiException(code, "[ktor] $code: $msg")))
+                    emit(Result.failure(ApiException(code, msg)))
                 }
             } catch (e: ResponseException) {
-                val code = e.response.status.value
-                val text = e.response.bodyAsText()
-                val msg =
-                    runCatching { json.decodeFromString(ApiError.serializer(), text).message }
-                        .getOrNull() ?: "[ktor] http $code"
+                val httpStatus = e.response.status
+                val text = runCatching { e.response.bodyAsText() }.getOrDefault("")
+
+                val parsed =
+                    runCatching {
+                        json.decodeFromString(ApiStatusResponse.serializer(), text)
+                    }.getOrNull()
+
+                val code = parsed?.statusCode ?: httpStatus.value
+                val msg = parsed?.message ?: "[ktor] http ${httpStatus.value}"
+
                 emit(Result.failure(ApiException(code, msg)))
             } catch (t: Throwable) {
                 emit(Result.failure(t))

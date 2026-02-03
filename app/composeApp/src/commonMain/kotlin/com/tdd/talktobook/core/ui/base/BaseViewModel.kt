@@ -39,16 +39,25 @@ abstract class BaseViewModel<STATE : PageState>(
         successCallback: (D) -> Unit,
         errorCallback: ((Throwable) -> Unit)? = null,
     ) {
-        viewModelScope.launch {
-            response.fold(
-                onSuccess = { data ->
-                    successCallback.invoke(data)
-                },
-                onFailure = { exception ->
-                    e("[에러 발생]") { exception.stackTraceToString() }
-                    errorCallback?.invoke(exception)
-                },
-            )
-        }
+//        viewModelScope.launch {
+//            response.fold(
+//                onSuccess = { data ->
+//                    successCallback.invoke(data)
+//                },
+//                onFailure = { exception ->
+//                    e("[에러 발생]") { exception.stackTraceToString() }
+//                    errorCallback?.invoke(exception)
+//                },
+//            )
+//        }
+        response.fold(
+            onSuccess = { data ->
+                successCallback.invoke(data)
+            },
+            onFailure = { exception ->
+                e("[에러 발생]") { exception.stackTraceToString() }
+                errorCallback?.invoke(exception)
+            },
+        )
     }
 }

@@ -39,7 +39,10 @@ import com.tdd.talktobook.core.navigation.startProgressNavGraph
 import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.common.dialog.TwoBtnDialog
 import com.tdd.talktobook.core.ui.common.type.FlowType
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.DismissKeyboardOnClick
+import com.tdd.talktobook.core.ui.util.ToastHost
+import com.tdd.talktobook.core.ui.util.ToastHostState
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -56,6 +59,7 @@ fun MainScreen() {
     val isShowDialog = remember { mutableStateOf(false) }
     val isShowTwoBtnDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val toastState = remember { ToastHostState() }
 
     val showOneBtnDialog: (OneBtnDialogModel) -> Unit = {
         viewModel.onSetOneBtnDialog(it)
@@ -74,6 +78,10 @@ fun MainScreen() {
         scope.launch {
             viewModel.userNickName.value = it
         }
+    }
+
+    val showToastMessage: (String, ToastType) -> Unit = { msg, type ->
+        toastState.show(scope, msg, type)
     }
 
     LaunchedEffect(navController) {
@@ -127,87 +135,97 @@ fun MainScreen() {
     }
 
     DismissKeyboardOnClick {
-        Scaffold(
-            bottomBar = {
-                AnimatedVisibility(
-                    visible = uiState.bottomNavType != BottomNavType.DEFAULT,
-                    modifier = Modifier.background(White0),
-                    enter = fadeIn() + slideIn { IntOffset(0, 0) },
-                    exit = fadeOut() + slideOut { IntOffset(0, 0) },
-                ) {
-                    if (viewModel.screenFlowType.value == FlowType.DEFAULT) {
-                        BottomNavBar(
-                            modifier = Modifier.navigationBarsPadding(),
-                            interactionSource = interactionSource,
-                            type = uiState.bottomNavType,
-                            onClick = { route: String ->
-                                if (navController.currentDestination?.route != route) {
-                                    navController.navigate(route) {
-                                        popUpTo(navController.currentDestination?.route!!) {
-                                            inclusive = true
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                bottomBar = {
+                    AnimatedVisibility(
+                        visible = uiState.bottomNavType != BottomNavType.DEFAULT,
+                        modifier = Modifier.background(White0),
+                        enter = fadeIn() + slideIn { IntOffset(0, 0) },
+                        exit = fadeOut() + slideOut { IntOffset(0, 0) },
+                    ) {
+                        if (viewModel.screenFlowType.value == FlowType.DEFAULT) {
+                            BottomNavBar(
+                                modifier = Modifier.navigationBarsPadding(),
+                                interactionSource = interactionSource,
+                                type = uiState.bottomNavType,
+                                onClick = { route: String ->
+                                    if (navController.currentDestination?.route != route) {
+                                        navController.navigate(route) {
+                                            popUpTo(navController.currentDestination?.route!!) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
                                         }
-                                        launchSingleTop = true
                                     }
-                                }
-                            },
+                                },
+                            )
+                        }
+                    }
+                },
+                snackbarHost = {},
+            ) { innerPadding ->
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                ) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = NavRoutes.LogInGraph.route,
+                    ) {
+                        loginNavGraph(
+                            navController = navController,
+                            setScreenFlow = settingFlowType,
+                            showToastMsg = showToastMessage,
+                        )
+                        signupNavGraph(
+                            navController = navController,
+                            showToastMsg = showToastMessage,
+                        )
+                        emailCheckNavGraph(
+                            navController = navController,
+                        )
+                        onboardingNavGraph(
+                            navController = navController,
+                        )
+                        homeNavGraph(
+                            navController = navController,
+                        )
+                        pastInterviewNavGraph(
+                            navController = navController,
+                        )
+                        interviewNavGraph(
+                            navController = navController,
+                            showOneBtnDialogModel = showOneBtnDialog,
+                            userNickName = viewModel.userNickName,
+                            showTwoBtnDialogModel = showTwoBtnDialog,
+                            flowType = viewModel.screenFlowType,
+                        )
+                        startProgressNavGraph(
+                            navController = navController,
+                            setUserNickName = settingUserNickName,
+                            flowType = viewModel.screenFlowType,
+                        )
+                        autobiographyRequestNavGraph(
+                            navController = navController,
+                        )
+                        publicationNavGraph(
+                            navController = navController,
+                        )
+                        settingNavGraph(
+                            navController = navController,
+                            showOneBtnDialog = showOneBtnDialog,
                         )
                     }
                 }
-            },
-            snackbarHost = {},
-        ) { innerPadding ->
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-            ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = NavRoutes.LogInGraph.route,
-                ) {
-                    loginNavGraph(
-                        navController = navController,
-                        setScreenFlow = settingFlowType,
-                    )
-                    signupNavGraph(
-                        navController = navController,
-                    )
-                    emailCheckNavGraph(
-                        navController = navController,
-                    )
-                    onboardingNavGraph(
-                        navController = navController,
-                    )
-                    homeNavGraph(
-                        navController = navController,
-                    )
-                    pastInterviewNavGraph(
-                        navController = navController,
-                    )
-                    interviewNavGraph(
-                        navController = navController,
-                        showOneBtnDialogModel = showOneBtnDialog,
-                        userNickName = viewModel.userNickName,
-                        showTwoBtnDialogModel = showTwoBtnDialog,
-                        flowType = viewModel.screenFlowType,
-                    )
-                    startProgressNavGraph(
-                        navController = navController,
-                        setUserNickName = settingUserNickName,
-                        flowType = viewModel.screenFlowType,
-                    )
-                    autobiographyRequestNavGraph(
-                        navController = navController,
-                    )
-                    publicationNavGraph(
-                        navController = navController,
-                    )
-                    settingNavGraph(
-                        navController = navController,
-                    )
-                }
             }
+
+            ToastHost(
+                state = toastState,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }

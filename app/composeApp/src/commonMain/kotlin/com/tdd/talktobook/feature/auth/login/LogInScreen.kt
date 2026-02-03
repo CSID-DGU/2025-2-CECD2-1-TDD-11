@@ -21,14 +21,20 @@ import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.EmailHintText
+import com.tdd.talktobook.core.designsystem.LogInCheckEmailType
+import com.tdd.talktobook.core.designsystem.LogInDeleteUser
+import com.tdd.talktobook.core.designsystem.LogInNoExistMember
 import com.tdd.talktobook.core.designsystem.LogInText
+import com.tdd.talktobook.core.designsystem.LogInWrongEmailPW
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.PasswordHintText
+import com.tdd.talktobook.core.designsystem.ServerErrorToast
 import com.tdd.talktobook.core.designsystem.SignUpText
 import com.tdd.talktobook.core.designsystem.StartWithoutLogIn
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -38,6 +44,7 @@ internal fun LogInScreen(
     goToHome: () -> Unit,
     goToOnboarding: () -> Unit,
     goToStartProgress: () -> Unit,
+    showToastMessage: (String, ToastType) -> Unit,
 ) {
     val viewModel: LogInViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -57,6 +64,26 @@ internal fun LogInScreen(
 
                 is LogInEvent.GoToStartProgressPage -> {
                     goToStartProgress()
+                }
+
+                is LogInEvent.ShowCheckEmailValidToast -> {
+                    showToastMessage(LogInCheckEmailType, ToastType.INFO)
+                }
+
+                is LogInEvent.ShowWrongPWToast -> {
+                    showToastMessage(LogInWrongEmailPW, ToastType.INFO)
+                }
+
+                is LogInEvent.ShowNoExistToast -> {
+                    showToastMessage(LogInNoExistMember, ToastType.INFO)
+                }
+
+                is LogInEvent.ShowDeleteUserToast -> {
+                    showToastMessage(LogInDeleteUser, ToastType.INFO)
+                }
+
+                is LogInEvent.ShowServerErrorToast -> {
+                    showToastMessage(ServerErrorToast, ToastType.ERROR)
                 }
             }
         }
