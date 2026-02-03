@@ -8,6 +8,7 @@ const val Confirm = "확인"
 const val Next = "다음"
 const val NextTime = "나중에"
 const val GoToHome = "홈으로"
+const val ServerErrorToast = "네트워크 오류가 발생했습니다."
 
 // Day
 const val Mon = "월"
@@ -111,9 +112,16 @@ const val LogInText = "로그인"
 const val EmailHintText = "이메일을 입력해 주세요."
 const val PasswordHintText = "비밀번호를 입력해 주세요."
 const val StartWithoutLogIn = "체험하기"
+const val LogInCheckEmailType = "이메일 형식이 올바른지 확인해주세요"
+const val LogInWrongEmailPW = "이메일 혹은 비밀번호가 일치하지 않습니다"
+const val LogInNoExistMember = "존재하지 않은 회원입니다."
+const val LogInDeleteUser = "이미 탈퇴한 회원입니다."
 
 // SignUp
 const val SignUpText = "회원가입"
+const val SignUpMemberExistAlready = "이미 존재하는 회원입니다. 바로 로그인하세요."
+const val SignUpEmailError = "올바른 이메일 형식을 입력해주세요"
+const val SignUpPassWordError = "비밀번호는 8자 이상, 대문자/소문자/숫자/특수문자를 포함해야 합니다.\n연속된 동일 문자는 3회 이내만 가능합니다."
 
 // Email Check
 const val EmailCheckText = "이메일 인증"
