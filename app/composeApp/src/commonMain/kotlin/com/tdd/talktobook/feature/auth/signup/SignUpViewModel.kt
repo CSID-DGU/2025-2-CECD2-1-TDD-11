@@ -40,12 +40,13 @@ class SignUpViewModel(
 
         d("[test] email: $email, pw: $password")
 
-        if (isEmailValid && isPasswordValid) { postEmailSignUp() }
-        else {
+        if (isEmailValid && isPasswordValid) {
+            postEmailSignUp()
+        } else {
             updateState { state ->
                 state.copy(
                     isEmailValid = isEmailValid,
-                    isPasswordValid = isPasswordValid
+                    isPasswordValid = isPasswordValid,
                 )
             }
         }

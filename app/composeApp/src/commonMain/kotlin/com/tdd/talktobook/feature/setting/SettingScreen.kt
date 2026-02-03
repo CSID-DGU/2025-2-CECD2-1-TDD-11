@@ -84,8 +84,8 @@ internal fun SettingScreen(
                     isBottomTextVisible = true,
                     bottomText = "취소",
                     onClickBtn = { viewModel.deleteUser() },
-                    onClickBottomText = { }
-                )
+                    onClickBottomText = { },
+                ),
             )
         },
         onClickPolicy = { openUrl(policyUrl) },

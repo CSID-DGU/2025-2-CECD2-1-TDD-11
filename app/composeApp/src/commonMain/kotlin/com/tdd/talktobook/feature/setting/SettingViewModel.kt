@@ -3,7 +3,6 @@ package com.tdd.talktobook.feature.setting
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
-import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase

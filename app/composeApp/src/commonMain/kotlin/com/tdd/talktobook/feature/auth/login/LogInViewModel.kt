@@ -9,7 +9,6 @@ import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
-import com.tdd.talktobook.feature.auth.signup.SignUpEvent
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -63,10 +62,18 @@ class LogInViewModel(
 
     private fun setExceptionCase(code: Int) {
         when (code) {
-            400 -> { emitEventFlow(LogInEvent.ShowCheckEmailValidToast) }
-            401 -> { emitEventFlow(LogInEvent.ShowWrongPWToast) }
-            404 -> { emitEventFlow(LogInEvent.ShowNoExistToast) }
-            409 -> { emitEventFlow(LogInEvent.ShowDeleteUserToast) }
+            400 -> {
+                emitEventFlow(LogInEvent.ShowCheckEmailValidToast)
+            }
+            401 -> {
+                emitEventFlow(LogInEvent.ShowWrongPWToast)
+            }
+            404 -> {
+                emitEventFlow(LogInEvent.ShowNoExistToast)
+            }
+            409 -> {
+                emitEventFlow(LogInEvent.ShowDeleteUserToast)
+            }
         }
     }
 

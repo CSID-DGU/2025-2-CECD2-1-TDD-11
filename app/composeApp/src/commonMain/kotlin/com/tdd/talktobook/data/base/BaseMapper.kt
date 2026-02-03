@@ -1,6 +1,5 @@
 package com.tdd.talktobook.data.base
 
-import com.tdd.talktobook.data.entity.response.api.ApiError
 import com.tdd.talktobook.data.entity.response.api.ApiException
 import com.tdd.talktobook.data.entity.response.api.ApiStatusResponse
 import io.ktor.client.plugins.ResponseException
@@ -58,9 +57,10 @@ abstract class BaseMapper {
                 val httpStatus = e.response.status
                 val text = runCatching { e.response.bodyAsText() }.getOrDefault("")
 
-                val parsed = runCatching {
-                    json.decodeFromString(ApiStatusResponse.serializer(), text)
-                }.getOrNull()
+                val parsed =
+                    runCatching {
+                        json.decodeFromString(ApiStatusResponse.serializer(), text)
+                    }.getOrNull()
 
                 val code = parsed?.statusCode ?: httpStatus.value
                 val msg = parsed?.message ?: "[ktor] http ${httpStatus.value}"

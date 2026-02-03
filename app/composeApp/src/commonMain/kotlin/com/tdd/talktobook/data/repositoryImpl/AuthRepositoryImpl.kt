@@ -47,7 +47,6 @@ class AuthRepositoryImpl(
             )
         })
 
-
     override suspend fun postEmailVerify(request: EmailVerifyRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
             authDataSource.postEmailVerification(request.email, request.code)

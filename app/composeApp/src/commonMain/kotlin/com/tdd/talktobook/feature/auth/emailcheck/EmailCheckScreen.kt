@@ -36,7 +36,7 @@ import talktobook.composeapp.generated.resources.Res
 internal fun EmailCheckScreen(
     goToLogInPage: () -> Unit,
     email: String,
-    onClickBackBtn: () -> Unit
+    onClickBackBtn: () -> Unit,
 ) {
     val viewModel: EmailCheckViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,7 +63,7 @@ internal fun EmailCheckScreen(
         email = uiState.email,
         codeInput = uiState.codeInput,
         onCodeValueChange = { newValue -> viewModel.onCodeValueChange(newValue) },
-        onClickBackBtn = onClickBackBtn
+        onClickBackBtn = onClickBackBtn,
     )
 }
 

@@ -23,9 +23,7 @@ import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
-import com.tdd.talktobook.core.designsystem.ChangePasswordText
 import com.tdd.talktobook.core.designsystem.EmailHintText
-import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.PasswordHintText
 import com.tdd.talktobook.core.designsystem.ServerErrorToast
 import com.tdd.talktobook.core.designsystem.SignUpEmailError
@@ -33,7 +31,6 @@ import com.tdd.talktobook.core.designsystem.SignUpMemberExistAlready
 import com.tdd.talktobook.core.designsystem.SignUpPassWordError
 import com.tdd.talktobook.core.designsystem.SignUpText
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
-import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -44,7 +41,7 @@ internal fun SignUpScreen(
     goToEmailCheckPage: (String) -> Unit,
     goToPasswordChangePage: () -> Unit,
     showToastMsg: (String, ToastType) -> Unit,
-    onClickBackBtn: () -> Unit
+    onClickBackBtn: () -> Unit,
 ) {
     val viewModel: SignUpViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,7 +76,7 @@ internal fun SignUpScreen(
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         isPasswordValid = uiState.isPasswordValid,
         onClickChangePassword = { goToPasswordChangePage() },
-        onClickBackBtn = onClickBackBtn
+        onClickBackBtn = onClickBackBtn,
     )
 }
 
@@ -103,7 +100,6 @@ private fun SignUpContent(
                 .fillMaxSize()
                 .background(BackGround2),
     ) {
-
         AsyncImage(
             model = Res.getUri("files/ic_back.svg"),
             contentDescription = "back",
@@ -137,7 +133,7 @@ private fun SignUpContent(
             onValueChange = onEmailValueChange,
             hintText = EmailHintText,
             isError = !isEmailValid,
-            errorText = SignUpEmailError
+            errorText = SignUpEmailError,
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))
@@ -147,7 +143,7 @@ private fun SignUpContent(
             onValueChange = onPasswordValueChange,
             hintText = PasswordHintText,
             isError = !isPasswordValid,
-            errorText = SignUpPassWordError
+            errorText = SignUpPassWordError,
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))

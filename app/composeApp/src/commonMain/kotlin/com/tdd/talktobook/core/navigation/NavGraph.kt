@@ -41,7 +41,7 @@ fun NavGraphBuilder.loginNavGraph(
                     setScreenFlow(FlowType.COSHOW)
                     navController.navigate(NavRoutes.StartProgressScreen.route)
                 },
-                showToastMessage = showToastMsg
+                showToastMessage = showToastMsg,
             )
         }
     }
@@ -60,7 +60,7 @@ fun NavGraphBuilder.signupNavGraph(
                 goToEmailCheckPage = { email -> navController.navigate(NavRoutes.EmailCheckScreen.setRouteModel(email)) },
                 goToPasswordChangePage = {},
                 showToastMsg = showToastMsg,
-                onClickBackBtn = { navController.popBackStack() }
+                onClickBackBtn = { navController.popBackStack() },
             )
         }
     }
@@ -82,7 +82,7 @@ fun NavGraphBuilder.emailCheckNavGraph(
             EmailCheckScreen(
                 email = email,
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
-                onClickBackBtn = { navController.popBackStack() }
+                onClickBackBtn = { navController.popBackStack() },
             )
         }
     }
@@ -252,7 +252,7 @@ fun NavGraphBuilder.settingNavGraph(
             SettingScreen(
                 goBackPage = { navController.popBackStack() },
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
-                showDeleteUserDialog = showOneBtnDialog
+                showDeleteUserDialog = showOneBtnDialog,
             )
         }
     }

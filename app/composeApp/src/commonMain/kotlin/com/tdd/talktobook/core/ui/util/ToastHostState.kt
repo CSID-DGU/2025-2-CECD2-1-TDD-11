@@ -30,16 +30,21 @@ class ToastHostState {
 
     private var job: Job? = null
 
-    fun show(scope: CoroutineScope, message: String, type: ToastType) {
+    fun show(
+        scope: CoroutineScope,
+        message: String,
+        type: ToastType,
+    ) {
         job?.cancel()
         data = ToastData(message, type)
         visible = true
-        job = scope.launch {
-            delay(1800)
-            visible = false
-            delay(250)
-            data = null
-        }
+        job =
+            scope.launch {
+                delay(1800)
+                visible = false
+                delay(250)
+                data = null
+            }
     }
 }
 
@@ -55,9 +60,10 @@ fun ToastHost(
             visible = state.visible && state.data != null,
             enter = fadeIn(),
             exit = fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 80.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 80.dp),
         ) {
             val toast = state.data ?: return@AnimatedVisibility
             ToastPill(message = toast.message, type = toast.type)
@@ -66,30 +72,36 @@ fun ToastHost(
 }
 
 @Composable
-private fun ToastPill(message: String, type: ToastType) {
+private fun ToastPill(
+    message: String,
+    type: ToastType,
+) {
     val bg = Color(0xFF9EA2A6)
     val iconBg = Color(0xFF8A8E93)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(bg)
-            .padding(horizontal = 18.dp, vertical = 12.dp)
-            .widthIn(max = 320.dp)
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(999.dp))
+                .background(bg)
+                .padding(horizontal = 18.dp, vertical = 12.dp)
+                .widthIn(max = 320.dp),
     ) {
         Box(
-            modifier = Modifier
-                .size(28.dp)
-                .clip(CircleShape)
-                .background(iconBg),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(iconBg),
+            contentAlignment = Alignment.Center,
         ) {
-            val symbol = when (type) {
-                ToastType.INFO -> "!"
-                ToastType.ERROR -> "×"
-                ToastType.SUCCESS -> "✓"
-            }
+            val symbol =
+                when (type) {
+                    ToastType.INFO -> "!"
+                    ToastType.ERROR -> "×"
+                    ToastType.SUCCESS -> "✓"
+                }
             Text(text = symbol, color = Color.White)
         }
 
@@ -99,7 +111,7 @@ private fun ToastPill(message: String, type: ToastType) {
             text = message,
             color = Color.White,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

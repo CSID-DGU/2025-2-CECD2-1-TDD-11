@@ -178,11 +178,11 @@ fun MainScreen() {
                         loginNavGraph(
                             navController = navController,
                             setScreenFlow = settingFlowType,
-                            showToastMsg = showToastMessage
+                            showToastMsg = showToastMessage,
                         )
                         signupNavGraph(
                             navController = navController,
-                            showToastMsg = showToastMessage
+                            showToastMsg = showToastMessage,
                         )
                         emailCheckNavGraph(
                             navController = navController,
@@ -216,7 +216,7 @@ fun MainScreen() {
                         )
                         settingNavGraph(
                             navController = navController,
-                            showOneBtnDialog = showOneBtnDialog
+                            showOneBtnDialog = showOneBtnDialog,
                         )
                     }
                 }
@@ -224,7 +224,7 @@ fun MainScreen() {
 
             ToastHost(
                 state = toastState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
