@@ -42,6 +42,7 @@ import com.tdd.talktobook.core.designsystem.SettingTitle
 import com.tdd.talktobook.core.ui.common.content.ItemContentRow
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.util.openUrl
+import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
@@ -50,6 +51,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun SettingScreen(
     goBackPage: () -> Unit,
     goToLogInPage: () -> Unit,
+    showDeleteUserDialog: (OneBtnDialogModel) -> Unit,
 ) {
     val viewModel: SettingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,7 +75,19 @@ internal fun SettingScreen(
         interactionSource = interactionSource,
         onClickBack = { goBackPage() },
         memberInfo = uiState.memberInfo,
-        onClickDelete = { viewModel.deleteUser() },
+        onClickDelete = {
+            showDeleteUserDialog(
+                OneBtnDialogModel(
+                    "회원탈퇴",
+                    "정말 탈퇴 하시겠습니까?",
+                    "탈퇴하기",
+                    isBottomTextVisible = true,
+                    bottomText = "취소",
+                    onClickBtn = { viewModel.deleteUser() },
+                    onClickBottomText = { },
+                ),
+            )
+        },
         onClickPolicy = { openUrl(policyUrl) },
         onClickLogOut = { viewModel.logOut() },
         appVersion = appVersion,
