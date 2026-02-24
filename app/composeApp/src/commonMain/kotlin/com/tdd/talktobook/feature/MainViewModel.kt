@@ -2,8 +2,10 @@ package com.tdd.talktobook.feature
 
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.common.type.BottomSheetType
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.annotation.KoinViewModel
@@ -58,6 +60,23 @@ class MainViewModel : BaseViewModel<MainPageState>(
         updateState { state ->
             state.copy(
                 twoBtnDialogModel = data,
+            )
+        }
+    }
+
+    fun setBottomSheetType(data: BottomSheetType) {
+        updateState { state ->
+            state.copy(
+                bottomSheetType = data
+            )
+        }
+    }
+
+    fun setScrollSelectBottomSheet(data: ScrollSelectBottomSheetModel) {
+        updateState { state ->
+            state.copy(
+                bottomSheetType = BottomSheetType.SCROLL_SELECT,
+                scrollSelectBottomSheetModel = data
             )
         }
     }

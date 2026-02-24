@@ -9,6 +9,7 @@ import androidx.navigation.navigation
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
 import com.tdd.talktobook.feature.auth.login.LogInScreen
@@ -105,6 +106,7 @@ fun NavGraphBuilder.onboardingNavGraph(
 
 fun NavGraphBuilder.homeNavGraph(
     navController: NavController,
+    showDateSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.HomeScreen.route,
@@ -115,6 +117,7 @@ fun NavGraphBuilder.homeNavGraph(
                 goToPastInterviewPage = { date, id -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date, id)) },
                 goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) },
                 goToSettingPage = { navController.navigate(NavRoutes.SettingPageScreen.route) },
+                showDateSelectBottomSheet = showDateSelectBottomSheet
             )
         }
     }

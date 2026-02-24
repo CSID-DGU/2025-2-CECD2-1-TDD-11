@@ -60,6 +60,7 @@ import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
 import com.tdd.talktobook.core.ui.util.generateCalendarDays
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
 import kotlinx.datetime.Clock
@@ -77,6 +78,7 @@ internal fun HomeScreen(
     goToPastInterviewPage: (String, Int) -> Unit,
     goToProgressStartPage: () -> Unit = {},
     goToSettingPage: () -> Unit,
+    showDateSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -103,6 +105,10 @@ internal fun HomeScreen(
         isCurrentProgress = uiState.isCurrentProgress,
         onClickStartProgress = { goToProgressStartPage() },
         onClickSetting = { goToSettingPage() },
+        onClickDateArrow = {
+            // TODO 날짜 선택 바텀시트
+            showDateSelectBottomSheet(ScrollSelectBottomSheetModel())
+        }
     )
 }
 
@@ -121,6 +127,7 @@ private fun HomeContent(
     isCurrentProgress: Boolean = false,
     onClickStartProgress: () -> Unit = {},
     onClickSetting: () -> Unit = {},
+    onClickDateArrow: () -> Unit = {}
 ) {
     Column(
         modifier =
@@ -162,6 +169,7 @@ private fun HomeContent(
             interactionSource = interactionSource,
             days = days,
             onSelectDay = onSelectDay,
+            onClickDateArrow = onClickDateArrow
         )
 
         HomeInterviewSummary(
@@ -302,6 +310,7 @@ private fun HomeProgress(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun HomeInterviewCalendar(
     modifier: Modifier,
@@ -311,6 +320,7 @@ private fun HomeInterviewCalendar(
     interactionSource: MutableInteractionSource,
     days: List<LocalDate>,
     onSelectDay: (Int) -> Unit,
+    onClickDateArrow: () -> Unit
 ) {
     ItemContentBox(
         modifier = modifier,
@@ -325,14 +335,33 @@ private fun HomeInterviewCalendar(
                             .fillMaxWidth()
                             .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp),
                 ) {
-                    Text(
-                        text = selectedDate,
-                        color = Black1,
-                        style = BookShelfTypo.Body3,
-                        modifier =
-                            Modifier
-                                .align(Alignment.CenterStart),
-                    )
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = onClickDateArrow
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = selectedDate,
+                            color = Black1,
+                            style = BookShelfTypo.Body2,
+                            modifier = Modifier,
+                        )
+
+                        AsyncImage(
+                            model = Res.getUri("files/ic_arrow_down.svg"),
+                            contentDescription = "select date",
+                            modifier =
+                                Modifier
+                                    .padding(start = 5.dp)
+                                    .size(19.dp),
+                        )
+                    }
+
                     Text(
                         text = "${selectedDay}일 ${interviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.totalMessageCount ?: 0}번의 대화 수행",
                         color = Main1,
