@@ -1,7 +1,9 @@
 package com.tdd.talktobook.core.ui.util
 
 import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 fun generateCalendarDays(
@@ -17,6 +19,20 @@ fun generateCalendarDays(
     }
 
     return days
+}
+
+// 이번 달 일수 계산
+fun LocalDate.daysInMonth(): Int {
+    val firstDayNextMonth =
+        if (this.monthNumber == 12) {
+            LocalDate(this.year + 1, 1, 1)
+        } else {
+            LocalDate(this.year, this.monthNumber + 1, 1)
+        }
+
+    return firstDayNextMonth
+        .minus(1, DateTimeUnit.DAY)
+        .dayOfMonth
 }
 
 // 윤년 계산

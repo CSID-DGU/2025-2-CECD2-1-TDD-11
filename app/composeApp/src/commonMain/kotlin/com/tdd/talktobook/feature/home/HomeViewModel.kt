@@ -3,8 +3,10 @@ package com.tdd.talktobook.feature.home
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.util.daysInMonth
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsResponseModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
@@ -203,5 +205,20 @@ class HomeViewModel(
                 selectedDate = selectedDate,
             )
         }
+    }
+
+    fun setDateSelectList(): ScrollSelectBottomSheetModel {
+        val monthList = (1..12).map { it.toString() }
+        val monthVisibleIndex = uiState.value.today.monthNumber - 1
+
+        val daysInMonth = uiState.value.today.daysInMonth()
+        val dayList = (1..daysInMonth).map { it.toString() }
+        val dayVisibleIndex = uiState.value.today.dayOfMonth - 1
+
+        val year = uiState.value.today.year
+        val yearList = (year-10..year).map { it.toString() }
+        val yearVisibleIndex = yearList.lastIndex
+
+        return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList)
     }
 }

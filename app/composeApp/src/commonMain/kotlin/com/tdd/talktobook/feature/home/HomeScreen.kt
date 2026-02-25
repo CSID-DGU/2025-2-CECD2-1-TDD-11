@@ -106,8 +106,7 @@ internal fun HomeScreen(
         onClickStartProgress = { goToProgressStartPage() },
         onClickSetting = { goToSettingPage() },
         onClickDateArrow = {
-            // TODO 날짜 선택 바텀시트
-            showDateSelectBottomSheet(ScrollSelectBottomSheetModel())
+            showDateSelectBottomSheet(viewModel.setDateSelectList())
         }
     )
 }
