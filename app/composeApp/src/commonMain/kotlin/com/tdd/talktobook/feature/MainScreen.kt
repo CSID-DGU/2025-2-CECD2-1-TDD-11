@@ -1,14 +1,18 @@
 package com.tdd.talktobook.feature
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -259,18 +263,30 @@ fun MainScreen() {
                     onDismissRequest = { hideSheet() },
                     sheetState = sheetState
                 ) {
-                    when (uiState.bottomSheetType) {
-                        BottomSheetType.SCROLL_SELECT -> {
-                            SelectedBottomSheet(
-                                firstStateVisibleIndex = uiState.scrollSelectBottomSheetModel.firstStateVisibleIndex,
-                                secondStateVisibleIndex = uiState.scrollSelectBottomSheetModel.secondStateVisibleIndex,
-                                thirdStateVisibleIndex = uiState.scrollSelectBottomSheetModel.thirdStateVisibleIndex,
-                                firstList = uiState.scrollSelectBottomSheetModel.firstList,
-                                secondList = uiState.scrollSelectBottomSheetModel.secondList,
-                                thirdList = uiState.scrollSelectBottomSheetModel.thirdList
-                            )
+                    AnimatedContent(
+                        targetState = uiState.bottomSheetType,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(300)) togetherWith
+                                    fadeOut(animationSpec = tween(300))
+                        },
+                        label = "",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                    ) { currentSheet ->
+                        when (currentSheet) {
+                            BottomSheetType.SCROLL_SELECT -> {
+                                SelectedBottomSheet(
+                                    firstStateVisibleIndex = uiState.scrollSelectBottomSheetModel.firstStateVisibleIndex,
+                                    secondStateVisibleIndex = uiState.scrollSelectBottomSheetModel.secondStateVisibleIndex,
+                                    thirdStateVisibleIndex = uiState.scrollSelectBottomSheetModel.thirdStateVisibleIndex,
+                                    firstList = uiState.scrollSelectBottomSheetModel.firstList,
+                                    secondList = uiState.scrollSelectBottomSheetModel.secondList,
+                                    thirdList = uiState.scrollSelectBottomSheetModel.thirdList
+                                )
+                            }
+                            BottomSheetType.DEFAULT -> {}
                         }
-                        BottomSheetType.DEFAULT -> {}
                     }
                 }
             }
