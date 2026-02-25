@@ -177,4 +177,26 @@ public class AuthController {
     ) {
         authService.unregister(memberSessionDto.getMemberId());
     }
+
+    @Operation(summary = "탈퇴 회원 재가입", description = "탈퇴한 회원이 재가입합니다. restoreData=true일 경우 대화 내역 복구, false일 경우 대화 내역 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok")
+    })
+    @ApiErrorCodeExample(
+            authExceptionStatuses = {
+                    AuthExceptionStatus.MEMBER_NOT_FOUND,
+                    AuthExceptionStatus.MEMBER_ALREADY_EXISTS,
+                    AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT
+            }
+    )
+    @PostMapping(value = "/rejoin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @OneWayEncryption({
+            @TargetMapping(clazz = RejoinRequestDto.class, fields = {
+                    RejoinRequestDto.Fields.password})
+    })
+    public JwtLoginTokenDto rejoin(
+            @Valid @ModelAttribute RejoinRequestDto requestDto
+    ) {
+        return authService.rejoin(requestDto);
+    }
 }

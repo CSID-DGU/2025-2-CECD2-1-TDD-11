@@ -5,6 +5,7 @@ import com.lifelibrarians.lifebookshelf.auth.dto.EmailLoginRequestDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.EmailRegisterRequestDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.JwtLoginTokenDto;
 import com.lifelibrarians.lifebookshelf.auth.dto.ReIssueTokenRequestDto;
+import com.lifelibrarians.lifebookshelf.auth.dto.RejoinRequestDto;
 import com.lifelibrarians.lifebookshelf.exception.status.AuthExceptionStatus;
 import com.lifelibrarians.lifebookshelf.auth.jwt.JwtTokenProvider;
 import lombok.extern.log4j.Log4j2;
@@ -46,6 +47,8 @@ public class AuthService {
 	
 	@Qualifier("refreshTokenRedisTemplate")
 	private final RedisTemplate<String, String> refreshTokenRedisTemplate;
+
+	private final com.lifelibrarians.lifebookshelf.member.service.MemberDataCleanupService memberDataCleanupService;
 
 	public void registerEmail(EmailRegisterRequestDto requestDto) {
 		log.info("[REGISTER_EMAIL] 이메일 회원가입 시작 - email: {}", requestDto.getEmail());
@@ -120,7 +123,10 @@ public class AuthService {
 
         if (member.isPresent() && member.get().getDeletedAt() != null) {
             log.warn("[LOGIN_EMAIL] 탈퇴한 회원 - email: {}", requestDto.getEmail());
-            throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
+            return JwtLoginTokenDto.builder()
+                    .isWithdrawn(true)
+                    .withdrawnAt(member.get().getDeletedAt().toString())
+                    .build();
         }
 
         if (member.isEmpty() || !member.get().getPasswordMember()
@@ -273,5 +279,64 @@ public class AuthService {
 
 	private String generateTemporaryPassword() {
 		return UUID.randomUUID().toString().substring(0, 12);
+	}
+
+	public JwtLoginTokenDto rejoin(RejoinRequestDto requestDto) {
+		log.info("[REJOIN] 재가입 시작 - email: {}, restoreData: {}", requestDto.getEmail(), requestDto.getRestoreData());
+
+		Member member = memberRepository.findByEmail(requestDto.getEmail())
+				.orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
+
+		if (member.getDeletedAt() == null) {
+			log.warn("[REJOIN] 탈퇴하지 않은 회원 - email: {}", requestDto.getEmail());
+			throw AuthExceptionStatus.MEMBER_ALREADY_EXISTS.toServiceException();
+		}
+
+		if (!member.getPasswordMember().matchPassword(requestDto.getPassword())) {
+			log.warn("[REJOIN] 비밀번호 불일치 - email: {}", requestDto.getEmail());
+			throw AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT.toServiceException();
+		}
+
+		// 데이터 복구 여부에 따른 처리
+		if (!requestDto.getRestoreData()) {
+			log.info("[REJOIN] 모든 데이터 삭제 시작 - memberId: {}", member.getId());
+			memberDataCleanupService.deleteAllMemberData(member.getId());
+			log.info("[REJOIN] 모든 데이터 삭제 완료 - memberId: {}", member.getId());
+		}
+
+		// 회원 복구
+		member.softDelete(null);
+		memberRepository.save(member);
+		log.info("[REJOIN] 회원 복구 완료 - memberId: {}", member.getId());
+
+		// JWT 토큰 발급
+		Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.getId());
+		Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.getId());
+
+		// Redis에 토큰 저장
+		String memberId = member.getId().toString();
+		refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
+		refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
+
+		// Device Token 업데이트
+		if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
+			log.info("[REJOIN] Device Token 업데이트 - memberId: {}", memberId);
+			notificationService.updateDeviceToken(member, requestDto.getDeviceToken(), LocalDateTime.now());
+		}
+
+		// metadata 입력 여부 확인
+		boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.getId())
+				.map(metadata -> metadata.getGender() != null
+						&& metadata.getOccupation() != null
+						&& metadata.getAgeGroup() != null)
+				.orElse(false);
+
+		log.info("[REJOIN] 재가입 완료 - memberId: {}, metadataSuccessed: {}", memberId, metadataSuccessed);
+
+		return JwtLoginTokenDto.builder()
+				.accessToken(accessToken.getTokenValue())
+				.refreshToken(refreshToken.getTokenValue())
+				.metadataSuccessed(metadataSuccessed)
+				.build();
 	}
 }
