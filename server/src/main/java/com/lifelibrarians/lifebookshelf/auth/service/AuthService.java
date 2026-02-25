@@ -121,14 +121,6 @@ public class AuthService {
 
         Optional<Member> member = memberRepository.findByEmail(requestDto.getEmail());
 
-        if (member.isPresent() && member.get().getDeletedAt() != null) {
-            log.warn("[LOGIN_EMAIL] 탈퇴한 회원 - email: {}", requestDto.getEmail());
-            return JwtLoginTokenDto.builder()
-                    .isWithdrawn(true)
-                    .withdrawnAt(member.get().getDeletedAt().toString())
-                    .build();
-        }
-
         if (member.isEmpty() || !member.get().getPasswordMember()
                 .matchPassword(requestDto.getPassword())) {
             log.warn("[LOGIN_EMAIL] 이메일 또는 비밀번호 불일치 - email: {}", requestDto.getEmail());
@@ -140,24 +132,26 @@ public class AuthService {
             throw AuthExceptionStatus.EMAIL_NOT_VERIFIED.toServiceException();
         }
 
+        if (member.get().getDeletedAt() != null) {
+            log.warn("[LOGIN_EMAIL] 탈퇴한 회원 - email: {}", requestDto.getEmail());
+            throw AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN.toServiceException();
+        }
+
         Jwt accessToken = jwtTokenProvider.createMemberAccessToken(member.get().getId());
         Jwt refreshToken = jwtTokenProvider.createMemberRefreshToken(member.get().getId());
         log.info("[LOGIN_EMAIL] JWT 토큰 발급 완료 - memberId: {}", member.get().getId());
 
-        // Redis에 Access Token과 Refresh Token 저장
         String memberId = member.get().getId().toString();
         refreshTokenRedisTemplate.opsForValue().set("refresh:" + memberId, refreshToken.getTokenValue(), Duration.ofDays(30));
         refreshTokenRedisTemplate.opsForValue().set("access:" + memberId, accessToken.getTokenValue(), Duration.ofDays(7));
         log.info("[LOGIN_EMAIL] Redis 토큰 저장 완료 - memberId: {}", memberId);
 
-        // Device Token 업데이트
         if (requestDto.getDeviceToken() != null && !requestDto.getDeviceToken().isEmpty()) {
             log.info("[LOGIN_EMAIL] Device Token 업데이트 시작 - memberId: {}", memberId);
             notificationService.updateDeviceToken(member.get(), requestDto.getDeviceToken(),
                     LocalDateTime.now());
         }
 
-        // 4) metadata 입력 여부 확인
         boolean metadataSuccessed = memberMetadataRepository.findByMemberId(member.get().getId())
                 .map(metadata -> metadata.getGender() != null
                         && metadata.getOccupation() != null
@@ -165,12 +159,27 @@ public class AuthService {
                 .orElse(false);
         log.info("[LOGIN_EMAIL] 로그인 완료 - memberId: {}, metadataSuccessed: {}", memberId, metadataSuccessed);
 
-        // 5) 반환
         return JwtLoginTokenDto.builder()
                 .accessToken(accessToken.getTokenValue())
                 .refreshToken(refreshToken.getTokenValue())
                 .metadataSuccessed(metadataSuccessed)
                 .build();
+    }
+
+    public JwtLoginTokenDto loginEmailAdvanced(EmailLoginRequestDto requestDto) {
+        log.info("[LOGIN_EMAIL_ADVANCED] 이메일 로그인 시작 - email: {}", requestDto.getEmail());
+
+        Optional<Member> member = memberRepository.findByEmail(requestDto.getEmail());
+
+        if (member.isPresent() && member.get().getDeletedAt() != null) {
+            log.warn("[LOGIN_EMAIL_ADVANCED] 탈퇴한 회원 - email: {}", requestDto.getEmail());
+            return JwtLoginTokenDto.builder()
+                    .isWithdrawn(true)
+                    .withdrawnAt(member.get().getDeletedAt().toString())
+                    .build();
+        }
+
+        return loginEmail(requestDto);
     }
 
     // 토큰 재발급

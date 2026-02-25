@@ -105,6 +105,31 @@ public class AuthController {
         return authService.loginEmail(requestDto);
     }
 
+    @Operation(summary = "이메일 로그인 (탈퇴 회원 처리)", description = "탈퇴한 회원인 경우 isWithdrawn=true와 탈퇴일시를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok")
+    })
+    @ApiErrorCodeExample(
+            authExceptionStatuses = {
+                    AuthExceptionStatus.INVALID_EMAIL_FORMAT,
+                    AuthExceptionStatus.EMAIL_TOO_LONG,
+                    AuthExceptionStatus.PASSWORD_FORMAT_ERROR,
+                    AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT,
+                    AuthExceptionStatus.EMAIL_NOT_VERIFIED,
+                    AuthExceptionStatus.MEMBER_NOT_FOUND
+            }
+    )
+    @PostMapping(value = "/email-login-advanced", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @OneWayEncryption({
+            @TargetMapping(clazz = EmailLoginRequestDto.class, fields = {
+                    EmailLoginRequestDto.Fields.password})
+    })
+    public JwtLoginTokenDto loginEmailAdvanced(
+            @Valid @ModelAttribute EmailLoginRequestDto requestDto
+    ) {
+        return authService.loginEmailAdvanced(requestDto);
+    }
+
     @Operation(summary = "비밀번호 초기화 요청", description = "비밀번호 초기화를 요청합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "ok")
