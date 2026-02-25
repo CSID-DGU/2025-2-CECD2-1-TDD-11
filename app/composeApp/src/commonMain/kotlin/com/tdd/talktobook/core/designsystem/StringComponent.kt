@@ -9,6 +9,7 @@ const val Next = "다음"
 const val NextTime = "나중에"
 const val GoToHome = "홈으로"
 const val ServerErrorToast = "네트워크 오류가 발생했습니다."
+const val ZeroString = "0"
 
 // Day
 const val Mon = "월"
