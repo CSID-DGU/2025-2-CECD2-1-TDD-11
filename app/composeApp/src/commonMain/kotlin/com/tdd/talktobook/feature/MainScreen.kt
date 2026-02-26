@@ -287,7 +287,10 @@ fun MainScreen() {
                                     thirdList = data.thirdList,
                                     titleText = data.titleText,
                                     btnText = data.btnText,
-                                    onSelectItem = data.onSelectItem
+                                    onSelectItem = { first, second, third ->
+                                        data.onSelectItem(first, second, third)
+                                        hideSheet()
+                                    }
                                 )
                             }
                             BottomSheetType.DEFAULT -> {}

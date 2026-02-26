@@ -26,7 +26,8 @@ fun RectangleBtn(
     btnContent: String,
     isBtnActivated: Boolean = false,
     onClickAction: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+    modifier: Modifier = Modifier
+        .fillMaxWidth().padding(horizontal = 20.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 

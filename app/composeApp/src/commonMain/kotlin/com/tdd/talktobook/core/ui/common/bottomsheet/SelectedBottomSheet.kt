@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,9 +16,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,10 +31,11 @@ import androidx.compose.ui.unit.dp
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Gray1
-import com.tdd.talktobook.core.designsystem.SelectItem
 import com.tdd.talktobook.core.designsystem.ZeroString
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.util.fadingEdge
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun SelectedBottomSheet(
@@ -45,7 +49,7 @@ fun SelectedBottomSheet(
     btnText: String,
     onSelectItem: (String, String, String) -> Unit
 ) {
-    val firstState = rememberLazyListState(initialFirstVisibleItemIndex = firstStateVisibleIndex)
+    val firstState = rememberLazyListState(initialFirstVisibleItemIndex = firstStateVisibleIndex, initialFirstVisibleItemScrollOffset = 0)
     val secondState = rememberLazyListState(initialFirstVisibleItemIndex = secondStateVisibleIndex)
     val thirdState = rememberLazyListState(initialFirstVisibleItemIndex = thirdStateVisibleIndex)
 
@@ -63,6 +67,16 @@ fun SelectedBottomSheet(
                     currentSecond != initialSecond ||
                     currentThird != initialThird
         }
+    }
+
+    LaunchedEffect(firstList, secondList, thirdList) {
+        snapshotFlow { firstState.layoutInfo.totalItemsCount }
+            .filter { it > 0 }
+            .first()
+
+        firstState.scrollToItem(firstStateVisibleIndex.coerceAtLeast(0))
+        secondState.scrollToItem(secondStateVisibleIndex.coerceAtLeast(0))
+        thirdState.scrollToItem(thirdStateVisibleIndex.coerceAtLeast(0))
     }
 
     SelectedBottomSheetContent(
@@ -151,8 +165,9 @@ private fun SelectedBottomSheetContent(
             btnContent = btnText,
             isBtnActivated = isBtnActivated,
             onClickAction = onClickBtnAction,
-            modifier = Modifier.padding(bottom = 20.dp)
         )
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -164,7 +179,7 @@ private fun ListItem(
 ) {
     val extendedItems = listOf(ZeroString, ZeroString) + list + listOf(ZeroString, ZeroString)
     val visibleItemsCount = 5
-    val itemHeight = 30.dp
+    val itemHeight = 35.dp
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = state)
     val fadingEdgeGradient =
         remember {
@@ -178,7 +193,7 @@ private fun ListItem(
     LazyColumn(
         state = state,
         modifier = modifier
-            .height(itemHeight * visibleItemsCount + 5.dp)
+            .height(itemHeight * visibleItemsCount)
             .fadingEdge(fadingEdgeGradient),
         flingBehavior = flingBehavior
     ) {
@@ -196,7 +211,7 @@ private fun ListItem(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(itemHeight + 5.dp),
+                    .height(itemHeight),
                 contentAlignment = Alignment.Center
             ) {
                 if (item != ZeroString) {
