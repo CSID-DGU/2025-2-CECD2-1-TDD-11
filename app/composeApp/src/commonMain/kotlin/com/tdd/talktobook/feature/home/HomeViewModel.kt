@@ -196,13 +196,13 @@ class HomeViewModel(
         val monthList = (1..12).map { it.toString() }
         val monthVisibleIndex = uiState.value.today.monthNumber - 1
 
-        val daysInMonth = uiState.value.today.daysInMonth()
-        val dayList = (1..daysInMonth).map { it.toString() }
-        val dayVisibleIndex = uiState.value.today.dayOfMonth - 1
-
         val year = uiState.value.today.year
         val yearList = (year-10..year).map { it.toString() }
         val yearVisibleIndex = yearList.lastIndex
+
+        val daysInMonth = daysInMonth(uiState.value.today.year, uiState.value.today.monthNumber)
+        val dayList = (1..daysInMonth).map { it.toString() }
+        val dayVisibleIndex = uiState.value.today.dayOfMonth - 1
 
         return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList, HomeDateSelectTitle, SelectItem, onSelectItem = {month, day, year -> setSelectedDate(month, day, year)})
     }

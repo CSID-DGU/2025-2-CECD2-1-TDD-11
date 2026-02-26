@@ -15,10 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +44,7 @@ import com.tdd.talktobook.core.navigation.publicationNavGraph
 import com.tdd.talktobook.core.navigation.settingNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
-import com.tdd.talktobook.core.ui.common.bottomsheet.SelectedBottomSheet
+import com.tdd.talktobook.core.ui.common.bottomsheet.SelectedDateBottomSheet
 import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.common.dialog.TwoBtnDialog
 import com.tdd.talktobook.core.ui.common.type.BottomSheetType
@@ -278,13 +277,13 @@ fun MainScreen() {
                             BottomSheetType.SCROLL_SELECT -> {
                                 val data = uiState.scrollSelectBottomSheetModel
 
-                                SelectedBottomSheet(
-                                    firstStateVisibleIndex = data.firstStateVisibleIndex,
-                                    secondStateVisibleIndex = data.secondStateVisibleIndex,
-                                    thirdStateVisibleIndex = data.thirdStateVisibleIndex,
-                                    firstList = data.firstList,
-                                    secondList = data.secondList,
-                                    thirdList = data.thirdList,
+                                SelectedDateBottomSheet(
+                                    monthStateVisibleIndex = data.firstStateVisibleIndex,
+                                    dayStateVisibleIndex = data.secondStateVisibleIndex,
+                                    yearStateVisibleIndex = data.thirdStateVisibleIndex,
+                                    monthList = data.firstList,
+                                    dayList = data.secondList,
+                                    yearList = data.thirdList,
                                     titleText = data.titleText,
                                     btnText = data.btnText,
                                     onSelectItem = { first, second, third ->
@@ -293,6 +292,7 @@ fun MainScreen() {
                                     }
                                 )
                             }
+
                             BottomSheetType.DEFAULT -> {}
                         }
                     }
