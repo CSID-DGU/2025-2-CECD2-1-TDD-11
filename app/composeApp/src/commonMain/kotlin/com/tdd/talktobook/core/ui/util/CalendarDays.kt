@@ -35,6 +35,15 @@ fun LocalDate.daysInMonth(): Int {
         .dayOfMonth
 }
 
+fun setDateStringType(year: String, month: String, day: String): String =
+    buildString {
+        append(year.padStart(4, '0'))
+        append('.')
+        append(month.padStart(2, '0'))
+        append('.')
+        append(day.padStart(2, '0'))
+    }
+
 // 윤년 계산
 private fun isLeapYear(year: Int): Boolean =
     (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)

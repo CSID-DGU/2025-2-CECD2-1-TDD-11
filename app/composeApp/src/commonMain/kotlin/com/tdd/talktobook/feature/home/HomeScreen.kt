@@ -24,10 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,14 +56,10 @@ import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
-import com.tdd.talktobook.core.ui.util.generateCalendarDays
 import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -78,26 +71,19 @@ internal fun HomeScreen(
     goToPastInterviewPage: (String, Int) -> Unit,
     goToProgressStartPage: () -> Unit = {},
     goToSettingPage: () -> Unit,
-    showDateSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit
+    showDateSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
-    val today =
-        Clock.System.now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
-    var year by remember { mutableIntStateOf(today.year) }
-    var month by remember { mutableIntStateOf(today.monthNumber) }
-    var days by remember { mutableStateOf(generateCalendarDays(year, month)) }
 
     HomeContent(
         interactionSource = interactionSource,
         createdMaterialList = uiState.createdMaterialList,
         interviewProgress = uiState.autobiographyProgress,
         monthInterviewList = uiState.monthInterviewList,
-        days = days,
+        days = uiState.days,
         selectedDay = uiState.selectedDay,
         selectedDate = uiState.selectedDate,
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
@@ -126,7 +112,7 @@ private fun HomeContent(
     isCurrentProgress: Boolean = false,
     onClickStartProgress: () -> Unit = {},
     onClickSetting: () -> Unit = {},
-    onClickDateArrow: () -> Unit = {}
+    onClickDateArrow: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -319,7 +305,7 @@ private fun HomeInterviewCalendar(
     interactionSource: MutableInteractionSource,
     days: List<LocalDate>,
     onSelectDay: (Int) -> Unit,
-    onClickDateArrow: () -> Unit
+    onClickDateArrow: () -> Unit,
 ) {
     ItemContentBox(
         modifier = modifier,
