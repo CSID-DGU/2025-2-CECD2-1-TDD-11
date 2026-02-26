@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -26,7 +28,9 @@ import androidx.compose.ui.unit.dp
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Gray1
+import com.tdd.talktobook.core.designsystem.SelectItem
 import com.tdd.talktobook.core.designsystem.ZeroString
+import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.util.fadingEdge
 
 @Composable
@@ -37,10 +41,29 @@ fun SelectedBottomSheet(
     firstList: List<String>,
     secondList: List<String>,
     thirdList: List<String>,
+    titleText: String,
+    btnText: String,
+    onSelectItem: (String, String, String) -> Unit
 ) {
     val firstState = rememberLazyListState(initialFirstVisibleItemIndex = firstStateVisibleIndex)
     val secondState = rememberLazyListState(initialFirstVisibleItemIndex = secondStateVisibleIndex)
     val thirdState = rememberLazyListState(initialFirstVisibleItemIndex = thirdStateVisibleIndex)
+
+    val initialFirst = remember { selectedValue(firstState, firstList) }
+    val initialSecond = remember { selectedValue(secondState, secondList) }
+    val initialThird = remember { selectedValue(thirdState, thirdList) }
+
+    val currentFirst by remember { derivedStateOf { selectedValue(firstState, firstList) } }
+    val currentSecond by remember { derivedStateOf { selectedValue(secondState, secondList) } }
+    val currentThird by remember { derivedStateOf { selectedValue(thirdState, thirdList) } }
+
+    val isBtnActivated by remember {
+        derivedStateOf {
+            currentFirst != initialFirst ||
+                    currentSecond != initialSecond ||
+                    currentThird != initialThird
+        }
+    }
 
     SelectedBottomSheetContent(
         firstState = firstState,
@@ -48,7 +71,11 @@ fun SelectedBottomSheet(
         thirdState = thirdState,
         firstList = firstList,
         secondList = secondList,
-        thirdList = thirdList
+        thirdList = thirdList,
+        titleText = titleText,
+        btnText = btnText,
+        onClickBtnAction = { onSelectItem(selectedValue(firstState, firstList), selectedValue(secondState, secondList), selectedValue(thirdState, thirdList)) },
+        isBtnActivated = isBtnActivated
     )
 }
 
@@ -60,40 +87,72 @@ private fun SelectedBottomSheetContent(
     firstList: List<String>,
     secondList: List<String>,
     thirdList: List<String>,
+    titleText: String,
+    btnText: String,
+    onClickBtnAction: () -> Unit,
+    isBtnActivated: Boolean = false
 ) {
     Column(
         modifier =
             Modifier
-                .fillMaxWidth()
-                .background(Gray1),
+                .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
+        Text(
+            text = titleText,
+            style = BookShelfTypo.Head1,
+            color = Black1,
+            modifier = Modifier
+                .padding(top = 20.dp)
+        )
+
+        Box(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(vertical = 20.dp, horizontal = 60.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxWidth()
         ) {
-            ListItem(
-                modifier = Modifier.weight(1f),
-                list = firstList,
-                state = firstState
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(35.dp)
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Gray1)
             )
 
-            ListItem(
-                modifier = Modifier.weight(1f),
-                list = secondList,
-                state = secondState
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ListItem(
+                    modifier = Modifier.weight(1f),
+                    list = firstList,
+                    state = firstState
+                )
 
-            ListItem(
-                modifier = Modifier.weight(1f),
-                list = thirdList,
-                state = thirdState
-            )
+                ListItem(
+                    modifier = Modifier.weight(1f),
+                    list = secondList,
+                    state = secondState
+                )
 
+                ListItem(
+                    modifier = Modifier.weight(1f),
+                    list = thirdList,
+                    state = thirdState
+                )
+
+            }
         }
+
+        RectangleBtn(
+            btnContent = btnText,
+            isBtnActivated = isBtnActivated,
+            onClickAction = onClickBtnAction,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
     }
 }
 
@@ -156,4 +215,10 @@ private fun ListItem(
             }
         }
     }
+}
+
+private fun selectedValue(state: LazyListState, list: List<String>): String {
+    val extended = listOf(ZeroString, ZeroString) + list + listOf(ZeroString, ZeroString)
+    val index = (state.firstVisibleItemIndex + 2).coerceIn(0, extended.lastIndex)
+    return extended[index]
 }

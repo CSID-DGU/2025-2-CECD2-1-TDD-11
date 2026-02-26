@@ -7,4 +7,7 @@ data class ScrollSelectBottomSheetModel(
     val firstList: List<String> = emptyList(),
     val secondList: List<String> = emptyList(),
     val thirdList: List<String> = emptyList(),
+    val titleText: String = "",
+    val btnText: String = "",
+    val onSelectItem: (String, String, String) -> Unit = { _, _, _ -> }
 )

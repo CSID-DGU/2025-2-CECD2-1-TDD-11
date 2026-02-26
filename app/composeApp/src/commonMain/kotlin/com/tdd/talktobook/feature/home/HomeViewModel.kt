@@ -2,6 +2,8 @@ package com.tdd.talktobook.feature.home
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
+import com.tdd.talktobook.core.designsystem.HomeDateSelectTitle
+import com.tdd.talktobook.core.designsystem.SelectItem
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.core.ui.util.daysInMonth
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
@@ -219,6 +221,10 @@ class HomeViewModel(
         val yearList = (year-10..year).map { it.toString() }
         val yearVisibleIndex = yearList.lastIndex
 
-        return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList)
+        return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList, HomeDateSelectTitle, SelectItem, onSelectItem = {month, day, year -> setSelectedDate(month, day, year)})
+    }
+
+    fun setSelectedDate(month: String, day: String, year: String) {
+        d("[테스트] $month, $day, $year")
     }
 }

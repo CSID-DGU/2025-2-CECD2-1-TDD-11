@@ -276,13 +276,18 @@ fun MainScreen() {
                     ) { currentSheet ->
                         when (currentSheet) {
                             BottomSheetType.SCROLL_SELECT -> {
+                                val data = uiState.scrollSelectBottomSheetModel
+
                                 SelectedBottomSheet(
-                                    firstStateVisibleIndex = uiState.scrollSelectBottomSheetModel.firstStateVisibleIndex,
-                                    secondStateVisibleIndex = uiState.scrollSelectBottomSheetModel.secondStateVisibleIndex,
-                                    thirdStateVisibleIndex = uiState.scrollSelectBottomSheetModel.thirdStateVisibleIndex,
-                                    firstList = uiState.scrollSelectBottomSheetModel.firstList,
-                                    secondList = uiState.scrollSelectBottomSheetModel.secondList,
-                                    thirdList = uiState.scrollSelectBottomSheetModel.thirdList
+                                    firstStateVisibleIndex = data.firstStateVisibleIndex,
+                                    secondStateVisibleIndex = data.secondStateVisibleIndex,
+                                    thirdStateVisibleIndex = data.thirdStateVisibleIndex,
+                                    firstList = data.firstList,
+                                    secondList = data.secondList,
+                                    thirdList = data.thirdList,
+                                    titleText = data.titleText,
+                                    btnText = data.btnText,
+                                    onSelectItem = data.onSelectItem
                                 )
                             }
                             BottomSheetType.DEFAULT -> {}
