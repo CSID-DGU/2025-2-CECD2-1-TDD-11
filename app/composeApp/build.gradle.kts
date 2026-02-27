@@ -81,6 +81,8 @@ kotlin {
 
             api(libs.datastore.preferences)
             api(libs.datastore)
+
+            implementation(libs.firebase.firestore)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
