@@ -11,6 +11,7 @@ const val NextTime = "나중에"
 const val GoToHome = "홈으로"
 const val ServerErrorToast = "네트워크 오류가 발생했습니다."
 const val ZeroString = "0"
+const val Inquiry = "문의하기"
 
 // Day
 const val Mon = "월"
@@ -204,3 +205,4 @@ const val SettingUserFeedback = "사용자 피드백"
 const val SettingCurrentVersion = "현재 버전 "
 const val SettingLogOut = "로그아웃"
 const val SettingDelete = "회원 탈퇴"
+const val InquiryHintText = "문의하실 내용을 작성해 주세요."

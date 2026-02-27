@@ -6,6 +6,7 @@ import com.tdd.talktobook.core.ui.common.type.BottomSheetType
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.annotation.KoinViewModel
@@ -77,6 +78,15 @@ class MainViewModel : BaseViewModel<MainPageState>(
             state.copy(
                 bottomSheetType = BottomSheetType.SCROLL_SELECT,
                 scrollSelectBottomSheetModel = data
+            )
+        }
+    }
+
+    fun setTextFieldBottomSheet(data: TextFieldBottomSheetModel) {
+        updateState { state ->
+            state.copy(
+                bottomSheetType = BottomSheetType.TEXT_FIELD,
+                textFieldBottomSheetModel = data
             )
         }
     }

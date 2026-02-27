@@ -70,4 +70,8 @@ class SettingViewModel(
 
         emitEventFlow(SettingEvent.GoToLogInPage)
     }
+
+    fun setInquiryInput(inquiry: String) {
+        d("[테스트] $inquiry")
+    }
 }

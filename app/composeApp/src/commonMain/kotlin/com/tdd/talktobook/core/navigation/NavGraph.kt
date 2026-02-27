@@ -10,6 +10,7 @@ import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
 import com.tdd.talktobook.feature.auth.login.LogInScreen
@@ -246,6 +247,7 @@ fun NavGraphBuilder.publicationNavGraph(
 fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
     showOneBtnDialog: (OneBtnDialogModel) -> Unit,
+    showTextFieldBottomSheet: (TextFieldBottomSheetModel) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
@@ -256,6 +258,7 @@ fun NavGraphBuilder.settingNavGraph(
                 goBackPage = { navController.popBackStack() },
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 showDeleteUserDialog = showOneBtnDialog,
+                showInquiryInputBottomSheet = showTextFieldBottomSheet
             )
         }
     }

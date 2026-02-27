@@ -45,6 +45,7 @@ import com.tdd.talktobook.core.navigation.settingNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
 import com.tdd.talktobook.core.ui.common.bottomsheet.SelectedDateBottomSheet
+import com.tdd.talktobook.core.ui.common.bottomsheet.TextFieldBottomSheet
 import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.common.dialog.TwoBtnDialog
 import com.tdd.talktobook.core.ui.common.type.BottomSheetType
@@ -55,6 +56,7 @@ import com.tdd.talktobook.core.ui.util.ToastHost
 import com.tdd.talktobook.core.ui.util.ToastHostState
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -97,16 +99,21 @@ fun MainScreen() {
         }
     }
 
-    val showScrollSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit = {
-        viewModel.setScrollSelectBottomSheet(it)
-        isSheetVisible = true
-        scope.launch { sheetState.show() }
-    }
     val hideSheet: () -> Unit = {
         scope.launch { sheetState.hide() }.invokeOnCompletion {
             isSheetVisible = false
             viewModel.setBottomSheetType(BottomSheetType.DEFAULT)
         }
+    }
+    val showScrollSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit = {
+        viewModel.setScrollSelectBottomSheet(it)
+        isSheetVisible = true
+        scope.launch { sheetState.show() }
+    }
+    val showTextFieldBottomSheet: (TextFieldBottomSheetModel) -> Unit = {
+        viewModel.setTextFieldBottomSheet(it)
+        isSheetVisible = true
+        scope.launch { sheetState.show() }
     }
 
     val showToastMessage: (String, ToastType) -> Unit = { msg, type ->
@@ -247,6 +254,7 @@ fun MainScreen() {
                         settingNavGraph(
                             navController = navController,
                             showOneBtnDialog = showOneBtnDialog,
+                            showTextFieldBottomSheet = showTextFieldBottomSheet
                         )
                     }
                 }
@@ -288,6 +296,20 @@ fun MainScreen() {
                                     btnText = data.btnText,
                                     onSelectItem = { first, second, third ->
                                         data.onSelectItem(first, second, third)
+                                        hideSheet()
+                                    }
+                                )
+                            }
+
+                            BottomSheetType.TEXT_FIELD -> {
+                                val data = uiState.textFieldBottomSheetModel
+
+                                TextFieldBottomSheet(
+                                    titleText = data.titleText,
+                                    btnText = data.btnText,
+                                    textFieldHintText = data.textFieldHintText,
+                                    onClickConfirmBtnAction = { newValue ->
+                                        data.onClickConfirmBtnAction(newValue)
                                         hideSheet()
                                     }
                                 )

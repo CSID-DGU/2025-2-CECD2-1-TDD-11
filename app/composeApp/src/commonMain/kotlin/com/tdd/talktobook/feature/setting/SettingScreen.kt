@@ -29,7 +29,10 @@ import com.tdd.talktobook.core.designsystem.BackGround1
 import com.tdd.talktobook.core.designsystem.BackGround4
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
+import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.Gray5
+import com.tdd.talktobook.core.designsystem.Inquiry
+import com.tdd.talktobook.core.designsystem.InquiryHintText
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.SettingAge
 import com.tdd.talktobook.core.designsystem.SettingCurrentVersion
@@ -43,6 +46,7 @@ import com.tdd.talktobook.core.ui.common.content.ItemContentRow
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.util.openUrl
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
@@ -52,6 +56,7 @@ internal fun SettingScreen(
     goBackPage: () -> Unit,
     goToLogInPage: () -> Unit,
     showDeleteUserDialog: (OneBtnDialogModel) -> Unit,
+    showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit
 ) {
     val viewModel: SettingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -91,6 +96,9 @@ internal fun SettingScreen(
         onClickPolicy = { openUrl(policyUrl) },
         onClickLogOut = { viewModel.logOut() },
         appVersion = appVersion,
+        onClickInquiry = {
+            showInquiryInputBottomSheet(TextFieldBottomSheetModel(Inquiry, Confirm, InquiryHintText, onClickConfirmBtnAction = { viewModel.setInquiryInput(it) }))
+        }
     )
 }
 
@@ -103,6 +111,7 @@ private fun SettingContent(
     onClickLogOut: () -> Unit,
     onClickDelete: () -> Unit,
     appVersion: String,
+    onClickInquiry: () -> Unit
 ) {
     Column(
         modifier =
@@ -135,6 +144,12 @@ private fun SettingContent(
             iconImgUrl = "files/ic_version.svg",
             content = SettingCurrentVersion + appVersion,
             isNextVisible = false,
+        )
+
+        ItemContentRow(
+            iconImgUrl = "files/ic_chat.svg",
+            content = Inquiry,
+            onClickNext = onClickInquiry
         )
 
         Text(
