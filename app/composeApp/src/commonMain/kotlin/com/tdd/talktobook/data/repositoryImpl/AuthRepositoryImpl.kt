@@ -12,6 +12,8 @@ import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.Single
 
 @Single(binds = [AuthRepository::class])
@@ -37,7 +39,9 @@ class AuthRepositoryImpl(
                 request.password,
                 request.deviceToken,
             )
-        })
+        }).onEach { result ->
+            result.onSuccess { localDataStore.saveUserEmail(request.email) }
+        }
 
     override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
@@ -73,6 +77,17 @@ class AuthRepositoryImpl(
                     emit(Result.success(token))
                 } else {
                     emit(Result.failure(Exception("[dataStore] refresh token is null")))
+                }
+            }
+        }
+
+    override suspend fun getUserEmail(): Flow<Result<String>> =
+        flow {
+            localDataStore.userEmail.collect { email ->
+                if (email != null) {
+                    emit(Result.success(email))
+                } else {
+                    emit(Result.failure(Exception("[dataStore] email is null")))
                 }
             }
         }

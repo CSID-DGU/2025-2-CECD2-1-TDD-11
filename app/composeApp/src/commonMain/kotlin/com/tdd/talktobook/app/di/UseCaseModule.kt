@@ -5,6 +5,7 @@ import com.tdd.talktobook.domain.usecase.auth.DeleteLocalTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.talktobook.domain.usecase.auth.GetAccessTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.GetRefreshTokenUseCase
+import com.tdd.talktobook.domain.usecase.auth.GetUserEmailUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
@@ -71,6 +72,7 @@ val useCaseModule =
         factory { ReissueTokenUseCase(get()) }
         factory { GetAccessTokenUseCase(get()) }
         factory { GetRefreshTokenUseCase(get()) }
+        factory { GetUserEmailUseCase(get()) }
         factory { DeleteLocalAllDataUseCase(get()) }
         factory { DeleteLocalTokenUseCase(get()) }
 

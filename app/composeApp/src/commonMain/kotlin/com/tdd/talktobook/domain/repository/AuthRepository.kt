@@ -23,6 +23,8 @@ interface AuthRepository {
 
     suspend fun getStoredRefreshToken(): Flow<Result<String>>
 
+    suspend fun getUserEmail(): Flow<Result<String>>
+
     suspend fun clearToken(): Flow<Result<Boolean>>
 
     suspend fun clearAllData(): Flow<Result<Boolean>>

@@ -10,6 +10,7 @@ import com.tdd.talktobook.domain.entity.request.firestore.InquiryRequestModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
+import com.tdd.talktobook.domain.usecase.auth.GetUserEmailUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.firestore.PostInquiryUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
@@ -27,12 +28,14 @@ class SettingViewModel(
     private val deleteUserUseCase: DeleteUserUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
-    private val postInquiryUseCase: PostInquiryUseCase
+    private val postInquiryUseCase: PostInquiryUseCase,
+    private val getUserEmailUseCase: GetUserEmailUseCase
 ) : BaseViewModel<SettingPageState>(
         SettingPageState(),
     ) {
     init {
         initSetMemberInfo()
+        initGetUserEmail()
     }
 
     private fun initSetMemberInfo() {
@@ -46,6 +49,20 @@ class SettingViewModel(
         updateState { state ->
             state.copy(
                 memberInfo = data,
+            )
+        }
+    }
+
+    private fun initGetUserEmail() {
+        viewModelScope.launch {
+            getUserEmailUseCase(Unit).collect { resultResponse(it, ::onSuccessGetUserEmail) }
+        }
+    }
+
+    private fun onSuccessGetUserEmail(data: String) {
+        updateState { state ->
+            state.copy(
+                userEmail = data
             )
         }
     }
@@ -83,19 +100,21 @@ class SettingViewModel(
     }
 
     fun setInquiryInput(inquiry: String) {
+        val userEmail = uiState.value.userEmail
         val platform = getPlatform().name
+
         val current = Clock.System.now()
             .toLocalDateTime(TimeZone.currentSystemDefault())
         val date = setDateStringType(current.year.toString(), current.monthNumber.toString(), current.dayOfMonth.toString())
         val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
 
-        val inquiryData = InquiryRequestModel("", inquiry, platform, "$date $time")
+        val inquiryData = InquiryRequestModel(userEmail, inquiry, platform, "$date $time")
         d("[테스트] $inquiryData")
 
-//        viewModelScope.launch {
-//            postInquiryUseCase(inquiry).collect { resultResponse(it, { id ->
-//                d("[테스트] $id")
-//            }) }
-//        }
+        viewModelScope.launch {
+            postInquiryUseCase(inquiryData).collect { resultResponse(it, { id ->
+                d("[테스트] $id")
+            }) }
+        }
     }
 }

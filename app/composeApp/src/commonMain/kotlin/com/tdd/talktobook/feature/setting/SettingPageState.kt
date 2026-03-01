@@ -5,4 +5,5 @@ import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 
 data class SettingPageState(
     val memberInfo: MemberInfoResponseModel = MemberInfoResponseModel(),
+    val userEmail: String = ""
 ) : PageState

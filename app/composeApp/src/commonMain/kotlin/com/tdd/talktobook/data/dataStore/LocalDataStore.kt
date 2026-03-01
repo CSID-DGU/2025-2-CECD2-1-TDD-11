@@ -22,6 +22,11 @@ class LocalDataStore(
             preferences[REFRESH_TOKEN_KEY]
         }
 
+    val userEmail: Flow<String?> =
+        dataStore.data.map { preferences ->
+            preferences[USER_EMAIL]
+        }
+
     val currentAutobiographyStatus: Flow<String?> =
         dataStore.data.map { preferences ->
             preferences[CURRENT_AUTOBIOGRAPHY_STATUS]
@@ -48,6 +53,13 @@ class LocalDataStore(
         dataStore.edit { preferences ->
             preferences[REFRESH_TOKEN_KEY] = token
             d("[dataStore] refresh token: $token")
+        }
+    }
+
+    suspend fun saveUserEmail(email: String) {
+        dataStore.edit { preferences ->
+            preferences[USER_EMAIL] = email
+            d("[dataStore] email: $email")
         }
     }
 
@@ -90,6 +102,7 @@ class LocalDataStore(
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        val USER_EMAIL = stringPreferencesKey("user_email")
 
         val CURRENT_AUTOBIOGRAPHY_STATUS = stringPreferencesKey("current_autobiography_status")
         val CURRENT_AUTOBIOGRAPHY_ID = intPreferencesKey("current_autobiography_id")
