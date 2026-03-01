@@ -39,6 +39,15 @@ fun setDateStringType(year: String, month: String, day: String): String =
         append(day.padStart(2, '0'))
     }
 
+fun setTimeStringType(hour: String, minute: String, second: String): String =
+    buildString {
+        append(hour.padStart(2, '0'))
+        append(':')
+        append(minute.padStart(2, '0'))
+        append(':')
+        append(second.padStart(2, '0'))
+    }
+
 // 윤년 계산
 private fun isLeapYear(year: Int): Boolean =
     (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)

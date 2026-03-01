@@ -2,7 +2,10 @@ package com.tdd.talktobook.feature.setting
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
+import com.tdd.talktobook.Platform
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.util.setDateStringType
+import com.tdd.talktobook.core.ui.util.setTimeStringType
 import com.tdd.talktobook.domain.entity.request.firestore.InquiryRequestModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
@@ -10,7 +13,12 @@ import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.firestore.PostInquiryUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
+import com.tdd.talktobook.getPlatform
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -75,13 +83,19 @@ class SettingViewModel(
     }
 
     fun setInquiryInput(inquiry: String) {
-        d("[테스트] $inquiry")
-        val inquiry = InquiryRequestModel("", inquiry, "")
+        val platform = getPlatform().name
+        val current = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+        val date = setDateStringType(current.year.toString(), current.monthNumber.toString(), current.dayOfMonth.toString())
+        val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
 
-        viewModelScope.launch {
-            postInquiryUseCase(inquiry).collect { resultResponse(it, { id ->
-                d("[테스트] $id")
-            }) }
-        }
+        val inquiryData = InquiryRequestModel("", inquiry, platform, "$date $time")
+        d("[테스트] $inquiryData")
+
+//        viewModelScope.launch {
+//            postInquiryUseCase(inquiry).collect { resultResponse(it, { id ->
+//                d("[테스트] $id")
+//            }) }
+//        }
     }
 }

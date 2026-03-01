@@ -6,5 +6,5 @@ data class InquiryRequestModel (
     val userId: String = "",
     val message: String = "",
     val platform: String = "",
-    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
+    val createdAt: String = "",
 )
