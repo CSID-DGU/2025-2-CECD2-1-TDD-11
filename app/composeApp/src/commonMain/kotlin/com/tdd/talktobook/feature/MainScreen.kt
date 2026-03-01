@@ -255,16 +255,13 @@ fun MainScreen() {
                             navController = navController,
                             showOneBtnDialog = showOneBtnDialog,
                             showInquiryInputBottomSheet = showTextFieldBottomSheet,
-                            showFeedbackInputBottomSheet = showTextFieldBottomSheet
+                            showFeedbackInputBottomSheet = showTextFieldBottomSheet,
+                            showInquiryToastMsg = showToastMessage,
+                            showFeedbackToastMsg = showToastMessage
                         )
                     }
                 }
             }
-
-            ToastHost(
-                state = toastState,
-                modifier = Modifier.fillMaxSize(),
-            )
 
             if (isSheetVisible) {
                 ModalBottomSheet(
@@ -321,6 +318,11 @@ fun MainScreen() {
                     }
                 }
             }
+
+            ToastHost(
+                state = toastState,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }

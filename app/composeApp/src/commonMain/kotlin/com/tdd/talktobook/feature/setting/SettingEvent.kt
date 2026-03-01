@@ -4,6 +4,6 @@ import com.tdd.talktobook.core.ui.base.Event
 
 sealed class SettingEvent : Event {
     data object GoToLogInPage : SettingEvent()
-
-    data object ShowDeleteUserDialog : SettingEvent()
+    data object ShowInquiryToast : SettingEvent()
+    data object ShowFeedbackToast : SettingEvent()
 }

@@ -113,7 +113,8 @@ class SettingViewModel(
         viewModelScope.launch {
             postInquiryUseCase(inquiryData).collect {
                 resultResponse(it, { id ->
-                    d("[테스트] $id")
+                    d("[fireStore] inquiry $id")
+                    emitEventFlow(SettingEvent.ShowInquiryToast)
                 })
             }
         }
@@ -129,12 +130,12 @@ class SettingViewModel(
         val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
 
         val feedbackData = FireStoreRequestModel(userEmail, feedback, platform, "$date $time")
-        d("[테스트] $feedbackData")
 
         viewModelScope.launch {
             postFeedbackUseCase(feedbackData).collect {
                 resultResponse(it, { id ->
-                    d("[테스트] $id")
+                    d("[fireStore] feedback $id")
+                    emitEventFlow(SettingEvent.ShowFeedbackToast)
                 })
             }
         }

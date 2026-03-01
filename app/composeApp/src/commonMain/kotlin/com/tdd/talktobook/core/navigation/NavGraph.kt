@@ -248,7 +248,9 @@ fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
     showOneBtnDialog: (OneBtnDialogModel) -> Unit,
     showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
-    showFeedbackInputBottomSheet: (TextFieldBottomSheetModel) -> Unit
+    showInquiryToastMsg: (String, ToastType) -> Unit,
+    showFeedbackInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showFeedbackToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
@@ -260,7 +262,9 @@ fun NavGraphBuilder.settingNavGraph(
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 showDeleteUserDialog = showOneBtnDialog,
                 showInquiryInputBottomSheet = showInquiryInputBottomSheet,
-                showFeedbackInputBottomSheet = showFeedbackInputBottomSheet
+                showInquiryToast = showInquiryToastMsg,
+                showFeedbackInputBottomSheet = showFeedbackInputBottomSheet,
+                showFeedbackToast = showFeedbackToastMsg
             )
         }
     }
