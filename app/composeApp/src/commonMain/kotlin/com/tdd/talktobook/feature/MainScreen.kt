@@ -254,7 +254,8 @@ fun MainScreen() {
                         settingNavGraph(
                             navController = navController,
                             showOneBtnDialog = showOneBtnDialog,
-                            showTextFieldBottomSheet = showTextFieldBottomSheet
+                            showInquiryInputBottomSheet = showTextFieldBottomSheet,
+                            showFeedbackInputBottomSheet = showTextFieldBottomSheet
                         )
                     }
                 }

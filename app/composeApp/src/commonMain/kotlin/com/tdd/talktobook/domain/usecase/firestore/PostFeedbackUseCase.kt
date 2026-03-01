@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Factory
 
 @Factory
-class PostInquiryUseCase(
-    private val repository: FireStoreRepository
-): UseCase<FireStoreRequestModel, Result<String>>() {
+class PostFeedbackUseCase(
+    private val repository: FireStoreRepository,
+) : UseCase<FireStoreRequestModel, Result<String>>() {
     override suspend fun invoke(request: FireStoreRequestModel): Flow<Result<String>> =
-        repository.postInquiry(request)
+        repository.postFeedback(request)
 }

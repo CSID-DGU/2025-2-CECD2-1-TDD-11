@@ -30,6 +30,8 @@ import com.tdd.talktobook.core.designsystem.BackGround4
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Confirm
+import com.tdd.talktobook.core.designsystem.Feedback
+import com.tdd.talktobook.core.designsystem.FeedbackHintText
 import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Inquiry
 import com.tdd.talktobook.core.designsystem.InquiryHintText
@@ -56,7 +58,8 @@ internal fun SettingScreen(
     goBackPage: () -> Unit,
     goToLogInPage: () -> Unit,
     showDeleteUserDialog: (OneBtnDialogModel) -> Unit,
-    showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit
+    showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showFeedbackInputBottomSheet: (TextFieldBottomSheetModel) -> Unit
 ) {
     val viewModel: SettingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -98,6 +101,9 @@ internal fun SettingScreen(
         appVersion = appVersion,
         onClickInquiry = {
             showInquiryInputBottomSheet(TextFieldBottomSheetModel(Inquiry, Confirm, InquiryHintText, onClickConfirmBtnAction = { viewModel.setInquiryInput(it) }))
+        },
+        onClickFeedback = {
+            showFeedbackInputBottomSheet(TextFieldBottomSheetModel(Feedback, Confirm, FeedbackHintText, onClickConfirmBtnAction = { viewModel.setFeedbackInput(it) }))
         }
     )
 }
@@ -111,7 +117,8 @@ private fun SettingContent(
     onClickLogOut: () -> Unit,
     onClickDelete: () -> Unit,
     appVersion: String,
-    onClickInquiry: () -> Unit
+    onClickInquiry: () -> Unit,
+    onClickFeedback: () -> Unit
 ) {
     Column(
         modifier =
@@ -147,9 +154,15 @@ private fun SettingContent(
         )
 
         ItemContentRow(
-            iconImgUrl = "files/ic_chat.svg",
+            iconImgUrl = "files/ic_send.svg",
             content = Inquiry,
             onClickNext = onClickInquiry
+        )
+
+        ItemContentRow(
+            iconImgUrl = "files/ic_pen.svg",
+            content = Feedback,
+            onClickNext = onClickFeedback
         )
 
         Text(

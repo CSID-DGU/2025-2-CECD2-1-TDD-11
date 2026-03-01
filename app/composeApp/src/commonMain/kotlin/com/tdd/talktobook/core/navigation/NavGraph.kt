@@ -247,7 +247,8 @@ fun NavGraphBuilder.publicationNavGraph(
 fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
     showOneBtnDialog: (OneBtnDialogModel) -> Unit,
-    showTextFieldBottomSheet: (TextFieldBottomSheetModel) -> Unit
+    showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showFeedbackInputBottomSheet: (TextFieldBottomSheetModel) -> Unit
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
@@ -258,7 +259,8 @@ fun NavGraphBuilder.settingNavGraph(
                 goBackPage = { navController.popBackStack() },
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 showDeleteUserDialog = showOneBtnDialog,
-                showInquiryInputBottomSheet = showTextFieldBottomSheet
+                showInquiryInputBottomSheet = showInquiryInputBottomSheet,
+                showFeedbackInputBottomSheet = showFeedbackInputBottomSheet
             )
         }
     }

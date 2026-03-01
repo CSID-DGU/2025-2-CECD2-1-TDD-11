@@ -20,4 +20,19 @@ class FireBaseDataStore(
 
         return document.id
     }
+
+    suspend fun postFeedback(
+        userId: String, message: String, platform: String, createdAt: String,
+    ): String {
+        val document = fireStore.collection("feedbacks").add(
+            mapOf(
+                "userId" to userId,
+                "message" to message,
+                "platform" to platform,
+                "createdAt" to createdAt,
+            )
+        )
+
+        return document.id
+    }
 }

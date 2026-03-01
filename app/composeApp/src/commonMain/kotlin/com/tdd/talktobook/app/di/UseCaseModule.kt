@@ -33,6 +33,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.firestore.PostFeedbackUseCase
 import com.tdd.talktobook.domain.usecase.firestore.PostInquiryUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetCoShowInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
@@ -123,6 +124,7 @@ val useCaseModule =
 
         // FireStore
         factory { PostInquiryUseCase(get()) }
+        factory { PostFeedbackUseCase(get()) }
 
         // AI
         // Interview

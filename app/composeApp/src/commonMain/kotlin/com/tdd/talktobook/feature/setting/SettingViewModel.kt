@@ -2,22 +2,21 @@ package com.tdd.talktobook.feature.setting
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
-import com.tdd.talktobook.Platform
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.core.ui.util.setDateStringType
 import com.tdd.talktobook.core.ui.util.setTimeStringType
-import com.tdd.talktobook.domain.entity.request.firestore.InquiryRequestModel
+import com.tdd.talktobook.domain.entity.request.firestore.FireStoreRequestModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.talktobook.domain.usecase.auth.GetUserEmailUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
+import com.tdd.talktobook.domain.usecase.firestore.PostFeedbackUseCase
 import com.tdd.talktobook.domain.usecase.firestore.PostInquiryUseCase
 import com.tdd.talktobook.domain.usecase.member.GetMemberInfoUseCase
 import com.tdd.talktobook.getPlatform
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
@@ -25,14 +24,15 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class SettingViewModel(
     private val getMemberInfoUseCase: GetMemberInfoUseCase,
+    private val getUserEmailUseCase: GetUserEmailUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
     private val postInquiryUseCase: PostInquiryUseCase,
-    private val getUserEmailUseCase: GetUserEmailUseCase
+    private val postFeedbackUseCase: PostFeedbackUseCase,
 ) : BaseViewModel<SettingPageState>(
-        SettingPageState(),
-    ) {
+    SettingPageState(),
+) {
     init {
         initSetMemberInfo()
         initGetUserEmail()
@@ -108,13 +108,35 @@ class SettingViewModel(
         val date = setDateStringType(current.year.toString(), current.monthNumber.toString(), current.dayOfMonth.toString())
         val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
 
-        val inquiryData = InquiryRequestModel(userEmail, inquiry, platform, "$date $time")
-        d("[테스트] $inquiryData")
+        val inquiryData = FireStoreRequestModel(userEmail, inquiry, platform, "$date $time")
 
         viewModelScope.launch {
-            postInquiryUseCase(inquiryData).collect { resultResponse(it, { id ->
-                d("[테스트] $id")
-            }) }
+            postInquiryUseCase(inquiryData).collect {
+                resultResponse(it, { id ->
+                    d("[테스트] $id")
+                })
+            }
+        }
+    }
+
+    fun setFeedbackInput(feedback: String) {
+        val userEmail = uiState.value.userEmail
+        val platform = getPlatform().name
+
+        val current = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+        val date = setDateStringType(current.year.toString(), current.monthNumber.toString(), current.dayOfMonth.toString())
+        val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
+
+        val feedbackData = FireStoreRequestModel(userEmail, feedback, platform, "$date $time")
+        d("[테스트] $feedbackData")
+
+        viewModelScope.launch {
+            postFeedbackUseCase(feedbackData).collect {
+                resultResponse(it, { id ->
+                    d("[테스트] $id")
+                })
+            }
         }
     }
 }

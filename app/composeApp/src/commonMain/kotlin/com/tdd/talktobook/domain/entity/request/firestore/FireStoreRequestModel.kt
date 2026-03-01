@@ -1,8 +1,6 @@
 package com.tdd.talktobook.domain.entity.request.firestore
 
-import kotlinx.datetime.Clock
-
-data class InquiryRequestModel (
+data class FireStoreRequestModel (
     val userId: String = "",
     val message: String = "",
     val platform: String = "",
