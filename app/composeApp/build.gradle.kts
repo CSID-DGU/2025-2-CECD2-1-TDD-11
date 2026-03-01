@@ -51,7 +51,8 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
-            implementation(libs.firebase.analytics)
+//            implementation(libs.firebase.analytics)
+//            implementation("com.google.firebase:firebase-common-ktx")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
