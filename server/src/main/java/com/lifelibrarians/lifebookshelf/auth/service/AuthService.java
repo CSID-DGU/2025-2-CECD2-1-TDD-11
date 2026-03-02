@@ -92,8 +92,22 @@ public class AuthService {
             throw AuthExceptionStatus.INVALID_AUTH_CODE.toServiceException();
         }
 
-        log.info("[VERIFY_EMAIL] 인증 코드 일치 - 임시 계정으로 회원 생성 진행");
+        log.info("[VERIFY_EMAIL] 인증 코드 일치");
 
+        Optional<Member> existingMember = memberRepository.findByEmail(email);
+        if (existingMember.isPresent() && existingMember.get().getDeletedAt() != null) {
+            // 탈퇴 회원 복구 (재가입)
+            Member member = existingMember.get();
+            member.restore();
+            member.getPasswordMember().updatePassword(temporaryUser.getPassword());
+            memberRepository.save(member);
+            passwordMemberRepository.save(member.getPasswordMember());
+            temporaryUserStore.remove(email);
+            log.info("[VERIFY_EMAIL] 탈퇴 회원 재가입 완료 - memberId: {}", member.getId());
+            return;
+        }
+
+        // 신규 회원 생성
         LocalDateTime now = LocalDateTime.now();
 		PasswordMember passwordMember = PasswordMember.of(temporaryUser.getPassword());
 		passwordMemberRepository.save(passwordMember);
@@ -110,7 +124,32 @@ public class AuthService {
 		member.addPasswordMember(passwordMember);
 		memberRepository.save(member);
 		temporaryUserStore.remove(email);
-		log.info("[VERIFY_EMAIL] 이메일 인증 완료 - memberId: {}, email: {}", member.getId(), member.getEmail());
+		log.info("[VERIFY_EMAIL] 신규 회원 가입 완료 - memberId: {}, email: {}", member.getId(), member.getEmail());
+	}
+
+	public void rejoinEmail(EmailRegisterRequestDto requestDto) {
+		log.info("[REJOIN_EMAIL] 재가입 시작 - email: {}", requestDto.getEmail());
+
+		Member member = memberRepository.findByEmail(requestDto.getEmail())
+				.orElseThrow(AuthExceptionStatus.MEMBER_NOT_FOUND::toServiceException);
+
+		if (member.getDeletedAt() == null) {
+			log.warn("[REJOIN_EMAIL] 탈퇴하지 않은 회원 - email: {}", requestDto.getEmail());
+			throw AuthExceptionStatus.MEMBER_ALREADY_EXISTS.toServiceException();
+		}
+
+		String code = generateVerificationCode();
+		emailService.sendVerificationCode(requestDto.getEmail(), code);
+
+		TemporaryUser temporaryUser = TemporaryUser.builder()
+				.email(requestDto.getEmail())
+				.password(requestDto.getPassword())
+				.code(code)
+				.expiresAt(LocalDateTime.now().plusMinutes(5))
+				.build();
+		temporaryUserStore.save(requestDto.getEmail(), temporaryUser);
+
+		log.info("[REJOIN_EMAIL] 재가입 인증 코드 발송 완료 - email: {}, code: {}", requestDto.getEmail(), code);
 	}
 
     public JwtLoginTokenDto loginEmail(EmailLoginRequestDto requestDto) {

@@ -178,4 +178,29 @@ public class AuthController {
     ) {
         authService.unregister(memberSessionDto.getMemberId());
     }
+
+    @Operation(summary = "이메일 재가입", description = "탈퇴한 회원이 재가입을 요청합니다. 인증번호를 발송합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "accepted")
+    })
+    @ApiErrorCodeExample(
+            authExceptionStatuses = {
+                    AuthExceptionStatus.INVALID_EMAIL_FORMAT,
+                    AuthExceptionStatus.EMAIL_TOO_LONG,
+                    AuthExceptionStatus.PASSWORD_FORMAT_ERROR,
+                    AuthExceptionStatus.MEMBER_NOT_FOUND,
+                    AuthExceptionStatus.MEMBER_ALREADY_EXISTS
+            }
+    )
+    @PostMapping(value = "/email-rejoin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @OneWayEncryption({
+            @TargetMapping(clazz = EmailRegisterRequestDto.class, fields = {
+                    EmailRegisterRequestDto.Fields.password})
+    })
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void rejoinEmail(
+            @Valid @ModelAttribute EmailRegisterRequestDto requestDto
+    ) {
+        authService.rejoinEmail(requestDto);
+    }
 }

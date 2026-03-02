@@ -227,5 +227,9 @@ public class Member {
 	public boolean isAdmin() {
 		return this.role == MemberRole.ADMIN;
 	}
-	/* } 연관 관계 편의 메서드 */
+
+    public void restore() {
+        this.deletedAt = null;
+    }
+    /* } 연관 관계 편의 메서드 */
 }
