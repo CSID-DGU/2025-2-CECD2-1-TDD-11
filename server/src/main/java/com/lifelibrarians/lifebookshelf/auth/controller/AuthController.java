@@ -91,7 +91,8 @@ public class AuthController {
                     AuthExceptionStatus.PASSWORD_FORMAT_ERROR,
                     AuthExceptionStatus.EMAIL_OR_PASSWORD_INCORRECT,
                     AuthExceptionStatus.EMAIL_NOT_VERIFIED,
-                    AuthExceptionStatus.MEMBER_NOT_FOUND
+                    AuthExceptionStatus.MEMBER_NOT_FOUND,
+                    AuthExceptionStatus.MEMBER_ALREADY_WITHDRAWN
             }
     )
     @PostMapping(value = "/email-login", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
