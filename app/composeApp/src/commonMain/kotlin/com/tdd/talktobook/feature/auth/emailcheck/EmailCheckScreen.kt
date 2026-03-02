@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -23,9 +24,11 @@ import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.CodeHintText
+import com.tdd.talktobook.core.designsystem.CodeResendBtnText
 import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.EmailCheckText
 import com.tdd.talktobook.core.designsystem.Main1
+import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.DisEnabledTextFieldBox
@@ -42,7 +45,6 @@ internal fun EmailCheckScreen(
 ) {
     val viewModel: EmailCheckViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val codeExpiredTime by viewModel.codeExpiredTime.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -68,7 +70,9 @@ internal fun EmailCheckScreen(
         codeInput = uiState.codeInput,
         onCodeValueChange = { newValue -> viewModel.onCodeValueChange(newValue) },
         onClickBackBtn = onClickBackBtn,
-        codeExpiredTime = codeExpiredTime
+        codeExpiredTime = uiState.codeExpiredTime,
+        isCodeExpired = uiState.isCodeExpired,
+        onClickResendCodeBtn = { viewModel.resendCode() }
     )
 }
 
@@ -81,7 +85,9 @@ fun EmailCheckContent(
     codeInput: String,
     onCodeValueChange: (String) -> Unit,
     onClickBackBtn: () -> Unit,
-    codeExpiredTime: String
+    codeExpiredTime: String,
+    isCodeExpired: Boolean = false,
+    onClickResendCodeBtn: () -> Unit
 ) {
     Column(
         modifier =
@@ -133,10 +139,18 @@ fun EmailCheckContent(
             clickEnabled = false,
             paddingEnd = 24,
             textContent = codeExpiredTime,
-            textColor = Main1
+            textColor = if (isCodeExpired) Red1 else Main1
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
+        RectangleBtn(
+            btnContent = CodeResendBtnText,
+            isBtnActivated = isCodeExpired,
+            onClickAction = onClickResendCodeBtn
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         RectangleBtn(
             btnContent = Confirm,

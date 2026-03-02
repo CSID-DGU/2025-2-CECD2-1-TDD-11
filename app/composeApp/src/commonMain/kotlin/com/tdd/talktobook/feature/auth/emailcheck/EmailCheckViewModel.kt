@@ -3,16 +3,12 @@ package com.tdd.talktobook.feature.auth.emailcheck
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.ExpiredMinute
-import com.tdd.talktobook.core.designsystem.FiveMinute
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.core.ui.util.setTimeSecondType
 import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -22,9 +18,6 @@ class EmailCheckViewModel(
 ) : BaseViewModel<EmailCheckPageState>(
         EmailCheckPageState(),
     ) {
-
-    private val _codeExpiredTime = MutableStateFlow(FiveMinute)
-    val codeExpiredTime: StateFlow<String> = _codeExpiredTime.asStateFlow()
 
     private var timerJob: Job? = null
 
@@ -67,17 +60,36 @@ class EmailCheckViewModel(
         timerJob =
             viewModelScope.launch {
                 var remain = totalSeconds
-                _codeExpiredTime.value = setTimeSecondType(remain)
+                updateState { state ->
+                    state.copy(
+                        codeExpiredTime = setTimeSecondType(remain),
+                        isCodeExpired = false
+                    )
+                }
 
                 while (remain > 0) {
                     delay(1000L)
                     remain -= 1
-                    _codeExpiredTime.value = setTimeSecondType(remain)
+                    updateState { state ->
+                        state.copy(
+                            codeExpiredTime = setTimeSecondType(remain)
+                        )
+                    }
                 }
 
-                _codeExpiredTime.value = ExpiredMinute
-                // TODO 시간 완료 시 이벤트
+                updateState { state ->
+                    state.copy(
+                        codeExpiredTime = ExpiredMinute,
+                        isCodeExpired = true
+                    )
+                }
             }
+    }
+
+    fun resendCode() {
+        startCodeExpiredTimer(5 * 60)
+
+        // TODO 인증번호 재발급 서버통신
     }
 
     override fun onCleared() {
