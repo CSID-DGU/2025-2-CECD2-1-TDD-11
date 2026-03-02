@@ -67,6 +67,7 @@ class SignUpViewModel(
                     when (error) {
                         is ApiException -> {
                             d("[ktor] sign up error -> code=${error.status}, msg=${error.msg}")
+                            setSignUpErrorMessage(error.msg)
                             emitEventFlow(SignUpEvent.ShowMemberExistToast)
                         }
                         else -> {
@@ -76,6 +77,14 @@ class SignUpViewModel(
                     }
                 })
             }
+        }
+    }
+
+    private fun setSignUpErrorMessage(message: String) {
+        updateState { state ->
+            state.copy(
+                signUpErrorMsg = message
+            )
         }
     }
 

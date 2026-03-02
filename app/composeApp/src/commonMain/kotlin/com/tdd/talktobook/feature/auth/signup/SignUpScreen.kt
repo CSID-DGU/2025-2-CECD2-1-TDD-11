@@ -56,7 +56,7 @@ internal fun SignUpScreen(
                 }
 
                 is SignUpEvent.ShowMemberExistToast -> {
-                    showToastMsg(SignUpMemberExistAlready, ToastType.INFO)
+                    showToastMsg(uiState.signUpErrorMsg, ToastType.INFO)
                 }
 
                 is SignUpEvent.ShowServerErrorToast -> {

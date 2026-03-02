@@ -7,4 +7,5 @@ data class SignUpPageState(
     val passwordInput: String = "",
     val isEmailValid: Boolean = true,
     val isPasswordValid: Boolean = true,
+    val signUpErrorMsg: String = ""
 ) : PageState
