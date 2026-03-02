@@ -10,4 +10,8 @@ import lombok.experimental.FieldNameConstants;
 public class JwtLoginTokenDto {
 
 	private String accessToken;
+	private String refreshToken;
+	private Boolean metadataSuccessed;
+	private Boolean isWithdrawn;
+	private String withdrawnAt;
 }

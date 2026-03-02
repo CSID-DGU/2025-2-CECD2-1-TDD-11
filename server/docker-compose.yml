@@ -1,13 +1,11 @@
-version: "3"
-
 services:
   mariadb:
     image: mariadb:latest
     restart: always
     environment:
-      MARIADB_USER: lifebookshelf
+      MARIADB_USER: talktobook
       MARIADB_PASSWORD: password
-      MARIADB_DATABASE: lifebookshelf
+      MARIADB_DATABASE: talktobook
       MARIADB_ROOT_PASSWORD: password
       MYSQL_TCP_PORT: 3306
       MYSQL_UNIX_PORT: 3306
@@ -23,11 +21,27 @@ services:
           "-h",
           "localhost",
           "-u",
-          "lifebookshelf",
+          "talktobook",
           "-ppassword",
         ]
       timeout: 20s
       retries: 10
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - 6381:6379
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: talktobook
+      RABBITMQ_DEFAULT_PASS: talktobook_password
+    ports:
+      - 5672:5672
+      - 15672:15672
 
   localstack:
     container_name: localstack

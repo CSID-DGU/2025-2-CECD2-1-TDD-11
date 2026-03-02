@@ -10,13 +10,6 @@ public class MemberUpdateValidator implements
 	@Override
 	public boolean isValid(MemberUpdateRequestDto value,
 			ConstraintValidatorContext context) {
-
-		if (value.getName() == null || value.getName().isEmpty() || value.getName().length() > 64) {
-			context.buildConstraintViolationWithTemplate(
-							"MEMBER001")
-					.addConstraintViolation();
-			return false;
-		}
 		return true;
 	}
 }

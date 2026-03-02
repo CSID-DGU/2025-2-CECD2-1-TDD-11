@@ -1,6 +1,7 @@
 package com.lifelibrarians.lifebookshelf.config;
 
 import com.lifelibrarians.lifebookshelf.auth.jwt.JwtAuthenticationConverter;
+import com.lifelibrarians.lifebookshelf.auth.jwt.JwtRedisValidator;
 import com.lifelibrarians.lifebookshelf.auth.jwt.MemberSessionAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,22 @@ public class SecurityConfig {
 	private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAuthenticationConverter jwtAuthenticationConverter;
 	private final JwtDecoder jwtDecoder;
-	@Value("${swagger.base-url}")
-	private String baseUrl;
+	private final JwtRedisValidator jwtRedisValidator;
+
+    @Value("${security.cors.domain}")
+    private String corsDomain;
+
+    @Value("${security.cors.ip}")
+    private String corsIp;
+
+    @Value("${security.cors.web}")
+    private String corsWeb;
+
+    @Value("${security.cors.android}")
+    private String corsAndroid;
+
+    @Value("${security.cors.ios}")
+    private String corsIos;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -62,7 +77,7 @@ public class SecurityConfig {
 				.and()
 				.formLogin().disable()
 					.addFilterAfter(
-							new MemberSessionAuthenticationFilter(), BearerTokenAuthenticationFilter.class
+							new MemberSessionAuthenticationFilter(jwtRedisValidator), BearerTokenAuthenticationFilter.class
 					)
 				.build();
 //      @formatter:on
@@ -71,7 +86,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of(baseUrl, "http://localhost:5173", "https://d20gwkzm359by4.cloudfront.net", "https://www.1half.co.kr", "https://1half.co.kr"));
+		configuration.setAllowedOrigins(List.of(corsDomain, corsIp, corsWeb, corsAndroid, corsIos));
 		configuration.addAllowedHeader("*");
 		configuration.addAllowedMethod("*");
 		configuration.setAllowCredentials(true);

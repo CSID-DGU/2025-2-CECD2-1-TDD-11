@@ -4,6 +4,8 @@ import com.lifelibrarians.lifebookshelf.autobiography.domain.Autobiography;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import com.lifelibrarians.lifebookshelf.autobiography.domain.AutobiographyStatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,16 +18,26 @@ public interface AutobiographyRepository extends JpaRepository<Autobiography, Lo
 	@Query("SELECT a FROM Autobiography a JOIN FETCH a.chapter WHERE a.member.id = :memberId")
 	List<Autobiography> findByMemberId(Long memberId);
 
-	@Query("SELECT a FROM Autobiography a JOIN FETCH a.chapter WHERE a.chapter.id = :chapterId")
-	Optional<Autobiography> findByChapterId(Long chapterId);
-
 	@Query("SELECT a FROM Autobiography a JOIN FETCH a.autobiographyInterviews WHERE a.id = :autobiographyId")
 	Optional<Autobiography> findWithInterviewById(Long autobiographyId);
 
 	@Query("SELECT a FROM Autobiography a JOIN FETCH a.autobiographyInterviews WHERE a.member.id = :memberId")
 	List<Autobiography> findWithInterviewByMemberId(Long memberId);
 
-	// 관리자용 검색 및 필터링 쿼리
+    // autobiography status를 여러 개 선택해서 필터링하여 페이지네이션으로 조회
+    @Query(
+            value = "SELECT a FROM Autobiography a JOIN a.autobiographyStatus s " +
+                    "WHERE a.member.id = :memberId " +
+                    "AND s.status IN :statuses",
+            countQuery = "SELECT COUNT(a) FROM Autobiography a JOIN a.autobiographyStatus s " +
+                    "WHERE a.member.id = :memberId " +
+                    "AND s.status IN :statuses"
+    )
+    Page<Autobiography> findByMemberIdAndStatusesPaged(@Param("memberId") Long memberId,
+                                                       @Param("statuses") List<AutobiographyStatusType> statuses,
+                                                       Pageable pageable);
+
+    // 관리자용 검색 및 필터링 쿼리
 	@Query("SELECT a FROM Autobiography a " +
 			"WHERE (:search = '' OR LOWER(a.title) LIKE LOWER(CONCAT('%', :search, '%'))) " +
 			"AND (:hasCoverImage IS NULL OR " +

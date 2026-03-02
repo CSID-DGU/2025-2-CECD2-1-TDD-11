@@ -2,12 +2,16 @@ package com.lifelibrarians.lifebookshelf.interview.controller;
 
 import com.lifelibrarians.lifebookshelf.auth.dto.MemberSessionDto;
 import com.lifelibrarians.lifebookshelf.auth.jwt.LoginMemberInfo;
-import com.lifelibrarians.lifebookshelf.exception.status.AutobiographyExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.annotation.ApiErrorCodeExample;
-import com.lifelibrarians.lifebookshelf.interview.dto.request.InterviewConversationCreateRequestDto;
+import com.lifelibrarians.lifebookshelf.exception.status.CommonExceptionStatus;
+import com.lifelibrarians.lifebookshelf.interview.dto.request.CoShowChatInterviewRequestDto;
+import com.lifelibrarians.lifebookshelf.interview.dto.response.CoShowChatInterviewResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionResponseDto;
+
 import com.lifelibrarians.lifebookshelf.exception.status.InterviewExceptionStatus;
+
+import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewSummaryOfMonthResponseDto;
 import com.lifelibrarians.lifebookshelf.interview.service.InterviewFacadeService;
 import com.lifelibrarians.lifebookshelf.log.Logging;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,23 +19,18 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/interviews")
+@RequestMapping("api/v2/interviews")
 @Tag(name = "인터뷰 (Interview)", description = "인터뷰 관련 API")
 @Logging
 public class InterviewController {
@@ -79,47 +78,59 @@ public class InterviewController {
 		return interviewFacadeService.getQuestions(memberSessionDto.getMemberId(), interviewId);
 	}
 
-	@Operation(summary = "챗봇과의 대화 내역 전송 요청", description = "챗봇과의 대화 내역을 전송합니다.")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "created"),
-	})
-	@ApiErrorCodeExample(
-			interviewExceptionStatuses = {
-					InterviewExceptionStatus.INTERVIEW_NOT_FOUND,
-					InterviewExceptionStatus.INTERVIEW_NOT_OWNER,
-					InterviewExceptionStatus.INTERVIEW_MAX_CONVERSATIONS_EXCEEDED,
-					InterviewExceptionStatus.INTERVIEW_CONTENT_LENGTH_EXCEEDED
-			}
-	)
-	@PreAuthorize("isAuthenticated()")
-	@PostMapping("/{interviewId}/conversations")
-	@ResponseStatus(HttpStatus.CREATED)
-	public void sendConversation(
-			@LoginMemberInfo MemberSessionDto memberSessionDto,
-			@PathVariable("interviewId") @Parameter(description = "인터뷰 ID", example = "1") Long interviewId,
-			@Valid @RequestBody InterviewConversationCreateRequestDto requestDto
-	) {
-		interviewFacadeService.createConversations(memberSessionDto.getMemberId(), interviewId,
-				requestDto);
-	}
+    @Operation(summary = "특정 날짜의 인터뷰 요약 조회", description = "달-일 별로 summary한 conversations(사용자응답)의 갯수와 요약본을 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            commonExceptionStatuses = {
+                    CommonExceptionStatus.INVALID_YEAR,
+                    CommonExceptionStatus.INVALID_MONTH,
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{autobiographyId}/interviews/summaries")
+    public InterviewSummaryOfMonthResponseDto getInterviewSummaries(
+            @LoginMemberInfo MemberSessionDto memberSessionDto,
+            @PathVariable ("autobiographyId") @Parameter(description = "자서전 ID", example = "1") Long autobiographyId,
+            @RequestParam("year") @Parameter(description = "년도", example = "2024") Integer year,
+            @RequestParam("month") @Parameter(description = "월", example = "12") Integer month
+    ) {
+        return interviewFacadeService.getInterviewSummaries(memberSessionDto.getMemberId(), autobiographyId, year, month);
+    }
 
-	@Operation(summary = "현재 진행중인 인터뷰 질문을 다음 질문으로 갱신 요청", description = "현재 진행중인 인터뷰 질문을 다음 질문으로 갱신합니다.")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "ok"),
-	})
-	@ApiErrorCodeExample(
-			interviewExceptionStatuses = {
-					InterviewExceptionStatus.INTERVIEW_NOT_FOUND,
-					InterviewExceptionStatus.INTERVIEW_NOT_OWNER,
-					InterviewExceptionStatus.NEXT_INTERVIEW_QUESTION_NOT_FOUND,
-			}
-	)
-	@PreAuthorize("isAuthenticated()")
-	@PostMapping("/{interviewId}/questions/current-question")
-	public void updateCurrentQuestion(
-			@LoginMemberInfo MemberSessionDto memberSessionDto,
-			@PathVariable("interviewId") @Parameter(description = "인터뷰 ID", example = "1") Long interviewId
-	) {
-		interviewFacadeService.updateCurrentQuestion(memberSessionDto.getMemberId(), interviewId);
-	}
+    // --------------------------------------------------------
+    @Operation(summary = "3. Co-Show 다음 인터뷰 질문 응답", description = "Co-Show - isLast가 true가 되기 전까지 응답을 보내주세요. true가 되면 Co-Show 4번 최종 자서전 생성 요청을 해주세요.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            interviewExceptionStatuses = {
+                    InterviewExceptionStatus.INTERVIEW_NOT_FOUND,
+            }
+    )
+    @PostMapping(value = "/{interviewId}/co-show/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CoShowChatInterviewResponseDto getCoShowInterviewQuestions(
+            @PathVariable ("interviewId") @Parameter(description = "인터뷰 ID", example = "1") Long interviewId,
+            @Valid @ModelAttribute CoShowChatInterviewRequestDto requestDto) {
+        return interviewFacadeService.getCoShowInterviewQuestions(interviewId, requestDto);
+    }
+
+    @Operation(summary = "2. Co-Show 채팅 인터뷰 대화 조회", description = "Co-Show용 - 선택한 interviewId에 대한 대화 기록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok"),
+    })
+    @ApiErrorCodeExample(
+            interviewExceptionStatuses = {
+                    InterviewExceptionStatus.INTERVIEW_NOT_FOUND,
+            }
+    )
+    @GetMapping("/{interviewId}/co-show/conversations")
+    public InterviewConversationResponseDto coShowGetConversations(
+            @PathVariable ("interviewId") @Parameter(description = "인터뷰 ID", example = "1") Long interviewId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        return interviewFacadeService.coShowGetConversations(interviewId, PageRequest.of(page, size));
+    }
 }

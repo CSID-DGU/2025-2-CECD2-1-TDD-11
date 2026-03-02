@@ -1,0 +1,38 @@
+package com.tdd.talktobook.data.mapper.interview
+
+import com.tdd.talktobook.data.base.BaseMapper
+import com.tdd.talktobook.data.entity.response.interview.InterviewConversationResponseDto
+import com.tdd.talktobook.domain.entity.enums.ChatType
+import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
+import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.flow.Flow
+
+object GetInterviewConversationMapper : BaseMapper() {
+    fun responseToModel(apiCall: suspend () -> HttpResponse): Flow<Result<InterviewConversationListModel>> {
+        return baseMapper(
+            apiCall = { apiCall() },
+            successDeserializer = InterviewConversationResponseDto.serializer(),
+            responseToModel = { response ->
+                response?.let { data ->
+                    InterviewConversationListModel(
+                        results =
+                            data.results.map { result ->
+                                InterviewChatItem(
+                                    conversationId = result.conversationId,
+                                    content = result.content,
+                                    chatType = ChatType.getType(result.conversationType),
+                                    createdAt = result.createdAt,
+                                )
+                            },
+                        currentPage = data.currentPage,
+                        totalElements = data.totalElements,
+                        totalPages = data.totalPages,
+                        hasNextPage = data.hasNextPage,
+                        hasPreviousPage = data.hasPreviousPage,
+                    )
+                } ?: InterviewConversationListModel()
+            },
+        )
+    }
+}

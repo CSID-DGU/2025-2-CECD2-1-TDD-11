@@ -89,4 +89,6 @@ public class PublicationQueryService {
 		return bookRepository.findById(bookId)
 				.orElseThrow(CommunityExceptionStatus.BOOK_NOT_FOUND::toServiceException);
 	}
+
+    // CoShow용 S3 pdf 조회
 }

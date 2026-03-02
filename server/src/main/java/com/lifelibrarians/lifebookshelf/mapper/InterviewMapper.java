@@ -1,11 +1,10 @@
 package com.lifelibrarians.lifebookshelf.mapper;
 
 import com.lifelibrarians.lifebookshelf.interview.domain.Conversation;
+import com.lifelibrarians.lifebookshelf.interview.domain.Interview;
 import com.lifelibrarians.lifebookshelf.interview.domain.InterviewQuestion;
-import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationDto;
-import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewConversationResponseDto;
-import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionDto;
-import com.lifelibrarians.lifebookshelf.interview.dto.response.InterviewQuestionResponseDto;
+import com.lifelibrarians.lifebookshelf.interview.dto.response.*;
+
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,5 +32,9 @@ public interface InterviewMapper {
 	);
 
 	@Mapping(source = "interviewQuestion.id", target = "questionId")
-	InterviewQuestionDto toInterviewQuestionDto(InterviewQuestion interviewQuestion);
+    @Mapping(source = "interviewQuestion.questionOrder", target = "questionOrder")
+    InterviewQuestionDto toInterviewQuestionDto(InterviewQuestion interviewQuestion);
+
+    @Mapping(source = "interview.id", target = "id")
+    InterviewSummaryOfMonthResponseDto.InterviewSummaryDto toInterviewSummaryDto(Interview interview, int totalMessageCount, int totalAnswerCount, String date);
 }

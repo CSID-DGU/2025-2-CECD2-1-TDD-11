@@ -12,4 +12,8 @@ public interface InterviewQuestionRepository extends JpaRepository<InterviewQues
 
 	@Query("SELECT iq FROM InterviewQuestion iq WHERE iq.interview.id = :interviewId")
 	List<InterviewQuestion> findAllByInterviewId(Long interviewId);
+
+    // interviewId와 questionOrder로 InterviewQuestion 찾기
+    @Query("SELECT iq FROM InterviewQuestion iq WHERE iq.interview.id = :interviewId AND iq.questionOrder = :questionOrder")
+    Optional<InterviewQuestion> findByInterviewIdAndQuestionOrder(Long interviewId, Integer questionOrder);
 }

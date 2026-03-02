@@ -1,7 +1,6 @@
 package com.lifelibrarians.lifebookshelf.exception;
 
 import com.lifelibrarians.lifebookshelf.exception.status.ErrorReason;
-import com.lifelibrarians.lifebookshelf.exception.status.ErrorReason.ErrorReasonBuilder;
 import com.lifelibrarians.lifebookshelf.exception.status.ExceptionStatus;
 import com.lifelibrarians.lifebookshelf.exception.status.ValidationExceptionStatusResolver;
 import java.util.Optional;
@@ -101,10 +100,10 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
 			return handleValidationExceptions((BindException) e);
 		}
 		String requestUri = request.getContextPath();
-		ErrorReasonBuilder errorReasonBuilder = ErrorReason.builder()
-				.statusCode(status.value())
-				.code("SPRINGMVC")
-				.message(e.getLocalizedMessage());
+        var errorReasonBuilder = ErrorReason.builder()
+                .statusCode(status.value())
+                .code("SPRINGMVC")
+                .message(e.getLocalizedMessage());
 		ErrorReason errorReason;
 
 		if (status.is5xxServerError()) {

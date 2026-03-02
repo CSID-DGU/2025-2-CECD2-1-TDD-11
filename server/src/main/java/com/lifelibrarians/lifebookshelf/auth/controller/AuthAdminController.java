@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ import javax.validation.Valid;
 @RequestMapping("api/admin/auth")
 @Tag(name = "관리자 인증 (admin-auth-api)", description = "관리자 전용 인증 관련 API")
 @Logging
+@FieldNameConstants
 public class AuthAdminController {
 
     private final AuthAdminService authAdminService;

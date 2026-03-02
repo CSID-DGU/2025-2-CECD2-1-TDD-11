@@ -62,12 +62,13 @@ public class AutobiographyAdminQueryService {
                 sortedPageRequest
         );
 
-        Page<AutobiographyPreviewDto> autobiographyPreviewDtos = autobiographies.map(autobiography -> 
-                autobiographyMapper.toAutobiographyPreviewDto(
-                        autobiography,
-                        autobiography.getChapter().getId(),
-                        autobiography.getAutobiographyInterviews().get(0).getId()
-                ));
+        Page<AutobiographyPreviewDto> autobiographyPreviewDtos =
+                autobiographies.map(a ->
+                        autobiographyMapper.toAutobiographyPreviewDto(
+                                a,
+                                a.getAutobiographyStatus() // fetch join 덕분에 이미 로딩됨
+                        )
+                );
 
         return AutobiographyListResponseDto.fromPage(autobiographyPreviewDtos);
     }

@@ -1,0 +1,100 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infrastructure.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infrastructure.yml'
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: 'Stack to deploy'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - server
+        - ai
+        - stream
+
+env:
+  AWS_REGION: ap-northeast-2
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: infrastructure/package-lock.json
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install CDK dependencies
+        working-directory: infrastructure
+        run: npm ci
+
+      - name: CDK Bootstrap
+        working-directory: infrastructure
+        run: npx cdk bootstrap
+
+      - name: Deploy All Stacks
+        if: github.event.inputs.stack == 'all' || github.event.inputs.stack == ''
+        working-directory: infrastructure
+        env:
+          KEY_PAIR_NAME: ${{ secrets.KEY_PAIR_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ALB_ARN: ${{ secrets.ALB_ARN }}
+          ALB_TAG_NAME: ${{ secrets.ALB_TAG_NAME }}
+        run: |
+          npm run build
+          npx cdk deploy --all --require-approval never  --qualifier talkbook
+
+      - name: Deploy Server Stack
+        if: github.event.inputs.stack == 'server'
+        working-directory: infrastructure
+        env:
+          KEY_PAIR_NAME: ${{ secrets.KEY_PAIR_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ALB_ARN: ${{ secrets.ALB_ARN }}
+          ALB_TAG_NAME: ${{ secrets.ALB_TAG_NAME }}
+        run: ./deploy-server.sh
+
+      - name: Deploy AI Stack
+        if: github.event.inputs.stack == 'ai'
+        working-directory: infrastructure
+        env:
+          KEY_PAIR_NAME: ${{ secrets.KEY_PAIR_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ALB_ARN: ${{ secrets.ALB_ARN }}
+          ALB_TAG_NAME: ${{ secrets.ALB_TAG_NAME }}
+        run: ./deploy-ai.sh
+
+      - name: Deploy Stream Stack
+        if: github.event.inputs.stack == 'stream'
+        working-directory: infrastructure
+        env:
+          KEY_PAIR_NAME: ${{ secrets.KEY_PAIR_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+        run: ./deploy-stream.sh
