@@ -48,6 +48,16 @@ fun setTimeStringType(hour: String, minute: String, second: String): String =
         append(second.padStart(2, '0'))
     }
 
+fun setTimeSecondType(seconds: Int): String {
+    val m = seconds / 60
+    val s = seconds % 60
+
+    val minute = m.toString().padStart(2, '0')
+    val second = s.toString().padStart(2, '0')
+
+    return "$minute:$second"
+}
+
 // 윤년 계산
 private fun isLeapYear(year: Int): Boolean =
     (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)

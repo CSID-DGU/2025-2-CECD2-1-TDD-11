@@ -25,7 +25,9 @@ import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.CodeHintText
 import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.EmailCheckText
+import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
+import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.DisEnabledTextFieldBox
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -40,11 +42,13 @@ internal fun EmailCheckScreen(
 ) {
     val viewModel: EmailCheckViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val codeExpiredTime by viewModel.codeExpiredTime.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(Unit) {
         viewModel.setEmail(email)
+        viewModel.startCodeExpiredTimer(5 * 60)
     }
 
     LaunchedEffect(Unit) {
@@ -64,6 +68,7 @@ internal fun EmailCheckScreen(
         codeInput = uiState.codeInput,
         onCodeValueChange = { newValue -> viewModel.onCodeValueChange(newValue) },
         onClickBackBtn = onClickBackBtn,
+        codeExpiredTime = codeExpiredTime
     )
 }
 
@@ -76,6 +81,7 @@ fun EmailCheckContent(
     codeInput: String,
     onCodeValueChange: (String) -> Unit,
     onClickBackBtn: () -> Unit,
+    codeExpiredTime: String
 ) {
     Column(
         modifier =
@@ -121,6 +127,13 @@ fun EmailCheckContent(
             textInput = codeInput,
             onValueChange = onCodeValueChange,
             hintText = CodeHintText,
+        )
+
+        UnderLineTextBtn(
+            clickEnabled = false,
+            paddingEnd = 24,
+            textContent = codeExpiredTime,
+            textColor = Main1
         )
 
         Spacer(modifier = Modifier.weight(1f))

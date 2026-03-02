@@ -23,6 +23,10 @@ const val Sat = "토"
 const val Sun = "일"
 const val DateContent = "%d일"
 
+// Time
+const val FiveMinute = "05:00"
+const val ExpiredMinute = "00:00"
+
 // Publish Status
 const val Requested = "REQUESTED"
 const val RequestConfirmed = "REQUEST_CONFIRMED"

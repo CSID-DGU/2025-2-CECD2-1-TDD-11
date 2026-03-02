@@ -15,11 +15,12 @@ import com.tdd.talktobook.core.designsystem.BookShelfTypo
 
 @Composable
 fun UnderLineTextBtn(
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource = MutableInteractionSource(),
     textContent: String,
     textColor: Color,
-    onClick: () -> Unit,
+    onClick: () -> Unit = {},
     paddingEnd: Int,
+    clickEnabled: Boolean = true
 ) {
     Text(
         text = textContent,
@@ -37,6 +38,7 @@ fun UnderLineTextBtn(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
+                    enabled = clickEnabled
                 ),
     )
 }
