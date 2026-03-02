@@ -203,4 +203,22 @@ public class AuthController {
     ) {
         authService.rejoinEmail(requestDto);
     }
+
+    @Operation(summary = "인증 코드 재발급", description = "회원가입/재가입 시 인증 코드를 재발급합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ok")
+    })
+    @ApiErrorCodeExample(
+            authExceptionStatuses = {
+                    AuthExceptionStatus.INVALID_EMAIL_FORMAT,
+                    AuthExceptionStatus.EMAIL_TOO_LONG,
+                    AuthExceptionStatus.NOT_FOUND_EMAIL
+            }
+    )
+    @PostMapping(value = "/resend-code", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void resendVerificationCode(
+            @Valid @ModelAttribute ResendCodeRequestDto requestDto
+    ) {
+        authService.resendVerificationCode(requestDto.getEmail());
+    }
 }

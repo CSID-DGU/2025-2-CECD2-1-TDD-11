@@ -152,6 +152,30 @@ public class AuthService {
 		log.info("[REJOIN_EMAIL] 재가입 인증 코드 발송 완료 - email: {}, code: {}", requestDto.getEmail(), code);
 	}
 
+	public void resendVerificationCode(String email) {
+		log.info("[RESEND_CODE] 인증 코드 재발급 시작 - email: {}", email);
+
+		Optional<TemporaryUser> optionalUser = temporaryUserStore.find(email);
+		if (optionalUser.isEmpty()) {
+			log.warn("[RESEND_CODE] 임시 사용자 없음 - email: {}", email);
+			throw AuthExceptionStatus.NOT_FOUND_EMAIL.toServiceException();
+		}
+
+		TemporaryUser temporaryUser = optionalUser.get();
+		String newCode = generateVerificationCode();
+		emailService.sendVerificationCode(email, newCode);
+
+		TemporaryUser updatedUser = TemporaryUser.builder()
+				.email(temporaryUser.getEmail())
+				.password(temporaryUser.getPassword())
+				.code(newCode)
+				.expiresAt(LocalDateTime.now().plusMinutes(5))
+				.build();
+		temporaryUserStore.save(email, updatedUser);
+
+		log.info("[RESEND_CODE] 인증 코드 재발급 완료 - email: {}, code: {}", email, newCode);
+	}
+
     public JwtLoginTokenDto loginEmail(EmailLoginRequestDto requestDto) {
         log.info("[LOGIN_EMAIL] 이메일 로그인 시작 - email: {}", requestDto.getEmail());
 
