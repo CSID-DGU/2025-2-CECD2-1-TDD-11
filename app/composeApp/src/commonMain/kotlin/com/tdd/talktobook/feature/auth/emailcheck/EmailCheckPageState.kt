@@ -7,5 +7,6 @@ data class EmailCheckPageState(
     val email: String = "",
     val codeInput: String = "",
     val codeExpiredTime: String = FiveMinute,
-    val isCodeExpired: Boolean = false
+    val isCodeExpired: Boolean = false,
+    val serverExceptionMessage: String = ""
 ) : PageState

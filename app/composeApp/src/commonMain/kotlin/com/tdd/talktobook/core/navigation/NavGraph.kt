@@ -70,6 +70,7 @@ fun NavGraphBuilder.signupNavGraph(
 
 fun NavGraphBuilder.emailCheckNavGraph(
     navController: NavController,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.EmailCheckScreen.route,
@@ -85,6 +86,7 @@ fun NavGraphBuilder.emailCheckNavGraph(
                 email = email,
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 onClickBackBtn = { navController.popBackStack() },
+                showToastMsg = showToastMsg
             )
         }
     }

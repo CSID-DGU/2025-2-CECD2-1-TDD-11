@@ -5,6 +5,7 @@ import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.core.designsystem.ExpiredMinute
 import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.core.ui.util.setTimeSecondType
+import com.tdd.talktobook.data.entity.response.api.ApiException
 import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
 import com.tdd.talktobook.domain.usecase.auth.ResendCodeUseCase
@@ -16,10 +17,10 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class EmailCheckViewModel(
     private val postEmailVerifyUseCase: PostEmailVerifyUseCase,
-    private val resendCodeUseCase: ResendCodeUseCase
+    private val resendCodeUseCase: ResendCodeUseCase,
 ) : BaseViewModel<EmailCheckPageState>(
-        EmailCheckPageState(),
-    ) {
+    EmailCheckPageState(),
+) {
 
     private var timerJob: Job? = null
 
@@ -48,8 +49,21 @@ class EmailCheckViewModel(
                 ),
             ).collect {
                 resultResponse(it, { data ->
-                    d("[ktor] email verify response -> $data")
+                    d("[ktor] email verify success")
                     emitEventFlow(EmailCheckEvent.GoToLogInPage)
+                }, { error ->
+                    when (error) {
+                        is ApiException -> {
+                            d("[ktor] email verify exception -> code=${error.status}, msg=${error.msg}")
+                            setEmailCheckExceptionMessage(error.msg)
+                            emitEventFlow(EmailCheckEvent.ShowServerExceptionToast)
+                        }
+
+                        else -> {
+                            d("[ktor] unknown error -> ${error.message}")
+                            emitEventFlow(EmailCheckEvent.ShowServerErrorToast)
+                        }
+                    }
                 })
             }
         }
@@ -91,9 +105,31 @@ class EmailCheckViewModel(
         viewModelScope.launch {
             resendCodeUseCase(uiState.value.email).collect {
                 resultResponse(it, {
+                    d("[ktor] resend code success")
                     startCodeExpiredTimer(5 * 60)
+                }, { error ->
+                    when (error) {
+                        is ApiException -> {
+                            d("[ktor] resend code exception -> code=${error.status}, msg=${error.msg}")
+                            setEmailCheckExceptionMessage(error.msg)
+                            emitEventFlow(EmailCheckEvent.ShowServerExceptionToast)
+                        }
+
+                        else -> {
+                            d("[ktor] unknown error -> ${error.message}")
+                            emitEventFlow(EmailCheckEvent.ShowServerErrorToast)
+                        }
+                    }
                 })
             }
+        }
+    }
+
+    private fun setEmailCheckExceptionMessage(message: String) {
+        updateState { state ->
+            state.copy(
+                serverExceptionMessage = message
+            )
         }
     }
 

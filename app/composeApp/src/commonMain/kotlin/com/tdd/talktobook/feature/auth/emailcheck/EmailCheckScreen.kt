@@ -28,14 +28,15 @@ import com.tdd.talktobook.core.designsystem.CodeHintText
 import com.tdd.talktobook.core.designsystem.CodeResendBtnText
 import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.EmailCheckText
-import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.Red1
+import com.tdd.talktobook.core.designsystem.ServerErrorToast
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.DisEnabledTextFieldBox
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 import talktobook.composeapp.generated.resources.Res
@@ -45,6 +46,7 @@ internal fun EmailCheckScreen(
     goToLogInPage: () -> Unit,
     email: String,
     onClickBackBtn: () -> Unit,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     val viewModel: EmailCheckViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -61,6 +63,14 @@ internal fun EmailCheckScreen(
             when (event) {
                 is EmailCheckEvent.GoToLogInPage -> {
                     goToLogInPage()
+                }
+
+                is EmailCheckEvent.ShowServerExceptionToast -> {
+                    showToastMsg(uiState.serverExceptionMessage, ToastType.INFO)
+                }
+
+                is EmailCheckEvent.ShowServerErrorToast -> {
+                    showToastMsg(ServerErrorToast, ToastType.ERROR)
                 }
             }
         }
@@ -90,7 +100,7 @@ fun EmailCheckContent(
     onClickBackBtn: () -> Unit,
     codeExpiredTime: String,
     isCodeExpired: Boolean = false,
-    onClickResendCodeBtn: () -> Unit
+    onClickResendCodeBtn: () -> Unit,
 ) {
     Column(
         modifier =

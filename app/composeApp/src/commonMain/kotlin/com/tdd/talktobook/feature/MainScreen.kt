@@ -222,6 +222,7 @@ fun MainScreen() {
                         )
                         emailCheckNavGraph(
                             navController = navController,
+                            showToastMsg = showToastMessage
                         )
                         onboardingNavGraph(
                             navController = navController,
