@@ -23,10 +23,13 @@ import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
+import com.tdd.talktobook.core.designsystem.CodeEmailSendPositionNotice
 import com.tdd.talktobook.core.designsystem.CodeHintText
 import com.tdd.talktobook.core.designsystem.CodeResendBtnText
 import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.EmailCheckText
+import com.tdd.talktobook.core.designsystem.Gray1
+import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
@@ -135,6 +138,13 @@ fun EmailCheckContent(
             hintText = CodeHintText,
         )
 
+        Text(
+            text = CodeEmailSendPositionNotice,
+            style = BookShelfTypo.Caption1,
+            color = Gray5,
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 5.dp, bottom = 10.dp)
+        )
+
         UnderLineTextBtn(
             clickEnabled = false,
             paddingEnd = 24,
@@ -154,7 +164,7 @@ fun EmailCheckContent(
 
         RectangleBtn(
             btnContent = Confirm,
-            isBtnActivated = codeInput.isNotEmpty(),
+            isBtnActivated = !isCodeExpired && codeInput.isNotEmpty(),
             onClickAction = onClickCheckBtn,
         )
 

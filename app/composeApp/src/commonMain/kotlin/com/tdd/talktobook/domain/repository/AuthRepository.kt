@@ -19,6 +19,8 @@ interface AuthRepository {
 
     suspend fun reissue(refresh: String): Flow<Result<TokenModel>>
 
+    suspend fun resendCode(email: String): Flow<Result<Boolean>>
+
     suspend fun getStoredAccessToken(): Flow<Result<String>>
 
     suspend fun getStoredRefreshToken(): Flow<Result<String>>

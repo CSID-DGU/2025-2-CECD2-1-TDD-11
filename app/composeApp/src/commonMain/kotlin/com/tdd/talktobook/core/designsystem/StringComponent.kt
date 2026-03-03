@@ -133,7 +133,8 @@ const val SignUpPassWordError = "비밀번호는 8자 이상, 대문자/소문�
 // Email Check
 const val EmailCheckText = "이메일 인증"
 const val CodeHintText = "인증코드를 입력해 주세요."
-const val CodeResendBtnText = "인증코드 재발급받기"
+const val CodeResendBtnText = "인증코드 재발급 받기"
+const val CodeEmailSendPositionNotice = "인증코드가 도착하지 않았다면, 스팸메일함도 확인해 주세요."
 
 // Change Password
 const val ChangePasswordText = "비밀번호 재설정"

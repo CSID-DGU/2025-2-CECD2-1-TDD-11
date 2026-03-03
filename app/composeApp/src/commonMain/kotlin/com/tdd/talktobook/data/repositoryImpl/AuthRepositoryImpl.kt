@@ -12,7 +12,6 @@ import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.Single
 
@@ -58,6 +57,11 @@ class AuthRepositoryImpl(
 
     override suspend fun reissue(refresh: String): Flow<Result<TokenModel>> =
         ReissueMapper.responseToModel(apiCall = { authDataSource.reissue(refresh) })
+
+    override suspend fun resendCode(email: String): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = {
+            authDataSource.resendCode(email)
+        })
 
     override suspend fun getStoredAccessToken(): Flow<Result<String>> =
         flow {

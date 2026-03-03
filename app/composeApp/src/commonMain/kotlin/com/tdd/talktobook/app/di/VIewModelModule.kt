@@ -20,7 +20,7 @@ val viewModelModule =
         viewModel { MainViewModel() }
         viewModel { LogInViewModel(get(), get(), get()) }
         viewModel { SignUpViewModel(get()) }
-        viewModel { EmailCheckViewModel(get()) }
+        viewModel { EmailCheckViewModel(get(), get()) }
         viewModel { OnboardingViewModel(get()) }
         viewModel { StartProgressViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { InterviewViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }

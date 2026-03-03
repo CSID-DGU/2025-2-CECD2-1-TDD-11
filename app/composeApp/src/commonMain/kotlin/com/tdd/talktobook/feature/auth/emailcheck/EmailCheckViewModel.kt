@@ -7,6 +7,7 @@ import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.core.ui.util.setTimeSecondType
 import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
+import com.tdd.talktobook.domain.usecase.auth.ResendCodeUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class EmailCheckViewModel(
     private val postEmailVerifyUseCase: PostEmailVerifyUseCase,
+    private val resendCodeUseCase: ResendCodeUseCase
 ) : BaseViewModel<EmailCheckPageState>(
         EmailCheckPageState(),
     ) {
@@ -47,11 +49,10 @@ class EmailCheckViewModel(
             ).collect {
                 resultResponse(it, { data ->
                     d("[ktor] email verify response -> $data")
+                    emitEventFlow(EmailCheckEvent.GoToLogInPage)
                 })
             }
         }
-
-        emitEventFlow(EmailCheckEvent.GoToLogInPage)
     }
 
     fun startCodeExpiredTimer(totalSeconds: Int = 5 * 60) {
@@ -87,9 +88,13 @@ class EmailCheckViewModel(
     }
 
     fun resendCode() {
-        startCodeExpiredTimer(5 * 60)
-
-        // TODO 인증번호 재발급 서버통신
+        viewModelScope.launch {
+            resendCodeUseCase(uiState.value.email).collect {
+                resultResponse(it, {
+                    startCodeExpiredTimer(5 * 60)
+                })
+            }
+        }
     }
 
     override fun onCleared() {
