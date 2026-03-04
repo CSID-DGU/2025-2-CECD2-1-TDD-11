@@ -20,7 +20,8 @@ fun UnderLineTextBtn(
     textColor: Color,
     onClick: () -> Unit = {},
     paddingEnd: Int,
-    clickEnabled: Boolean = true
+    clickEnabled: Boolean = true,
+    modifier: Modifier
 ) {
     Text(
         text = textContent,
@@ -29,10 +30,11 @@ fun UnderLineTextBtn(
             BookShelfTypo.Body2.copy(
                 textDecoration = TextDecoration.Underline,
             ),
-        textAlign = TextAlign.End,
+//        textAlign = TextAlign.End,
         modifier =
-            Modifier
-                .fillMaxWidth()
+//            Modifier
+//                .fillMaxWidth()
+                modifier
                 .padding(end = paddingEnd.dp)
                 .clickable(
                     interactionSource = interactionSource,

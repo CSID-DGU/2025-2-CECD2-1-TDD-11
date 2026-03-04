@@ -122,6 +122,7 @@ fun AutobiographyRequestContent(
             textColor = Gray5,
             onClick = onClickGoLogIn,
             paddingEnd = 20,
+            modifier = Modifier.align(Alignment.End)
         )
 
         Spacer(modifier = Modifier.height(60.dp))

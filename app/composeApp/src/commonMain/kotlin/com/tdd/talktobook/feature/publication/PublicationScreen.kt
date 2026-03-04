@@ -217,6 +217,7 @@ private fun PublicationBookPreview(
             textColor = Main1,
             onClick = {},
             paddingEnd = 58,
+            modifier = Modifier.align(Alignment.End)
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -239,6 +240,7 @@ private fun PublicationBookPreview(
             textColor = Red1,
             onClick = {},
             paddingEnd = 20,
+            modifier = Modifier.align(Alignment.End)
         )
 
         Spacer(modifier = Modifier.padding(bottom = 20.dp))

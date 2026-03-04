@@ -161,7 +161,8 @@ fun EmailCheckContent(
             clickEnabled = false,
             paddingEnd = 24,
             textContent = codeExpiredTime,
-            textColor = if (isCodeExpired) Red1 else Main1
+            textColor = if (isCodeExpired) Red1 else Main1,
+            modifier = Modifier.align(Alignment.End)
         )
 
         Spacer(modifier = Modifier.weight(1f))
