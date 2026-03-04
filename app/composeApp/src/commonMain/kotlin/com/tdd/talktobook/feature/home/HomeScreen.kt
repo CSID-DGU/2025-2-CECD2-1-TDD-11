@@ -55,7 +55,7 @@ import com.tdd.talktobook.core.designsystem.White3
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
-import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
+import com.tdd.talktobook.core.ui.common.item.MaterialListItem
 import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
@@ -64,7 +64,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import talktobook.composeapp.generated.resources.Res
-import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun HomeScreen(
@@ -223,8 +222,7 @@ private fun HomeMaterialList(
             contentPadding = PaddingValues(horizontal = 20.dp),
         ) {
             itemsIndexed(createdMaterialList) { index, item ->
-                SelectCircleListItem(
-                    itemImg = Res.drawable.img_chapter_detail,
+                MaterialListItem(
                     itemText = item.name,
                     isSelected = true,
                 )

@@ -3,12 +3,9 @@ package com.tdd.talktobook.feature.startprogress
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,7 +25,7 @@ import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.SeriesNumText
 import com.tdd.talktobook.core.ui.common.content.SeriesTitleText
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
-import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
+import com.tdd.talktobook.core.ui.common.item.MaterialListItem
 import com.tdd.talktobook.core.ui.common.textfield.ExplainTextFieldBox
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
 import com.tdd.talktobook.core.ui.common.type.FlowType
@@ -201,37 +199,15 @@ private fun SelectMaterial(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        materials
-            .chunked(3)
-            .forEach { rowItems ->
-                Row(
-                    modifier =
-                        Modifier
-                            .padding(horizontal = 30.dp)
-                            .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    rowItems.forEach { material ->
-                        Box(
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            SelectCircleListItem(
-                                itemText = material.content,
-                                isSelected = (material == selectedMaterial),
-                                onSelect = { onSelectMaterial(material) },
-                            )
-                        }
-                    }
-
-                    if (rowItems.size < 3) {
-                        repeat(3 - rowItems.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.padding(top = 20.dp))
-            }
+        materials.forEach { material ->
+            MaterialListItem(
+                itemText = material.content,
+                isSelected = (material == selectedMaterial),
+                onSelect = { onSelectMaterial(material) },
+            )
+        }
     }
 }

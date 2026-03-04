@@ -35,7 +35,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
@@ -51,11 +50,12 @@ import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
-import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
+import com.tdd.talktobook.core.ui.common.item.MaterialListItem
 import com.tdd.talktobook.core.ui.util.paginateText
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyItemModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.Res
 import talktobook.composeapp.generated.resources.img_chapter_detail
 import talktobook.composeapp.generated.resources.img_empty_box
 
@@ -169,8 +169,7 @@ private fun PublicationAutobiographies(
         contentPadding = PaddingValues(horizontal = 20.dp),
     ) {
         itemsIndexed(autobiographyList) { index, item ->
-            SelectCircleListItem(
-                itemImg = Res.drawable.img_chapter_detail,
+            MaterialListItem(
                 itemText = item.title,
                 isSelected = (selectedId == item.autobiographyId),
                 onSelect = { onSelect(item.autobiographyId) },
