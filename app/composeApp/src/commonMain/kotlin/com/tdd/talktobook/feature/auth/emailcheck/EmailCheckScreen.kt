@@ -32,6 +32,7 @@ import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.designsystem.ServerErrorToast
+import com.tdd.talktobook.core.designsystem.SignUpSuccessInfo
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.DisEnabledTextFieldBox
@@ -62,6 +63,7 @@ internal fun EmailCheckScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is EmailCheckEvent.GoToLogInPage -> {
+                    showToastMsg(SignUpSuccessInfo, ToastType.SUCCESS)
                     goToLogInPage()
                 }
 
