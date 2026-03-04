@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +54,7 @@ import com.tdd.talktobook.core.ui.common.type.BottomSheetType
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.DismissKeyboardOnClick
+import com.tdd.talktobook.core.ui.util.exit.DoubleBackToExit
 import com.tdd.talktobook.core.ui.util.ToastHost
 import com.tdd.talktobook.core.ui.util.ToastHostState
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
@@ -73,6 +76,7 @@ fun MainScreen() {
     val isShowDialog = remember { mutableStateOf(false) }
     val isShowTwoBtnDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val toastState = remember { ToastHostState() }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -199,7 +203,7 @@ fun MainScreen() {
                         }
                     }
                 },
-                snackbarHost = {},
+                snackbarHost = { SnackbarHost(snackbarHostState) },
             ) { innerPadding ->
                 Box(
                     modifier =
@@ -261,6 +265,11 @@ fun MainScreen() {
                             showFeedbackToastMsg = showToastMessage
                         )
                     }
+
+                    DoubleBackToExit(
+                        navController = navController,
+                        snackbarHostState = snackbarHostState
+                    )
                 }
             }
 

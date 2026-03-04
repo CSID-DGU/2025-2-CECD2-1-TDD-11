@@ -220,3 +220,6 @@ const val InquiryAnswerNotice = "답변 내용은 이메일로 전송될 예정�
 const val Feedback = "피드백하기"
 const val FeedbackHintText = "피드백하실 내용을 작성해 주세요."
 const val FeedbackAnswerNotice = "피드백 감사합니다."
+
+// ETC
+const val DoubleBackToExitNotice = "종료하려면 다시 누르세요"
