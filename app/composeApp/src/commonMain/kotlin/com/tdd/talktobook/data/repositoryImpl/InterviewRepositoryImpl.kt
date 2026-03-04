@@ -58,7 +58,10 @@ class InterviewRepositoryImpl(
 
     override suspend fun saveInterviewId(request: Int): Flow<Result<Boolean>> =
         flow {
-            localDataStore.saveCurrentInterviewId(request)
+            runCatching {
+                localDataStore.saveCurrentInterviewId(request)
+            }.onSuccess { emit(Result.success(true)) }
+                .onFailure { emit(Result.success(false)) }
         }
 
     override suspend fun getInterviewId(): Flow<Result<Int>> =
