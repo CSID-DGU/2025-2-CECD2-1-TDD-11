@@ -23,6 +23,7 @@ fun ExplainTextFieldBox(
         isError = isError,
         maxTextNum = maxTextNum,
         isTextNumVisible = isTextNumVisible,
+        isTextPositionCenter = false,
         modifier =
             Modifier
                 .height(260.dp),

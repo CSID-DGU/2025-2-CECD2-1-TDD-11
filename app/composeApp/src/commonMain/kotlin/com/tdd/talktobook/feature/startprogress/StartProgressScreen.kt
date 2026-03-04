@@ -185,22 +185,21 @@ private fun SelectMaterial(
     onSelectMaterial: (MaterialType) -> Unit,
     flowType: FlowType = FlowType.DEFAULT,
 ) {
-    Spacer(modifier = Modifier.padding(top = 48.dp))
-
     val materials =
         if (flowType == FlowType.DEFAULT) {
-            MaterialType.entries
+            MaterialType.entries.dropLast(1)
         } else {
             MaterialType.getCoShowMaterials().dropLast(1)
         }
 
-    Column(
+    Column (
         modifier =
             Modifier
+                .padding(top = 48.dp, bottom = 20.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         materials.forEach { material ->
             MaterialListItem(

@@ -56,6 +56,7 @@ fun BasicTextFieldBoxContent(
     maxTextNum: Int = 0,
     isTextNumVisible: Boolean = false,
     modifier: Modifier,
+    isTextPositionCenter: Boolean = true,
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     passwordIconPath: String = "",
@@ -93,7 +94,7 @@ fun BasicTextFieldBoxContent(
                 .clip(RoundedCornerShape(5.dp))
                 .border(1.dp, borderColor, RoundedCornerShape(5.dp))
                 .background(White2),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = if (isTextPositionCenter) Alignment.CenterVertically else Alignment.Top
     ) {
         BasicTextField(
             value = textInput,
