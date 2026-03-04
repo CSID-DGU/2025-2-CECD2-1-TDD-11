@@ -19,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
@@ -27,7 +26,6 @@ import com.tdd.talktobook.core.designsystem.EmailHintText
 import com.tdd.talktobook.core.designsystem.PasswordHintText
 import com.tdd.talktobook.core.designsystem.ServerErrorToast
 import com.tdd.talktobook.core.designsystem.SignUpEmailError
-import com.tdd.talktobook.core.designsystem.SignUpMemberExistAlready
 import com.tdd.talktobook.core.designsystem.SignUpPassWordError
 import com.tdd.talktobook.core.designsystem.SignUpText
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
@@ -35,6 +33,7 @@ import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.Res
 
 @Composable
 internal fun SignUpScreen(
@@ -77,6 +76,8 @@ internal fun SignUpScreen(
         isPasswordValid = uiState.isPasswordValid,
         onClickChangePassword = { goToPasswordChangePage() },
         onClickBackBtn = onClickBackBtn,
+        isPasswordVisible = uiState.isPasswordVisible,
+        onChangePasswordVisible = { viewModel.changePasswordVisible() }
     )
 }
 
@@ -93,6 +94,8 @@ private fun SignUpContent(
     isPasswordValid: Boolean = true,
     onClickChangePassword: () -> Unit,
     onClickBackBtn: () -> Unit,
+    onChangePasswordVisible: () -> Unit,
+    isPasswordVisible: Boolean = false
 ) {
     Column(
         modifier =
@@ -144,6 +147,10 @@ private fun SignUpContent(
             hintText = PasswordHintText,
             isError = !isPasswordValid,
             errorText = SignUpPassWordError,
+            isPassword = true,
+            isPasswordVisible = isPasswordVisible,
+            passwordIconPath = if (isPasswordVisible) "files/ic_eye.svg" else "files/ic_eye_off.svg",
+            onClickPasswordIcon = onChangePasswordVisible
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))

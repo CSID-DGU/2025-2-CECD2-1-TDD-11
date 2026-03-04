@@ -31,6 +31,14 @@ class SignUpViewModel(
         }
     }
 
+    fun changePasswordVisible() {
+        updateState { state ->
+            state.copy(
+                isPasswordVisible = !uiState.value.isPasswordVisible
+            )
+        }
+    }
+
     fun checkEmailPWValid() {
         val email = uiState.value.emailInput.trim()
         val password = uiState.value.passwordInput.trim()

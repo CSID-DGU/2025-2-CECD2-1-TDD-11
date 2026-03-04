@@ -36,6 +36,14 @@ class LogInViewModel(
         }
     }
 
+    fun changePasswordVisible() {
+        updateState { state ->
+            state.copy(
+                isPasswordVisible = !uiState.value.isPasswordVisible
+            )
+        }
+    }
+
     fun postEmailLogIn() {
         viewModelScope.launch {
             postEmailLogInUseCase(
