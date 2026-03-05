@@ -1,4 +1,4 @@
-package com.tdd.talktobook.core.ui.util
+package com.tdd.talktobook.core.ui.util.stt
 
 import android.app.Application
 import android.content.Intent
@@ -14,6 +14,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
+import kotlin.invoke
 
 private class AndroidSpeechToText(private val app: Application) : SpeechToText {
     private var recognizer: SpeechRecognizer? = null

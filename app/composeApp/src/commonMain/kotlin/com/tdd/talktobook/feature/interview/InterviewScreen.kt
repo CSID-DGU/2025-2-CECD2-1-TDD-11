@@ -44,7 +44,9 @@ import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.util.rememberMicPermissionRequester
-import com.tdd.talktobook.core.ui.util.rememberSpeechToText
+import com.tdd.talktobook.core.ui.util.stt.AudioRecorder
+import com.tdd.talktobook.core.ui.util.stt.StreamingSpeechToText
+import com.tdd.talktobook.core.ui.util.stt.StreamingStt
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
@@ -73,18 +75,25 @@ internal fun InterviewScreen(
 
     val interactionSource = remember { MutableInteractionSource() }
 
-    val stt = rememberSpeechToText()
+    val client = remember { StreamingStt() }
+    val recorder = remember { AudioRecorder() }
+    val stt = remember {
+        StreamingSpeechToText(
+            client = client,
+            recorder = recorder
+        )
+    }
     val scope = rememberCoroutineScope()
     var partial by remember { mutableStateOf("") }
     val mergedChat =
         remember(uiState.interviewChatList, uiState.interviewProgressType, partial) {
             if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
-                d("[stt] 대화 -> $partial")
+                d("[stt] (client) 대화 mergedChat -> $partial")
                 uiState.interviewChatList +
-                    InterviewChatItem(
-                        content = partial,
-                        chatType = ChatType.HUMAN,
-                    )
+                        InterviewChatItem(
+                            content = partial,
+                            chatType = ChatType.HUMAN,
+                        )
             } else {
                 uiState.interviewChatList
             }
@@ -94,6 +103,7 @@ internal fun InterviewScreen(
         rememberMicPermissionRequester(
             onPermissionGranted = {
                 scope.launch {
+                    d("[stt] (client) mic permission granted")
                     partial = ""
                     viewModel.beginInterview()
                     stt.start { p -> partial = p }

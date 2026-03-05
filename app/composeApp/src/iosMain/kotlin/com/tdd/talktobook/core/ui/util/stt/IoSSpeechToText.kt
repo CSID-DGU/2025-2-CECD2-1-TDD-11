@@ -1,7 +1,8 @@
-package com.tdd.talktobook.core.ui.util
+package com.tdd.talktobook.core.ui.util.stt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.tdd.talktobook.core.ui.util.stt.SpeechToText
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
