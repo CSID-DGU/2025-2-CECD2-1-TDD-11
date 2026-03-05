@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import com.tdd.talktobook.BuildKonfig
 
 class StreamingStt {
     private val client = HttpClient {
@@ -28,8 +29,10 @@ class StreamingStt {
 
     private val json = Json { ignoreUnknownKeys = true }
 
+    val sttUrl = BuildKonfig.STT_URL
+
     suspend fun connect() {
-        session = client.webSocketSession("ws://0.0.0.0:8000/stt") // 10.0.2.2
+        session = client.webSocketSession(sttUrl)
 
         CoroutineScope(Dispatchers.IO).launch {
             for (frame in session!!.incoming) {

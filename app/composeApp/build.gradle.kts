@@ -142,6 +142,9 @@ buildkonfig {
         val policyUrl = properties.getProperty("POLICY_URL")
         buildConfigField(Type.STRING, "POLICY_URL", policyUrl)
 
+        val sttUrl = properties.getProperty("STT_URL")
+        buildConfigField(Type.STRING, "STT_URL", sttUrl)
+
         val appVersion = project.properties["version"]?.toString() ?: "1.0.0"
         buildConfigField(Type.STRING, "APP_VERSION", appVersion)
     }
