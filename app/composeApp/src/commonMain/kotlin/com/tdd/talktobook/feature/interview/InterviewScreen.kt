@@ -106,7 +106,13 @@ internal fun InterviewScreen(
                     d("[stt] (client) mic permission granted")
                     partial = ""
                     viewModel.beginInterview()
-                    stt.start { p -> partial = p }
+                    stt.start { p ->
+                        if (p.isNotBlank()) {
+                            partial =
+                                if (partial.isBlank()) p
+                                else "$partial $p"
+                        }
+                    }
                 }
             },
             onPermissionDeniedPermanently = {
@@ -181,7 +187,7 @@ internal fun InterviewScreen(
         onSetInterview = {
             scope.launch {
                 val finalText = stt.stop()
-                val text = finalText.ifBlank { partial }
+                val text = partial.ifBlank { finalText }
                 viewModel.setInterviewAnswer(text)
                 partial = ""
             }
