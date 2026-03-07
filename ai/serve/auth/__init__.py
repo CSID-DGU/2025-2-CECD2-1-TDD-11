@@ -59,7 +59,7 @@ class AuthRequired(HTTPBearer):
 
 def verify_token(token: str) -> MemberSessionDto:
     try:
-        logger.debug(f"Verifying token: {token}")
+        # logger.debug(f"Verifying token: {token}")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         logger.debug(f"Decoded token payload: {payload}")
         member_id: int = payload.get("memberId")
