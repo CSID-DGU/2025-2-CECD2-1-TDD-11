@@ -26,10 +26,12 @@ import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogBtn
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogContent
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
+import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.InterviewContinuous
 import com.tdd.talktobook.core.designsystem.InterviewReAnswer
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.designsystem.SkipQuestionBottomHint
 import com.tdd.talktobook.core.designsystem.SkipQuestionContent
 import com.tdd.talktobook.core.designsystem.SkipQuestionFirstBtn
@@ -283,6 +285,8 @@ private fun InterviewContent(
                     interviewProgressType,
                 ),
             isBtnActivated = isStartAnswerBtnActivated,
+            btnColor = Red1,
+            isOtherColorSetting = isInterviewProgressIng,
             onClickAction = {
                 when (interviewProgressType) {
                     ConversationType.BEFORE -> {

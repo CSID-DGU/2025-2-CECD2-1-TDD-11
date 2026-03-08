@@ -27,8 +27,8 @@ actual class AudioRecorder {
         )
 
         recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-//            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+//            MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
             sampleRate,
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT,
