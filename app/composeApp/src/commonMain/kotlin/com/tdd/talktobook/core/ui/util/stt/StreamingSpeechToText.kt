@@ -12,33 +12,37 @@ class StreamingSpeechToText(
 ) : SpeechToText {
 
     private var partialText = ""
+    private var finalText = ""
+
     override var isRunning = false
         private set
 
-    override suspend fun start(onPartial: (String) -> Unit) {
-
+    override suspend fun start(
+        onPartial: (String) -> Unit,
+        onFinal: (String) -> Unit,
+    ) {
         if (isRunning) return
 
         isRunning = true
         partialText = ""
+        finalText = ""
 
         client.connect()
 
         CoroutineScope(Dispatchers.IO).launch {
-
             client.events.collect { event ->
-
                 when (event) {
-
                     is SttEvent.Partial -> {
                         partialText = event.text
-                        d("[stt] (client) 대화 streamingSpeechToText -> $partialText")
+                        d("[stt] (client) partial -> ${event.text}")
                         onPartial(event.text)
                     }
 
                     is SttEvent.Final -> {
+                        finalText = event.text
                         partialText = event.text
-                        onPartial(event.text)
+                        d("[stt] (client) final -> ${event.text}")
+                        onFinal(event.text)
                     }
                 }
             }
@@ -48,14 +52,12 @@ class StreamingSpeechToText(
     }
 
     override suspend fun stop(): String {
-
-        if (!isRunning) return partialText
+        if (!isRunning) return finalText.ifBlank { partialText }
 
         isRunning = false
-
         recorder.stop()
         client.disconnect()
 
-        return partialText
+        return finalText.ifBlank { partialText }
     }
 }

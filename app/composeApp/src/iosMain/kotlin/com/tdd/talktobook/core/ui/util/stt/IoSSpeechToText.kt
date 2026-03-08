@@ -2,7 +2,6 @@ package com.tdd.talktobook.core.ui.util.stt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.tdd.talktobook.core.ui.util.stt.SpeechToText
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
@@ -35,23 +34,30 @@ private class IOSSpeechToText : SpeechToText {
     private var task: SFSpeechRecognitionTask? = null
     private var finalText: String = ""
     private var partialCb: ((String) -> Unit)? = null
+    private var finalCb: ((String) -> Unit)? = null
+
     override var isRunning: Boolean = false
         private set
 
     @OptIn(ExperimentalForeignApi::class)
-    override suspend fun start(onPartial: (String) -> Unit) {
+    override suspend fun start(
+        onPartial: (String) -> Unit,
+        onFinal: (String) -> Unit,
+    ) {
         withContext(Dispatchers.Default) {
             if (isRunning) return@withContext
+
             partialCb = onPartial
+            finalCb = onFinal
             finalText = ""
 
-            // 권한
             val auth =
                 suspendCancellableCoroutine<SFSpeechRecognizerAuthorizationStatus> { cont ->
                     SFSpeechRecognizer.requestAuthorization { status ->
                         cont.resume(status)
                     }
                 }
+
             if (auth != SFSpeechRecognizerAuthorizationStatus.SFSpeechRecognizerAuthorizationStatusAuthorized) {
                 return@withContext
             }
@@ -78,19 +84,24 @@ private class IOSSpeechToText : SpeechToText {
             audioEngine.startAndReturnError(null)
 
             task =
-                recognizer?.recognitionTaskWithRequest(request!!, resultHandler = { result, error ->
+                recognizer?.recognitionTaskWithRequest(request!!) { result, error ->
                     if (result != null) {
                         val text = result.bestTranscription.formattedString
                         if (result.isFinal()) {
                             finalText = text
+                            if (text.isNotBlank()) {
+                                finalCb?.invoke(text)
+                            }
                             stopInternal()
                         } else {
-                            partialCb?.invoke(text)
+                            if (text.isNotBlank()) {
+                                partialCb?.invoke(text)
+                            }
                         }
                     } else if (error != null) {
                         stopInternal()
                     }
-                })
+                }
 
             isRunning = true
         }

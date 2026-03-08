@@ -26,7 +26,6 @@ import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogBtn
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogContent
 import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
-import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.InterviewContinuous
 import com.tdd.talktobook.core.designsystem.InterviewReAnswer
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
@@ -86,14 +85,26 @@ internal fun InterviewScreen(
         )
     }
     val scope = rememberCoroutineScope()
-    var partial by remember { mutableStateOf("") }
+    var committedText by remember { mutableStateOf("") }
+    var partialText by remember { mutableStateOf("") }
+    var latestFinalText by remember { mutableStateOf("") }
+
+    val displayText =
+        remember(committedText, partialText) {
+            when {
+                committedText.isBlank() -> partialText
+                partialText.isBlank() -> committedText
+                else -> "$committedText $partialText"
+            }.trim()
+        }
+
     val mergedChat =
-        remember(uiState.interviewChatList, uiState.interviewProgressType, partial) {
-            if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
-                d("[stt] (client) 대화 mergedChat -> $partial")
+        remember(uiState.interviewChatList, uiState.interviewProgressType, displayText) {
+            if (uiState.interviewProgressType == ConversationType.ING && displayText.isNotBlank()) {
+                d("[stt] (client) 대화 mergedChat -> $displayText")
                 uiState.interviewChatList +
                         InterviewChatItem(
-                            content = partial,
+                            content = displayText,
                             chatType = ChatType.HUMAN,
                         )
             } else {
@@ -106,15 +117,26 @@ internal fun InterviewScreen(
             onPermissionGranted = {
                 scope.launch {
                     d("[stt] (client) mic permission granted")
-                    partial = ""
+                    partialText = ""
+                    committedText = ""
+                    latestFinalText = ""
+
                     viewModel.beginInterview()
-                    stt.start { p ->
-                        if (p.isNotBlank()) {
-                            partial =
-                                if (partial.isBlank()) p
-                                else "$partial $p"
+
+                    stt.start(
+                        onPartial = { p ->
+                            if (p.isNotBlank()) {
+                                partialText = p
+                            }
+                        },
+                        onFinal = { f ->
+                            if (f.isNotBlank()) {
+                                latestFinalText = f
+                                committedText = viewModel.appendChunk(committedText, f)
+                                partialText = ""
+                            }
                         }
-                    }
+                    )
                 }
             },
             onPermissionDeniedPermanently = {
@@ -188,10 +210,22 @@ internal fun InterviewScreen(
         },
         onSetInterview = {
             scope.launch {
-                val finalText = stt.stop()
-                val text = partial.ifBlank { finalText }
-                viewModel.setInterviewAnswer(text)
-                partial = ""
+                val stoppedText = stt.stop()
+
+                val tailText = when {
+                    partialText.isNotBlank() -> partialText
+                    latestFinalText.isNotBlank() -> latestFinalText
+                    stoppedText.isNotBlank() -> stoppedText
+                    else -> ""
+                }
+
+                val finalAnswer = viewModel.appendChunk(committedText, tailText)
+
+                viewModel.setInterviewAnswer(finalAnswer)
+
+                committedText = ""
+                partialText = ""
+                latestFinalText = ""
             }
         },
         onSetInterviewReAnswer = { viewModel.setInterviewReAnswer() },

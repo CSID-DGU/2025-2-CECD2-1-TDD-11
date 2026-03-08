@@ -14,22 +14,26 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
-import kotlin.invoke
 
 private class AndroidSpeechToText(private val app: Application) : SpeechToText {
     private var recognizer: SpeechRecognizer? = null
     private var finalResult: String = ""
     private var partialCb: ((String) -> Unit)? = null
+    private var finalCb: ((String) -> Unit)? = null
     private var stopContinuation: ((String) -> Unit)? = null
 
     override var isRunning: Boolean = false
         private set
 
-    override suspend fun start(onPartial: (String) -> Unit) {
+    override suspend fun start(
+        onPartial: (String) -> Unit,
+        onFinal: (String) -> Unit,
+    ) {
         withContext(Dispatchers.Main) {
             if (isRunning) return@withContext
 
             partialCb = onPartial
+            finalCb = onFinal
             finalResult = ""
             stopContinuation = null
 
@@ -39,80 +43,59 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                     putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
-
-                    // 침묵 허용 시간
-                    putExtra(
-                        RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-                        10000L,
-                    )
-                    putExtra(
-                        RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
-                        10000L,
-                    )
+                    putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 10000L)
+                    putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 10000L)
                 }
+
             sr.setRecognitionListener(
                 object : RecognitionListener {
                     override fun onReadyForSpeech(params: Bundle?) {}
-
                     override fun onBeginningOfSpeech() {}
-
                     override fun onRmsChanged(rmsdB: Float) {}
-
                     override fun onBufferReceived(buffer: ByteArray?) {}
-
                     override fun onEndOfSpeech() {}
 
                     override fun onError(error: Int) {
-//                        isRunning = false
                         finish(finalResult)
                     }
 
                     override fun onResults(results: Bundle) {
                         val list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         finalResult = list?.firstOrNull().orEmpty()
-                        partialCb?.invoke(finalResult)
-//                        isRunning = false
+                        if (finalResult.isNotBlank()) {
+                            finalCb?.invoke(finalResult)
+                        }
                         finish(finalResult)
                     }
 
                     override fun onPartialResults(partialResults: Bundle) {
                         val list = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        list?.firstOrNull()?.let { partialCb?.invoke(it) }
+                        list?.firstOrNull()?.let { text ->
+                            if (text.isNotBlank()) {
+                                partialCb?.invoke(text)
+                            }
+                        }
                     }
 
-                    override fun onEvent(
-                        eventType: Int,
-                        params: Bundle?,
-                    ) {}
+                    override fun onEvent(eventType: Int, params: Bundle?) {}
                 },
             )
+
             recognizer = sr
             isRunning = true
             sr.startListening(intent)
         }
     }
 
-//    override suspend fun stop(): String {
-//        return withContext(Dispatchers.Main) {
-//            if (!isRunning) return@withContext finalResult
-//            suspendCancellableCoroutine { cont ->
-//                val sr = recognizer
-//                recognizer = null
-//                try {
-//                    sr?.stopListening()
-//                } catch (_: Exception) {
-//                }
-//                cont.resume(finalResult)
-//            }
-//        }
-//    }
     override suspend fun stop(): String {
         return withContext(Dispatchers.Main) {
             if (!isRunning) return@withContext finalResult
+
             suspendCancellableCoroutine { cont ->
                 stopContinuation = { result ->
                     if (cont.isActive) cont.resume(result)
                 }
+
                 try {
                     recognizer?.stopListening()
                 } catch (_: Exception) {
@@ -125,7 +108,6 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
 
     private fun finish(result: String) {
         isRunning = false
-
         recognizer?.destroy()
         recognizer = null
 

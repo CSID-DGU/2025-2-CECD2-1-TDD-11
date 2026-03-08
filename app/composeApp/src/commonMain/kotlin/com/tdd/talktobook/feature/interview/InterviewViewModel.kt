@@ -66,6 +66,19 @@ class InterviewViewModel(
         }
     }
 
+    fun appendChunk(base: String, chunk: String): String {
+        val cleanBase = base.trim()
+        val cleanChunk = chunk.trim()
+
+        if (cleanChunk.isEmpty()) return cleanBase
+        if (cleanBase.isEmpty()) return cleanChunk
+
+        // 마지막에 같은 chunk가 있을 시 중복 추가 X
+        if (cleanBase.endsWith(cleanChunk)) return cleanBase
+
+        return "$cleanBase $cleanChunk"
+    }
+
     fun getFirstQuestion(question: String) {
         d("[test] interview -> 4 get first question")
         if (question.isNotEmpty()) {
