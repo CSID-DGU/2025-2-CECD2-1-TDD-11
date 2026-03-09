@@ -105,4 +105,9 @@ class AuthRepositoryImpl(
         flow {
             localDataStore.clearAll()
         }
+
+    override suspend fun clearAllDataExceptToken(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearAllExceptToken()
+        }
 }

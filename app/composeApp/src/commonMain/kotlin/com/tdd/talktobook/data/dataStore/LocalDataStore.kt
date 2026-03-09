@@ -99,6 +99,16 @@ class LocalDataStore(
         }
     }
 
+    suspend fun clearAllExceptToken() {
+        dataStore.edit { preferences ->
+            preferences.remove(USER_EMAIL)
+            preferences.remove(CURRENT_AUTOBIOGRAPHY_STATUS)
+            preferences.remove(CURRENT_AUTOBIOGRAPHY_ID)
+            preferences.remove(CURRENT_INTERVIEW_ID)
+            d("[dataStore] clear all data except token")
+        }
+    }
+
     companion object {
         val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")

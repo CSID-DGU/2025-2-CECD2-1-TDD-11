@@ -6,7 +6,7 @@ import com.tdd.talktobook.core.ui.base.BaseViewModel
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.request.autobiography.CreateAutobiographyRequestModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyListModel
-import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataExceptTokenUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAllAutobiographyUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
@@ -22,10 +22,10 @@ class PublicationViewModel(
     private val getAutobiographyStatusUseCase: GetAutobiographyStatusUseCase,
     private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
     private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
-    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataExceptTokenUseCase,
 ) : BaseViewModel<PublicationPageState>(
-        PublicationPageState(),
-    ) {
+    PublicationPageState(),
+) {
     init {
         initGetAutobiographyStatus()
         initGetAutobiographyId()
@@ -75,6 +75,16 @@ class PublicationViewModel(
             state.copy(
                 autobiographyList = data.results.filter { it.status == AutobiographyStatusType.FINISH.type },
                 selectedAutobiographyId = if (data.results.isNotEmpty()) data.results[0].autobiographyId else 0,
+            )
+        }
+    }
+
+    fun setUserNickName(name: String) {
+        d("[test] interview (publication)  -> name: $name")
+
+        updateState { state ->
+            state.copy(
+                nickName = name,
             )
         }
     }

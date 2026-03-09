@@ -1,5 +1,6 @@
 package com.tdd.talktobook.app.di
 
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataExceptTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
@@ -78,6 +79,7 @@ val useCaseModule =
         factory { GetUserEmailUseCase(get()) }
         factory { DeleteLocalAllDataUseCase(get()) }
         factory { DeleteLocalTokenUseCase(get()) }
+        factory { DeleteLocalAllDataExceptTokenUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }

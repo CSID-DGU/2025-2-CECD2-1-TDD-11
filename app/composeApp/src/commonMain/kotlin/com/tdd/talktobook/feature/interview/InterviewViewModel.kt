@@ -15,7 +15,7 @@ import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.ChatInterviewResponseModel
-import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataExceptTokenUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
@@ -39,13 +39,13 @@ class InterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
     private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
-    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataExceptTokenUseCase,
     private val getCoShowInterviewConversationUseCase: GetCoShowInterviewConversationUseCase,
     private val postCoShowAnswerUseCase: PostCoShowAnswerUseCase,
     private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase,
 ) : BaseViewModel<InterviewPageState>(
-        InterviewPageState(),
-    ) {
+    InterviewPageState(),
+) {
     init {
         initGetAutobiographyStatus()
     }

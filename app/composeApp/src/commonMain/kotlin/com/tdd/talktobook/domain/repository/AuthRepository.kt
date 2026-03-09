@@ -30,4 +30,6 @@ interface AuthRepository {
     suspend fun clearToken(): Flow<Result<Boolean>>
 
     suspend fun clearAllData(): Flow<Result<Boolean>>
+
+    suspend fun clearAllDataExceptToken(): Flow<Result<Boolean>>
 }
