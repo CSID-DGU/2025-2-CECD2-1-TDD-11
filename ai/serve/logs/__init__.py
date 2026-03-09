@@ -56,7 +56,13 @@ def get_logger():
         
         # 2. 파일 핸들러 (백업용) - 텍스트 포맷
         log_dir = os.environ.get("LOG_DIR", "/var/log/ai-server")
-        os.makedirs(log_dir, exist_ok=True)
+        try:
+            os.makedirs(log_dir, exist_ok=True)
+        except (PermissionError, OSError):
+            # 로컬 환경 폴백
+            log_dir = os.path.join(os.path.dirname(__file__), "logs")
+            os.makedirs(log_dir, exist_ok=True)
+        
         file_handler = handlers.RotatingFileHandler(
             os.path.join(log_dir, "app.log"),
             maxBytes=10 * 1024 * 1024,  # 10MB

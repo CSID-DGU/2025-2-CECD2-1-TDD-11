@@ -30,9 +30,9 @@ class SessionManager:
 
     def __init__(self, redis_host: str = None, redis_port: int = None, redis_db: int = 0):
         import os
-        # 환경변수에서 Redis 설정 읽기
-        redis_host = redis_host or os.getenv('REDIS_HOST')
-        redis_port = redis_port or int(os.getenv('REDIS_PORT'))
+        # 환경변수에서 Redis 설정 읽기 (기본값 포함)
+        redis_host = redis_host or os.getenv('REDIS_HOST', 'localhost')
+        redis_port = redis_port or int(os.getenv('REDIS_PORT', 6379))
         self.redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
         self.session_ttl = None  # TTL 없음 (영구 저장)
         logger.info(f"[REDIS] Connected to Redis at {redis_host}:{redis_port}")
