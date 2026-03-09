@@ -149,24 +149,34 @@ class InterviewViewModel(
                 interviewId = id,
             )
         }
+
+        initGetConversation()
     }
 
     private fun getInterviewConversation() {
         when (uiState.value.flowType) {
             FlowType.DEFAULT -> {
-                viewModelScope.launch {
-                    getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
-                }
+                initGetConversation()
             }
 
             FlowType.COSHOW -> {
-                viewModelScope.launch {
-                    getCoShowInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
-                }
+                initGetConversationCoShow()
             }
         }
 
         d("[test] interview -> 5 get conversation (test)")
+    }
+
+    private fun initGetConversation() {
+        viewModelScope.launch {
+            getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+        }
+    }
+
+    private fun initGetConversationCoShow() {
+        viewModelScope.launch {
+            getCoShowInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+        }
     }
 
     private fun onSuccessGetConversation(data: InterviewConversationListModel) {
