@@ -85,17 +85,12 @@ internal fun InterviewScreen(
         )
     }
     val scope = rememberCoroutineScope()
-    var committedText by remember { mutableStateOf("") }
-    var partialText by remember { mutableStateOf("") }
-    var latestFinalText by remember { mutableStateOf("") }
 
+    var committedText by remember { mutableStateOf("") }
+    var previewText by remember { mutableStateOf("") }
     val displayText =
-        remember(committedText, partialText) {
-            when {
-                committedText.isBlank() -> partialText
-                partialText.isBlank() -> committedText
-                else -> "$committedText $partialText"
-            }.trim()
+        remember(committedText, previewText) {
+            viewModel.joinTranscript(committedText, previewText)
         }
 
     val mergedChat =
@@ -117,25 +112,26 @@ internal fun InterviewScreen(
             onPermissionGranted = {
                 scope.launch {
                     d("[stt] (client) mic permission granted")
-                    partialText = ""
+
                     committedText = ""
-                    latestFinalText = ""
+                    previewText = ""
 
                     viewModel.beginInterview()
 
                     stt.start(
                         onPartial = { p ->
-                            if (p.isNotBlank()) {
-                                partialText = p
+                            val text = p.trim()
+                            if (text.isNotBlank()) {
+                                previewText = text
                             }
                         },
                         onFinal = { f ->
-                            if (f.isNotBlank()) {
-                                latestFinalText = f
-                                committedText = viewModel.appendChunk(committedText, f)
-                                partialText = ""
+                            val text = f.trim()
+                            if (text.isNotBlank()) {
+                                committedText = viewModel.joinTranscript(committedText, text)
+                                previewText = ""
                             }
-                        }
+                        },
                     )
                 }
             },
@@ -210,22 +206,19 @@ internal fun InterviewScreen(
         },
         onSetInterview = {
             scope.launch {
-                val stoppedText = stt.stop()
+                val stoppedText = stt.stop().trim()
 
-                val tailText = when {
-                    partialText.isNotBlank() -> partialText
-                    latestFinalText.isNotBlank() -> latestFinalText
-                    stoppedText.isNotBlank() -> stoppedText
-                    else -> ""
-                }
-
-                val finalAnswer = viewModel.appendChunk(committedText, tailText)
+                val finalAnswer =
+                    when {
+                        previewText.isNotBlank() -> viewModel.joinTranscript(committedText, previewText)
+                        stoppedText.isNotBlank() && stoppedText != committedText -> viewModel.joinTranscript(committedText, stoppedText)
+                        else -> committedText
+                    }
 
                 viewModel.setInterviewAnswer(finalAnswer)
 
                 committedText = ""
-                partialText = ""
-                latestFinalText = ""
+                previewText = ""
             }
         },
         onSetInterviewReAnswer = { viewModel.setInterviewReAnswer() },
