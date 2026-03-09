@@ -194,6 +194,8 @@ const val PublicationTitle = "생성된 자서전"
 const val PublicationBookWholeContent = "전체 보기"
 const val PublicationBookDelete = "자서전 삭제하기"
 const val PublicationNotCreatedAutobiography = "아직 생성된 자서전이 없어요!"
+const val PublicationAutobiography = "자서전 생성 시작하기"
+const val PublicationAutobiographyNotEnoughNotice = "충분한 인터뷰가 진행되지 않았어요.\n이대로 자서전을 생성할까요?"
 
 // Autobiography Request
 const val DownLoadPdf = "자서전 다운받기"

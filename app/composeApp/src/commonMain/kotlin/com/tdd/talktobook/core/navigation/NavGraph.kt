@@ -273,13 +273,16 @@ fun NavGraphBuilder.autobiographyRequestNavGraph(
 
 fun NavGraphBuilder.publicationNavGraph(
     navController: NavController,
+    showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.PublicationScreen.route,
         route = NavRoutes.PublicationGraph.route,
     ) {
         composable(NavRoutes.PublicationScreen.route) {
-            PublicationScreen()
+            PublicationScreen(
+                showCreateAutobiographyDialog = showOneBtnDialogModel
+            )
         }
     }
 }

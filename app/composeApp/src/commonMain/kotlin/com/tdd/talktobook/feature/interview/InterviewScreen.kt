@@ -342,7 +342,7 @@ private fun InterviewContent(
             },
         )
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
