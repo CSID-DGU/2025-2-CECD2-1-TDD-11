@@ -30,11 +30,14 @@ def find_matching_materials(answer: str, current_material: str, material_data: d
     
     matched = []
     for material in all_materials:
-        if material in answer:
+        material_name = material.get('name') if isinstance(material, dict) else material
+        if material_name and material_name in answer:
             matched.append(material)
     
-    if current_material and current_material in answer and current_material not in matched:
-        matched.append(current_material)
+    if current_material:
+        current_name = current_material.get('name') if isinstance(current_material, dict) else current_material
+        if current_name and current_name in answer and current_material not in matched:
+            matched.append(current_material)
     
     return matched
 
@@ -72,10 +75,9 @@ def restore_categories_state(categories: Dict[int, Category], metrics_categories
                 
             category = categories[cat_num]
             
-            # chunk_weight 복원 (문자열 키를 정수로 변환)
+            # chunk_weight 복원
             if "chunk_weight" in cat_data:
-                for k, v in cat_data["chunk_weight"].items():
-                    category.chunk_weight[int(k)] = int(v)
+                category.chunk_weight.update(cat_data["chunk_weight"])
             
             # chunks 상태 복원 (배열)
             for chunk_data in cat_data.get("chunks", []):
@@ -106,10 +108,9 @@ def restore_categories_state(categories: Dict[int, Category], metrics_categories
                 
             category = categories[cat_num]
             
-            # chunk_weight 복원 (문자열 키를 정수로 변환)
+            # chunk_weight 복원
             if "chunk_weight" in cat_data:
-                for k, v in cat_data["chunk_weight"].items():
-                    category.chunk_weight[int(k)] = int(v)
+                category.chunk_weight.update(cat_data["chunk_weight"])
             
             # materials 상태 복원
             for chunk_key, chunk_data in cat_data.get("chunks", {}).items():

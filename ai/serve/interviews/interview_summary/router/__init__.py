@@ -1,20 +1,31 @@
 from fastapi import APIRouter, HTTPException, Depends
-from promptflow.core import Flow
 from starlette.requests import Request
+import sys
 from pathlib import Path
 
 from auth import get_current_user, AuthRequired
-from interviews.interview_summary.dto.request import InterviewSummaryRequestDto
-from interviews.interview_summary.dto.response import InterviewSummaryResponseDto
+from ..dto.request import InterviewSummaryRequestDto
+from ..dto.response import InterviewSummaryResponseDto
 from logs import get_logger
+
+# flow 경로 추가
+current_dir = Path(__file__).parent.parent.parent.parent.parent
+flows_dir = current_dir / "flows" / "interview_summary" / "standard" / "summarize_interview"
+sys.path.insert(0, str(flows_dir))
+
+from promptflow import load_flow
 
 logger = get_logger()
 
 router = APIRouter()
 
+# flow 로드
+flow_path = flows_dir / "flow.dag.yaml"
+flow = load_flow(str(flow_path))
+
 
 @router.post(
-    "/api/v2/interviews/summary",
+    "/{interview_id}/summary",
     dependencies=[Depends(AuthRequired())],
     response_model=InterviewSummaryResponseDto,
     summary="인터뷰 요약",
@@ -28,11 +39,6 @@ async def summarize_interview(
     try:
         current_user = get_current_user(request)
         
-        # 상대경로로 flow 찾기
-        current_dir = Path(__file__).parent.parent.parent.parent.parent
-        flow_path = current_dir / "flows" / "interview_summary" / "standard" / "summarize_interview" / "flow.dag.yaml"
-        
-        flow = Flow.load(str(flow_path))
         result = flow(
             conversation=[conv.model_dump() for conv in requestDto.conversation]
         )

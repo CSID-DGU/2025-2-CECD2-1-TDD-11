@@ -4,6 +4,10 @@ inputs:
     type: string
   answer_text:
     type: string
+  user_id:
+    type: int
+  autobiography_id:
+    type: int
 outputs:
   next_question:
     type: object
@@ -20,3 +24,5 @@ nodes:
   inputs:
     sessionId: ${inputs.sessionId}
     answer_text: ${inputs.answer_text}
+    user_id: ${inputs.user_id}
+    autobiography_id: ${inputs.autobiography_id}

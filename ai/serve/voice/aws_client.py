@@ -1,10 +1,7 @@
 """AWS 클라이언트 - 서버 측에서만 사용"""
 import os
 import boto3
-import logging
 from botocore.exceptions import ClientError
-
-logger = logging.getLogger("life-bookshelf-ai")
 
 class AWSVoiceClient:
     def __init__(self):
@@ -40,7 +37,7 @@ class AWSVoiceClient:
             )
             return response['AudioStream'].read()
         except ClientError as e:
-            logger.error(f"[AWS] TTS 실패: {e}")
+            print(f"[ERROR] TTS 실패: {e}")
             raise
     
     def get_presigned_url(self, text: str, voice_id: str = "Seoyeon") -> str:
@@ -55,5 +52,5 @@ class AWSVoiceClient:
             # S3에 업로드 후 presigned URL 반환하는 로직 추가 가능
             return response['AudioStream'].read()
         except ClientError as e:
-            logger.error(f"[AWS] Presigned URL 생성 실패: {e}")
+            print(f"[ERROR] Presigned URL 생성 실패: {e}")
             raise

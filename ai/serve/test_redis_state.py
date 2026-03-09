@@ -7,10 +7,6 @@ import base64
 import hmac
 import hashlib
 import redis
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 BASE_URL = "http://localhost:3000"
 AUTOBIOGRAPHY_ID = 999
@@ -30,9 +26,7 @@ def get_token():
 
 def get_redis_session(session_key):
     """Redis에서 세션 데이터 조회"""
-    redis_host = os.getenv('REDIS_HOST', 'localhost')
-    redis_port = int(os.getenv('REDIS_PORT', 6379))
-    redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
+    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
     session_data_raw = redis_client.get(session_key)
     if session_data_raw:
         return json.loads(session_data_raw)

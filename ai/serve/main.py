@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from promptflow.connections import AzureOpenAIConnection, OpenAIConnection
 from promptflow.client import PFClient
 from dotenv import load_dotenv
@@ -16,28 +17,18 @@ from interviews.interview_summary.router import (
 )
 from images import router as images_router
 from voice.router import router as voice_router
-from stream.router import router as stream_router
 
 from logs import get_logger
+import stream.consumers  # 컨슈머 자동 시작
+import logging
 
 load_dotenv()
 
 logger = get_logger()
 
-# 임베딩 모델 사전 로딩 (서버 시작 시)
-def preload_embedding_model():
-    """서버 시작 시 임베딩 모델 미리 로딩하여 첫 요청 속도 개선"""
-    try:
-        import sys
-        sys.path.append(os.path.join(os.path.dirname(__file__), "..", "flows", "interviews", "chat", "interview_chat_v2"))
-        from engine.retrieval import get_embedding_model
-        logger.info("임베딩 모델 로딩 중...")
-        model = get_embedding_model()
-        logger.info(f"임베딩 모델 로딩 완료: {type(model).__name__}")
-    except Exception as e:
-        logger.warning(f"임베딩 모델 로딩 실패 (첫 요청 시 로딩됨): {e}")
-
-preload_embedding_model()
+# promptflow 로그 레벨 조정
+logging.getLogger("flowinvoker").setLevel(logging.WARNING)
+logging.getLogger("execution.flow").setLevel(logging.WARNING)
 
 
 def create_connection():
@@ -72,14 +63,39 @@ app = FastAPI(
     version="0.0.1",
 )
 
-# 유지되는 API들
-app.include_router(autobiographies_generate_autobiography_router)
-app.include_router(interviews_request_interview_chat_v2_router)
-app.include_router(interviews_summary_router)
-app.include_router(images_router)
-app.include_router(voice_router)
-app.include_router(stream_router)
+web_url = os.environ.get("WEB_URL")
 
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", web_url],  # 개발용, 프로덕션에서는 특정 도메인으로 제한
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+web_url = os.environ.get("WEB_URL")
+# 유지되는 API들
+
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", web_url],  # 개발용, 프로덕션에서는 특정 도메인으로 제한
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 유지되는 API들
+app.include_router(autobiographies_generate_autobiography_router, prefix="/api/v2/autobiographies")
+app.include_router(interviews_request_interview_chat_v2_router, prefix="/api/v2/interviews")
+app.include_router(interviews_summary_router, prefix="/api/v2/interviews")
+app.include_router(images_router, prefix="/api/v2/images")
+app.include_router(voice_router, prefix="/api/v2/voice")
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn

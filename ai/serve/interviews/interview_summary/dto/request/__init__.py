@@ -8,4 +8,6 @@ class ConversationDto(BaseModel):
 
 
 class InterviewSummaryRequestDto(BaseModel):
-    conversation: List[ConversationDto] = Field(description="인터뷰 대화 내역")
+    interviewId: int = Field(description="인터뷰 ID")
+    userId: int = Field(description="사용자 ID")
+    conversations: List[ConversationDto] = Field(description="인터뷰 대화 내역")

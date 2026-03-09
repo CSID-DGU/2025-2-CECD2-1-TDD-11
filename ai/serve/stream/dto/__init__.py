@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
+from typing import List
 
 # AI 인터뷰 질의응답에 대한 payload 정의
 class Conversation(BaseModel):
@@ -16,10 +17,11 @@ class InterviewQuestion(BaseModel):
 class InterviewPayload(BaseModel):
     autobiographyId: int
     userId: int
-    conversation: Optional[List[Conversation]] = []
-    interviewQuestion: Optional[InterviewQuestion] = None
+    conversation: Optional[list[Conversation]] = []
+    interviewQuestion: Optional[InterviewQuestion]
 
 # Categories와 하위 데이터들에 대한 payload 정의
+
 class ChunksPayload(BaseModel):
     categoryId: int
     chunkOrder: int
@@ -38,10 +40,11 @@ class MaterialsPayload(BaseModel):
 class CategoriesPayload(BaseModel):
     autobiographyId: int
     userId: int
-    themeId: int
+    themeId: int  # 추가된 필드
     categoryId: int
-    chunks: Optional[List[ChunksPayload]] = []
-    materials: Optional[List[MaterialsPayload]] = []
+    chunks: Optional[list[ChunksPayload]] = []
+    materials: Optional[list[MaterialsPayload]] = []
+    
     
 # 자서전 Generate를 위한 사용자 정보와 answers 정의
 class UserInfo(BaseModel):
@@ -75,27 +78,9 @@ class GeneratedAutobiographyPayload(BaseModel):
     userId: int
     title: str
     content: str
-    isLast: bool
     
 # interview에 대한 요약 응답 payload 정의
 class InterviewSummaryResponsePayload(BaseModel):
     interviewId: int
     userId: int
     summary: str
-
-# interview summary request dto 정의
-class ConversationDto(BaseModel):
-    question: str = Field(description="질문 내용")
-    conversation: str = Field(description="답변 내용")
-
-class InterviewSummaryRequestDto(BaseModel):
-    interviewId: int = Field(description="인터뷰 ID")
-    userId: int = Field(description="사용자 ID")
-    conversations: List[ConversationDto] = Field(description="인터뷰 대화 내역")
-
-# cycle init
-class CycleInitMessage(BaseModel):
-    cycleId: str
-    expectedCount: int
-    autobiographyId: int
-    userId: int

@@ -1,7 +1,10 @@
 from typing import Dict, List, Optional
 from uuid import uuid4
 from pathlib import Path
+import logging
 from .core import InterviewEngine
+
+logger = logging.getLogger("interview_generators")
 
 #V2 추가 함수 - 첫 질문 생성
 def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
@@ -38,11 +41,7 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
         return {
             "next_question": {
                 "id": f"q-{uuid4().hex[:8]}",
-                "material": {
-                    "full_material_name": "",
-                    "material_name": "첫 질문",
-                    "material_order": 0
-                },
+                "material": "첫 질문(material 없음)",
                 "type": "category_intro",
                 "text": question_text,
                 "material_id": []
@@ -51,18 +50,20 @@ def generate_first_question(engine: InterviewEngine, metrics: Dict) -> Dict:
         }
         
     except Exception as e:
-        print(f"[ERROR] 첫 질문 생성 실패: {e}")
+        logger.error(f"첫 질문 생성 실패: {e}")
         return {"next_question": None, "last_answer_materials_id": []}
 
 #V2 추가 함수 - LLM 질문 생성
 def generate_question_llm(material: str, target: str, context_answer: Optional[str] = None) -> str:
     """LLM으로 질문 생성"""
     try:
-        current_dir = Path(__file__).parent.parent
-        flow_path = current_dir.parent.parent / "standard" / "generate_interview_questions_v2" / "flow.dag.yaml"
+        # 현재 파일 위치에서 프로젝트 루트의 flows 디렉토리로 이동
+        current_dir = Path(__file__).parent.parent  # engine의 부모 (interview_chat_v2)
+        ai_root = current_dir.parent.parent.parent.parent  # ai 디렉토리
+        flow_path = ai_root / "flows" / "interviews" / "standard" / "generate_interview_questions_v2" / "flow.dag.yaml"
         
         if not flow_path.exists():
-            print(f"[WARNING] Flow not found: {flow_path}")
+            logger.warning(f"Flow not found: {flow_path}")
             raise FileNotFoundError(f"Flow not found: {flow_path}")
         
         from promptflow import load_flow
@@ -79,27 +80,39 @@ def generate_question_llm(material: str, target: str, context_answer: Optional[s
             temperature=0.8
         )
         
-        question_text = result.get("question", {}).get("text", "")
+        # logger.debug(f"generate_question_llm result type: {type(result)}, value: {result}")
+        
+        # flow output: {"question": {"text": "...", ...}}
+        if isinstance(result, dict):
+            question_data = result.get("question", {})
+            # logger.debug(f"question_data type: {type(question_data)}, value: {question_data}")
+            if isinstance(question_data, dict):
+                question_text = question_data.get("text", "")
+            else:
+                question_text = str(question_data)
+        else:
+            question_text = str(result)
+            
         if question_text:
             return question_text
         else:
-            print(f"[WARNING] LLM returned empty question for {material}, {target}")
+            logger.warning(f"LLM returned empty question for {material}, {target}")
             raise ValueError("Empty question returned")
             
     except Exception as e:
-        print(f"[ERROR] LLM 질문 생성 실패: {e}")
-        print(f"[INFO] Using simple fallback for {material}, {target}")
+        logger.error(f"LLM 질문 생성 실패: {e}")
+        logger.info(f"Using simple fallback for {material}, {target}")
         return f"{material}에 대해 더 자세히 이야기해 주세요."
 
 #V2 추가 함수 - Material Gate 질문 생성
-def generate_material_gate_question(full_material_name: str, previous_answer: Optional[str] = None) -> str:
+def generate_material_gate_question(full_material_name: str) -> str:
     """소재 진입 전 확인 질문 생성 (LLM)"""
     try:
         current_dir = Path(__file__).parent.parent
         flow_path = current_dir.parent.parent / "standard" / "generate_material_gate_question" / "flow.dag.yaml"
         
         if not flow_path.exists():
-            print(f"[WARNING] Material gate flow not found: {flow_path}")
+            logger.warning(f"Material gate flow not found: {flow_path}")
             raise FileNotFoundError(f"Flow not found: {flow_path}")
         
         from promptflow import load_flow
@@ -107,21 +120,29 @@ def generate_material_gate_question(full_material_name: str, previous_answer: Op
         
         result = flow(
             material=full_material_name,
-            previous_answer=previous_answer or "",
             model="gpt-4o-mini",
             temperature=0.7
         )
         
-        question_text = result.get("question", {}).get("text", "")
+        # flow output: {"question": {"text": "...", ...}}
+        if isinstance(result, dict):
+            question_data = result.get("question", {})
+            if isinstance(question_data, dict):
+                question_text = question_data.get("text", "")
+            else:
+                question_text = str(question_data)
+        else:
+            question_text = str(result)
+            
         if question_text:
             return question_text
         else:
-            print(f"[WARNING] LLM returned empty gate question for {full_material_name}")
+            logger.warning(f"LLM returned empty gate question for {full_material_name}")
             raise ValueError("Empty question returned")
             
     except Exception as e:
-        print(f"[ERROR] Material gate 질문 생성 실패: {e}")
-        print(f"[INFO] Using simple fallback for {full_material_name}")
+        logger.error(f"Material gate 질문 생성 실패: {e}")
+        logger.info(f"Using simple fallback for {full_material_name}")
         parts = full_material_name.split()
         material_name = parts[-1] if parts else full_material_name
         return f"{material_name}에 대해 이야기할 것이 있으신가요?"
