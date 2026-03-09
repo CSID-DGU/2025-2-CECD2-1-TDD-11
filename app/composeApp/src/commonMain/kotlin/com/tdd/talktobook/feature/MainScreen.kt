@@ -244,6 +244,7 @@ fun MainScreen() {
                             userNickName = viewModel.userNickName,
                             showTwoBtnDialogModel = showTwoBtnDialog,
                             flowType = viewModel.screenFlowType,
+                            showToastMsg = showToastMessage
                         )
                         startProgressNavGraph(
                             navController = navController,

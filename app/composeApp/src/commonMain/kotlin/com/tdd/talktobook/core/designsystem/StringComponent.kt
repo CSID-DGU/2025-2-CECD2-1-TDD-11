@@ -11,6 +11,7 @@ const val SelectItem = "선택하기"
 const val NextTime = "나중에"
 const val GoToHome = "홈으로"
 const val ServerErrorToast = "네트워크 오류가 발생했습니다."
+const val ServerErrorToastTryNext = "네트워크 오류 발생. 다음에 다시 시도해 주세요."
 const val ZeroString = "0"
 
 // Day

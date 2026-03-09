@@ -31,6 +31,7 @@ import com.tdd.talktobook.core.designsystem.InterviewReAnswer
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
 import com.tdd.talktobook.core.designsystem.Red1
+import com.tdd.talktobook.core.designsystem.ServerErrorToastTryNext
 import com.tdd.talktobook.core.designsystem.SkipQuestionBottomHint
 import com.tdd.talktobook.core.designsystem.SkipQuestionContent
 import com.tdd.talktobook.core.designsystem.SkipQuestionFirstBtn
@@ -44,6 +45,7 @@ import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.type.FlowType
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.rememberMicPermissionRequester
 import com.tdd.talktobook.core.ui.util.stt.AudioRecorder
 import com.tdd.talktobook.core.ui.util.stt.StreamingSpeechToText
@@ -70,6 +72,7 @@ internal fun InterviewScreen(
     nickName: StateFlow<String>,
     navController: NavController,
     flowType: StateFlow<FlowType>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -191,6 +194,14 @@ internal fun InterviewScreen(
 
                 is InterviewEvent.GoBackToLogIn -> {
                     goToSuccessPage(uiState.autobiographyId)
+                }
+
+                is InterviewEvent.ShowNetworkErrorToast -> {
+                    showToastMsg(ServerErrorToastTryNext, ToastType.ERROR)
+                }
+
+                is InterviewEvent.GoBackToHome -> {
+                    navController.navigate(NavRoutes.HomeScreen.route)
                 }
             }
         }

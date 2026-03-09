@@ -8,4 +8,8 @@ sealed class InterviewEvent : Event {
     data object ShowCreateAutobiographyDialog : InterviewEvent()
 
     data object GoBackToLogIn : InterviewEvent()
+
+    data object ShowNetworkErrorToast : InterviewEvent()
+
+    data object GoBackToHome : InterviewEvent()
 }

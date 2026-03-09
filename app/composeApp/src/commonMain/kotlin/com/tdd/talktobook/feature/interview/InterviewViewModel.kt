@@ -27,6 +27,7 @@ import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import com.tdd.talktobook.feature.interview.type.SkipQuestionType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -77,6 +78,16 @@ class InterviewViewModel(
         if (cleanBase.endsWith(cleanChunk)) return cleanBase
 
         return "$cleanBase $cleanChunk"
+    }
+
+    fun joinTranscript(base: String, chunk: String): String {
+        val b = base.trim()
+        val c = chunk.trim()
+
+        if (c.isEmpty()) return b
+        if (b.isEmpty()) return c
+
+        return "$b $c"
     }
 
     fun getFirstQuestion(question: String) {
@@ -291,7 +302,7 @@ class InterviewViewModel(
     private fun defaultInterviewAnswer(chat: String) {
         viewModelScope.launch {
             postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
-                .collect { resultResponse(it, ::onSuccessInterviewAnswer) }
+                .collect { resultResponse(it, ::onSuccessInterviewAnswer) { onFailureInterviewAnswer() } }
         }
     }
 
@@ -303,6 +314,15 @@ class InterviewViewModel(
                 answerInputs = emptyList(),
                 isStartAnswerBtnActivated = true,
             )
+        }
+    }
+
+    private fun onFailureInterviewAnswer() {
+        viewModelScope.launch {
+            delay(3000)
+            emitEventFlow(InterviewEvent.ShowNetworkErrorToast)
+            delay(500)
+            emitEventFlow(InterviewEvent.GoBackToHome)
         }
     }
 

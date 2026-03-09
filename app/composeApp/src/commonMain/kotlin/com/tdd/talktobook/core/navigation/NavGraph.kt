@@ -172,6 +172,7 @@ fun NavGraphBuilder.interviewNavGraph(
     userNickName: StateFlow<String>,
     showTwoBtnDialogModel: (TwoBtnDialogModel) -> Unit,
     flowType: StateFlow<FlowType>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
@@ -206,6 +207,7 @@ fun NavGraphBuilder.interviewNavGraph(
                         launchSingleTop = true
                     }
                 },
+                showToastMsg = showToastMsg
             )
         }
     }
