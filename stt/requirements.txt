@@ -1,4 +1,6 @@
 fastapi
-uvicorn
-faster-whisper
+uvicorn[standard]
 numpy
+faster-whisper
+webrtcvad
+setuptools
