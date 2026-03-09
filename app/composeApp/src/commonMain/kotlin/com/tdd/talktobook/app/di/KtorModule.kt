@@ -3,8 +3,10 @@ package com.tdd.talktobook.app.di
 import co.touchlab.kermit.Logger.Companion.d
 import com.tdd.talktobook.BuildKonfig
 import com.tdd.talktobook.data.dataStore.LocalDataStore
+import com.tdd.talktobook.data.entity.response.auth.AuthErrorResponse
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -13,6 +15,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
@@ -42,6 +45,7 @@ object KtorModule {
         json: Json,
         localDataStore: LocalDataStore,
         tokenProvider: TokenProvider,
+        sessionManager: SessionManager,
     ): HttpClient =
         HttpClient {
             expectSuccess = false
@@ -68,6 +72,18 @@ object KtorModule {
                             d("[Ktor] -> $message")
                         }
                     }
+            }
+
+            HttpResponseValidator {
+                validateResponse { response ->
+                    if (response.status.value == 401) {
+                        sessionManager.logout()
+                    }
+                }
+
+                handleResponseExceptionWithRequest { cause, _ ->
+                    //
+                }
             }
 
             defaultRequest {

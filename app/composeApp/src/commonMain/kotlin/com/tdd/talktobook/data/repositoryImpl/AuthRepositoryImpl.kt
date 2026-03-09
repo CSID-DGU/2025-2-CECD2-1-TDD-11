@@ -11,6 +11,7 @@ import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.Single
@@ -74,16 +75,15 @@ class AuthRepositoryImpl(
             }
         }
 
-    override suspend fun getStoredRefreshToken(): Flow<Result<String>> =
-        flow {
-            localDataStore.refreshToken.collect { token ->
-                if (token != null) {
-                    emit(Result.success(token))
-                } else {
-                    emit(Result.failure(Exception("[dataStore] refresh token is null")))
-                }
-            }
+    override suspend fun getStoredRefreshToken(): Result<String> {
+        val token = localDataStore.refreshToken.first()
+
+        return if (token.isNullOrBlank()) {
+            Result.failure(Exception("[dataStore] refresh token is null"))
+        } else {
+            Result.success(token)
         }
+    }
 
     override suspend fun getUserEmail(): Flow<Result<String>> =
         flow {

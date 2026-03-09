@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.tdd.talktobook.app.di.AuthState
 import com.tdd.talktobook.core.designsystem.White0
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.navigation.autobiographyRequestNavGraph
@@ -70,6 +71,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MainScreen() {
     val viewModel: MainViewModel = koinViewModel()
     val uiState: MainPageState by viewModel.uiState.collectAsStateWithLifecycle()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
+
     val navController = rememberNavController()
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -130,6 +133,23 @@ fun MainScreen() {
             .collect { backStackEntry ->
                 viewModel.setBottomNavType(backStackEntry.destination.route)
             }
+    }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Unauthenticated) {
+            val currentRoute = navController.currentDestination?.route
+            if (currentRoute != NavRoutes.LogInGraph.route) {
+                isShowDialog.value = false
+                isShowTwoBtnDialog.value = false
+                isSheetVisible = false
+                viewModel.setBottomSheetType(BottomSheetType.DEFAULT)
+
+                navController.navigate(NavRoutes.LogInGraph.route) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
     }
 
     if (isShowDialog.value) {

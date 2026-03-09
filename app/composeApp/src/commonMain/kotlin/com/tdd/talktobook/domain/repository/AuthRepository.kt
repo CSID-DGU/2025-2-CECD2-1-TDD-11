@@ -23,7 +23,7 @@ interface AuthRepository {
 
     suspend fun getStoredAccessToken(): Flow<Result<String>>
 
-    suspend fun getStoredRefreshToken(): Flow<Result<String>>
+    suspend fun getStoredRefreshToken(): Result<String>
 
     suspend fun getUserEmail(): Flow<Result<String>>
 

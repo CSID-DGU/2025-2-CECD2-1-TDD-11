@@ -5,4 +5,5 @@ import org.koin.dsl.module
 val tokenModule =
     module {
         single { TokenProvider(get()) }
+        single { SessionManager(get()) }
     }
