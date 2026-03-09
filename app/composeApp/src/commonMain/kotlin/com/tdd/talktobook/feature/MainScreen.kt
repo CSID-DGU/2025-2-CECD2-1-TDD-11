@@ -256,7 +256,9 @@ fun MainScreen() {
                         )
                         publicationNavGraph(
                             navController = navController,
-                            showOneBtnDialogModel = showOneBtnDialog
+                            showOneBtnDialogModel = showOneBtnDialog,
+                            userNickName = viewModel.userNickName,
+                            showToastMsg = showToastMessage
                         )
                         settingNavGraph(
                             navController = navController,

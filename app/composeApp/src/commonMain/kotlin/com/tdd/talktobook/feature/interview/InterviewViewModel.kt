@@ -383,7 +383,14 @@ class InterviewViewModel(
     private fun createAutobiographyDefault() {
         d("[ktor] interview -> 자서전 생성 요청 name: ${uiState.value.nickName}")
         viewModelScope.launch {
-            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
+            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect {
+                resultResponse(it, {
+                    d("[test] interview -> create success")
+                    emitEventFlow(InterviewEvent.ShowPublicationSuccessToast)
+                }, { error ->
+                    d("[test] interview -> failure: $error")
+                })
+            }
         }
 
         initClearLocalData()

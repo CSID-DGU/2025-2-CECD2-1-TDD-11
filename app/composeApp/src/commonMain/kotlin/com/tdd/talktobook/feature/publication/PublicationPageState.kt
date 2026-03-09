@@ -8,5 +8,6 @@ data class PublicationPageState(
     val autobiographyId: Int = 0,
     val autobiographyList: List<AllAutobiographyItemModel> = emptyList(),
     val selectedAutobiographyId: Int = 0,
-    val autobiographyStatus: AutobiographyStatusType = AutobiographyStatusType.EMPTY
+    val autobiographyStatus: AutobiographyStatusType = AutobiographyStatusType.EMPTY,
+    val nickName: String = ""
 ) : PageState

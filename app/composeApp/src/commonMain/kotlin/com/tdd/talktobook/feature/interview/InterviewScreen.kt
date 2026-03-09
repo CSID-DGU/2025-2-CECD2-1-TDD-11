@@ -30,6 +30,7 @@ import com.tdd.talktobook.core.designsystem.InterviewContinuous
 import com.tdd.talktobook.core.designsystem.InterviewReAnswer
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.PublicationRequestSuccess
 import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.designsystem.ServerErrorToastTryNext
 import com.tdd.talktobook.core.designsystem.SkipQuestionBottomHint
@@ -202,6 +203,10 @@ internal fun InterviewScreen(
 
                 is InterviewEvent.GoBackToHome -> {
                     navController.navigate(NavRoutes.HomeScreen.route)
+                }
+
+                is InterviewEvent.ShowPublicationSuccessToast -> {
+                    showToastMsg(PublicationRequestSuccess, ToastType.SUCCESS)
                 }
             }
         }

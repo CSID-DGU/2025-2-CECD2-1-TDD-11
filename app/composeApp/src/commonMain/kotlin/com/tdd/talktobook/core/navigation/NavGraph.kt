@@ -274,6 +274,8 @@ fun NavGraphBuilder.autobiographyRequestNavGraph(
 fun NavGraphBuilder.publicationNavGraph(
     navController: NavController,
     showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
+    userNickName: StateFlow<String>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.PublicationScreen.route,
@@ -281,7 +283,9 @@ fun NavGraphBuilder.publicationNavGraph(
     ) {
         composable(NavRoutes.PublicationScreen.route) {
             PublicationScreen(
-                showCreateAutobiographyDialog = showOneBtnDialogModel
+                showCreateAutobiographyDialog = showOneBtnDialogModel,
+                nickName = userNickName,
+                showToastMsg = showToastMsg
             )
         }
     }

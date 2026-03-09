@@ -12,4 +12,6 @@ sealed class InterviewEvent : Event {
     data object ShowNetworkErrorToast : InterviewEvent()
 
     data object GoBackToHome : InterviewEvent()
+
+    data object ShowPublicationSuccessToast : InterviewEvent()
 }

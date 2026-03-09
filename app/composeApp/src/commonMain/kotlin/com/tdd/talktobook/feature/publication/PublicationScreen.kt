@@ -52,6 +52,7 @@ import com.tdd.talktobook.core.designsystem.PublicationAutobiographyNotEnoughNot
 import com.tdd.talktobook.core.designsystem.PublicationBookDelete
 import com.tdd.talktobook.core.designsystem.PublicationBookWholeContent
 import com.tdd.talktobook.core.designsystem.PublicationNotCreatedAutobiography
+import com.tdd.talktobook.core.designsystem.PublicationRequestSuccess
 import com.tdd.talktobook.core.designsystem.PublicationTitle
 import com.tdd.talktobook.core.designsystem.Red1
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
@@ -60,10 +61,12 @@ import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.item.MaterialListItem
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.paginateText
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyItemModel
+import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import talktobook.composeapp.generated.resources.Res
@@ -73,11 +76,29 @@ import talktobook.composeapp.generated.resources.img_empty_box
 @Composable
 internal fun PublicationScreen(
     showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    nickName: StateFlow<String>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     val viewModel: PublicationViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(nickName) {
+        nickName.collect {
+            viewModel.setUserNickName(it)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is PublicationEvent.ShowPublicationSuccessToast -> {
+                    showToastMsg(PublicationRequestSuccess, ToastType.SUCCESS)
+                }
+            }
+        }
+    }
 
     PublicationContent(
         interactionSource = interactionSource,

@@ -99,7 +99,14 @@ class PublicationViewModel(
 
     fun createAutobiography() {
         viewModelScope.launch {
-            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, "name")).collect { resultResponse(it, {}) }
+            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, "name")).collect {
+                resultResponse(it, {
+                    d("[test] interview (publication) -> create success")
+                    emitEventFlow(PublicationEvent.ShowPublicationSuccessToast)
+                }, { error ->
+                    d("[test] interview (publication) -> failure: $error")
+                })
+            }
         }
 
         initClearLocalData()
