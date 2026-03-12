@@ -77,7 +77,7 @@ internal fun SignUpScreen(
         onClickChangePassword = { goToPasswordChangePage() },
         onClickBackBtn = onClickBackBtn,
         isPasswordVisible = uiState.isPasswordVisible,
-        onChangePasswordVisible = { viewModel.changePasswordVisible() }
+        onChangePasswordVisible = { viewModel.changePasswordVisible() },
     )
 }
 
@@ -95,7 +95,7 @@ private fun SignUpContent(
     onClickChangePassword: () -> Unit,
     onClickBackBtn: () -> Unit,
     onChangePasswordVisible: () -> Unit,
-    isPasswordVisible: Boolean = false
+    isPasswordVisible: Boolean = false,
 ) {
     Column(
         modifier =
@@ -150,7 +150,7 @@ private fun SignUpContent(
             isPassword = true,
             isPasswordVisible = isPasswordVisible,
             passwordIconPath = if (isPasswordVisible) "files/ic_eye.svg" else "files/ic_eye_off.svg",
-            onClickPasswordIcon = onChangePasswordVisible
+            onClickPasswordIcon = onChangePasswordVisible,
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))

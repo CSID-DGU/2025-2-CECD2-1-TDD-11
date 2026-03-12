@@ -18,9 +18,10 @@ import kotlinx.serialization.json.Json
 import com.tdd.talktobook.BuildKonfig
 
 class StreamingStt {
-    private val client = HttpClient {
-        install(WebSockets)
-    }
+    private val client =
+        HttpClient {
+            install(WebSockets)
+        }
 
     private val _events = MutableSharedFlow<SttEvent>()
     val events = _events.asSharedFlow()
@@ -42,16 +43,15 @@ class StreamingStt {
                     val response = json.decodeFromString<SttResponseDto>(raw)
 
                     when (response.type) {
-
                         "partial" -> {
                             _events.emit(
-                                SttEvent.Partial(response.text)
+                                SttEvent.Partial(response.text),
                             )
                         }
 
                         "final" -> {
                             _events.emit(
-                                SttEvent.Final(response.text)
+                                SttEvent.Final(response.text),
                             )
                         }
                     }

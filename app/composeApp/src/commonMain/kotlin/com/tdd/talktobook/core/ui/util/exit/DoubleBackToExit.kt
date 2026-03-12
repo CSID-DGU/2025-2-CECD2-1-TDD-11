@@ -45,10 +45,11 @@ fun DoubleBackToExit(
             }
 
             resetJob?.cancel()
-            resetJob = scope.launch {
-                delay(timeoutMs)
-                waitingSecondBack = false
-            }
+            resetJob =
+                scope.launch {
+                    delay(timeoutMs)
+                    waitingSecondBack = false
+                }
         }
     }
 }

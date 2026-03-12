@@ -82,12 +82,13 @@ internal fun InterviewScreen(
 
     val client = remember { StreamingStt() }
     val recorder = remember { AudioRecorder() }
-    val stt = remember {
-        StreamingSpeechToText(
-            client = client,
-            recorder = recorder
-        )
-    }
+    val stt =
+        remember {
+            StreamingSpeechToText(
+                client = client,
+                recorder = recorder,
+            )
+        }
     val scope = rememberCoroutineScope()
 
     var committedText by remember { mutableStateOf("") }
@@ -102,10 +103,10 @@ internal fun InterviewScreen(
             if (uiState.interviewProgressType == ConversationType.ING && displayText.isNotBlank()) {
                 d("[stt] (client) 대화 mergedChat -> $displayText")
                 uiState.interviewChatList +
-                        InterviewChatItem(
-                            content = displayText,
-                            chatType = ChatType.HUMAN,
-                        )
+                    InterviewChatItem(
+                        content = displayText,
+                        chatType = ChatType.HUMAN,
+                    )
             } else {
                 uiState.interviewChatList
             }

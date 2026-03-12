@@ -19,9 +19,8 @@ class EmailCheckViewModel(
     private val postEmailVerifyUseCase: PostEmailVerifyUseCase,
     private val resendCodeUseCase: ResendCodeUseCase,
 ) : BaseViewModel<EmailCheckPageState>(
-    EmailCheckPageState(),
-) {
-
+        EmailCheckPageState(),
+    ) {
     private var timerJob: Job? = null
 
     fun setEmail(email: String) {
@@ -78,7 +77,7 @@ class EmailCheckViewModel(
                 updateState { state ->
                     state.copy(
                         codeExpiredTime = setTimeSecondType(remain),
-                        isCodeExpired = false
+                        isCodeExpired = false,
                     )
                 }
 
@@ -87,7 +86,7 @@ class EmailCheckViewModel(
                     remain -= 1
                     updateState { state ->
                         state.copy(
-                            codeExpiredTime = setTimeSecondType(remain)
+                            codeExpiredTime = setTimeSecondType(remain),
                         )
                     }
                 }
@@ -95,7 +94,7 @@ class EmailCheckViewModel(
                 updateState { state ->
                     state.copy(
                         codeExpiredTime = ExpiredMinute,
-                        isCodeExpired = true
+                        isCodeExpired = true,
                     )
                 }
             }
@@ -128,7 +127,7 @@ class EmailCheckViewModel(
     private fun setEmailCheckExceptionMessage(message: String) {
         updateState { state ->
             state.copy(
-                serverExceptionMessage = message
+                serverExceptionMessage = message,
             )
         }
     }

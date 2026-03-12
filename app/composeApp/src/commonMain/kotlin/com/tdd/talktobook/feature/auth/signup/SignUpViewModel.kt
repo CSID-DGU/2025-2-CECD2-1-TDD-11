@@ -34,7 +34,7 @@ class SignUpViewModel(
     fun changePasswordVisible() {
         updateState { state ->
             state.copy(
-                isPasswordVisible = !uiState.value.isPasswordVisible
+                isPasswordVisible = !uiState.value.isPasswordVisible,
             )
         }
     }
@@ -91,7 +91,7 @@ class SignUpViewModel(
     private fun setSignUpErrorMessage(message: String) {
         updateState { state ->
             state.copy(
-                signUpErrorMsg = message
+                signUpErrorMsg = message,
             )
         }
     }

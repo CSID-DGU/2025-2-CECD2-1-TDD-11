@@ -37,8 +37,8 @@ fun SelectedBottomSheet(
     val isBtnActivated by remember {
         derivedStateOf {
             currentFirst != initialFirst ||
-                    currentSecond != initialSecond ||
-                    currentThird != initialThird
+                currentSecond != initialSecond ||
+                currentThird != initialThird
         }
     }
 
@@ -62,6 +62,6 @@ fun SelectedBottomSheet(
         titleText = titleText,
         btnText = btnText,
         onClickBtnAction = { onSelectItem(selectedValue(firstState, firstList), selectedValue(secondState, secondList), selectedValue(thirdState, thirdList)) },
-        isBtnActivated = isBtnActivated
+        isBtnActivated = isBtnActivated,
     )
 }

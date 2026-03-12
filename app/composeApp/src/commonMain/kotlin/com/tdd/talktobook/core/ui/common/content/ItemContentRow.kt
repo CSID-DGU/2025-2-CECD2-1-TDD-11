@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
-import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.Gray5
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import talktobook.composeapp.generated.resources.Res

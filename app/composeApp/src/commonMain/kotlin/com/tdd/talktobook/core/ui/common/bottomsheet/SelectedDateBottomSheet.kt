@@ -22,7 +22,7 @@ fun SelectedDateBottomSheet(
     yearList: List<String>,
     titleText: String,
     btnText: String,
-    onSelectItem: (String, String, String) -> Unit
+    onSelectItem: (String, String, String) -> Unit,
 ) {
     val monthState = rememberLazyListState(initialFirstVisibleItemIndex = monthStateVisibleIndex)
     val dayState = rememberLazyListState(initialFirstVisibleItemIndex = dayStateVisibleIndex)
@@ -46,8 +46,8 @@ fun SelectedDateBottomSheet(
     val isBtnActivated by remember {
         derivedStateOf {
             currentMonth != initialMonth ||
-                    currentDay != initialDay ||
-                    currentYear != initialYear
+                currentDay != initialDay ||
+                currentYear != initialYear
         }
     }
 
@@ -79,6 +79,6 @@ fun SelectedDateBottomSheet(
         titleText = titleText,
         btnText = btnText,
         onClickBtnAction = { onSelectItem(selectedValue(monthState, monthList), selectedValue(dayState, currentDayList), selectedValue(yearState, yearList)) },
-        isBtnActivated = isBtnActivated
+        isBtnActivated = isBtnActivated,
     )
 }

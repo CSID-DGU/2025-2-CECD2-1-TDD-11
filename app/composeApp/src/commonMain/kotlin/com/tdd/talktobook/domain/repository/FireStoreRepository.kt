@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface FireStoreRepository {
     suspend fun postInquiry(request: FireStoreRequestModel): Flow<Result<String>>
+
     suspend fun postFeedback(request: FireStoreRequestModel): Flow<Result<String>>
 }

@@ -12,15 +12,17 @@ import org.koin.core.annotation.Single
 class FireStoreRepositoryImpl(
     private val fireBaseDataStore: FireBaseDataStore,
 ) : FireStoreRepository {
-    override suspend fun postInquiry(request: FireStoreRequestModel): Flow<Result<String>> = flow {
-        runCatching { fireBaseDataStore.postInquiry(request.userId, request.message, request.platform, request.createdAt) }
-            .onSuccess { emit(Result.success(it)) }
-            .onFailure { emit(Result.failure(ApiException(400, "[ktor] fireStore Post Inquiry error"))) }
-    }
+    override suspend fun postInquiry(request: FireStoreRequestModel): Flow<Result<String>> =
+        flow {
+            runCatching { fireBaseDataStore.postInquiry(request.userId, request.message, request.platform, request.createdAt) }
+                .onSuccess { emit(Result.success(it)) }
+                .onFailure { emit(Result.failure(ApiException(400, "[ktor] fireStore Post Inquiry error"))) }
+        }
 
-    override suspend fun postFeedback(request: FireStoreRequestModel): Flow<Result<String>> = flow {
-        runCatching { fireBaseDataStore.postFeedback(request.userId, request.message, request.platform, request.createdAt) }
-            .onSuccess { emit(Result.success(it)) }
-            .onFailure { emit(Result.failure(ApiException(400, "[ktor] fireStore Post Feedback error"))) }
-    }
+    override suspend fun postFeedback(request: FireStoreRequestModel): Flow<Result<String>> =
+        flow {
+            runCatching { fireBaseDataStore.postFeedback(request.userId, request.message, request.platform, request.createdAt) }
+                .onSuccess { emit(Result.success(it)) }
+                .onFailure { emit(Result.failure(ApiException(400, "[ktor] fireStore Post Feedback error"))) }
+        }
 }

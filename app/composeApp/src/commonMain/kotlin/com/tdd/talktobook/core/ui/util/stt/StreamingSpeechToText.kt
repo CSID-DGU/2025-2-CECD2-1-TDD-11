@@ -8,9 +8,8 @@ import kotlinx.coroutines.launch
 
 class StreamingSpeechToText(
     private val client: StreamingStt,
-    private val recorder: AudioRecorder
+    private val recorder: AudioRecorder,
 ) : SpeechToText {
-
     private var partialText = ""
     private var finalText = ""
 

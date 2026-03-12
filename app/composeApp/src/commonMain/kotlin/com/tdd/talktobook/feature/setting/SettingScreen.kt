@@ -99,7 +99,11 @@ internal fun SettingScreen(
         memberInfo = uiState.memberInfo,
         onClickDelete = {
             showDeleteUserDialog(
-                OneBtnDialogModel(SettingDelete, DeleteConfirmNotice, UserDelete, Cancel,
+                OneBtnDialogModel(
+                    SettingDelete,
+                    DeleteConfirmNotice,
+                    UserDelete,
+                    Cancel,
                     isBottomTextVisible = true,
                     onClickBtn = { viewModel.deleteUser() },
                     onClickBottomText = { },
@@ -114,7 +118,7 @@ internal fun SettingScreen(
         },
         onClickFeedback = {
             showFeedbackInputBottomSheet(TextFieldBottomSheetModel(Feedback, Confirm, FeedbackHintText, onClickConfirmBtnAction = { viewModel.setFeedbackInput(it) }))
-        }
+        },
     )
 }
 
@@ -128,7 +132,7 @@ private fun SettingContent(
     onClickDelete: () -> Unit,
     appVersion: String,
     onClickInquiry: () -> Unit,
-    onClickFeedback: () -> Unit
+    onClickFeedback: () -> Unit,
 ) {
     Column(
         modifier =
@@ -166,13 +170,13 @@ private fun SettingContent(
         ItemContentRow(
             iconImgUrl = "files/ic_send.svg",
             content = Inquiry,
-            onClickNext = onClickInquiry
+            onClickNext = onClickInquiry,
         )
 
         ItemContentRow(
             iconImgUrl = "files/ic_pen.svg",
             content = Feedback,
-            onClickNext = onClickFeedback
+            onClickNext = onClickFeedback,
         )
 
         Text(

@@ -8,8 +8,8 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class PostInquiryUseCase(
-    private val repository: FireStoreRepository
-): UseCase<FireStoreRequestModel, Result<String>>() {
+    private val repository: FireStoreRepository,
+) : UseCase<FireStoreRequestModel, Result<String>>() {
     override suspend fun invoke(request: FireStoreRequestModel): Flow<Result<String>> =
         repository.postInquiry(request)
 }

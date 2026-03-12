@@ -92,7 +92,7 @@ internal fun HomeScreen(
         onClickSetting = { goToSettingPage() },
         onClickDateArrow = {
             showDateSelectBottomSheet(viewModel.setDateSelectList())
-        }
+        },
     )
 }
 
@@ -153,7 +153,7 @@ private fun HomeContent(
             interactionSource = interactionSource,
             days = days,
             onSelectDay = onSelectDay,
-            onClickDateArrow = onClickDateArrow
+            onClickDateArrow = onClickDateArrow,
         )
 
         HomeInterviewSummary(
@@ -319,14 +319,15 @@ private fun HomeInterviewCalendar(
                             .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp),
                 ) {
                     Row(
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null,
-                                onClick = onClickDateArrow
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterStart)
+                                .clickable(
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                    onClick = onClickDateArrow,
+                                ),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = selectedDate,

@@ -13,5 +13,5 @@ data class MainPageState(
     val twoBtnDialogModel: TwoBtnDialogModel = TwoBtnDialogModel(),
     val bottomSheetType: BottomSheetType = BottomSheetType.DEFAULT,
     val scrollSelectBottomSheetModel: ScrollSelectBottomSheetModel = ScrollSelectBottomSheetModel(),
-    val textFieldBottomSheetModel: TextFieldBottomSheetModel = TextFieldBottomSheetModel()
+    val textFieldBottomSheetModel: TextFieldBottomSheetModel = TextFieldBottomSheetModel(),
 ) : PageState

@@ -81,9 +81,10 @@ fun MainScreen() {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val toastState = remember { ToastHostState() }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val sheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
     var isSheetVisible by remember { mutableStateOf(false) }
 
     val showOneBtnDialog: (OneBtnDialogModel) -> Unit = {
@@ -246,14 +247,14 @@ fun MainScreen() {
                         )
                         emailCheckNavGraph(
                             navController = navController,
-                            showToastMsg = showToastMessage
+                            showToastMsg = showToastMessage,
                         )
                         onboardingNavGraph(
                             navController = navController,
                         )
                         homeNavGraph(
                             navController = navController,
-                            showDateSelectBottomSheet = showScrollSelectBottomSheet
+                            showDateSelectBottomSheet = showScrollSelectBottomSheet,
                         )
                         pastInterviewNavGraph(
                             navController = navController,
@@ -264,7 +265,7 @@ fun MainScreen() {
                             userNickName = viewModel.userNickName,
                             showTwoBtnDialogModel = showTwoBtnDialog,
                             flowType = viewModel.screenFlowType,
-                            showToastMsg = showToastMessage
+                            showToastMsg = showToastMessage,
                         )
                         startProgressNavGraph(
                             navController = navController,
@@ -278,7 +279,7 @@ fun MainScreen() {
                             navController = navController,
                             showOneBtnDialogModel = showOneBtnDialog,
                             userNickName = viewModel.userNickName,
-                            showToastMsg = showToastMessage
+                            showToastMsg = showToastMessage,
                         )
                         settingNavGraph(
                             navController = navController,
@@ -286,13 +287,13 @@ fun MainScreen() {
                             showInquiryInputBottomSheet = showTextFieldBottomSheet,
                             showFeedbackInputBottomSheet = showTextFieldBottomSheet,
                             showInquiryToastMsg = showToastMessage,
-                            showFeedbackToastMsg = showToastMessage
+                            showFeedbackToastMsg = showToastMessage,
                         )
                     }
 
                     DoubleBackToExit(
                         navController = navController,
-                        snackbarHostState = snackbarHostState
+                        snackbarHostState = snackbarHostState,
                     )
                 }
             }
@@ -300,18 +301,19 @@ fun MainScreen() {
             if (isSheetVisible) {
                 ModalBottomSheet(
                     onDismissRequest = { hideSheet() },
-                    sheetState = sheetState
+                    sheetState = sheetState,
                 ) {
                     AnimatedContent(
                         targetState = uiState.bottomSheetType,
                         transitionSpec = {
                             fadeIn(animationSpec = tween(300)) togetherWith
-                                    fadeOut(animationSpec = tween(300))
+                                fadeOut(animationSpec = tween(300))
                         },
                         label = "",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding(),
                     ) { currentSheet ->
                         when (currentSheet) {
                             BottomSheetType.SCROLL_SELECT -> {
@@ -329,7 +331,7 @@ fun MainScreen() {
                                     onSelectItem = { first, second, third ->
                                         data.onSelectItem(first, second, third)
                                         hideSheet()
-                                    }
+                                    },
                                 )
                             }
 
@@ -343,7 +345,7 @@ fun MainScreen() {
                                     onClickConfirmBtnAction = { newValue ->
                                         data.onClickConfirmBtnAction(newValue)
                                         hideSheet()
-                                    }
+                                    },
                                 )
                             }
 

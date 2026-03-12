@@ -3,7 +3,7 @@ package com.tdd.talktobook.data.entity.response.interview
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SttResponseDto (
+data class SttResponseDto(
     val type: String = "",
-    val text: String = ""
+    val text: String = "",
 )

@@ -24,8 +24,8 @@ class PublicationViewModel(
     private val changeAutobiographyStatusUseCase: ChangeAutobiographyStatusUseCase,
     private val deleteLocalAllDataUseCase: DeleteLocalAllDataExceptTokenUseCase,
 ) : BaseViewModel<PublicationPageState>(
-    PublicationPageState(),
-) {
+        PublicationPageState(),
+    ) {
     init {
         initGetAutobiographyStatus()
         initGetAutobiographyId()
@@ -41,7 +41,7 @@ class PublicationViewModel(
     private fun onSuccessGetAutobiographyStatus(status: AutobiographyStatusType) {
         updateState { state ->
             state.copy(
-                autobiographyStatus = status
+                autobiographyStatus = status,
             )
         }
     }

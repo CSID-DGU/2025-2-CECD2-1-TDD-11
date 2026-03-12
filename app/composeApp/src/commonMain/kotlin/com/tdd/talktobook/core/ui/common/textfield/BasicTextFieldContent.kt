@@ -60,7 +60,7 @@ fun BasicTextFieldBoxContent(
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     passwordIconPath: String = "",
-    onClickPasswordIcon: () -> Unit = {}
+    onClickPasswordIcon: () -> Unit = {},
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -86,7 +86,7 @@ fun BasicTextFieldBoxContent(
         }
     }
 
-    Row (
+    Row(
         modifier =
             modifier
                 .fillMaxWidth()
@@ -94,7 +94,7 @@ fun BasicTextFieldBoxContent(
                 .clip(RoundedCornerShape(5.dp))
                 .border(1.dp, borderColor, RoundedCornerShape(5.dp))
                 .background(White2),
-        verticalAlignment = if (isTextPositionCenter) Alignment.CenterVertically else Alignment.Top
+        verticalAlignment = if (isTextPositionCenter) Alignment.CenterVertically else Alignment.Top,
     ) {
         BasicTextField(
             value = textInput,
@@ -115,11 +115,14 @@ fun BasicTextFieldBoxContent(
             keyboardOptions =
                 KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
-                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text
+                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
                 ),
             visualTransformation =
-                if (isPassword && !isPasswordVisible) PasswordVisualTransformation()
-                else VisualTransformation.None,
+                if (isPassword && !isPasswordVisible) {
+                    PasswordVisualTransformation()
+                } else {
+                    VisualTransformation.None
+                },
             keyboardActions =
                 KeyboardActions(
                     onDone = {

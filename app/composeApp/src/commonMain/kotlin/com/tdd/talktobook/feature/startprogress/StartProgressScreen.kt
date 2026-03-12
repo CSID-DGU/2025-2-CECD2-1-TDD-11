@@ -192,7 +192,7 @@ private fun SelectMaterial(
             MaterialType.getCoShowMaterials().dropLast(1)
         }
 
-    Column (
+    Column(
         modifier =
             Modifier
                 .padding(top = 48.dp, bottom = 20.dp)

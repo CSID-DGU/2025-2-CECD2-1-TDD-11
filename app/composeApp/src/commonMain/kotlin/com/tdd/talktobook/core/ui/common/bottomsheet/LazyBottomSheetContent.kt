@@ -43,7 +43,7 @@ fun LazyBottomSheetContent(
     titleText: String,
     btnText: String,
     onClickBtnAction: () -> Unit,
-    isBtnActivated: Boolean = false
+    isBtnActivated: Boolean = false,
 ) {
     Column(
         modifier =
@@ -55,48 +55,51 @@ fun LazyBottomSheetContent(
             text = titleText,
             style = BookShelfTypo.Head1,
             color = Black1,
-            modifier = Modifier
-                .padding(top = 20.dp)
+            modifier =
+                Modifier
+                    .padding(top = 20.dp),
         )
 
         Box(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 20.dp, horizontal = 60.dp)
-                .fillMaxWidth()
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 20.dp, horizontal = 60.dp)
+                    .fillMaxWidth(),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(35.dp)
-                    .align(Alignment.Center)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Gray1)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(35.dp)
+                        .align(Alignment.Center)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Gray1),
             )
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 ListItem(
                     modifier = Modifier.weight(1f),
                     list = firstList,
-                    state = firstState
+                    state = firstState,
                 )
 
                 ListItem(
                     modifier = Modifier.weight(1f),
                     list = secondList,
-                    state = secondState
+                    state = secondState,
                 )
 
                 ListItem(
                     modifier = Modifier.weight(1f),
                     list = thirdList,
-                    state = thirdState
+                    state = thirdState,
                 )
-
             }
         }
 
@@ -131,10 +134,11 @@ private fun ListItem(
 
     LazyColumn(
         state = state,
-        modifier = modifier
-            .height(itemHeight * visibleItemsCount)
-            .fadingEdge(fadingEdgeGradient),
-        flingBehavior = flingBehavior
+        modifier =
+            modifier
+                .height(itemHeight * visibleItemsCount)
+                .fadingEdge(fadingEdgeGradient),
+        flingBehavior = flingBehavior,
     ) {
         items(extendedItems.size) { index ->
             val item = extendedItems[index]
@@ -148,10 +152,11 @@ private fun ListItem(
                 }
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(itemHeight),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(itemHeight),
+                contentAlignment = Alignment.Center,
             ) {
                 if (item != ZeroString) {
                     Text(
@@ -171,7 +176,10 @@ private fun ListItem(
     }
 }
 
-fun selectedValue(state: LazyListState, list: List<String>): String {
+fun selectedValue(
+    state: LazyListState,
+    list: List<String>,
+): String {
     val extended = listOf(ZeroString, ZeroString) + list + listOf(ZeroString, ZeroString)
     val index = (state.firstVisibleItemIndex + 2).coerceIn(0, extended.lastIndex)
     return extended[index]

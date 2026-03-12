@@ -20,20 +20,22 @@ actual class AudioRecorder {
 
         val sampleRate = 16000
 
-        val bufferSize = AudioRecord.getMinBufferSize(
-            sampleRate,
-            AudioFormat.CHANNEL_IN_MONO,
-            AudioFormat.ENCODING_PCM_16BIT
-        )
+        val bufferSize =
+            AudioRecord.getMinBufferSize(
+                sampleRate,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+            )
 
-        recorder = AudioRecord(
+        recorder =
+            AudioRecord(
 //            MediaRecorder.AudioSource.MIC,
-            MediaRecorder.AudioSource.VOICE_RECOGNITION,
-            sampleRate,
-            AudioFormat.CHANNEL_IN_MONO,
-            AudioFormat.ENCODING_PCM_16BIT,
-            bufferSize
-        )
+                MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                sampleRate,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                bufferSize,
+            )
 
         val buffer = ByteArray(640)
 
@@ -41,9 +43,7 @@ actual class AudioRecorder {
         running = true
 
         CoroutineScope(Dispatchers.IO).launch {
-
             while (running) {
-
                 val read = recorder!!.read(buffer, 0, buffer.size)
 
                 if (read > 0) {
@@ -56,7 +56,6 @@ actual class AudioRecorder {
     }
 
     actual fun stop() {
-
         running = false
 
         recorder?.stop()

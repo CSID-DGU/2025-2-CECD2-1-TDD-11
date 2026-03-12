@@ -118,7 +118,7 @@ internal fun PublicationScreen(
                     onClickBottomText = {},
                 ),
             )
-        }
+        },
     )
 }
 
@@ -149,7 +149,7 @@ private fun PublicationContent(
                 autobiographyList = autobiographyList,
                 selectedAutobiographyId = selectedAutobiographyId,
                 onSelectAutobiographyId = onSelectAutobiographyId,
-                onClickCreateBtnAction = onClickCreateBtnAction
+                onClickCreateBtnAction = onClickCreateBtnAction,
             )
         } else {
             Box(
@@ -159,7 +159,7 @@ private fun PublicationContent(
             ) {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(
                         painter = painterResource(Res.drawable.img_empty_box),
@@ -173,7 +173,7 @@ private fun PublicationContent(
                     Text(
                         text = PublicationNotCreatedAutobiography,
                         color = Gray5,
-                        style = BookShelfTypo.Caption3
+                        style = BookShelfTypo.Caption3,
                     )
                 }
 
@@ -182,10 +182,11 @@ private fun PublicationContent(
                         btnContent = PublicationAutobiography,
                         isBtnActivated = isAutobiographyCreateEnabled,
                         onClickAction = onClickCreateBtnAction,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, end = 20.dp, bottom = 30.dp),
                     )
                 }
             }
@@ -207,7 +208,7 @@ private fun SetAutobiographies(
         selectedId = selectedAutobiographyId,
         onSelect = onSelectAutobiographyId,
         isAutobiographyCreateEnabled = isAutobiographyCreateEnabled,
-        onClickCreateBtnAction = onClickCreateBtnAction
+        onClickCreateBtnAction = onClickCreateBtnAction,
     )
 
     BasicDivider()
@@ -294,7 +295,7 @@ private fun PublicationBookPreview(
             textColor = Main1,
             onClick = {},
             paddingEnd = 58,
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -317,7 +318,7 @@ private fun PublicationBookPreview(
             textColor = Red1,
             onClick = {},
             paddingEnd = 20,
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.padding(bottom = 20.dp))

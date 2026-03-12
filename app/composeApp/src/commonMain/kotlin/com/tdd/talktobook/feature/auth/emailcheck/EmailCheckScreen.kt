@@ -87,7 +87,7 @@ internal fun EmailCheckScreen(
         onClickBackBtn = onClickBackBtn,
         codeExpiredTime = uiState.codeExpiredTime,
         isCodeExpired = uiState.isCodeExpired,
-        onClickResendCodeBtn = { viewModel.resendCode() }
+        onClickResendCodeBtn = { viewModel.resendCode() },
     )
 }
 
@@ -154,7 +154,7 @@ fun EmailCheckContent(
             text = CodeEmailSendPositionNotice,
             style = BookShelfTypo.Caption1,
             color = Gray5,
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 5.dp, bottom = 10.dp)
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 5.dp, bottom = 10.dp),
         )
 
         UnderLineTextBtn(
@@ -162,7 +162,7 @@ fun EmailCheckContent(
             paddingEnd = 24,
             textContent = codeExpiredTime,
             textColor = if (isCodeExpired) Red1 else Main1,
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -170,7 +170,7 @@ fun EmailCheckContent(
         RectangleBtn(
             btnContent = CodeResendBtnText,
             isBtnActivated = isCodeExpired,
-            onClickAction = onClickResendCodeBtn
+            onClickAction = onClickResendCodeBtn,
         )
 
         Spacer(modifier = Modifier.height(20.dp))

@@ -27,10 +27,11 @@ fun RectangleBtn(
     btnContent: String,
     isBtnActivated: Boolean = false,
     onClickAction: () -> Unit,
-    modifier: Modifier = Modifier
-        .fillMaxWidth().padding(horizontal = 20.dp),
+    modifier: Modifier =
+        Modifier
+            .fillMaxWidth().padding(horizontal = 20.dp),
     isOtherColorSetting: Boolean = false,
-    btnColor: Color = Gray1
+    btnColor: Color = Gray1,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -41,7 +42,7 @@ fun RectangleBtn(
         onClickAction = onClickAction,
         modifier = modifier,
         isOtherColorSetting = isOtherColorSetting,
-        btnColor = btnColor
+        btnColor = btnColor,
     )
 }
 
@@ -53,13 +54,21 @@ private fun RectangleBtnContent(
     onClickAction: () -> Unit,
     modifier: Modifier = Modifier,
     isOtherColorSetting: Boolean = false,
-    btnColor: Color
+    btnColor: Color,
 ) {
     Box(
         modifier =
             modifier
                 .clip(RoundedCornerShape(10.dp))
-                .background(if (isOtherColorSetting) btnColor else if (isBtnActivated) Main1 else Gray1)
+                .background(
+                    if (isOtherColorSetting) {
+                        btnColor
+                    } else if (isBtnActivated) {
+                        Main1
+                    } else {
+                        Gray1
+                    },
+                )
                 .wrapContentHeight()
                 .clickable(
                     enabled = isBtnActivated,

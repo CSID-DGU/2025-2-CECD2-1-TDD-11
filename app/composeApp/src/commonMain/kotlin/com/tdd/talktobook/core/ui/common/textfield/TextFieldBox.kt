@@ -15,7 +15,7 @@ fun TextFieldBox(
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
     passwordIconPath: String = "",
-    onClickPasswordIcon: () -> Unit = {}
+    onClickPasswordIcon: () -> Unit = {},
 ) {
     BasicTextFieldBoxContent(
         textInput = textInput,
@@ -29,6 +29,6 @@ fun TextFieldBox(
         isPassword = isPassword,
         isPasswordVisible = isPasswordVisible,
         passwordIconPath = passwordIconPath,
-        onClickPasswordIcon = onClickPasswordIcon
+        onClickPasswordIcon = onClickPasswordIcon,
     )
 }

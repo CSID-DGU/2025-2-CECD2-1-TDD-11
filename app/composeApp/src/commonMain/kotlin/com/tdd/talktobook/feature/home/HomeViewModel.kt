@@ -52,7 +52,7 @@ class HomeViewModel(
             state.copy(
                 selectedDate = todayDate,
                 selectedDay = today.dayOfMonth,
-                days = generateCalendarDays(today.year, today.monthNumber)
+                days = generateCalendarDays(today.year, today.monthNumber),
             )
         }
     }
@@ -147,7 +147,11 @@ class HomeViewModel(
         }
     }
 
-    private fun initSetMonthInterviewList(autobiographyId: Int, year: Int, month: Int) {
+    private fun initSetMonthInterviewList(
+        autobiographyId: Int,
+        year: Int,
+        month: Int,
+    ) {
         viewModelScope.launch {
             getInterviewSummariesUseCase(InterviewSummariesRequestModel(autobiographyId, year, month)).collect { resultResponse(it, ::onSuccessGetMonthSummaries) }
         }
@@ -197,17 +201,21 @@ class HomeViewModel(
         val monthVisibleIndex = uiState.value.today.monthNumber - 1
 
         val year = uiState.value.today.year
-        val yearList = (year-10..year).map { it.toString() }
+        val yearList = (year - 10..year).map { it.toString() }
         val yearVisibleIndex = yearList.lastIndex
 
         val daysInMonth = daysInMonth(uiState.value.today.year, uiState.value.today.monthNumber)
         val dayList = (1..daysInMonth).map { it.toString() }
         val dayVisibleIndex = uiState.value.today.dayOfMonth - 1
 
-        return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList, HomeDateSelectTitle, SelectItem, onSelectItem = {month, day, year -> setSelectedDate(month, day, year)})
+        return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList, HomeDateSelectTitle, SelectItem, onSelectItem = { month, day, year -> setSelectedDate(month, day, year) })
     }
 
-    fun setSelectedDate(month: String, day: String, year: String) {
+    fun setSelectedDate(
+        month: String,
+        day: String,
+        year: String,
+    ) {
         d("[테스트] $month, $day, $year")
 
         val selectedDate = setDateStringType(year, month, day)
@@ -216,7 +224,7 @@ class HomeViewModel(
             state.copy(
                 selectedDay = day.toInt(),
                 selectedDate = selectedDate,
-                days = generateCalendarDays(year.toInt(), month.toInt())
+                days = generateCalendarDays(year.toInt(), month.toInt()),
             )
         }
 

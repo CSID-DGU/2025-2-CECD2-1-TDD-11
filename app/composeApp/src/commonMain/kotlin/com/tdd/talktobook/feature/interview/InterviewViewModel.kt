@@ -44,8 +44,8 @@ class InterviewViewModel(
     private val postCoShowAnswerUseCase: PostCoShowAnswerUseCase,
     private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase,
 ) : BaseViewModel<InterviewPageState>(
-    InterviewPageState(),
-) {
+        InterviewPageState(),
+    ) {
     init {
         initGetAutobiographyStatus()
     }
@@ -67,7 +67,10 @@ class InterviewViewModel(
         }
     }
 
-    fun appendChunk(base: String, chunk: String): String {
+    fun appendChunk(
+        base: String,
+        chunk: String,
+    ): String {
         val cleanBase = base.trim()
         val cleanChunk = chunk.trim()
 
@@ -80,7 +83,10 @@ class InterviewViewModel(
         return "$cleanBase $cleanChunk"
     }
 
-    fun joinTranscript(base: String, chunk: String): String {
+    fun joinTranscript(
+        base: String,
+        chunk: String,
+    ): String {
         val b = base.trim()
         val c = chunk.trim()
 

@@ -147,9 +147,11 @@ class StartProgressViewModel(
 
     private fun saveInterviewId(id: Int) {
         viewModelScope.launch {
-            saveInterviewIdUseCase(id).collect { resultResponse(it, {
-                emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
-            }) }
+            saveInterviewIdUseCase(id).collect {
+                resultResponse(it, {
+                    emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
+                })
+            }
         }
 
 //        emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)

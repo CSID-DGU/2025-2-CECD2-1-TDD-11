@@ -18,8 +18,8 @@ import org.koin.android.annotation.KoinViewModel
 class MainViewModel(
     private val sessionManager: SessionManager,
 ) : BaseViewModel<MainPageState>(
-    MainPageState(),
-) {
+        MainPageState(),
+    ) {
     val authState: StateFlow<AuthState> = sessionManager.authState
 
     val userNickName = MutableStateFlow("")
@@ -75,7 +75,7 @@ class MainViewModel(
     fun setBottomSheetType(data: BottomSheetType) {
         updateState { state ->
             state.copy(
-                bottomSheetType = data
+                bottomSheetType = data,
             )
         }
     }
@@ -84,7 +84,7 @@ class MainViewModel(
         updateState { state ->
             state.copy(
                 bottomSheetType = BottomSheetType.SCROLL_SELECT,
-                scrollSelectBottomSheetModel = data
+                scrollSelectBottomSheetModel = data,
             )
         }
     }
@@ -93,7 +93,7 @@ class MainViewModel(
         updateState { state ->
             state.copy(
                 bottomSheetType = BottomSheetType.TEXT_FIELD,
-                textFieldBottomSheetModel = data
+                textFieldBottomSheetModel = data,
             )
         }
     }

@@ -92,7 +92,7 @@ fun NavGraphBuilder.emailCheckNavGraph(
                 email = email,
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 onClickBackBtn = { navController.popBackStack() },
-                showToastMsg = showToastMsg
+                showToastMsg = showToastMsg,
             )
         }
     }
@@ -133,7 +133,7 @@ fun NavGraphBuilder.homeNavGraph(
                 goToPastInterviewPage = { date, id -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date, id)) },
                 goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) },
                 goToSettingPage = { navController.navigate(NavRoutes.SettingPageScreen.route) },
-                showDateSelectBottomSheet = showDateSelectBottomSheet
+                showDateSelectBottomSheet = showDateSelectBottomSheet,
             )
         }
     }
@@ -207,7 +207,7 @@ fun NavGraphBuilder.interviewNavGraph(
                         launchSingleTop = true
                     }
                 },
-                showToastMsg = showToastMsg
+                showToastMsg = showToastMsg,
             )
         }
     }
@@ -285,7 +285,7 @@ fun NavGraphBuilder.publicationNavGraph(
             PublicationScreen(
                 showCreateAutobiographyDialog = showOneBtnDialogModel,
                 nickName = userNickName,
-                showToastMsg = showToastMsg
+                showToastMsg = showToastMsg,
             )
         }
     }
@@ -316,7 +316,7 @@ fun NavGraphBuilder.settingNavGraph(
                 showInquiryInputBottomSheet = showInquiryInputBottomSheet,
                 showInquiryToast = showInquiryToastMsg,
                 showFeedbackInputBottomSheet = showFeedbackInputBottomSheet,
-                showFeedbackToast = showFeedbackToastMsg
+                showFeedbackToast = showFeedbackToastMsg,
             )
         }
     }

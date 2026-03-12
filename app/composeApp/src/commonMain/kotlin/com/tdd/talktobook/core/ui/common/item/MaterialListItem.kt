@@ -46,15 +46,16 @@ fun MaterialListItemContent(
     onSelect: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(99.dp))
-            .border(2.dp, if (isSelected) Main1 else Gray1, RoundedCornerShape(99.dp))
-            .background(BackGround1)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onSelect
-            )
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(99.dp))
+                .border(2.dp, if (isSelected) Main1 else Gray1, RoundedCornerShape(99.dp))
+                .background(BackGround1)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onSelect,
+                ),
     ) {
         Text(
             text = itemText,

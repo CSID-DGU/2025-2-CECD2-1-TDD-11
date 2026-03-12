@@ -22,15 +22,25 @@ fun generateCalendarDays(
 }
 
 // 이번 달 일수 계산
-fun daysInMonth(year: Int, month: Int): Int {
+fun daysInMonth(
+    year: Int,
+    month: Int,
+): Int {
     val firstDayNextMonth =
-        if (month == 12) LocalDate(year + 1, 1, 1)
-        else LocalDate(year, month + 1, 1)
+        if (month == 12) {
+            LocalDate(year + 1, 1, 1)
+        } else {
+            LocalDate(year, month + 1, 1)
+        }
 
     return firstDayNextMonth.minus(1, DateTimeUnit.DAY).dayOfMonth
 }
 
-fun setDateStringType(year: String, month: String, day: String): String =
+fun setDateStringType(
+    year: String,
+    month: String,
+    day: String,
+): String =
     buildString {
         append(year.padStart(4, '0'))
         append('.')
@@ -39,7 +49,11 @@ fun setDateStringType(year: String, month: String, day: String): String =
         append(day.padStart(2, '0'))
     }
 
-fun setTimeStringType(hour: String, minute: String, second: String): String =
+fun setTimeStringType(
+    hour: String,
+    minute: String,
+    second: String,
+): String =
     buildString {
         append(hour.padStart(2, '0'))
         append(':')

@@ -31,8 +31,8 @@ class SettingViewModel(
     private val postInquiryUseCase: PostInquiryUseCase,
     private val postFeedbackUseCase: PostFeedbackUseCase,
 ) : BaseViewModel<SettingPageState>(
-    SettingPageState(),
-) {
+        SettingPageState(),
+    ) {
     init {
         initSetMemberInfo()
         initGetUserEmail()
@@ -62,7 +62,7 @@ class SettingViewModel(
     private fun onSuccessGetUserEmail(data: String) {
         updateState { state ->
             state.copy(
-                userEmail = data
+                userEmail = data,
             )
         }
     }
@@ -103,8 +103,9 @@ class SettingViewModel(
         val userEmail = uiState.value.userEmail
         val platform = getPlatform().name
 
-        val current = Clock.System.now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
+        val current =
+            Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
         val date = setDateStringType(current.year.toString(), current.monthNumber.toString(), current.dayOfMonth.toString())
         val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
 
@@ -124,8 +125,9 @@ class SettingViewModel(
         val userEmail = uiState.value.userEmail
         val platform = getPlatform().name
 
-        val current = Clock.System.now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
+        val current =
+            Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
         val date = setDateStringType(current.year.toString(), current.monthNumber.toString(), current.dayOfMonth.toString())
         val time = setTimeStringType(current.hour.toString(), current.minute.toString(), current.second.toString())
 

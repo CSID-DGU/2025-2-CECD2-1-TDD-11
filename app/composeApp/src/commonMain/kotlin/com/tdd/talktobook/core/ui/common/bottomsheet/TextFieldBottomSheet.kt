@@ -37,7 +37,7 @@ fun TextFieldBottomSheet(
         },
         textInput = textInput,
         isBtnActivated = textInput.isNotEmpty(),
-        onClickBtnAction = { onClickConfirmBtnAction(textInput) }
+        onClickBtnAction = { onClickConfirmBtnAction(textInput) },
     )
 }
 
@@ -61,8 +61,9 @@ private fun TextFieldBottomSheetContent(
             text = titleText,
             style = BookShelfTypo.Head1,
             color = Black1,
-            modifier = Modifier
-                .padding(top = 10.dp, bottom = 20.dp)
+            modifier =
+                Modifier
+                    .padding(top = 10.dp, bottom = 20.dp),
         )
 
         ExplainTextFieldBox(

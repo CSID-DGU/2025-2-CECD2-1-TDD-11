@@ -50,9 +50,13 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
             sr.setRecognitionListener(
                 object : RecognitionListener {
                     override fun onReadyForSpeech(params: Bundle?) {}
+
                     override fun onBeginningOfSpeech() {}
+
                     override fun onRmsChanged(rmsdB: Float) {}
+
                     override fun onBufferReceived(buffer: ByteArray?) {}
+
                     override fun onEndOfSpeech() {}
 
                     override fun onError(error: Int) {
@@ -77,7 +81,10 @@ private class AndroidSpeechToText(private val app: Application) : SpeechToText {
                         }
                     }
 
-                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                    override fun onEvent(
+                        eventType: Int,
+                        params: Bundle?,
+                    ) {}
                 },
             )
 

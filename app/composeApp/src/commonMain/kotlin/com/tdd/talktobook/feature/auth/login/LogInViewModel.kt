@@ -20,11 +20,10 @@ class LogInViewModel(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
     private val getRefreshTokenUseCase: GetRefreshTokenUseCase,
-    private val reissueTokenUseCase: ReissueTokenUseCase
+    private val reissueTokenUseCase: ReissueTokenUseCase,
 ) : BaseViewModel<LogInPageState>(
         LogInPageState(),
     ) {
-
     init {
         initGetRefreshToken()
     }
@@ -62,7 +61,7 @@ class LogInViewModel(
     fun changePasswordVisible() {
         updateState { state ->
             state.copy(
-                isPasswordVisible = !uiState.value.isPasswordVisible
+                isPasswordVisible = !uiState.value.isPasswordVisible,
             )
         }
     }
