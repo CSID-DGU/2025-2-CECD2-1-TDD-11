@@ -1,28 +1,39 @@
 package com.tdd.talktobook.feature
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.tdd.talktobook.app.di.AuthState
 import com.tdd.talktobook.core.designsystem.White0
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.navigation.autobiographyRequestNavGraph
@@ -36,30 +47,45 @@ import com.tdd.talktobook.core.navigation.publicationNavGraph
 import com.tdd.talktobook.core.navigation.settingNavGraph
 import com.tdd.talktobook.core.navigation.signupNavGraph
 import com.tdd.talktobook.core.navigation.startProgressNavGraph
+import com.tdd.talktobook.core.ui.common.bottomsheet.SelectedDateBottomSheet
+import com.tdd.talktobook.core.ui.common.bottomsheet.TextFieldBottomSheet
 import com.tdd.talktobook.core.ui.common.dialog.OneBtnDialog
 import com.tdd.talktobook.core.ui.common.dialog.TwoBtnDialog
+import com.tdd.talktobook.core.ui.common.type.BottomSheetType
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.DismissKeyboardOnClick
+import com.tdd.talktobook.core.ui.util.exit.DoubleBackToExit
 import com.tdd.talktobook.core.ui.util.ToastHost
 import com.tdd.talktobook.core.ui.util.ToastHostState
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     val viewModel: MainViewModel = koinViewModel()
     val uiState: MainPageState by viewModel.uiState.collectAsStateWithLifecycle()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
+
     val navController = rememberNavController()
     val interactionSource = remember { MutableInteractionSource() }
 
     val isShowDialog = remember { mutableStateOf(false) }
     val isShowTwoBtnDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val toastState = remember { ToastHostState() }
+    val sheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
+    var isSheetVisible by remember { mutableStateOf(false) }
 
     val showOneBtnDialog: (OneBtnDialogModel) -> Unit = {
         viewModel.onSetOneBtnDialog(it)
@@ -69,6 +95,7 @@ fun MainScreen() {
         viewModel.onSetTwoBtnDialog(it)
         isShowTwoBtnDialog.value = true
     }
+
     val settingFlowType: (FlowType) -> Unit = {
         scope.launch {
             viewModel.screenFlowType.value = it
@@ -78,6 +105,23 @@ fun MainScreen() {
         scope.launch {
             viewModel.userNickName.value = it
         }
+    }
+
+    val hideSheet: () -> Unit = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            isSheetVisible = false
+            viewModel.setBottomSheetType(BottomSheetType.DEFAULT)
+        }
+    }
+    val showScrollSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit = {
+        viewModel.setScrollSelectBottomSheet(it)
+        isSheetVisible = true
+        scope.launch { sheetState.show() }
+    }
+    val showTextFieldBottomSheet: (TextFieldBottomSheetModel) -> Unit = {
+        viewModel.setTextFieldBottomSheet(it)
+        isSheetVisible = true
+        scope.launch { sheetState.show() }
     }
 
     val showToastMessage: (String, ToastType) -> Unit = { msg, type ->
@@ -90,6 +134,23 @@ fun MainScreen() {
             .collect { backStackEntry ->
                 viewModel.setBottomNavType(backStackEntry.destination.route)
             }
+    }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Unauthenticated) {
+            val currentRoute = navController.currentDestination?.route
+            if (currentRoute != NavRoutes.LogInGraph.route) {
+                isShowDialog.value = false
+                isShowTwoBtnDialog.value = false
+                isSheetVisible = false
+                viewModel.setBottomSheetType(BottomSheetType.DEFAULT)
+
+                navController.navigate(NavRoutes.LogInGraph.route) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
     }
 
     if (isShowDialog.value) {
@@ -163,7 +224,7 @@ fun MainScreen() {
                         }
                     }
                 },
-                snackbarHost = {},
+                snackbarHost = { SnackbarHost(snackbarHostState) },
             ) { innerPadding ->
                 Box(
                     modifier =
@@ -186,12 +247,14 @@ fun MainScreen() {
                         )
                         emailCheckNavGraph(
                             navController = navController,
+                            showToastMsg = showToastMessage,
                         )
                         onboardingNavGraph(
                             navController = navController,
                         )
                         homeNavGraph(
                             navController = navController,
+                            showDateSelectBottomSheet = showScrollSelectBottomSheet,
                         )
                         pastInterviewNavGraph(
                             navController = navController,
@@ -202,6 +265,7 @@ fun MainScreen() {
                             userNickName = viewModel.userNickName,
                             showTwoBtnDialogModel = showTwoBtnDialog,
                             flowType = viewModel.screenFlowType,
+                            showToastMsg = showToastMessage,
                         )
                         startProgressNavGraph(
                             navController = navController,
@@ -213,11 +277,80 @@ fun MainScreen() {
                         )
                         publicationNavGraph(
                             navController = navController,
+                            showOneBtnDialogModel = showOneBtnDialog,
+                            userNickName = viewModel.userNickName,
+                            showToastMsg = showToastMessage,
                         )
                         settingNavGraph(
                             navController = navController,
                             showOneBtnDialog = showOneBtnDialog,
+                            showInquiryInputBottomSheet = showTextFieldBottomSheet,
+                            showFeedbackInputBottomSheet = showTextFieldBottomSheet,
+                            showInquiryToastMsg = showToastMessage,
+                            showFeedbackToastMsg = showToastMessage,
                         )
+                    }
+
+                    DoubleBackToExit(
+                        navController = navController,
+                        snackbarHostState = snackbarHostState,
+                    )
+                }
+            }
+
+            if (isSheetVisible) {
+                ModalBottomSheet(
+                    onDismissRequest = { hideSheet() },
+                    sheetState = sheetState,
+                ) {
+                    AnimatedContent(
+                        targetState = uiState.bottomSheetType,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(300)) togetherWith
+                                fadeOut(animationSpec = tween(300))
+                        },
+                        label = "",
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding(),
+                    ) { currentSheet ->
+                        when (currentSheet) {
+                            BottomSheetType.SCROLL_SELECT -> {
+                                val data = uiState.scrollSelectBottomSheetModel
+
+                                SelectedDateBottomSheet(
+                                    monthStateVisibleIndex = data.firstStateVisibleIndex,
+                                    dayStateVisibleIndex = data.secondStateVisibleIndex,
+                                    yearStateVisibleIndex = data.thirdStateVisibleIndex,
+                                    monthList = data.firstList,
+                                    dayList = data.secondList,
+                                    yearList = data.thirdList,
+                                    titleText = data.titleText,
+                                    btnText = data.btnText,
+                                    onSelectItem = { first, second, third ->
+                                        data.onSelectItem(first, second, third)
+                                        hideSheet()
+                                    },
+                                )
+                            }
+
+                            BottomSheetType.TEXT_FIELD -> {
+                                val data = uiState.textFieldBottomSheetModel
+
+                                TextFieldBottomSheet(
+                                    titleText = data.titleText,
+                                    btnText = data.btnText,
+                                    textFieldHintText = data.textFieldHintText,
+                                    onClickConfirmBtnAction = { newValue ->
+                                        data.onClickConfirmBtnAction(newValue)
+                                        hideSheet()
+                                    },
+                                )
+                            }
+
+                            BottomSheetType.DEFAULT -> {}
+                        }
                     }
                 }
             }

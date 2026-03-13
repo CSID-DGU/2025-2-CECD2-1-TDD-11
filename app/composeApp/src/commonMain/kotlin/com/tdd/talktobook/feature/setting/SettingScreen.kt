@@ -29,7 +29,16 @@ import com.tdd.talktobook.core.designsystem.BackGround1
 import com.tdd.talktobook.core.designsystem.BackGround4
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
+import com.tdd.talktobook.core.designsystem.Cancel
+import com.tdd.talktobook.core.designsystem.Confirm
+import com.tdd.talktobook.core.designsystem.DeleteConfirmNotice
+import com.tdd.talktobook.core.designsystem.Feedback
+import com.tdd.talktobook.core.designsystem.FeedbackAnswerNotice
+import com.tdd.talktobook.core.designsystem.FeedbackHintText
 import com.tdd.talktobook.core.designsystem.Gray5
+import com.tdd.talktobook.core.designsystem.Inquiry
+import com.tdd.talktobook.core.designsystem.InquiryAnswerNotice
+import com.tdd.talktobook.core.designsystem.InquiryHintText
 import com.tdd.talktobook.core.designsystem.Main1
 import com.tdd.talktobook.core.designsystem.SettingAge
 import com.tdd.talktobook.core.designsystem.SettingCurrentVersion
@@ -39,10 +48,13 @@ import com.tdd.talktobook.core.designsystem.SettingLogOut
 import com.tdd.talktobook.core.designsystem.SettingOccupation
 import com.tdd.talktobook.core.designsystem.SettingPolicy
 import com.tdd.talktobook.core.designsystem.SettingTitle
+import com.tdd.talktobook.core.designsystem.UserDelete
 import com.tdd.talktobook.core.ui.common.content.ItemContentRow
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.openUrl
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.member.MemberInfoResponseModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
@@ -52,6 +64,10 @@ internal fun SettingScreen(
     goBackPage: () -> Unit,
     goToLogInPage: () -> Unit,
     showDeleteUserDialog: (OneBtnDialogModel) -> Unit,
+    showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showInquiryToast: (String, ToastType) -> Unit,
+    showFeedbackInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showFeedbackToast: (String, ToastType) -> Unit,
 ) {
     val viewModel: SettingViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,6 +83,12 @@ internal fun SettingScreen(
                 is SettingEvent.GoToLogInPage -> {
                     goToLogInPage()
                 }
+                is SettingEvent.ShowInquiryToast -> {
+                    showInquiryToast(InquiryAnswerNotice, ToastType.SUCCESS)
+                }
+                is SettingEvent.ShowFeedbackToast -> {
+                    showFeedbackToast(FeedbackAnswerNotice, ToastType.SUCCESS)
+                }
             }
         }
     }
@@ -78,11 +100,11 @@ internal fun SettingScreen(
         onClickDelete = {
             showDeleteUserDialog(
                 OneBtnDialogModel(
-                    "회원탈퇴",
-                    "정말 탈퇴 하시겠습니까?",
-                    "탈퇴하기",
+                    SettingDelete,
+                    DeleteConfirmNotice,
+                    UserDelete,
+                    Cancel,
                     isBottomTextVisible = true,
-                    bottomText = "취소",
                     onClickBtn = { viewModel.deleteUser() },
                     onClickBottomText = { },
                 ),
@@ -91,6 +113,12 @@ internal fun SettingScreen(
         onClickPolicy = { openUrl(policyUrl) },
         onClickLogOut = { viewModel.logOut() },
         appVersion = appVersion,
+        onClickInquiry = {
+            showInquiryInputBottomSheet(TextFieldBottomSheetModel(Inquiry, Confirm, InquiryHintText, onClickConfirmBtnAction = { viewModel.setInquiryInput(it) }))
+        },
+        onClickFeedback = {
+            showFeedbackInputBottomSheet(TextFieldBottomSheetModel(Feedback, Confirm, FeedbackHintText, onClickConfirmBtnAction = { viewModel.setFeedbackInput(it) }))
+        },
     )
 }
 
@@ -103,6 +131,8 @@ private fun SettingContent(
     onClickLogOut: () -> Unit,
     onClickDelete: () -> Unit,
     appVersion: String,
+    onClickInquiry: () -> Unit,
+    onClickFeedback: () -> Unit,
 ) {
     Column(
         modifier =
@@ -135,6 +165,18 @@ private fun SettingContent(
             iconImgUrl = "files/ic_version.svg",
             content = SettingCurrentVersion + appVersion,
             isNextVisible = false,
+        )
+
+        ItemContentRow(
+            iconImgUrl = "files/ic_send.svg",
+            content = Inquiry,
+            onClickNext = onClickInquiry,
+        )
+
+        ItemContentRow(
+            iconImgUrl = "files/ic_pen.svg",
+            content = Feedback,
+            onClickNext = onClickFeedback,
         )
 
         Text(

@@ -12,6 +12,10 @@ fun TextFieldBox(
     hintText: String,
     errorText: String = "",
     isError: Boolean = false,
+    isPassword: Boolean = false,
+    isPasswordVisible: Boolean = false,
+    passwordIconPath: String = "",
+    onClickPasswordIcon: () -> Unit = {},
 ) {
     BasicTextFieldBoxContent(
         textInput = textInput,
@@ -22,5 +26,9 @@ fun TextFieldBox(
         modifier =
             Modifier
                 .height(55.dp),
+        isPassword = isPassword,
+        isPasswordVisible = isPasswordVisible,
+        passwordIconPath = passwordIconPath,
+        onClickPasswordIcon = onClickPasswordIcon,
     )
 }

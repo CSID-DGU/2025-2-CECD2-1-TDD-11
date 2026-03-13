@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
+import com.tdd.talktobook.core.designsystem.Gray5
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import talktobook.composeapp.generated.resources.Res
 
@@ -41,6 +43,7 @@ fun ItemContentRow(
         AsyncImage(
             model = Res.getUri(iconImgUrl),
             contentDescription = "icon",
+            colorFilter = ColorFilter.tint(Gray5),
             modifier =
                 Modifier
                     .size(19.dp),

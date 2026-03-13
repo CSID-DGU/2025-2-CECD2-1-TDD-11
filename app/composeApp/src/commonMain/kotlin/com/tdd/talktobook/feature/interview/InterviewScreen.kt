@@ -30,6 +30,9 @@ import com.tdd.talktobook.core.designsystem.InterviewContinuous
 import com.tdd.talktobook.core.designsystem.InterviewReAnswer
 import com.tdd.talktobook.core.designsystem.InterviewScreenTitle
 import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.PublicationRequestSuccess
+import com.tdd.talktobook.core.designsystem.Red1
+import com.tdd.talktobook.core.designsystem.ServerErrorToastTryNext
 import com.tdd.talktobook.core.designsystem.SkipQuestionBottomHint
 import com.tdd.talktobook.core.designsystem.SkipQuestionContent
 import com.tdd.talktobook.core.designsystem.SkipQuestionFirstBtn
@@ -43,8 +46,11 @@ import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.InterviewList
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
 import com.tdd.talktobook.core.ui.common.type.FlowType
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.rememberMicPermissionRequester
-import com.tdd.talktobook.core.ui.util.rememberSpeechToText
+import com.tdd.talktobook.core.ui.util.stt.AudioRecorder
+import com.tdd.talktobook.core.ui.util.stt.StreamingSpeechToText
+import com.tdd.talktobook.core.ui.util.stt.StreamingStt
 import com.tdd.talktobook.domain.entity.enums.ChatType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
@@ -67,22 +73,38 @@ internal fun InterviewScreen(
     nickName: StateFlow<String>,
     navController: NavController,
     flowType: StateFlow<FlowType>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     val viewModel: InterviewViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
 
-    val stt = rememberSpeechToText()
+    val client = remember { StreamingStt() }
+    val recorder = remember { AudioRecorder() }
+    val stt =
+        remember {
+            StreamingSpeechToText(
+                client = client,
+                recorder = recorder,
+            )
+        }
     val scope = rememberCoroutineScope()
-    var partial by remember { mutableStateOf("") }
+
+    var committedText by remember { mutableStateOf("") }
+    var previewText by remember { mutableStateOf("") }
+    val displayText =
+        remember(committedText, previewText) {
+            viewModel.joinTranscript(committedText, previewText)
+        }
+
     val mergedChat =
-        remember(uiState.interviewChatList, uiState.interviewProgressType, partial) {
-            if (uiState.interviewProgressType == ConversationType.ING && partial.isNotBlank()) {
-                d("[stt] 대화 -> $partial")
+        remember(uiState.interviewChatList, uiState.interviewProgressType, displayText) {
+            if (uiState.interviewProgressType == ConversationType.ING && displayText.isNotBlank()) {
+                d("[stt] (client) 대화 mergedChat -> $displayText")
                 uiState.interviewChatList +
                     InterviewChatItem(
-                        content = partial,
+                        content = displayText,
                         chatType = ChatType.HUMAN,
                     )
             } else {
@@ -94,9 +116,28 @@ internal fun InterviewScreen(
         rememberMicPermissionRequester(
             onPermissionGranted = {
                 scope.launch {
-                    partial = ""
+                    d("[stt] (client) mic permission granted")
+
+                    committedText = ""
+                    previewText = ""
+
                     viewModel.beginInterview()
-                    stt.start { p -> partial = p }
+
+                    stt.start(
+                        onPartial = { p ->
+                            val text = p.trim()
+                            if (text.isNotBlank()) {
+                                previewText = text
+                            }
+                        },
+                        onFinal = { f ->
+                            val text = f.trim()
+                            if (text.isNotBlank()) {
+                                committedText = viewModel.joinTranscript(committedText, text)
+                                previewText = ""
+                            }
+                        },
+                    )
                 }
             },
             onPermissionDeniedPermanently = {
@@ -156,6 +197,18 @@ internal fun InterviewScreen(
                 is InterviewEvent.GoBackToLogIn -> {
                     goToSuccessPage(uiState.autobiographyId)
                 }
+
+                is InterviewEvent.ShowNetworkErrorToast -> {
+                    showToastMsg(ServerErrorToastTryNext, ToastType.ERROR)
+                }
+
+                is InterviewEvent.GoBackToHome -> {
+                    navController.navigate(NavRoutes.HomeScreen.route)
+                }
+
+                is InterviewEvent.ShowPublicationSuccessToast -> {
+                    showToastMsg(PublicationRequestSuccess, ToastType.SUCCESS)
+                }
             }
         }
     }
@@ -170,10 +223,19 @@ internal fun InterviewScreen(
         },
         onSetInterview = {
             scope.launch {
-                val finalText = stt.stop()
-                val text = finalText.ifBlank { partial }
-                viewModel.setInterviewAnswer(text)
-                partial = ""
+                val stoppedText = stt.stop().trim()
+
+                val finalAnswer =
+                    when {
+                        previewText.isNotBlank() -> viewModel.joinTranscript(committedText, previewText)
+                        stoppedText.isNotBlank() && stoppedText != committedText -> viewModel.joinTranscript(committedText, stoppedText)
+                        else -> committedText
+                    }
+
+                viewModel.setInterviewAnswer(finalAnswer)
+
+                committedText = ""
+                previewText = ""
             }
         },
         onSetInterviewReAnswer = { viewModel.setInterviewReAnswer() },
@@ -267,6 +329,8 @@ private fun InterviewContent(
                     interviewProgressType,
                 ),
             isBtnActivated = isStartAnswerBtnActivated,
+            btnColor = Red1,
+            isOtherColorSetting = isInterviewProgressIng,
             onClickAction = {
                 when (interviewProgressType) {
                     ConversationType.BEFORE -> {
@@ -284,7 +348,7 @@ private fun InterviewContent(
             },
         )
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 

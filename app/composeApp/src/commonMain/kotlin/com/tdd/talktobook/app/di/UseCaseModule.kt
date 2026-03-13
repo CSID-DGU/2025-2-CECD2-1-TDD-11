@@ -1,15 +1,18 @@
 package com.tdd.talktobook.app.di
 
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataExceptTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteLocalTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.DeleteUserUseCase
 import com.tdd.talktobook.domain.usecase.auth.GetAccessTokenUseCase
 import com.tdd.talktobook.domain.usecase.auth.GetRefreshTokenUseCase
+import com.tdd.talktobook.domain.usecase.auth.GetUserEmailUseCase
 import com.tdd.talktobook.domain.usecase.auth.LogOutUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailLogInUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailSignUpUseCase
 import com.tdd.talktobook.domain.usecase.auth.PostEmailVerifyUseCase
 import com.tdd.talktobook.domain.usecase.auth.ReissueTokenUseCase
+import com.tdd.talktobook.domain.usecase.auth.ResendCodeUseCase
 import com.tdd.talktobook.domain.usecase.auth.SaveTokenUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.ChangeAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.DeleteAutobiographyUseCase
@@ -32,6 +35,8 @@ import com.tdd.talktobook.domain.usecase.autobiograph.PostStartProgressUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.PostUpdateCurrentChapterUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographyStatusUseCase
+import com.tdd.talktobook.domain.usecase.firestore.PostFeedbackUseCase
+import com.tdd.talktobook.domain.usecase.firestore.PostInquiryUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetCoShowInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewConversationUseCase
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewIdUseCase
@@ -68,10 +73,13 @@ val useCaseModule =
         factory { DeleteUserUseCase(get()) }
         factory { LogOutUseCase(get()) }
         factory { ReissueTokenUseCase(get()) }
+        factory { ResendCodeUseCase(get()) }
         factory { GetAccessTokenUseCase(get()) }
         factory { GetRefreshTokenUseCase(get()) }
+        factory { GetUserEmailUseCase(get()) }
         factory { DeleteLocalAllDataUseCase(get()) }
         factory { DeleteLocalTokenUseCase(get()) }
+        factory { DeleteLocalAllDataExceptTokenUseCase(get()) }
 
         // Autobiography
         factory { GetAllAutobiographyUseCase(get()) }
@@ -117,6 +125,10 @@ val useCaseModule =
         factory { SaveInterviewIdUseCase(get()) }
         factory { GetInterviewIdUseCase(get()) }
         factory { PostCoShowAnswerUseCase(get()) }
+
+        // FireStore
+        factory { PostInquiryUseCase(get()) }
+        factory { PostFeedbackUseCase(get()) }
 
         // AI
         // Interview

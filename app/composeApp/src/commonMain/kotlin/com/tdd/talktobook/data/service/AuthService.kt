@@ -38,6 +38,12 @@ interface AuthService {
     ): HttpResponse
 
     @Multipart
+    @POST(EndPoints.Auth.RESEND_CODE)
+    suspend fun resendCode(
+        @Part("email") email: String,
+    ): HttpResponse
+
+    @Multipart
     @POST(EndPoints.Autobiography.COSHOW_START_PROGRESS)
     suspend fun postCoShowInit(
         @Part("theme") theme: String,

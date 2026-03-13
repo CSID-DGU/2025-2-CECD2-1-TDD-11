@@ -9,6 +9,8 @@ import androidx.navigation.navigation
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import com.tdd.talktobook.feature.auth.emailcheck.EmailCheckScreen
 import com.tdd.talktobook.feature.auth.login.LogInScreen
@@ -35,7 +37,13 @@ fun NavGraphBuilder.loginNavGraph(
         composable(NavRoutes.LogInScreen.route) {
             LogInScreen(
                 goToSignUp = { navController.navigate(NavRoutes.SignUpScreen.route) },
-                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) { popUpTo(0) } },
+                goToHome = {
+                    navController.navigate(NavRoutes.HomeScreen.route) {
+                        popUpTo(0) { inclusive = true }
+//                        popUpTo(NavRoutes.LogInGraph.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 goToOnboarding = { navController.navigate(NavRoutes.OnboardingScreen.route) },
                 goToStartProgress = {
                     setScreenFlow(FlowType.COSHOW)
@@ -68,6 +76,7 @@ fun NavGraphBuilder.signupNavGraph(
 
 fun NavGraphBuilder.emailCheckNavGraph(
     navController: NavController,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.EmailCheckScreen.route,
@@ -83,6 +92,7 @@ fun NavGraphBuilder.emailCheckNavGraph(
                 email = email,
                 goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
                 onClickBackBtn = { navController.popBackStack() },
+                showToastMsg = showToastMsg,
             )
         }
     }
@@ -97,7 +107,14 @@ fun NavGraphBuilder.onboardingNavGraph(
     ) {
         composable(NavRoutes.OnboardingScreen.route) {
             OnboardingScreen(
-                goToHome = { navController.navigate(NavRoutes.HomeScreen.route) { popUpTo(0) } },
+                goToHome = {
+                    navController.navigate(NavRoutes.HomeScreen.route) {
+//                        popUpTo(0)
+                        popUpTo(0) { inclusive = true }
+//                        popUpTo(NavRoutes.OnboardingGraph.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
             )
         }
     }
@@ -105,6 +122,7 @@ fun NavGraphBuilder.onboardingNavGraph(
 
 fun NavGraphBuilder.homeNavGraph(
     navController: NavController,
+    showDateSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.HomeScreen.route,
@@ -115,6 +133,7 @@ fun NavGraphBuilder.homeNavGraph(
                 goToPastInterviewPage = { date, id -> navController.navigate(NavRoutes.PastInterviewScreen.setRouteModel(date, id)) },
                 goToProgressStartPage = { navController.navigate(NavRoutes.StartProgressScreen.route) },
                 goToSettingPage = { navController.navigate(NavRoutes.SettingPageScreen.route) },
+                showDateSelectBottomSheet = showDateSelectBottomSheet,
             )
         }
     }
@@ -153,6 +172,7 @@ fun NavGraphBuilder.interviewNavGraph(
     userNickName: StateFlow<String>,
     showTwoBtnDialogModel: (TwoBtnDialogModel) -> Unit,
     flowType: StateFlow<FlowType>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.InterviewScreen.route,
@@ -179,7 +199,15 @@ fun NavGraphBuilder.interviewNavGraph(
                 navController = navController,
                 showSkipQuestionDialog = showTwoBtnDialogModel,
                 flowType = flowType,
-                goToSuccessPage = { id -> navController.navigate(NavRoutes.AutobiographyRequestScreen.setRouteModel(id)) { popUpTo(0) } },
+                goToSuccessPage = { id ->
+                    navController.navigate(NavRoutes.AutobiographyRequestScreen.setRouteModel(id)) {
+//                        popUpTo(0)
+                        popUpTo(0) { inclusive = true }
+//                        popUpTo(NavRoutes.InterviewGraph.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                showToastMsg = showToastMsg,
             )
         }
     }
@@ -196,8 +224,18 @@ fun NavGraphBuilder.startProgressNavGraph(
     ) {
         composable(route = NavRoutes.StartProgressScreen.route) {
             StartProgressScreen(
-                goToInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel(it)) { popUpTo(0) } },
-                goToCoShowInterviewPage = { navController.navigate(NavRoutes.InterviewScreen.setRouteModel("")) },
+                goToInterviewPage = { question ->
+                    navController.navigate(NavRoutes.InterviewScreen.setRouteModel(question)) {
+                        popUpTo(NavRoutes.StartProgressGraph.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                goToCoShowInterviewPage = {
+                    navController.navigate(NavRoutes.InterviewScreen.setRouteModel("")) {
+                        popUpTo(NavRoutes.StartProgressGraph.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 goBackToHome = { navController.popBackStack() },
                 setUserNickName = setUserNickName,
                 flowType = flowType,
@@ -220,7 +258,13 @@ fun NavGraphBuilder.autobiographyRequestNavGraph(
             val autobiographyId = it.arguments?.getInt("autobiographyId") ?: 0
 
             AutobiographyRequestScreen(
-                goToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) { popUpTo(0) } },
+                goToLogIn = {
+                    navController.navigate(NavRoutes.LogInScreen.route) {
+                        popUpTo(0) { inclusive = true }
+//                        popUpTo(navController.graph.startDestinationRoute ?: NavRoutes.AutobiographyRequestGraph.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 autobiographyId = autobiographyId,
             )
         }
@@ -229,13 +273,20 @@ fun NavGraphBuilder.autobiographyRequestNavGraph(
 
 fun NavGraphBuilder.publicationNavGraph(
     navController: NavController,
+    showOneBtnDialogModel: (OneBtnDialogModel) -> Unit,
+    userNickName: StateFlow<String>,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.PublicationScreen.route,
         route = NavRoutes.PublicationGraph.route,
     ) {
         composable(NavRoutes.PublicationScreen.route) {
-            PublicationScreen()
+            PublicationScreen(
+                showCreateAutobiographyDialog = showOneBtnDialogModel,
+                nickName = userNickName,
+                showToastMsg = showToastMsg,
+            )
         }
     }
 }
@@ -243,6 +294,10 @@ fun NavGraphBuilder.publicationNavGraph(
 fun NavGraphBuilder.settingNavGraph(
     navController: NavController,
     showOneBtnDialog: (OneBtnDialogModel) -> Unit,
+    showInquiryInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showInquiryToastMsg: (String, ToastType) -> Unit,
+    showFeedbackInputBottomSheet: (TextFieldBottomSheetModel) -> Unit,
+    showFeedbackToastMsg: (String, ToastType) -> Unit,
 ) {
     navigation(
         startDestination = NavRoutes.SettingPageScreen.route,
@@ -251,8 +306,17 @@ fun NavGraphBuilder.settingNavGraph(
         composable(NavRoutes.SettingPageScreen.route) {
             SettingScreen(
                 goBackPage = { navController.popBackStack() },
-                goToLogInPage = { navController.navigate(NavRoutes.LogInScreen.route) },
+                goToLogInPage = {
+                    navController.navigate(NavRoutes.LogInGraph.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 showDeleteUserDialog = showOneBtnDialog,
+                showInquiryInputBottomSheet = showInquiryInputBottomSheet,
+                showInquiryToast = showInquiryToastMsg,
+                showFeedbackInputBottomSheet = showFeedbackInputBottomSheet,
+                showFeedbackToast = showFeedbackToastMsg,
             )
         }
     }

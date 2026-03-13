@@ -1,4 +1,4 @@
-package com.tdd.talktobook.core.ui.util
+package com.tdd.talktobook.core.ui.util.stt
 
 import androidx.compose.runtime.Composable
 

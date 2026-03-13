@@ -12,8 +12,8 @@ fun ExplainTextFieldBox(
     hintText: String,
     errorText: String = "",
     isError: Boolean = false,
-    maxTextNum: Int,
-    isTextNumVisible: Boolean,
+    maxTextNum: Int = 0,
+    isTextNumVisible: Boolean = false,
 ) {
     BasicTextFieldBoxContent(
         textInput = textInput,
@@ -23,6 +23,7 @@ fun ExplainTextFieldBox(
         isError = isError,
         maxTextNum = maxTextNum,
         isTextNumVisible = isTextNumVisible,
+        isTextPositionCenter = false,
         modifier =
             Modifier
                 .height(260.dp),

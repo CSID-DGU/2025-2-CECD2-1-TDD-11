@@ -6,9 +6,13 @@ const val Empty = ""
 const val Blank = " "
 const val Confirm = "확인"
 const val Next = "다음"
+const val Cancel = "취소"
+const val SelectItem = "선택하기"
 const val NextTime = "나중에"
 const val GoToHome = "홈으로"
 const val ServerErrorToast = "네트워크 오류가 발생했습니다."
+const val ServerErrorToastTryNext = "네트워크 오류 발생. 다음에 다시 시도해 주세요."
+const val ZeroString = "0"
 
 // Day
 const val Mon = "월"
@@ -19,6 +23,10 @@ const val Fri = "금"
 const val Sat = "토"
 const val Sun = "일"
 const val DateContent = "%d일"
+
+// Time
+const val FiveMinute = "05:00"
+const val ExpiredMinute = "00:00"
 
 // Publish Status
 const val Requested = "REQUESTED"
@@ -122,10 +130,13 @@ const val SignUpText = "회원가입"
 const val SignUpMemberExistAlready = "이미 존재하는 회원입니다. 바로 로그인하세요."
 const val SignUpEmailError = "올바른 이메일 형식을 입력해주세요"
 const val SignUpPassWordError = "비밀번호는 8자 이상, 대문자/소문자/숫자/특수문자를 포함해야 합니다.\n연속된 동일 문자는 3회 이내만 가능합니다."
+const val SignUpSuccessInfo = "회원가입 성공. 로그인해주세요."
 
 // Email Check
 const val EmailCheckText = "이메일 인증"
 const val CodeHintText = "인증코드를 입력해 주세요."
+const val CodeResendBtnText = "인증코드 재발급 받기"
+const val CodeEmailSendPositionNotice = "인증코드가 도착하지 않았다면, 스팸메일함도 확인해 주세요."
 
 // Change Password
 const val ChangePasswordText = "비밀번호 재설정"
@@ -143,6 +154,7 @@ const val HomeProgressFinish = "자서전 완성까지 "
 const val HomeStartProgress = "자서전 생성 시작하기"
 const val HomeNotExistInterview = "대화 내역 없음"
 const val HomeNotExistSummary = "대화 내역이 없습니다"
+const val HomeDateSelectTitle = "날짜 선택"
 
 // Start Progress
 const val StartProgressTitle = "자서전 생성 시작"
@@ -182,6 +194,9 @@ const val PublicationTitle = "생성된 자서전"
 const val PublicationBookWholeContent = "전체 보기"
 const val PublicationBookDelete = "자서전 삭제하기"
 const val PublicationNotCreatedAutobiography = "아직 생성된 자서전이 없어요!"
+const val PublicationAutobiography = "자서전 생성 시작하기"
+const val PublicationAutobiographyNotEnoughNotice = "충분한 인터뷰가 진행되지 않았어요.\n이대로 자서전을 생성할까요?"
+const val PublicationRequestSuccess = "자서전 생성 요청 완료"
 
 // Autobiography Request
 const val DownLoadPdf = "자서전 다운받기"
@@ -201,3 +216,14 @@ const val SettingUserFeedback = "사용자 피드백"
 const val SettingCurrentVersion = "현재 버전 "
 const val SettingLogOut = "로그아웃"
 const val SettingDelete = "회원 탈퇴"
+const val DeleteConfirmNotice = "정말 탈퇴 하시겠습니까?"
+const val UserDelete = "탈퇴하기"
+const val Inquiry = "문의하기"
+const val InquiryHintText = "문의하실 내용을 작성해 주세요."
+const val InquiryAnswerNotice = "답변 내용은 이메일로 전송될 예정입니다."
+const val Feedback = "피드백하기"
+const val FeedbackHintText = "피드백하실 내용을 작성해 주세요."
+const val FeedbackAnswerNotice = "피드백 감사합니다."
+
+// ETC
+const val DoubleBackToExitNotice = "종료하려면 다시 누르세요"

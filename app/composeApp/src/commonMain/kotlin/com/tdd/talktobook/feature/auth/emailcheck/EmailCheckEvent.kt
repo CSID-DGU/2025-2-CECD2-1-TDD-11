@@ -4,4 +4,8 @@ import com.tdd.talktobook.core.ui.base.Event
 
 sealed class EmailCheckEvent : Event {
     data object GoToLogInPage : EmailCheckEvent()
+
+    data object ShowServerErrorToast : EmailCheckEvent()
+
+    data object ShowServerExceptionToast : EmailCheckEvent()
 }

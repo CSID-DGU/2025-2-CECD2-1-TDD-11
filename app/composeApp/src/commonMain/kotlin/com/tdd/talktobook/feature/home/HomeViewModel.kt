@@ -2,9 +2,15 @@ package com.tdd.talktobook.feature.home
 
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger.Companion.d
+import com.tdd.talktobook.core.designsystem.HomeDateSelectTitle
+import com.tdd.talktobook.core.designsystem.SelectItem
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.util.daysInMonth
+import com.tdd.talktobook.core.ui.util.generateCalendarDays
+import com.tdd.talktobook.core.ui.util.setDateStringType
 import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
 import com.tdd.talktobook.domain.entity.request.interview.InterviewSummariesRequestModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsResponseModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentInterviewProgressModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CurrentProgressAutobiographyModel
@@ -17,10 +23,7 @@ import com.tdd.talktobook.domain.usecase.autobiograph.SaveCurrentAutobiographySt
 import com.tdd.talktobook.domain.usecase.interview.GetInterviewSummariesUseCase
 import com.tdd.talktobook.domain.usecase.interview.SaveInterviewIdUseCase
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.ExperimentalTime
 
@@ -43,19 +46,13 @@ class HomeViewModel(
 
     private fun initSetTodayDate() {
         val today = uiState.value.today
-        val todayDate =
-            buildString {
-                append(today.year.toString().padStart(4, '0'))
-                append('.')
-                append(today.monthNumber.toString().padStart(2, '0'))
-                append('.')
-                append(today.dayOfMonth.toString().padStart(2, '0'))
-            }
+        val todayDate = setDateStringType(today.year.toString(), today.monthNumber.toString(), today.dayOfMonth.toString())
 
         updateState { state ->
             state.copy(
                 selectedDate = todayDate,
                 selectedDay = today.dayOfMonth,
+                days = generateCalendarDays(today.year, today.monthNumber),
             )
         }
     }
@@ -86,6 +83,8 @@ class HomeViewModel(
     }
 
     private fun setCurrentState(data: CurrentProgressAutobiographyModel) {
+        val today = uiState.value.today
+
         updateState { state ->
             state.copy(
                 currentAutobiographyId = data.autobiographyId,
@@ -96,7 +95,7 @@ class HomeViewModel(
         saveCurrentAutobiographyId(data.autobiographyId)
         initSetCreatedMaterials(data.autobiographyId)
         initSetInterviewProgress(data.autobiographyId)
-        initSetMonthInterviewList(data.autobiographyId)
+        initSetMonthInterviewList(data.autobiographyId, today.year, today.monthNumber)
     }
 
     private fun saveCurrentAutobiographyId(id: Int) {
@@ -148,11 +147,13 @@ class HomeViewModel(
         }
     }
 
-    private fun initSetMonthInterviewList(autobiographyId: Int) {
-        val today = uiState.value.today
-
+    private fun initSetMonthInterviewList(
+        autobiographyId: Int,
+        year: Int,
+        month: Int,
+    ) {
         viewModelScope.launch {
-            getInterviewSummariesUseCase(InterviewSummariesRequestModel(autobiographyId, today.year, today.monthNumber)).collect { resultResponse(it, ::onSuccessGetMonthSummaries) }
+            getInterviewSummariesUseCase(InterviewSummariesRequestModel(autobiographyId, year, month)).collect { resultResponse(it, ::onSuccessGetMonthSummaries) }
         }
     }
 
@@ -178,30 +179,57 @@ class HomeViewModel(
 
     @OptIn(ExperimentalTime::class)
     fun onClickInterviewDate(day: Int) {
-        val today =
-            Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-                .date
+        val today = uiState.value.today
         val targetDate =
             LocalDate(
                 year = today.year,
                 monthNumber = today.monthNumber,
                 dayOfMonth = day,
             )
-        val selectedDate =
-            buildString {
-                append(targetDate.year.toString().padStart(4, '0'))
-                append('.')
-                append(targetDate.monthNumber.toString().padStart(2, '0'))
-                append('.')
-                append(targetDate.dayOfMonth.toString().padStart(2, '0'))
-            }
+        val selectedDate = setDateStringType(targetDate.year.toString(), targetDate.monthNumber.toString(), targetDate.dayOfMonth.toString())
 
         updateState { state ->
             state.copy(
                 selectedDay = day,
                 selectedDate = selectedDate,
             )
+        }
+    }
+
+    fun setDateSelectList(): ScrollSelectBottomSheetModel {
+        val monthList = (1..12).map { it.toString() }
+        val monthVisibleIndex = uiState.value.today.monthNumber - 1
+
+        val year = uiState.value.today.year
+        val yearList = (year - 10..year).map { it.toString() }
+        val yearVisibleIndex = yearList.lastIndex
+
+        val daysInMonth = daysInMonth(uiState.value.today.year, uiState.value.today.monthNumber)
+        val dayList = (1..daysInMonth).map { it.toString() }
+        val dayVisibleIndex = uiState.value.today.dayOfMonth - 1
+
+        return ScrollSelectBottomSheetModel(monthVisibleIndex, dayVisibleIndex, yearVisibleIndex, monthList, dayList, yearList, HomeDateSelectTitle, SelectItem, onSelectItem = { month, day, year -> setSelectedDate(month, day, year) })
+    }
+
+    fun setSelectedDate(
+        month: String,
+        day: String,
+        year: String,
+    ) {
+        d("[테스트] $month, $day, $year")
+
+        val selectedDate = setDateStringType(year, month, day)
+
+        updateState { state ->
+            state.copy(
+                selectedDay = day.toInt(),
+                selectedDate = selectedDate,
+                days = generateCalendarDays(year.toInt(), month.toInt()),
+            )
+        }
+
+        if (uiState.value.isCurrentProgress) {
+            initSetMonthInterviewList(uiState.value.currentAutobiographyId, year.toInt(), month.toInt())
         }
     }
 }

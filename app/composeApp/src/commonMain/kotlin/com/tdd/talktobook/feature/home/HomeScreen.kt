@@ -24,10 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,44 +55,34 @@ import com.tdd.talktobook.core.designsystem.White3
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
-import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
-import com.tdd.talktobook.core.ui.util.generateCalendarDays
+import com.tdd.talktobook.core.ui.common.item.MaterialListItem
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
 import com.tdd.talktobook.domain.entity.response.autobiography.CountMaterialsItemModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewSummariesItemModel
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import talktobook.composeapp.generated.resources.Res
-import talktobook.composeapp.generated.resources.img_chapter_detail
 
 @Composable
 internal fun HomeScreen(
     goToPastInterviewPage: (String, Int) -> Unit,
     goToProgressStartPage: () -> Unit = {},
     goToSettingPage: () -> Unit,
+    showDateSelectBottomSheet: (ScrollSelectBottomSheetModel) -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
-    val today =
-        Clock.System.now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
-    var year by remember { mutableIntStateOf(today.year) }
-    var month by remember { mutableIntStateOf(today.monthNumber) }
-    var days by remember { mutableStateOf(generateCalendarDays(year, month)) }
 
     HomeContent(
         interactionSource = interactionSource,
         createdMaterialList = uiState.createdMaterialList,
         interviewProgress = uiState.autobiographyProgress,
         monthInterviewList = uiState.monthInterviewList,
-        days = days,
+        days = uiState.days,
         selectedDay = uiState.selectedDay,
         selectedDate = uiState.selectedDate,
         onSelectDay = { day -> viewModel.onClickInterviewDate(day) },
@@ -103,6 +90,9 @@ internal fun HomeScreen(
         isCurrentProgress = uiState.isCurrentProgress,
         onClickStartProgress = { goToProgressStartPage() },
         onClickSetting = { goToSettingPage() },
+        onClickDateArrow = {
+            showDateSelectBottomSheet(viewModel.setDateSelectList())
+        },
     )
 }
 
@@ -121,6 +111,7 @@ private fun HomeContent(
     isCurrentProgress: Boolean = false,
     onClickStartProgress: () -> Unit = {},
     onClickSetting: () -> Unit = {},
+    onClickDateArrow: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -162,6 +153,7 @@ private fun HomeContent(
             interactionSource = interactionSource,
             days = days,
             onSelectDay = onSelectDay,
+            onClickDateArrow = onClickDateArrow,
         )
 
         HomeInterviewSummary(
@@ -230,8 +222,7 @@ private fun HomeMaterialList(
             contentPadding = PaddingValues(horizontal = 20.dp),
         ) {
             itemsIndexed(createdMaterialList) { index, item ->
-                SelectCircleListItem(
-                    itemImg = Res.drawable.img_chapter_detail,
+                MaterialListItem(
                     itemText = item.name,
                     isSelected = true,
                 )
@@ -302,6 +293,7 @@ private fun HomeProgress(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun HomeInterviewCalendar(
     modifier: Modifier,
@@ -311,6 +303,7 @@ private fun HomeInterviewCalendar(
     interactionSource: MutableInteractionSource,
     days: List<LocalDate>,
     onSelectDay: (Int) -> Unit,
+    onClickDateArrow: () -> Unit,
 ) {
     ItemContentBox(
         modifier = modifier,
@@ -325,14 +318,34 @@ private fun HomeInterviewCalendar(
                             .fillMaxWidth()
                             .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 20.dp),
                 ) {
-                    Text(
-                        text = selectedDate,
-                        color = Black1,
-                        style = BookShelfTypo.Body3,
+                    Row(
                         modifier =
                             Modifier
-                                .align(Alignment.CenterStart),
-                    )
+                                .align(Alignment.CenterStart)
+                                .clickable(
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                    onClick = onClickDateArrow,
+                                ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = selectedDate,
+                            color = Black1,
+                            style = BookShelfTypo.Body2,
+                            modifier = Modifier,
+                        )
+
+                        AsyncImage(
+                            model = Res.getUri("files/ic_arrow_down.svg"),
+                            contentDescription = "select date",
+                            modifier =
+                                Modifier
+                                    .padding(start = 5.dp)
+                                    .size(19.dp),
+                        )
+                    }
+
                     Text(
                         text = "${selectedDay}일 ${interviewList.firstOrNull { it.date.split("-")[2].toInt() == selectedDay }?.totalMessageCount ?: 0}번의 대화 수행",
                         color = Main1,

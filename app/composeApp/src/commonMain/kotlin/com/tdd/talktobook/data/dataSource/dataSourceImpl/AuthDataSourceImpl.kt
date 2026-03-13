@@ -30,4 +30,7 @@ class AuthDataSourceImpl(
 
     override suspend fun reissue(refreshToken: String): HttpResponse =
         authService.reissue(refreshToken)
+
+    override suspend fun resendCode(email: String): HttpResponse =
+        authService.resendCode(email)
 }

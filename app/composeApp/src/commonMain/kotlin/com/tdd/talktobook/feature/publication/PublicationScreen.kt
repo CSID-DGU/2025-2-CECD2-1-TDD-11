@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,6 +20,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,42 +37,88 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import talktobook.composeapp.generated.resources.Res
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
+import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogBtn
+import com.tdd.talktobook.core.designsystem.CreateAutobiographyDialogTitle
 import com.tdd.talktobook.core.designsystem.Empty
+import com.tdd.talktobook.core.designsystem.Gray1
 import com.tdd.talktobook.core.designsystem.Gray5
 import com.tdd.talktobook.core.designsystem.Main1
+import com.tdd.talktobook.core.designsystem.NextTime
+import com.tdd.talktobook.core.designsystem.PublicationAutobiography
+import com.tdd.talktobook.core.designsystem.PublicationAutobiographyNotEnoughNotice
 import com.tdd.talktobook.core.designsystem.PublicationBookDelete
 import com.tdd.talktobook.core.designsystem.PublicationBookWholeContent
 import com.tdd.talktobook.core.designsystem.PublicationNotCreatedAutobiography
+import com.tdd.talktobook.core.designsystem.PublicationRequestSuccess
 import com.tdd.talktobook.core.designsystem.PublicationTitle
 import com.tdd.talktobook.core.designsystem.Red1
+import com.tdd.talktobook.core.ui.common.button.RectangleBtn
 import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.content.BasicDivider
 import com.tdd.talktobook.core.ui.common.content.ItemContentBox
 import com.tdd.talktobook.core.ui.common.content.TopBarContent
-import com.tdd.talktobook.core.ui.common.item.SelectCircleListItem
+import com.tdd.talktobook.core.ui.common.item.MaterialListItem
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import com.tdd.talktobook.core.ui.util.paginateText
+import com.tdd.talktobook.domain.entity.enums.AutobiographyStatusType
+import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
 import com.tdd.talktobook.domain.entity.response.autobiography.AllAutobiographyItemModel
+import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import talktobook.composeapp.generated.resources.Res
 import talktobook.composeapp.generated.resources.img_chapter_detail
 import talktobook.composeapp.generated.resources.img_empty_box
 
 @Composable
-internal fun PublicationScreen() {
+internal fun PublicationScreen(
+    showCreateAutobiographyDialog: (OneBtnDialogModel) -> Unit,
+    nickName: StateFlow<String>,
+    showToastMsg: (String, ToastType) -> Unit,
+) {
     val viewModel: PublicationViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(nickName) {
+        nickName.collect {
+            viewModel.setUserNickName(it)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is PublicationEvent.ShowPublicationSuccessToast -> {
+                    showToastMsg(PublicationRequestSuccess, ToastType.SUCCESS)
+                }
+            }
+        }
+    }
 
     PublicationContent(
         interactionSource = interactionSource,
         autobiographyList = uiState.autobiographyList,
         selectedAutobiographyId = uiState.selectedAutobiographyId,
         onSelectAutobiographyId = { viewModel.setSelectedAutobiographyId(it) },
+        isAutobiographyCreateEnabled = (uiState.autobiographyStatus == AutobiographyStatusType.PROGRESS || uiState.autobiographyStatus == AutobiographyStatusType.ENOUGH),
+        onClickCreateBtnAction = {
+            showCreateAutobiographyDialog(
+                OneBtnDialogModel(
+                    title = CreateAutobiographyDialogTitle,
+                    semiTitle = PublicationAutobiographyNotEnoughNotice,
+                    btnText = CreateAutobiographyDialogBtn,
+                    isBottomTextVisible = true,
+                    bottomText = NextTime,
+                    onClickBtn = { viewModel.createAutobiography() },
+                    onClickBottomText = {},
+                ),
+            )
+        },
     )
 }
 
@@ -80,6 +128,8 @@ private fun PublicationContent(
     autobiographyList: List<AllAutobiographyItemModel>,
     selectedAutobiographyId: Int,
     onSelectAutobiographyId: (Int) -> Unit,
+    isAutobiographyCreateEnabled: Boolean = false,
+    onClickCreateBtnAction: () -> Unit,
 ) {
     Column(
         modifier =
@@ -99,35 +149,46 @@ private fun PublicationContent(
                 autobiographyList = autobiographyList,
                 selectedAutobiographyId = selectedAutobiographyId,
                 onSelectAutobiographyId = onSelectAutobiographyId,
+                onClickCreateBtnAction = onClickCreateBtnAction,
             )
         } else {
-            Column(
+            Box(
                 modifier =
                     Modifier
                         .fillMaxSize(),
             ) {
-                Spacer(modifier = Modifier.weight(1f))
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.img_empty_box),
+                        contentDescription = "empty list",
+                        modifier =
+                            Modifier
+                                .size(100.dp)
+                                .padding(bottom = 17.dp),
+                    )
 
-                Image(
-                    painter = painterResource(Res.drawable.img_empty_box),
-                    contentDescription = "empty list",
-                    modifier =
-                        Modifier
-                            .size(100.dp)
-                            .padding(bottom = 17.dp)
-                            .align(Alignment.CenterHorizontally),
-                )
+                    Text(
+                        text = PublicationNotCreatedAutobiography,
+                        color = Gray5,
+                        style = BookShelfTypo.Caption3,
+                    )
+                }
 
-                Text(
-                    text = PublicationNotCreatedAutobiography,
-                    color = Gray5,
-                    style = BookShelfTypo.Caption3,
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterHorizontally),
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
+                if (isAutobiographyCreateEnabled) {
+                    RectangleBtn(
+                        btnContent = PublicationAutobiography,
+                        isBtnActivated = isAutobiographyCreateEnabled,
+                        onClickAction = onClickCreateBtnAction,
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, end = 20.dp, bottom = 30.dp),
+                    )
+                }
             }
         }
     }
@@ -139,11 +200,15 @@ private fun SetAutobiographies(
     autobiographyList: List<AllAutobiographyItemModel>,
     selectedAutobiographyId: Int,
     onSelectAutobiographyId: (Int) -> Unit,
+    isAutobiographyCreateEnabled: Boolean = false,
+    onClickCreateBtnAction: () -> Unit,
 ) {
     PublicationAutobiographies(
         autobiographyList = autobiographyList,
         selectedId = selectedAutobiographyId,
         onSelect = onSelectAutobiographyId,
+        isAutobiographyCreateEnabled = isAutobiographyCreateEnabled,
+        onClickCreateBtnAction = onClickCreateBtnAction,
     )
 
     BasicDivider()
@@ -159,6 +224,8 @@ private fun PublicationAutobiographies(
     autobiographyList: List<AllAutobiographyItemModel>,
     selectedId: Int,
     onSelect: (Int) -> Unit,
+    isAutobiographyCreateEnabled: Boolean = false,
+    onClickCreateBtnAction: () -> Unit,
 ) {
     LazyRow(
         modifier =
@@ -168,9 +235,20 @@ private fun PublicationAutobiographies(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 20.dp),
     ) {
+        if (isAutobiographyCreateEnabled) {
+            item {
+                MaterialListItem(
+                    itemText = PublicationAutobiography,
+                    isSelected = isAutobiographyCreateEnabled,
+                    onSelect = onClickCreateBtnAction,
+                )
+
+                VerticalDivider(modifier = Modifier.padding(end = 10.dp), color = Gray1, thickness = 2.dp)
+            }
+        }
+
         itemsIndexed(autobiographyList) { index, item ->
-            SelectCircleListItem(
-                itemImg = Res.drawable.img_chapter_detail,
+            MaterialListItem(
                 itemText = item.title,
                 isSelected = (selectedId == item.autobiographyId),
                 onSelect = { onSelect(item.autobiographyId) },
@@ -217,6 +295,7 @@ private fun PublicationBookPreview(
             textColor = Main1,
             onClick = {},
             paddingEnd = 58,
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -239,6 +318,7 @@ private fun PublicationBookPreview(
             textColor = Red1,
             onClick = {},
             paddingEnd = 20,
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.padding(bottom = 20.dp))

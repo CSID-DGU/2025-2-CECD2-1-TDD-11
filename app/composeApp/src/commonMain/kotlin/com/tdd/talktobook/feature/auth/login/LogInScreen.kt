@@ -98,6 +98,8 @@ internal fun LogInScreen(
         onPasswordValueChange = { newValue -> viewModel.onPasswordValueChange(newValue) },
         onClickSignUp = { goToSignUp() },
         onClickExperience = { viewModel.clearLocalData() },
+        isPasswordVisible = uiState.isPasswordVisible,
+        onChangePasswordVisible = { viewModel.changePasswordVisible() },
     )
 }
 
@@ -111,6 +113,8 @@ private fun LogInContent(
     onPasswordValueChange: (String) -> Unit = {},
     onClickSignUp: () -> Unit = {},
     onClickExperience: () -> Unit = {},
+    onChangePasswordVisible: () -> Unit = {},
+    isPasswordVisible: Boolean = false,
 ) {
     Column(
         modifier =
@@ -143,6 +147,10 @@ private fun LogInContent(
             textInput = passwordInput,
             onValueChange = onPasswordValueChange,
             hintText = PasswordHintText,
+            isPassword = true,
+            isPasswordVisible = isPasswordVisible,
+            passwordIconPath = if (isPasswordVisible) "files/ic_eye.svg" else "files/ic_eye_off.svg",
+            onClickPasswordIcon = onChangePasswordVisible,
         )
 
         Spacer(modifier = Modifier.padding(top = 15.dp))
@@ -153,6 +161,7 @@ private fun LogInContent(
             textColor = Main1,
             paddingEnd = 25,
             onClick = onClickSignUp,
+            modifier = Modifier.align(Alignment.End),
         )
 
         Spacer(modifier = Modifier.weight(1f))

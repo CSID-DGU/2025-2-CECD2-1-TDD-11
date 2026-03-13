@@ -51,7 +51,8 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
-            implementation(libs.firebase.analytics)
+//            implementation(libs.firebase.analytics)
+//            implementation("com.google.firebase:firebase-common-ktx")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -81,6 +82,8 @@ kotlin {
 
             api(libs.datastore.preferences)
             api(libs.datastore)
+
+            implementation(libs.firebase.firestore)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -138,6 +141,9 @@ buildkonfig {
 
         val policyUrl = properties.getProperty("POLICY_URL")
         buildConfigField(Type.STRING, "POLICY_URL", policyUrl)
+
+        val sttUrl = properties.getProperty("STT_URL")
+        buildConfigField(Type.STRING, "STT_URL", sttUrl)
 
         val appVersion = project.properties["version"]?.toString() ?: "1.0.0"
         buildConfigField(Type.STRING, "APP_VERSION", appVersion)

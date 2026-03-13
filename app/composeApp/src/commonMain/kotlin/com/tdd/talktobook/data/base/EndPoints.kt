@@ -9,6 +9,7 @@ object EndPoints {
         const val UNREGISTER = "$AUTH/unregister"
         const val LOGOUT = "$AUTH/logout"
         const val REISSUE = "$AUTH/reissue"
+        const val RESEND_CODE = "$AUTH/resend-code"
     }
 
     object Autobiography {

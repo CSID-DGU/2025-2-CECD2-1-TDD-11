@@ -15,7 +15,7 @@ import com.tdd.talktobook.domain.entity.response.interview.CoShowAnswerModel
 import com.tdd.talktobook.domain.entity.response.interview.InterviewChatItem
 import com.tdd.talktobook.domain.entity.response.interview.InterviewConversationListModel
 import com.tdd.talktobook.domain.entity.response.interview.ai.ChatInterviewResponseModel
-import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataUseCase
+import com.tdd.talktobook.domain.usecase.auth.DeleteLocalAllDataExceptTokenUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyIdUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetAutobiographyStatusUseCase
 import com.tdd.talktobook.domain.usecase.autobiograph.GetCoShowGenerateUseCase
@@ -27,6 +27,7 @@ import com.tdd.talktobook.domain.usecase.interview.PostCoShowAnswerUseCase
 import com.tdd.talktobook.domain.usecase.interview.ai.PostChatInterviewUseCase
 import com.tdd.talktobook.feature.interview.type.ConversationType
 import com.tdd.talktobook.feature.interview.type.SkipQuestionType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -38,7 +39,7 @@ class InterviewViewModel(
     private val getInterviewConversationUseCase: GetInterviewConversationUseCase,
     private val getInterviewIdUseCase: GetInterviewIdUseCase,
     private val createAutobiographyUseCase: PatchCreateAutobiographyUseCase,
-    private val deleteLocalAllDataUseCase: DeleteLocalAllDataUseCase,
+    private val deleteLocalAllDataUseCase: DeleteLocalAllDataExceptTokenUseCase,
     private val getCoShowInterviewConversationUseCase: GetCoShowInterviewConversationUseCase,
     private val postCoShowAnswerUseCase: PostCoShowAnswerUseCase,
     private val getCoShowGenerateUseCase: GetCoShowGenerateUseCase,
@@ -64,6 +65,35 @@ class InterviewViewModel(
                 nickName = name,
             )
         }
+    }
+
+    fun appendChunk(
+        base: String,
+        chunk: String,
+    ): String {
+        val cleanBase = base.trim()
+        val cleanChunk = chunk.trim()
+
+        if (cleanChunk.isEmpty()) return cleanBase
+        if (cleanBase.isEmpty()) return cleanChunk
+
+        // 마지막에 같은 chunk가 있을 시 중복 추가 X
+        if (cleanBase.endsWith(cleanChunk)) return cleanBase
+
+        return "$cleanBase $cleanChunk"
+    }
+
+    fun joinTranscript(
+        base: String,
+        chunk: String,
+    ): String {
+        val b = base.trim()
+        val c = chunk.trim()
+
+        if (c.isEmpty()) return b
+        if (b.isEmpty()) return c
+
+        return "$b $c"
     }
 
     fun getFirstQuestion(question: String) {
@@ -125,24 +155,34 @@ class InterviewViewModel(
                 interviewId = id,
             )
         }
+
+        initGetConversation()
     }
 
     private fun getInterviewConversation() {
         when (uiState.value.flowType) {
             FlowType.DEFAULT -> {
-                viewModelScope.launch {
-                    getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
-                }
+                initGetConversation()
             }
 
             FlowType.COSHOW -> {
-                viewModelScope.launch {
-                    getCoShowInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
-                }
+                initGetConversationCoShow()
             }
         }
 
         d("[test] interview -> 5 get conversation (test)")
+    }
+
+    private fun initGetConversation() {
+        viewModelScope.launch {
+            getInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+        }
+    }
+
+    private fun initGetConversationCoShow() {
+        viewModelScope.launch {
+            getCoShowInterviewConversationUseCase(uiState.value.interviewId).collect { resultResponse(it, ::onSuccessGetConversation) }
+        }
     }
 
     private fun onSuccessGetConversation(data: InterviewConversationListModel) {
@@ -278,7 +318,7 @@ class InterviewViewModel(
     private fun defaultInterviewAnswer(chat: String) {
         viewModelScope.launch {
             postChatInterviewUseCase(ChatInterviewRequestModel(uiState.value.autobiographyId, chat))
-                .collect { resultResponse(it, ::onSuccessInterviewAnswer) }
+                .collect { resultResponse(it, ::onSuccessInterviewAnswer) { onFailureInterviewAnswer() } }
         }
     }
 
@@ -290,6 +330,15 @@ class InterviewViewModel(
                 answerInputs = emptyList(),
                 isStartAnswerBtnActivated = true,
             )
+        }
+    }
+
+    private fun onFailureInterviewAnswer() {
+        viewModelScope.launch {
+            delay(3000)
+            emitEventFlow(InterviewEvent.ShowNetworkErrorToast)
+            delay(500)
+            emitEventFlow(InterviewEvent.GoBackToHome)
         }
     }
 
@@ -350,7 +399,14 @@ class InterviewViewModel(
     private fun createAutobiographyDefault() {
         d("[ktor] interview -> 자서전 생성 요청 name: ${uiState.value.nickName}")
         viewModelScope.launch {
-            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect { resultResponse(it, {}) }
+            createAutobiographyUseCase(CreateAutobiographyRequestModel(uiState.value.autobiographyId, uiState.value.nickName)).collect {
+                resultResponse(it, {
+                    d("[test] interview -> create success")
+                    emitEventFlow(InterviewEvent.ShowPublicationSuccessToast)
+                }, { error ->
+                    d("[test] interview -> failure: $error")
+                })
+            }
         }
 
         initClearLocalData()

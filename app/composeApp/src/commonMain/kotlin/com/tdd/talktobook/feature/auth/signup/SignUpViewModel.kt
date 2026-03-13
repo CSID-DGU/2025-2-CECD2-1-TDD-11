@@ -31,6 +31,14 @@ class SignUpViewModel(
         }
     }
 
+    fun changePasswordVisible() {
+        updateState { state ->
+            state.copy(
+                isPasswordVisible = !uiState.value.isPasswordVisible,
+            )
+        }
+    }
+
     fun checkEmailPWValid() {
         val email = uiState.value.emailInput.trim()
         val password = uiState.value.passwordInput.trim()
@@ -67,6 +75,7 @@ class SignUpViewModel(
                     when (error) {
                         is ApiException -> {
                             d("[ktor] sign up error -> code=${error.status}, msg=${error.msg}")
+                            setSignUpErrorMessage(error.msg)
                             emitEventFlow(SignUpEvent.ShowMemberExistToast)
                         }
                         else -> {
@@ -76,6 +85,14 @@ class SignUpViewModel(
                     }
                 })
             }
+        }
+    }
+
+    private fun setSignUpErrorMessage(message: String) {
+        updateState { state ->
+            state.copy(
+                signUpErrorMsg = message,
+            )
         }
     }
 

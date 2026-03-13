@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -22,12 +23,21 @@ import coil3.compose.AsyncImage
 import com.tdd.talktobook.core.designsystem.BackGround2
 import com.tdd.talktobook.core.designsystem.Black1
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
+import com.tdd.talktobook.core.designsystem.CodeEmailSendPositionNotice
 import com.tdd.talktobook.core.designsystem.CodeHintText
+import com.tdd.talktobook.core.designsystem.CodeResendBtnText
 import com.tdd.talktobook.core.designsystem.Confirm
 import com.tdd.talktobook.core.designsystem.EmailCheckText
+import com.tdd.talktobook.core.designsystem.Gray5
+import com.tdd.talktobook.core.designsystem.Main1
+import com.tdd.talktobook.core.designsystem.Red1
+import com.tdd.talktobook.core.designsystem.ServerErrorToast
+import com.tdd.talktobook.core.designsystem.SignUpSuccessInfo
 import com.tdd.talktobook.core.ui.common.button.RectangleBtn
+import com.tdd.talktobook.core.ui.common.button.UnderLineTextBtn
 import com.tdd.talktobook.core.ui.common.textfield.DisEnabledTextFieldBox
 import com.tdd.talktobook.core.ui.common.textfield.TextFieldBox
+import com.tdd.talktobook.core.ui.common.type.ToastType
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 import talktobook.composeapp.generated.resources.Res
@@ -37,6 +47,7 @@ internal fun EmailCheckScreen(
     goToLogInPage: () -> Unit,
     email: String,
     onClickBackBtn: () -> Unit,
+    showToastMsg: (String, ToastType) -> Unit,
 ) {
     val viewModel: EmailCheckViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,13 +56,23 @@ internal fun EmailCheckScreen(
 
     LaunchedEffect(Unit) {
         viewModel.setEmail(email)
+        viewModel.startCodeExpiredTimer(5 * 60)
     }
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is EmailCheckEvent.GoToLogInPage -> {
+                    showToastMsg(SignUpSuccessInfo, ToastType.SUCCESS)
                     goToLogInPage()
+                }
+
+                is EmailCheckEvent.ShowServerExceptionToast -> {
+                    showToastMsg(uiState.serverExceptionMessage, ToastType.INFO)
+                }
+
+                is EmailCheckEvent.ShowServerErrorToast -> {
+                    showToastMsg(ServerErrorToast, ToastType.ERROR)
                 }
             }
         }
@@ -64,6 +85,9 @@ internal fun EmailCheckScreen(
         codeInput = uiState.codeInput,
         onCodeValueChange = { newValue -> viewModel.onCodeValueChange(newValue) },
         onClickBackBtn = onClickBackBtn,
+        codeExpiredTime = uiState.codeExpiredTime,
+        isCodeExpired = uiState.isCodeExpired,
+        onClickResendCodeBtn = { viewModel.resendCode() },
     )
 }
 
@@ -76,6 +100,9 @@ fun EmailCheckContent(
     codeInput: String,
     onCodeValueChange: (String) -> Unit,
     onClickBackBtn: () -> Unit,
+    codeExpiredTime: String,
+    isCodeExpired: Boolean = false,
+    onClickResendCodeBtn: () -> Unit,
 ) {
     Column(
         modifier =
@@ -123,11 +150,34 @@ fun EmailCheckContent(
             hintText = CodeHintText,
         )
 
+        Text(
+            text = CodeEmailSendPositionNotice,
+            style = BookShelfTypo.Caption1,
+            color = Gray5,
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 5.dp, bottom = 10.dp),
+        )
+
+        UnderLineTextBtn(
+            clickEnabled = false,
+            paddingEnd = 24,
+            textContent = codeExpiredTime,
+            textColor = if (isCodeExpired) Red1 else Main1,
+            modifier = Modifier.align(Alignment.End),
+        )
+
         Spacer(modifier = Modifier.weight(1f))
 
         RectangleBtn(
+            btnContent = CodeResendBtnText,
+            isBtnActivated = isCodeExpired,
+            onClickAction = onClickResendCodeBtn,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        RectangleBtn(
             btnContent = Confirm,
-            isBtnActivated = codeInput.isNotEmpty(),
+            isBtnActivated = !isCodeExpired && codeInput.isNotEmpty(),
             onClickAction = onClickCheckBtn,
         )
 

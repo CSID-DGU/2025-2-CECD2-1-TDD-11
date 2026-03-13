@@ -5,6 +5,7 @@ import com.tdd.talktobook.BuildKonfig
 import com.tdd.talktobook.data.dataStore.LocalDataStore
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -42,6 +43,7 @@ object KtorModule {
         json: Json,
         localDataStore: LocalDataStore,
         tokenProvider: TokenProvider,
+        sessionManager: SessionManager,
     ): HttpClient =
         HttpClient {
             expectSuccess = false
@@ -68,6 +70,18 @@ object KtorModule {
                             d("[Ktor] -> $message")
                         }
                     }
+            }
+
+            HttpResponseValidator {
+                validateResponse { response ->
+                    if (response.status.value == 401) {
+                        sessionManager.logout()
+                    }
+                }
+
+                handleResponseExceptionWithRequest { cause, _ ->
+                    //
+                }
             }
 
             defaultRequest {

@@ -11,7 +11,9 @@ import com.tdd.talktobook.domain.entity.request.auth.EmailVerifyRequestModel
 import com.tdd.talktobook.domain.entity.response.auth.TokenModel
 import com.tdd.talktobook.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.Single
 
 @Single(binds = [AuthRepository::class])
@@ -37,7 +39,9 @@ class AuthRepositoryImpl(
                 request.password,
                 request.deviceToken,
             )
-        })
+        }).onEach { result ->
+            result.onSuccess { localDataStore.saveUserEmail(request.email) }
+        }
 
     override suspend fun postEmailSignUp(request: EmailSignUpRequestModel): Flow<Result<Boolean>> =
         DefaultBooleanMapper.responseToModel(apiCall = {
@@ -55,6 +59,11 @@ class AuthRepositoryImpl(
     override suspend fun reissue(refresh: String): Flow<Result<TokenModel>> =
         ReissueMapper.responseToModel(apiCall = { authDataSource.reissue(refresh) })
 
+    override suspend fun resendCode(email: String): Flow<Result<Boolean>> =
+        DefaultBooleanMapper.responseToModel(apiCall = {
+            authDataSource.resendCode(email)
+        })
+
     override suspend fun getStoredAccessToken(): Flow<Result<String>> =
         flow {
             localDataStore.accessToken.collect { token ->
@@ -66,13 +75,23 @@ class AuthRepositoryImpl(
             }
         }
 
-    override suspend fun getStoredRefreshToken(): Flow<Result<String>> =
+    override suspend fun getStoredRefreshToken(): Result<String> {
+        val token = localDataStore.refreshToken.first()
+
+        return if (token.isNullOrBlank()) {
+            Result.failure(Exception("[dataStore] refresh token is null"))
+        } else {
+            Result.success(token)
+        }
+    }
+
+    override suspend fun getUserEmail(): Flow<Result<String>> =
         flow {
-            localDataStore.refreshToken.collect { token ->
-                if (token != null) {
-                    emit(Result.success(token))
+            localDataStore.userEmail.collect { email ->
+                if (email != null) {
+                    emit(Result.success(email))
                 } else {
-                    emit(Result.failure(Exception("[dataStore] refresh token is null")))
+                    emit(Result.failure(Exception("[dataStore] email is null")))
                 }
             }
         }
@@ -85,5 +104,10 @@ class AuthRepositoryImpl(
     override suspend fun clearAllData(): Flow<Result<Boolean>> =
         flow {
             localDataStore.clearAll()
+        }
+
+    override suspend fun clearAllDataExceptToken(): Flow<Result<Boolean>> =
+        flow {
+            localDataStore.clearAllExceptToken()
         }
 }

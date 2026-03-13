@@ -14,6 +14,7 @@ data class HomePageState(
     val autobiographyProgress: Float = 0f,
     val monthInterviewList: List<InterviewSummariesItemModel> = emptyList(),
     val today: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+    val days: List<LocalDate> = emptyList(),
     val selectedDay: Int = 1,
     val selectedDate: String = "",
     val currentAutobiographyId: Int = 0,

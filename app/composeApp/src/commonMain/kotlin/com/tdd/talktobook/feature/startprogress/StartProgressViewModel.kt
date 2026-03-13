@@ -147,10 +147,14 @@ class StartProgressViewModel(
 
     private fun saveInterviewId(id: Int) {
         viewModelScope.launch {
-            saveInterviewIdUseCase(id).collect { resultResponse(it, {}) }
+            saveInterviewIdUseCase(id).collect {
+                resultResponse(it, {
+                    emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
+                })
+            }
         }
 
-        emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
+//        emitEventFlow(StartProgressEvent.GoToCoShowInterviewPage)
     }
 
     private fun initGetSelectedTheme(autobiographyId: Int) {
@@ -178,6 +182,7 @@ class StartProgressViewModel(
     }
 
     private fun onSuccessGetInterviewQuestion(data: StartInterviewResponseModel) {
+        d("[ktor] (AI) start interview success")
         updateState { state ->
             state.copy(
                 firstQuestion = data.text,

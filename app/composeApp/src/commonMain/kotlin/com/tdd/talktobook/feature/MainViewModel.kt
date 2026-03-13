@@ -1,17 +1,27 @@
 package com.tdd.talktobook.feature
 
+import com.tdd.talktobook.app.di.AuthState
+import com.tdd.talktobook.app.di.SessionManager
 import com.tdd.talktobook.core.navigation.NavRoutes
 import com.tdd.talktobook.core.ui.base.BaseViewModel
+import com.tdd.talktobook.core.ui.common.type.BottomSheetType
 import com.tdd.talktobook.core.ui.common.type.FlowType
 import com.tdd.talktobook.domain.entity.request.page.OneBtnDialogModel
+import com.tdd.talktobook.domain.entity.request.page.ScrollSelectBottomSheetModel
+import com.tdd.talktobook.domain.entity.request.page.TextFieldBottomSheetModel
 import com.tdd.talktobook.domain.entity.request.page.TwoBtnDialogModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class MainViewModel : BaseViewModel<MainPageState>(
-    MainPageState(),
-) {
+class MainViewModel(
+    private val sessionManager: SessionManager,
+) : BaseViewModel<MainPageState>(
+        MainPageState(),
+    ) {
+    val authState: StateFlow<AuthState> = sessionManager.authState
+
     val userNickName = MutableStateFlow("")
     val screenFlowType = MutableStateFlow(FlowType.DEFAULT)
 
@@ -58,6 +68,32 @@ class MainViewModel : BaseViewModel<MainPageState>(
         updateState { state ->
             state.copy(
                 twoBtnDialogModel = data,
+            )
+        }
+    }
+
+    fun setBottomSheetType(data: BottomSheetType) {
+        updateState { state ->
+            state.copy(
+                bottomSheetType = data,
+            )
+        }
+    }
+
+    fun setScrollSelectBottomSheet(data: ScrollSelectBottomSheetModel) {
+        updateState { state ->
+            state.copy(
+                bottomSheetType = BottomSheetType.SCROLL_SELECT,
+                scrollSelectBottomSheetModel = data,
+            )
+        }
+    }
+
+    fun setTextFieldBottomSheet(data: TextFieldBottomSheetModel) {
+        updateState { state ->
+            state.copy(
+                bottomSheetType = BottomSheetType.TEXT_FIELD,
+                textFieldBottomSheetModel = data,
             )
         }
     }

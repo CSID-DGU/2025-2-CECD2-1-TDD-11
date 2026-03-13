@@ -22,4 +22,8 @@ interface AuthDataSource {
     suspend fun reissue(
         refreshToken: String,
     ): HttpResponse
+
+    suspend fun resendCode(
+        email: String,
+    ): HttpResponse
 }

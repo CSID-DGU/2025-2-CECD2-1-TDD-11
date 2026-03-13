@@ -1,0 +1,99 @@
+package com.tdd.talktobook.core.ui.util
+
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+
+fun generateCalendarDays(
+    year: Int,
+    month: Int,
+): List<LocalDate> {
+    val days = mutableListOf<LocalDate>()
+    var date = LocalDate(year, month, 1)
+
+    while (date.monthNumber == month) {
+        days.add(date)
+        date = date.plus(DatePeriod(days = 1))
+    }
+
+    return days
+}
+
+// 이번 달 일수 계산
+fun daysInMonth(
+    year: Int,
+    month: Int,
+): Int {
+    val firstDayNextMonth =
+        if (month == 12) {
+            LocalDate(year + 1, 1, 1)
+        } else {
+            LocalDate(year, month + 1, 1)
+        }
+
+    return firstDayNextMonth.minus(1, DateTimeUnit.DAY).dayOfMonth
+}
+
+fun setDateStringType(
+    year: String,
+    month: String,
+    day: String,
+): String =
+    buildString {
+        append(year.padStart(4, '0'))
+        append('.')
+        append(month.padStart(2, '0'))
+        append('.')
+        append(day.padStart(2, '0'))
+    }
+
+fun setTimeStringType(
+    hour: String,
+    minute: String,
+    second: String,
+): String =
+    buildString {
+        append(hour.padStart(2, '0'))
+        append(':')
+        append(minute.padStart(2, '0'))
+        append(':')
+        append(second.padStart(2, '0'))
+    }
+
+fun setTimeSecondType(seconds: Int): String {
+    val m = seconds / 60
+    val s = seconds % 60
+
+    val minute = m.toString().padStart(2, '0')
+    val second = s.toString().padStart(2, '0')
+
+    return "$minute:$second"
+}
+
+// 윤년 계산
+private fun isLeapYear(year: Int): Boolean =
+    (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+
+fun setBeforeYearMonth(
+    currentYear: Int,
+    currentMonth: Int,
+): List<Int> {
+    return if (currentMonth == 1) {
+        listOf(currentYear - 1, 12)
+    } else {
+        listOf(currentYear, currentMonth - 1)
+    }
+}
+
+fun setAfterYearMonth(
+    currentYear: Int,
+    currentMonth: Int,
+): List<Int> {
+    return if (currentMonth == 12) {
+        listOf(currentYear + 1, 1)
+    } else {
+        listOf(currentYear, currentMonth + 1)
+    }
+}

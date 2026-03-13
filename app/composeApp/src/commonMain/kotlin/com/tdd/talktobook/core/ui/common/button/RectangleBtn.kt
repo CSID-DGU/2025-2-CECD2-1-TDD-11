@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tdd.talktobook.core.designsystem.BookShelfTypo
 import com.tdd.talktobook.core.designsystem.Gray1
@@ -26,7 +27,11 @@ fun RectangleBtn(
     btnContent: String,
     isBtnActivated: Boolean = false,
     onClickAction: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+    modifier: Modifier =
+        Modifier
+            .fillMaxWidth().padding(horizontal = 20.dp),
+    isOtherColorSetting: Boolean = false,
+    btnColor: Color = Gray1,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -36,6 +41,8 @@ fun RectangleBtn(
         isBtnActivated = isBtnActivated,
         onClickAction = onClickAction,
         modifier = modifier,
+        isOtherColorSetting = isOtherColorSetting,
+        btnColor = btnColor,
     )
 }
 
@@ -46,12 +53,22 @@ private fun RectangleBtnContent(
     isBtnActivated: Boolean = false,
     onClickAction: () -> Unit,
     modifier: Modifier = Modifier,
+    isOtherColorSetting: Boolean = false,
+    btnColor: Color,
 ) {
     Box(
         modifier =
             modifier
                 .clip(RoundedCornerShape(10.dp))
-                .background(if (isBtnActivated) Main1 else Gray1)
+                .background(
+                    if (isOtherColorSetting) {
+                        btnColor
+                    } else if (isBtnActivated) {
+                        Main1
+                    } else {
+                        Gray1
+                    },
+                )
                 .wrapContentHeight()
                 .clickable(
                     enabled = isBtnActivated,
