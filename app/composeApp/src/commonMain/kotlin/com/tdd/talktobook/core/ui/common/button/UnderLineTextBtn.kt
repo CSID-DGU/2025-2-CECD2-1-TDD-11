@@ -28,10 +28,7 @@ fun UnderLineTextBtn(
             BookShelfTypo.Body2.copy(
                 textDecoration = TextDecoration.Underline,
             ),
-//        textAlign = TextAlign.End,
         modifier =
-//            Modifier
-//                .fillMaxWidth()
             modifier
                 .padding(end = paddingEnd.dp)
                 .clickable(

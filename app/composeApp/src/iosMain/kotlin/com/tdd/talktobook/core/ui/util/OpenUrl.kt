@@ -17,7 +17,7 @@ actual fun openUrl(url: String) {
 
         app.openURL(
             nsUrl,
-            options = emptyMap<Any?, Any?>()
+            options = emptyMap<Any?, Any?>(),
         ) { success ->
             println("open url success: $success, url=$url")
         }

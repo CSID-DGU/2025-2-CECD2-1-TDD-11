@@ -21,7 +21,7 @@ actual class AudioRecorder {
         input.installTapOnBus(
             0u,
             1024u,
-            format
+            format,
         ) { buffer, _ ->
 
             val data = buffer!!.int16ChannelData!!
@@ -39,7 +39,6 @@ actual class AudioRecorder {
     }
 
     actual fun stop() {
-
         engine.stop()
 
         engine.inputNode.removeTapOnBus(0u)
